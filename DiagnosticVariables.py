@@ -9,7 +9,7 @@ from math import *
 
 class DiagnosticVariable:
     def __init__(self, nx,ny,nl,n_spec, kind, name, units):
-        self.values = np.zeros((nx,ny,nl),dtype=np.double, order='c')
+        self.values = np.zeros((nx,ny,nl),dtype=np.int64, order='c')
         self.spectral = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         self.kind = kind
         self.name = name
@@ -81,11 +81,13 @@ class DiagnosticVariables:
         return
 
     def update(self, Gr, PV):
-        for k in range(Gr.n_layers):
+        self.Wp.values[:,:,0] = np.multiply(self.V.values[:,:,0], 0.0)
+        for k in range(Gr.n_layers): # Gr.n_layers = 3; k=0,1,2
             self.U.values[:,:,k], self.V.values[:,:,k] = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
-            self.KE.values[:,:,k] = 0.5*(self.U.values[:,:,k]**2+self.V.values[:,:,k]**2)
-            self.Wp.values[:,:,k+1]  = self.Wp.values[:,:,k]+(PV.P.values[:,:,k]-PV.P.values[:,:,k+1])*PV.Divergence.values[:,:,k]
-            self.gZ.values[:,:,k]  = Gr.Rd*PV.T.values[:,:,k]*np.log(PV.P.values[:,:,k]/PV.P.values[:,:,k+1]) + self.gZ.values[:,:,k+1]
+            self.KE.values[:,:,k]    = np.multiply(0.5,(np.multiply(self.U.values[:,:,k],self.U.values[:,:,k])
+                                                           +np.multiply(self.V.values[:,:,k],self.V.values[:,:,k])))
+            self.Wp.values[:,:,k+1]  = np.multiply(self.Wp.values[:,:,k]+(PV.P.values[:,:,k]-PV.P.values[:,:,k+1]),PV.Divergence.values[:,:,k])
+            self.gZ.values[:,:,k]    = np.multiply(np.multiply(Gr.Rd,PV.T.values[:,:,k]),np.log(PV.P.values[:,:,k]/PV.P.values[:,:,k+1])) + self.gZ.values[:,:,k+1]
         return
 
     # yair - need to add here diagnostic functions of stats 

@@ -17,7 +17,7 @@ class Grid:
         self.p1                = namelist['grid']['p1']
         self.p2                = namelist['grid']['p2']
         self.p3                = namelist['grid']['p3']
-        self.ps                = namelist['grid']['ps']
+        self.p_ref             = namelist['grid']['p_ref']
         self.rsphere           = namelist['planet']['planet_radius']
         self.omega             = namelist['planet']['omega_rotation']
         self.gravity           = namelist['planet']['gravity']

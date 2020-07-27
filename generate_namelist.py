@@ -35,10 +35,10 @@ def main():
     namelist_defaults['grid']['number_of_latitute_points'] =  256
     namelist_defaults['grid']['number_of_longitude_points'] = 512
     namelist_defaults['grid']['number_of_layers'] =  3
-    namelist_defaults['grid']['p3'] =  850.0*1.e2  # [pasc]
-    namelist_defaults['grid']['p2'] =  250.0*1.e2  # [pasc]
-    namelist_defaults['grid']['p1'] =  150.0*1.e2  # [pasc]
-    namelist_defaults['grid']['ps'] =  1000.0*1.e2 # [pasc]
+    namelist_defaults['grid']['p3']       =  850.0*1.e2  # [pasc]
+    namelist_defaults['grid']['p2']       =  500.0*1.e2  # [pasc]
+    namelist_defaults['grid']['p1']       =  250.0*1.e2  # [pasc]
+    namelist_defaults['grid']['p_ref']    =  1000.0*1.e2 # [pasc]
 
     namelist_defaults['planet'] = {}
     namelist_defaults['planet']['planet_radius']    = 6.37122e6 # earth radius [m]
@@ -79,7 +79,7 @@ def HeldSuarez(namelist_defaults):
     namelist = copy.deepcopy(namelist_defaults)
 
     namelist['timestepping']['dt'] = 100.0
-    namelist['timestepping']['t_max'] = 8 * 3600.0
+    namelist['timestepping']['t_max'] = 20.0*24.0*3600.0
 
     namelist['meta']['simname'] = 'HeldSuarez'
     namelist['meta']['casename'] = 'HeldSuarez'

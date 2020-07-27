@@ -21,20 +21,20 @@
         "number_of_latitute_points": 256,
         "number_of_layers": 3,
         "number_of_longitude_points": 512,
-        "p1": 15000.0,
-        "p2": 25000.0,
+        "p1": 25000.0,
+        "p2": 50000.0,
         "p3": 85000.0,
-        "ps": 100000.0
+        "p_ref": 100000.0
     },
     "io": {
         "output_frequency": 600.0,
         "stats_dir": "stats",
-        "stats_frequency": 1.0
+        "stats_frequency": 60.0
     },
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "168352e2-8fa4-4674-986c-a94841c8a33f"
+        "uuid": "d00266e3-75d9-4dfa-b31f-7b5e70f27f47"
     },
     "microphysics": {
         "rain_model": "None"
@@ -55,6 +55,6 @@
     "timestepping": {
         "CFL_limit": 0.5,
         "dt": 100.0,
-        "t_max": 600.0
+        "t_max": 1728000.0
     }
 }

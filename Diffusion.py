@@ -1,17 +1,8 @@
 from __future__ import print_function
 import numpy as np
-import shtns
-import sphTrans as sph
 import matplotlib.pyplot as plt
 import time
-# import AdamsBashforth
-import sphericalForcing as spf
 import scipy as sc
-import xarray
-import logData
-import netCDF4
-import seaborn
-import numpy as np
 from math import *
 from scipy.signal import savgol_filter
 

@@ -58,11 +58,13 @@ class Simulation:
             self.PV.compute_tendencies(self.Gr, self.PV, self.DV, namelist)
             self.TS.update(self.Gr, self.PV, self.DV, self.DF, namelist)
             self.PV.spectral_to_physical(self.Gr)
-            print('-----------------------------------------')
-            print('PV.P.values',self.PV.P.values[1,1,:])
-            print('PV.Divergence.values',self.PV.Divergence.values[1,1,:])
-            print('PV.Vorticity.values',self.PV.Vorticity.values[1,1,:])
-            print('PV.T.values',self.PV.T.values[1,1,:])
+            print('----------------------------------------- time =', self.TS.t)
+            for k in range(3):
+                print(k,'PV.P.values',np.min(self.PV.P.values[1,:,k]),np.max(self.PV.P.values[1,:,k]))
+                print(k,'PV.Divergence.values',np.min(self.PV.Divergence.values[1,:,k]),np.max(self.PV.Divergence.values[1,:,k]))
+                print(k,'PV.Vorticity.values',np.min(self.PV.Vorticity.values[1,:,k]),np.max(self.PV.Vorticity.values[1,:,k]))
+                print(k,'PV.T.values',np.min(self.PV.T.values[1,:,k]),np.max(self.PV.T.values[1,:,k]))
+            print(3,'PV.P.values',np.min(self.PV.P.values[1,:,3]),np.max(self.PV.P.values[1,:,3]))
             # plt.figure()
             # plt.show()
             # Apply the tendencies, also update the BCs and diagnostic thermodynamics

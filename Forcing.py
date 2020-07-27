@@ -43,7 +43,9 @@ class Forcing_HelzSuarez:
 		self.DT_y = namelist['forcing']['DT_y']
 		self.Dtheta_z = namelist['forcing']['lapse_rate']
 		self.Tbar0 = namelist['forcing']['relaxation_temperature']
-		self.kappa = 1.0# namelist['forcing']['relaxation_temperature']
+		self.cp = namelist['thermodynamics']['heat_capacity']
+		self.Rd = namelist['thermodynamics']['ideal_gas_constant']
+		self.kappa = self.Rd/self.cp
 		self.tau = 1000.0
 		self.tau_div = 1000.0
 		for k in range(Gr.n_layers):
@@ -66,16 +68,21 @@ class Forcing_HelzSuarez:
 
 		# Field initialisation
 		for k in range(Gr.n_layers):
-			self.Tbar[:,:,k]  = (315.0-self.DT_y*np.sin(Gr.lat)**2-self.Dtheta_z**2*np.log(PV.P.values[:,:,0]
-				/PV.P.values[:,:,2])*np.cos(Gr.lat)**2)*(PV.P.values[:,:,0]/PV.P.values[:,:,3])**self.kappa
-			print(self.Tbar[:,:,k])
-			self.QTbar[:,:,k]  = np.multiply(0.0,self.Tbar[:,:,k])
-			self.Tbar[:,:,k]  = np.multiply(0.0,self.Tbar[:,:,k])
+			self.Tbar[:,:,k]  = (315.0-self.DT_y*np.sin(Gr.lat)**2-self.Dtheta_z**2*
+				np.log(((PV.P.values[:,:,k+1]+PV.P.values[:,:,k])/2.)/Gr.p_ref)*np.cos(Gr.lat)**2)*(((PV.P.values[:,:,k+1]+PV.P.values[:,:,k])/2.)/Gr.p_ref)**self.kappa
+
+			self.Tbar[:,:,k] = np.clip(self.Tbar[:,:,k],200.0,350.0)
+			self.QTbar[:,:,k] = np.multiply(0.0,self.Tbar[:,:,k])
 
 			PV.Divergence.forcing[:,k] = - np.divide(PV.Divergence.spectral[:,k],self.tau_div)
 			PV.Vorticity.forcing[:,k]  = - np.divide(PV.Vorticity.spectral[:,k],self.tau_div)
 			PV.T.forcing[:,k]          = - np.divide(Gr.SphericalGrid.grdtospec((PV.T.values[:,:,k] - self.Tbar[:,:,k])),self.tau)
 			PV.QT.forcing[:,k]         = - np.divide(Gr.SphericalGrid.grdtospec((PV.QT.values[:,:,k] - self.QTbar[:,:,k])),self.tau)
+			PV.Divergence.forcing[:,k] = np.multiply(PV.Divergence.forcing[:,k], 0.0)
+			PV.Vorticity.forcing[:,k]  = np.multiply(PV.Vorticity.forcing[:,k], 0.0)
+			PV.T.forcing[:,k]          = np.multiply(PV.T.forcing[:,k], 0.0)
+			PV.QT.forcing[:,k]         = np.multiply(PV.QT.forcing[:,k], 0.0)
+
 		return
 
 	def initialize_io(self, Stats):
