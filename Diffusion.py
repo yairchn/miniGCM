@@ -24,8 +24,8 @@ class NumericalDiffusion:
     def update(self, Gr, PV):
         for k in range(Gr.n_layers):
             PV.P.spectral[:,k]  = np.multiply(PV.P.spectral[:,k] ,self.HyperDiffusionFactor)
-            PV.Vorticity.spectral[:,k] *= self.HyperDiffusionFactor
-            PV.Divergence.spectral[:,k] *= self.HyperDiffusionFactor
-            PV.T.spectral[:,k] *= self.HyperDiffusionFactor
-            PV.QT.spectral[:,k] *= self.HyperDiffusionFactor
+            PV.Vorticity.spectral[:,k] = np.multiply(self.HyperDiffusionFactor,PV.Vorticity.spectral[:,k])
+            PV.Divergence.spectral[:,k] = np.multiply(self.HyperDiffusionFactor,PV.Divergence.spectral[:,k])
+            PV.T.spectral[:,k] = np.multiply(self.HyperDiffusionFactor,PV.T.spectral[:,k])
+            PV.QT.spectral[:,k] = np.multiply(self.HyperDiffusionFactor,PV.QT.spectral[:,k])
         return
