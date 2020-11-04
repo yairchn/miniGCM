@@ -127,7 +127,12 @@ class PrognosticVariables:
         Vortical_P_flux, Divergent_P_flux = Gr.SphericalGrid.getvrtdivspec(DV.U.values[:,:,nz]*(PV.P.values[:,:,nz]-PV.P.values[:,:,nz+1]),
                                                             DV.V.values[:,:,nz]*(PV.P.values[:,:,nz]-PV.P.values[:,:,nz+1])) # Vortical_P_flux is not used
         PV.P.tendency[:,nz+1] = Divergent_P_flux + DV.Wp.spectral[:,nz]
-        PV.P.tendency[:,nz+1] = np.multiply(PV.P.tendency[:,nz+1],0.0)
+        # PV.P.tendency[:,nz+1] = np.multiply(PV.P.tendency[:,nz+1],0.0)
+        print(np.min(PV.P.tendency[:,nz+1]))
+        print(np.max(PV.P.tendency[:,nz+1]))
+        plt.figure('ps tendency')
+        plt.contourf(Gr.SphericalGrid.spectogrd(PV.P.tendency[:,nz+1]))
+        plt.show()
 
         # compute vertical fluxes for vorticity, divergence, temperature and specific humity
         for k in range(nz):

@@ -85,8 +85,11 @@ class Forcing_HelzSuarez:
 			self.Tbar[:,:,k] = np.clip(self.Tbar[:,:,k],200.0,350.0)
 			self.QTbar[:,:,k] = np.multiply(0.0,self.Tbar[:,:,k])
 
-			PV.Divergence.forcing[:,k] = - Gr.SphericalGrid.grdtospec(np.multiply(self.k_v[:,:,k],PV.Divergence.values[:,:,k]))
-			PV.Vorticity.forcing[:,k]  = - Gr.SphericalGrid.grdtospec(np.multiply(self.k_v[:,:,k],PV.Vorticity.values[:,:,k]))
+			u_forcing = np.multiply(self.k_v[:,:,k],PV.U.values[:,:,k])
+			v_forcing = np.multiply(self.k_v[:,:,k],PV.V.values[:,:,k])
+			Vorticity_forcing, Divergece_forcing = Gr.SphericalGrid.getvrtdivspec(u_forcing, v_forcing)
+			PV.Divergence.forcing[:,k] = - Divergece_forcing
+			PV.Vorticity.forcing[:,k]  = - Vorticity_forcing
 			PV.T.forcing[:,k]          = - Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(PV.T.values[:,:,k] - self.Tbar[:,:,k])))
 			PV.QT.forcing[:,k]         = - Gr.SphericalGrid.grdtospec(np.multiply(self.k_Q[:,:,k],(PV.QT.values[:,:,k] - self.QTbar[:,:,k])))
 			PV.Divergence.forcing[:,k] = np.multiply(PV.Divergence.forcing[:,k], 0.0)
