@@ -64,7 +64,7 @@ class Forcing_HelzSuarez:
 		Stats.add_variable('relaxation_qt')
 		return
 
-	def update(self, TS, Gr, PV, namelist):
+	def update(self, TS, Gr, PV, DV, namelist):
 		# Initialise the random forcing function
 		# F0 = np.zeros(Gr.SphericalGrid.nlm, dtype = np.complex)
 		# fr = spf.sphForcing(Gr.nlats, Gr.nlons, Gr.truncation_number, Gr.rsphere,lmin= 98, lmax= 102, magnitude = 5, correlation = 0.)
@@ -85,8 +85,8 @@ class Forcing_HelzSuarez:
 			self.Tbar[:,:,k] = np.clip(self.Tbar[:,:,k],200.0,350.0)
 			self.QTbar[:,:,k] = np.multiply(0.0,self.Tbar[:,:,k])
 
-			u_forcing = np.multiply(self.k_v[:,:,k],PV.U.values[:,:,k])
-			v_forcing = np.multiply(self.k_v[:,:,k],PV.V.values[:,:,k])
+			u_forcing = np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k])
+			v_forcing = np.multiply(self.k_v[:,:,k],DV.V.values[:,:,k])
 			Vorticity_forcing, Divergece_forcing = Gr.SphericalGrid.getvrtdivspec(u_forcing, v_forcing)
 			PV.Divergence.forcing[:,k] = - Divergece_forcing
 			PV.Vorticity.forcing[:,k]  = - Vorticity_forcing

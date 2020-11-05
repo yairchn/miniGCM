@@ -95,6 +95,6 @@ class HeldSuarez(CasesBase):
         # self.Sur.update(self)
         return
 
-    def update_forcing(self, TS, Gr, PV, namelist):
-        self.Fo.update(TS, Gr, PV, namelist)
+    def update_forcing(self, TS, Gr, PV, DV, namelist):
+        self.Fo.update(TS, Gr, PV, DV, namelist)
         return
