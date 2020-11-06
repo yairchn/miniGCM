@@ -28,7 +28,7 @@ class DiagnosticVariables:
     def initialize(self, Gr):
         self.U.values      = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
         self.V.values      = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
-        self.KE.values     = np.multiply(0.5,np.add(np.power(self.U.values,2.0),np.power(self.V.values,2.0)))
+        self.KE.values     = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
         self.gZ.values     = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.double, order='c') # josef place here the initial values for the variable 
         self.Wp.values     = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.double, order='c') # josef place here the initial values for the variable 
         for k in range(Gr.n_layers):
@@ -85,11 +85,9 @@ class DiagnosticVariables:
         self.gZ.values[:,:,Gr.n_layers] = np.zeros_like(self.Wp.values[:,:,0])
         for k in range(Gr.n_layers): # Gr.n_layers = 3; k=0,1,2
             self.U.values[:,:,k], self.V.values[:,:,k] = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
-            self.KE.values[:,:,k]    = np.multiply(0.5,(np.multiply(self.U.values[:,:,k],self.U.values[:,:,k])
-                                                           +np.multiply(self.V.values[:,:,k],self.V.values[:,:,k])))
+            self.KE.values[:,:,k]    = 0.5*np.add(np.power(self.U.values[:,:,k],2.0),np.power(self.V.values[:,:,k],2.0))
             self.Wp.values[:,:,k+1]  = self.Wp.values[:,:,k]-np.multiply(PV.P.values[:,:,k+1]-PV.P.values[:,:,k],PV.Divergence.values[:,:,k])
-            self.gZ.values[:,:,k]    = np.multiply(Gr.Rd*PV.T.values[:,:,k],np.log(PV.P.values[:,:,k]/PV.P.values[:,:,k+1])) + self.gZ.values[:,:,k+1]
+            self.gZ.values[:,:,k]    = np.multiply(Gr.Rd*PV.T.values[:,:,k],np.log(PV.P.values[:,:,k+1]/PV.P.values[:,:,k])) + self.gZ.values[:,:,k+1]
         return
 
-    # yair - need to add here diagnostic functions of stats 
-    
+    # yair - need to add here diagnostic functions of stats

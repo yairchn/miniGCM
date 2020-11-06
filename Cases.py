@@ -19,7 +19,7 @@ def CasesFactory(namelist, Gr):
         return HeldSuarez(namelist, Gr)
     elif namelist['meta']['casename'] == 'HeldSuarez_moist':
         return HeldSuarez_moist(namelist, Gr)
-    # anthoer example 
+    # anthoer example
     # elif namelist['meta']['casename'] == 'Stochastic_Forcing':
     #     return Stochastic_Frorcing(paramlist)
     else:
@@ -36,7 +36,7 @@ class CasesBase:
     #     return
     def initialize_surface(self, Gr):
         return
-    def initialize_forcing(self, Gr):
+    def initialize_forcing(self, Gr, PV, DV, namelist):
         return
     def initialize_io(self, Stats):
         return
@@ -75,8 +75,8 @@ class HeldSuarez(CasesBase):
         self.Sur.initialize()
         return
 
-    def initialize_forcing(self, Gr, namelist):
-        self.Fo.initialize(Gr, namelist)
+    def initialize_forcing(self, Gr, PV, DV, namelist):
+        self.Fo.initialize(Gr, PV, DV, namelist)
         return
 
     def initialize_io(self, Stats):

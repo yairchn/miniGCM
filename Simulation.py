@@ -10,7 +10,7 @@ from Cases import  CasesBase
 import time
 import Thermodynamics
 from Diffusion import NumericalDiffusion
-from Grid import Grid
+import Grid
 from ReferenceState import ReferenceState
 from NetCDFIO import Stats
 from TimeStepping import TimeStepping
@@ -21,7 +21,7 @@ class Simulation:
 
     def __init__(self, namelist):
         # define the member classes
-        self.Gr = Grid(namelist)
+        self.Gr = Grid.Grid(namelist)
         # self.TH = Thermodynamics(namelist)
         self.DV = DiagnosticVariables(self.Gr)
         self.PV = PrognosticVariables(self.Gr)
@@ -37,12 +37,13 @@ class Simulation:
         #initialize via Case
         self.DV.initialize(self.Gr)
         self.PV.initialize(self.Gr,self.DV)
-        self.Case.initialize_forcing(self.Gr, namelist)
+        self.Case.initialize_forcing(self.Gr, self.PV, self.DV, namelist)
         self.Case.initialize_surface(self.Gr, namelist)
         self.DF.initialize(self.Gr, self.TS, namelist)
         self.TS.initialize(self.Gr, self.PV, self.DV, self.DF, namelist)
         self.initialize_io()
         self.io()
+
 
         # self.get_parameters(namelist)
         # self.RS.initialize(self.Gr)
@@ -57,22 +58,47 @@ class Simulation:
             # move this into timestepping-adams bashford 
             self.PV.compute_tendencies(self.Gr, self.PV, self.DV, namelist)
             self.TS.update(self.Gr, self.PV, self.DV, self.DF, namelist)
-            self.PV.spectral_to_physical(self.Gr)
-            print('----------------------------------------- time =', self.TS.t)
-            # plt.figure('surface pressure field')
-            # plt.contourf(self.PV.P.values[:,:,3])
-            # plt.colorbar()
-            # plt.show()
-            for k in range(3):
-                print(k,'PV.P.values',np.min(self.PV.P.values[:,:,k]),np.max(self.PV.P.values[:,:,k]))
-                print(k,'PV.Divergence.values',np.min(self.PV.Divergence.values[k]),np.max(self.PV.Divergence.values[k]))
-                print(k,'PV.Vorticity.values',np.min(self.PV.Vorticity.values[:,:,k]),np.max(self.PV.Vorticity.values[:,:,k]))
-                print(k,'PV.Divergence.tendency',np.min(self.PV.Divergence.tendency[:,k]),np.max(self.PV.Divergence.tendency[:,k]))
-                print(k,'PV.Vorticity.tendency',np.min(self.PV.Vorticity.tendency[:,k]),np.max(self.PV.Vorticity.tendency[:,k]))
-                print(k,'PV.T.values',np.min(self.PV.T.values[:,:,k]),np.max(self.PV.T.values[:,:,k]))
-                # plt.show()
+            print(self.TS.t/3600.0,'ps',np.max(self.PV.P.values[:,:,3]), np.min(self.PV.P.values[:,:,3]))
+            # if self.TS.t/3600.0>2.0:
+            #     plt.figure('T1')
+            #     plt.contourf(self.PV.T.values[:,:,0])
+            #     plt.colorbar()
+            #     plt.figure('T2')
+            #     plt.contourf(self.PV.T.values[:,:,1])
+            #     plt.colorbar()
+            #     plt.figure('T3')
+            #     plt.contourf(self.PV.T.values[:,:,2])
+            #     plt.colorbar()
+            #     plt.figure('ps')
+            #     plt.contourf(self.PV.P.values[:,:,3])
+            #     plt.colorbar()
+            #     plt.figure('u1')
+            #     plt.contourf(self.DV.U.values[:,:,0])
+            #     plt.colorbar()
+            #     plt.figure('v1')
+            #     plt.contourf(self.DV.V.values[:,:,0])
+            #     plt.colorbar()
+            #     plt.figure('u2')
+            #     plt.contourf(self.DV.U.values[:,:,1])
+            #     plt.colorbar()
+            #     plt.figure('v2')
+            #     plt.contourf(self.DV.V.values[:,:,1])
+            #     plt.colorbar()
+            #     plt.figure('u2')
+            #     plt.contourf(self.DV.U.values[:,:,1])
+            #     plt.colorbar()
+            #     plt.figure('v2')
+            #     plt.contourf(self.DV.V.values[:,:,1])
+            #     plt.colorbar()
+            #     plt.figure('u3')
+            #     plt.contourf(self.DV.U.values[:,:,2])
+            #     plt.colorbar()
+            #     plt.figure('v3')
+            #     plt.contourf(self.DV.V.values[:,:,2])
+            #     plt.colorbar()
+            #     plt.show()
 
-            print(3,'PV.P.values',np.min(self.PV.P.values[1,:,3]),np.max(self.PV.P.values[1,:,3]))
+            # print(3,'PV.P.values',np.min(self.PV.P.values[1,:,3]),np.max(self.PV.P.values[1,:,3]))
             # Apply the tendencies, also update the BCs and diagnostic thermodynamics
             if np.mod(self.TS.t, self.Stats.stats_frequency) == 0:
                 self.stats_io()

@@ -12,7 +12,7 @@ import pylab as plt
 class ForcingNone():
 	def __init__(self):
 		return
-	def initialize(self):
+	def initialize(self, Gr, PV, DV, namelist):
 		self.Tbar = np.zeros((Gr.nx,Gr.ny, Gr.nz), dtype=np.double, order='c')
 		self.QTbar = np.zeros((Gr.nx,Gr.ny, Gr.nz), dtype=np.double, order='c')
 		self.Divergence_forcing = np.zeros((n_spec,nl), dtype=np.double, order='c')
@@ -20,7 +20,7 @@ class ForcingNone():
 		self.T_forcing = np.zeros((n_spec,nl), dtype=np.double, order='c')
 		self.QT_forcing = np.zeros((n_spec,nl), dtype=np.double, order='c')
 		return
-	def update(self):
+	def update(self, TS, Gr, PV, DV, namelist):
 		return
 	def initialize_io(self, Stats):
 		return
@@ -31,7 +31,7 @@ class Forcing_HelzSuarez:
 	def __init__(self):
 		return
 
-	def initialize(self, Gr, namelist):
+	def initialize(self, Gr, PV, DV, namelist):
 		# constants from Held & Suarez (1994)
 		self.PV = PrognosticVariables.PrognosticVariables(Gr)
 		self.DV = DiagnosticVariables.DiagnosticVariables(Gr)
@@ -50,13 +50,24 @@ class Forcing_HelzSuarez:
 		self.cp = namelist['thermodynamics']['heat_capacity']
 		self.Rd = namelist['thermodynamics']['ideal_gas_constant']
 		self.kappa = self.Rd/self.cp
+		self.k_T = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
+		self.k_v = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
 		for k in range(Gr.n_layers):
-			self.Tbar[:,:,k]  = np.add(315.0                   ,self.Tbar[:,:,k])
-			self.k_T[:,:,k]   = np.add(1.0/(1000.0*24.0*3600.0),self.k_T[:,:,k])
-			# self.Tbar[:,:,k]  = (315.0-self.DT_y*np.sin(Gr.lat)**2-self.Dtheta_z**2
-			# 	*np.log(self.PV.P.values[:,:,0]/self.PV.P.values[:,:,Gr.n_layers])
-			# 	*np.cos(Gr.lat)**2)*(self.PV.P.values[:,:,0]/self.PV.P.values[:,:,Gr.n_layers])**self.kappa
+			self.Tbar[:,:,k]  = (315.0-self.DT_y*np.sin(Gr.lat)**2-self.Dtheta_z**2*
+				np.log(PV.P.values[:,:,k]/Gr.p_ref)*np.cos(Gr.lat)**2)*(PV.P.values[:,:,k]/Gr.p_ref)**self.kappa
+
 		self.QTbar = np.zeros((Gr.nlats, Gr.nlons,Gr.n_layers))
+		# plt.figure('Tbar1')
+		# plt.contourf(self.Tbar[:,:,0])
+		# plt.colorbar()
+		# plt.figure('Tbar2')
+		# plt.contourf(self.Tbar[:,:,1])
+		# plt.colorbar()
+		# plt.figure('Tbar3')
+		# plt.contourf(self.Tbar[:,:,2])
+		# plt.colorbar()
+		# plt.show()
+
 		return
 
 	def initialize_io(self, Stats):
@@ -72,15 +83,15 @@ class Forcing_HelzSuarez:
 		# Field initialisation
 		for k in range(Gr.n_layers):
 			# p_ratio_k = np.divide(PV.P.values[:,:,k],PV.P.values[:,:,3])
-			p_ratio_k = np.subtract(np.divide(PV.P.values[:,:,k],Gr.p_ref),self.sigma_b) # as in josef's code for now
-			sigma_ratio_k = np.clip(np.divide(p_ratio_k,(1.0-self.sigma_b)) ,0.0, np.max(np.divide(p_ratio_k,(1.0-self.sigma_b)) ))
+			p_ratio_k = np.divide(PV.P.values[:,:,k],PV.P.values[:,:,Gr.n_layers]) # as in josef's code for now
+			sigma_ratio_k = np.clip(np.divide(p_ratio_k-self.sigma_b,(1.0-self.sigma_b)) ,0.0, None)
 			cos4_lat = np.power(np.cos(Gr.lat),4.0)
 			self.k_T[:,:,k] = np.multiply(np.multiply((self.k_s-self.k_a),sigma_ratio_k),cos4_lat)
 			self.k_T[:,:,k] = np.add(self.k_a,self.k_T[:,:,k])
 			self.k_v[:,:,k] = np.multiply(self.k_f,sigma_ratio_k)
 
 			self.Tbar[:,:,k]  = (315.0-self.DT_y*np.sin(Gr.lat)**2-self.Dtheta_z**2*
-				np.log( PV.P.values[:,:,k]/Gr.p_ref )*np.cos(Gr.lat)**2)*(PV.P.values[:,:,k]/Gr.p_ref)**self.kappa
+				np.log(PV.P.values[:,:,k]/Gr.p_ref)*np.cos(Gr.lat)**2)*(PV.P.values[:,:,k]/Gr.p_ref)**self.kappa
 
 			self.Tbar[:,:,k] = np.clip(self.Tbar[:,:,k],200.0,350.0)
 			self.QTbar[:,:,k] = np.multiply(0.0,self.Tbar[:,:,k])
@@ -91,11 +102,12 @@ class Forcing_HelzSuarez:
 			PV.Divergence.forcing[:,k] = - Divergece_forcing
 			PV.Vorticity.forcing[:,k]  = - Vorticity_forcing
 			PV.T.forcing[:,k]          = - Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(PV.T.values[:,:,k] - self.Tbar[:,:,k])))
-			PV.QT.forcing[:,k]         = - Gr.SphericalGrid.grdtospec(np.multiply(self.k_Q[:,:,k],(PV.QT.values[:,:,k] - self.QTbar[:,:,k])))
-			PV.Divergence.forcing[:,k] = np.multiply(PV.Divergence.forcing[:,k], 0.0)
-			PV.Vorticity.forcing[:,k]  = np.multiply(PV.Vorticity.forcing[:,k], 0.0)
-			# PV.T.forcing[:,k]          = np.multiply(PV.T.forcing[:,k], 0.0)
-			PV.QT.forcing[:,k]         = np.multiply(PV.QT.forcing[:,k], 0.0)
+			# PV.QT.forcing[:,k]         = - Gr.SphericalGrid.grdtospec(np.multiply(self.k_Q[:,:,k],(PV.QT.values[:,:,k] - self.QTbar[:,:,k])))
+			# PV.Divergence.forcing[:,k] = np.multiply(PV.Divergence.forcing[:,k], 0.0)
+			# PV.Vorticity.forcing[:,k]  = np.multiply(PV.Vorticity.forcing[:,k], 0.0)
+			# PV.QT.forcing[:,k]         = np.multiply(PV.QT.forcing[:,k], 0.0)
+			# PV.T.forcing[:,k] = np.multiply(PV.T.forcing[:,k], 0.0)
+
 
 		return
 
@@ -113,7 +125,7 @@ class Forcing_HelzSuarez_moist:
 		self.QTbar = np.zeros(Gr.nx,Gr.ny, Gr.nz, dtype=np.double, order='c')
 		return
 
-	def initialize(self, Gr):
+	def initialize(self, Gr, PV, DV, namelist):
 		# for k in range(self.n_layers):
 		# 	self.Tbar[:,:,k]  = (315.0-DT_y*np.sin(y)**2-Dtheta_z**2*np.log(p1/ps[:,jj])*np.cos(y)**2)*(p1/ps[:,jj])**kappa
 	 #        self.QTbar[:,:,k]  = 0.0

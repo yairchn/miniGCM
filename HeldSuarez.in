@@ -2,7 +2,7 @@
     "diffusion": {
         "dissipation_order": 8.0,
         "order": 8.0,
-        "truncation_order": 3,
+        "truncation_order": 4,
         "type": "hyperdiffusion"
     },
     "forcing": {

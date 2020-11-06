@@ -23,7 +23,7 @@ class Grid:
         self.gravity           = namelist['planet']['gravity']
         self.cp = namelist['thermodynamics']['heat_capacity']
         self.Rd = namelist['thermodynamics']['ideal_gas_constant']
-        self.R = namelist['planet']['planet_radius']
+        # self.R = namelist['planet']['planet_radius']
         self.Omega = namelist['planet']['omega_rotation']
         
         self.kappa = self.Rd/self.cp

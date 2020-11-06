@@ -15,15 +15,22 @@ class NumericalDiffusion:
     def initialize(self, Gr, TS, namelist):
         dissipation_order = namelist['diffusion']['dissipation_order']
         truncation_order = namelist['diffusion']['truncation_order']
+        truncation_number = int(Gr.nlons/truncation_order)
         diffusion_factor = (1e-5*((Gr.SphericalGrid.lap/Gr.SphericalGrid.lap[-1])**(dissipation_order/2)))
         self.HyperDiffusionFactor = np.exp(-TS.dt*diffusion_factor)
         # all wave numbers above this value are removed
-        self.HyperDiffusionFactor[Gr.SphericalGrid._shtns.l>=Gr.truncation_number] = 0.0
+        self.HyperDiffusionFactor[Gr.SphericalGrid._shtns.l>=truncation_number] = 0.0
         return
 
-    def update(self, Gr, PV):
+    def update(self, Gr, PV, namelist, dt):
         for k in range(Gr.n_layers):
-            PV.P.spectral[:,k]  = np.multiply(PV.P.spectral[:,k] ,self.HyperDiffusionFactor)
+            dissipation_order = namelist['diffusion']['dissipation_order']
+            truncation_order = namelist['diffusion']['truncation_order']
+            truncation_number = int(Gr.nlons/truncation_order)
+            diffusion_factor = (1e-5*((Gr.SphericalGrid.lap/Gr.SphericalGrid.lap[-1])**(dissipation_order/2)))
+            self.HyperDiffusionFactor = np.exp(-dt*diffusion_factor)
+            self.HyperDiffusionFactor[Gr.SphericalGrid._shtns.l>=truncation_number] = 0.0
+            PV.P.spectral[:,k]  = np.multiply(self.HyperDiffusionFactor, PV.P.spectral[:,k])
             PV.Vorticity.spectral[:,k] = np.multiply(self.HyperDiffusionFactor,PV.Vorticity.spectral[:,k])
             PV.Divergence.spectral[:,k] = np.multiply(self.HyperDiffusionFactor,PV.Divergence.spectral[:,k])
             PV.T.spectral[:,k] = np.multiply(self.HyperDiffusionFactor,PV.T.spectral[:,k])
