@@ -7,7 +7,6 @@ import scipy as sc
 from math import *
 import PrognosticVariables
 import DiagnosticVariables
-import pylab as plt
 
 class ForcingNone():
 	def __init__(self):
@@ -57,16 +56,6 @@ class Forcing_HelzSuarez:
 				np.log(PV.P.values[:,:,k]/Gr.p_ref)*np.cos(Gr.lat)**2)*(PV.P.values[:,:,k]/Gr.p_ref)**self.kappa
 
 		self.QTbar = np.zeros((Gr.nlats, Gr.nlons,Gr.n_layers))
-		# plt.figure('Tbar1')
-		# plt.contourf(self.Tbar[:,:,0])
-		# plt.colorbar()
-		# plt.figure('Tbar2')
-		# plt.contourf(self.Tbar[:,:,1])
-		# plt.colorbar()
-		# plt.figure('Tbar3')
-		# plt.contourf(self.Tbar[:,:,2])
-		# plt.colorbar()
-		# plt.show()
 
 		return
 
@@ -82,7 +71,6 @@ class Forcing_HelzSuarez:
 
 		# Field initialisation
 		for k in range(Gr.n_layers):
-			# p_ratio_k = np.divide(PV.P.values[:,:,k],PV.P.values[:,:,3])
 			p_ratio_k = np.divide(PV.P.values[:,:,k],PV.P.values[:,:,Gr.n_layers]) # as in josef's code for now
 			sigma_ratio_k = np.clip(np.divide(p_ratio_k-self.sigma_b,(1.0-self.sigma_b)) ,0.0, None)
 			cos4_lat = np.power(np.cos(Gr.lat),4.0)
@@ -102,11 +90,6 @@ class Forcing_HelzSuarez:
 			PV.Divergence.forcing[:,k] = - Divergece_forcing
 			PV.Vorticity.forcing[:,k]  = - Vorticity_forcing
 			PV.T.forcing[:,k]          = - Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(PV.T.values[:,:,k] - self.Tbar[:,:,k])))
-			# PV.QT.forcing[:,k]         = - Gr.SphericalGrid.grdtospec(np.multiply(self.k_Q[:,:,k],(PV.QT.values[:,:,k] - self.QTbar[:,:,k])))
-			# PV.Divergence.forcing[:,k] = np.multiply(PV.Divergence.forcing[:,k], 0.0)
-			# PV.Vorticity.forcing[:,k]  = np.multiply(PV.Vorticity.forcing[:,k], 0.0)
-			# PV.QT.forcing[:,k]         = np.multiply(PV.QT.forcing[:,k], 0.0)
-			# PV.T.forcing[:,k] = np.multiply(PV.T.forcing[:,k], 0.0)
 
 
 		return

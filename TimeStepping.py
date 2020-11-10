@@ -108,8 +108,7 @@ class TimeStepping:
 		self.t = self.t+self.dt
 		PV.set_old_with_now()
 		PV.set_now_with_tendencies()
-		PV.spectral_to_physical(Gr)
-		
+
 		self.ncycle += 1
 		
 		# apply diffusion 

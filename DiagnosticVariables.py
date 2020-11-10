@@ -84,10 +84,11 @@ class DiagnosticVariables:
         self.Wp.values[:,:,0] = np.zeros_like(self.Wp.values[:,:,0])
         self.gZ.values[:,:,Gr.n_layers] = np.zeros_like(self.Wp.values[:,:,0])
         for k in range(Gr.n_layers): # Gr.n_layers = 3; k=0,1,2
+            j = Gr.n_layers-k-1 # geopotential is computed bottom -> up
             self.U.values[:,:,k], self.V.values[:,:,k] = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
             self.KE.values[:,:,k]    = 0.5*np.add(np.power(self.U.values[:,:,k],2.0),np.power(self.V.values[:,:,k],2.0))
             self.Wp.values[:,:,k+1]  = self.Wp.values[:,:,k]-np.multiply(PV.P.values[:,:,k+1]-PV.P.values[:,:,k],PV.Divergence.values[:,:,k])
-            self.gZ.values[:,:,k]    = np.multiply(Gr.Rd*PV.T.values[:,:,k],np.log(PV.P.values[:,:,k+1]/PV.P.values[:,:,k])) + self.gZ.values[:,:,k+1]
+            self.gZ.values[:,:,j]  = np.multiply(Gr.Rd*PV.T.values[:,:,j],np.log(PV.P.values[:,:,j+1]/PV.P.values[:,:,j])) + self.gZ.values[:,:,j+1]
         return
 
     # yair - need to add here diagnostic functions of stats
