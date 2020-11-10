@@ -44,6 +44,7 @@ class DiagnosticVariables:
         Stats.add_global_mean('global_mean_gZ')
         Stats.add_zonal_mean('zonal_mean_U')
         Stats.add_zonal_mean('zonal_mean_V')
+        Stats.add_zonal_mean('zonal_mean_gZ')
         Stats.add_zonal_mean('zonal_mean_Wp')
         return
 
@@ -66,18 +67,19 @@ class DiagnosticVariables:
 
     def stats_io(self, TS, Stats):
         Stats.write_global_mean('global_mean_KE', self.KE.values, TS.t)
-        Stats.write_global_mean('global_mean_gZ', self.gZ.values[:,:,0:3], TS.t)
+        Stats.write_global_mean('global_mean_gZ', self.gZ.values, TS.t)
         Stats.write_zonal_mean('zonal_mean_U',self.U.values, TS.t)
         Stats.write_zonal_mean('zonal_mean_V',self.V.values, TS.t)
-        Stats.write_zonal_mean('zonal_mean_Wp',self.Wp.values[:,:,1:4], TS.t)
+        Stats.write_zonal_mean('zonal_mean_Wp',self.Wp.values, TS.t)
+        Stats.write_zonal_mean('zonal_mean_gZ',self.gZ.values, TS.t)
         return
 
     def io(self, Gr, TS, Stats):
-        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'Geopotential', self.gZ.values[:,:,0:Gr.n_layers])
-        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'Wp',           self.Wp.values[:,:,1:Gr.n_layers+1])
-        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'U',               self.V.values)
-        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'V',               self.V.values)
-        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'Kinetic_enegry',  self.KE.values)
+        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'Geopotential',   self.gZ.values)
+        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'Wp',             self.Wp.values)
+        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'U',              self.V.values)
+        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'V',              self.V.values)
+        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'Kinetic_enegry', self.KE.values)
         return
 
     def update(self, Gr, PV):

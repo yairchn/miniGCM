@@ -59,6 +59,13 @@ class PrognosticVariables:
         Stats.add_zonal_mean('zonal_mean_P')
         Stats.add_zonal_mean('zonal_mean_T')
         Stats.add_zonal_mean('zonal_mean_QT')
+        Stats.add_zonal_mean('zonal_mean_divergence')
+        Stats.add_zonal_mean('zonal_mean_vorticity')
+        Stats.add_meridional_mean('meridional_mean_divergence')
+        Stats.add_meridional_mean('meridional_mean_vorticity')
+        Stats.add_meridional_mean('meridional_mean_P')
+        Stats.add_meridional_mean('meridional_mean_T')
+        Stats.add_meridional_mean('meridional_mean_QT')
         return
 
     # convert spherical data to spectral
@@ -115,6 +122,13 @@ class PrognosticVariables:
         Stats.write_zonal_mean('zonal_mean_P',self.P.values[:,:,1:4], TS.t)
         Stats.write_zonal_mean('zonal_mean_T',self.T.values, TS.t)
         Stats.write_zonal_mean('zonal_mean_QT',self.QT.values, TS.t)
+        Stats.write_zonal_mean('zonal_mean_divergence',self.Divergence.values, TS.t)
+        Stats.write_zonal_mean('zonal_mean_vorticity',self.Vorticity.values, TS.t)
+        Stats.write_meridional_mean('meridional_mean_P',self.P.values[:,:,1:4], TS.t)
+        Stats.write_meridional_mean('meridional_mean_T',self.T.values, TS.t)
+        Stats.write_meridional_mean('meridional_mean_QT',self.QT.values, TS.t)
+        Stats.write_meridional_mean('meridional_mean_divergence',self.Divergence.values, TS.t)
+        Stats.write_meridional_mean('meridional_mean_vorticity',self.Vorticity.values, TS.t)
         return
 
     def io(self, Gr, TS, Stats):

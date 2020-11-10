@@ -60,59 +60,12 @@ class TimeStepping:
 			PV.QT.spectral         = F_QT         + dt*((23.0/12.0)*PV.QT.tendency         - (16.0/12.0)*PV.QT.now         + (5.0/12.0)*PV.QT.old)
 			PV.P.spectral          = F_P          + dt*((23.0/12.0)*PV.P.tendency          - (16.0/12.0)*PV.P.now          + (5.0/12.0)*PV.P.old)
 
-		# p_test = Gr.SphericalGrid.spectogrd(Gr.SphericalGrid.grdtospec(PV.P.values[:,:,0]))
-		# print('==================timestepping')
-		# print('p1 values min max',         np.min(PV.P.values[:,:,0]),np.max(PV.P.values[:,:,0]))
-		# print('p1 spectral min max',       np.min(PV.P.spectral[:,0]),np.max(PV.P.spectral[:,0]))
-		# print('p1 value-spectral min max', np.min(p_test),np.max(p_test))
-		# print('==================timestepping')
-		# plt.figure('p1 spectral at TimeStepping')
-		# plt.contourf(Gr.SphericalGrid.spectogrd(PV.P.spectral[:,0]))
-		# plt.colorbar()
-		# plt.figure('p1 values-grdtospec at TimeStepping')
-		# plt.contourf(p_test)
-		# plt.colorbar()
-		# plt.figure('p1 values at TimeStepping')
-		# plt.contourf(PV.P.values[:,:,0])
-		# plt.colorbar()
-		# plt.figure('p1 values at TimeStepping')
-		# plt.contourf(PV.P.values[:,:,0])
-		# plt.colorbar()
-		# plt.figure('p2 at TimeStepping')
-		# plt.contourf(Gr.SphericalGrid.spectogrd(PV.P.spectral[:,1]))
-		# plt.colorbar()
-		# plt.figure('p2 values at TimeStepping')
-		# plt.contourf(PV.P.values[:,:,1])
-		# plt.colorbar()
-		# plt.figure('p3 at TimeStepping')
-		# plt.contourf(Gr.SphericalGrid.spectogrd(PV.P.spectral[:,2]))
-		# plt.colorbar()
-		# plt.figure('p3 values at TimeStepping')
-		# plt.contourf(PV.P.values[:,:,2])
-		# plt.colorbar()
-		# plt.figure('ps new at TimeStepping')
-		# plt.contourf(Gr.SphericalGrid.spectogrd(PV.P.spectral[:,3]))
-		# plt.colorbar()
-		# plt.figure('ps now at TimeStepping')
-		# plt.contourf(Gr.SphericalGrid.spectogrd(PV.P.now[:,3]))
-		# plt.colorbar()
-		# plt.figure('ps values at TimeStepping')
-		# plt.contourf(PV.P.values[:,:,3])
-		# plt.colorbar()
-		# plt.figure('ps old at TimeStepping')
-		# plt.contourf(Gr.SphericalGrid.spectogrd(PV.P.old[:,3]))
-		# plt.colorbar()
-		# plt.show()
-
 		DF.update(Gr, PV, namelist, self.dt)
 		self.t = self.t+self.dt
 		PV.set_old_with_now()
 		PV.set_now_with_tendencies()
 
 		self.ncycle += 1
-		
-		# apply diffusion 
-		# update time
 		return
 
 	# def CFL_limiter(self, Gr, PV, DV, DF, namelist):

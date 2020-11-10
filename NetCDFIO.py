@@ -5,6 +5,7 @@ from math import *
 import os
 import shutil
 import netCDF4 as nc
+import pylab as plt
 
 class Stats:
     def __init__(self, namelist, Grid):
@@ -111,7 +112,6 @@ class Stats:
         global_mean_grp.createDimension('time', None)
         global_mean_grp.createDimension('lay',  Gr.n_layers)
         t = global_mean_grp.createVariable('t', 'f8', ('time'))
-
         root_grp.close()
         return
 
