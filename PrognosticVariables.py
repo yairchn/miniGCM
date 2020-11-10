@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import scipy as sc
 import netCDF4
-import seaborn
 import numpy as np
 from math import *
 

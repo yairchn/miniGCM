@@ -12,7 +12,6 @@ import scipy as sc
 import xarray
 import logData
 import netCDF4
-import seaborn
 import numpy as np
 from math import *
 from scipy.signal import savgol_filter
