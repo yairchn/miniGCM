@@ -59,7 +59,6 @@ class Simulation:
             # move this into timestepping-adams bashford
             self.PV.compute_tendencies(self.Gr, self.PV, self.DV, namelist)
             self.TS.update(self.Gr, self.PV, self.DV, self.DF, namelist)
-            print(self.TS.t/3600.0,'ps',np.max(self.PV.P.values[:,:,3]), np.min(self.PV.P.values[:,:,3]))
             # Apply the tendencies, also update the BCs and diagnostic thermodynamics
             if np.mod(self.TS.t, self.Stats.stats_frequency) == 0:
                 self.stats_io()
