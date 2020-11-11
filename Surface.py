@@ -1,9 +1,4 @@
-
 import numpy as np
-import sphTrans
-import numpy as np
-import matplotlib.pyplot as plt
-import time
 import scipy as sc
 from math import *
 

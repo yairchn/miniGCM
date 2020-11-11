@@ -1,8 +1,4 @@
-
 import numpy as np
-import matplotlib.pyplot as plt
-from math import *
-
 from NetCDFIO import Stats
 from PrognosticVariables import PrognosticVariables
 from DiagnosticVariables import DiagnosticVariables

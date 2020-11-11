@@ -1,7 +1,4 @@
 import numpy as np
-from math import *
-from PrognosticVariables import PrognosticVariables
-import pylab as plt
 
 class TimeStepping:
 	def __init__(self, namelist):

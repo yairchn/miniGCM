@@ -1,5 +1,3 @@
-
-import time
 import scipy as sc
 import numpy as np
 from math import *
