@@ -6,8 +6,6 @@ import uuid
 import ast
 import copy
 
-#Adapated from PyCLES: https://github.com/pressel/pycles
-
 def main():
     parser = argparse.ArgumentParser(prog='Namelist Generator')
     parser.add_argument('case_name')
