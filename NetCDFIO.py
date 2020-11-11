@@ -43,17 +43,20 @@ class Stats:
             pass
 
 
+        i = 1
         self.path_plus_file = str(self.stats_path + '/' + 'Stats.' + namelist['meta']['simname'] + '.nc')
         if os.path.exists(self.path_plus_file):
-            for i in range(100):
-                res_name = 'Restart_'+str(i+1)
+            res_name = 'Restart_'+str(i)
+            print("Here " + res_name)
+            self.path_plus_file = str(self.stats_path
+                    + '/' + 'Stats.' + namelist['meta']['simname']
+                    + '.' + res_name + '.nc')
+            while os.path.exists(self.path_plus_file):
+                i += 1
+                res_name = 'Restart_'+str(i)
                 print("Here " + res_name)
-                if os.path.exists(self.path_plus_file):
-                    self.path_plus_file = str( self.stats_path + '/' + 'Stats.' + namelist['meta']['simname']
+                self.path_plus_file = str( self.stats_path + '/' + 'Stats.' + namelist['meta']['simname']
                            + '.' + res_name + '.nc')
-                else:
-                    break
-
 
 
         shutil.copyfile(os.path.join( './', namelist['meta']['simname'] + '.in'),

@@ -60,8 +60,10 @@ class Forcing_HelzSuarez:
 		return
 
 	def initialize_io(self, Stats):
-		Stats.add_variable('relaxation_temp')
-		Stats.add_variable('relaxation_qt')
+		Stats.add_zonal_mean('zonal_mean_T_eq')
+		Stats.add_zonal_mean('zonal_mean_QT_eq')
+		Stats.add_meridional_mean('meridional_mean_T_eq')
+		Stats.add_meridional_mean('meridional_mean_QT_eq')
 		return
 
 	def update(self, TS, Gr, PV, DV, namelist):
@@ -91,15 +93,18 @@ class Forcing_HelzSuarez:
 			PV.Vorticity.forcing[:,k]  = - Vorticity_forcing
 			PV.T.forcing[:,k]          = - Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(PV.T.values[:,:,k] - self.Tbar[:,:,k])))
 
-
-		return
-
-	def initialize_io(self, Stats):
 		return
 
 	def io(self, Gr, TS, Stats):
-		Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'relaxation_temp', self.Tbar)
-		Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'relaxation_qt',   self.QTbar)
+		Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'T_eq', self.Tbar)
+		Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'QT_eq',   self.QTbar)
+		return
+
+	def stats_io(self, TS, Stats):
+		Stats.write_zonal_mean('zonal_mean_T_eq', self.Tbar, TS.t)
+		Stats.write_zonal_mean('zonal_mean_QT_eq', self.QTbar, TS.t)
+		Stats.write_meridional_mean('meridional_mean_T_eq', self.Tbar, TS.t)
+		Stats.write_meridional_mean('meridional_mean_QT_eq', self.QTbar, TS.t)
 		return
 
 class Forcing_HelzSuarez_moist:

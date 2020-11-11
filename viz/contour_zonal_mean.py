@@ -22,7 +22,6 @@ def main():
     var = np.array(data.groups['zonal_mean'].variables[varname])
     t = np.divide(data.groups['zonal_mean'].variables['t'],3600.0*24.0)
 
-    var_ = var[:,:,2]
     X, Y = np.meshgrid(t,lat_list)
     print(n)
     fig = plt.figure(varname)

@@ -86,6 +86,7 @@ class Simulation:
         # YAIR - move all write_3D_data to here and concentrate all vars in a single file per times step 
         self.DV.stats_io(self.TS, self.Stats)
         self.PV.stats_io(self.TS, self.Stats)
+        self.Case.Fo.stats_io(self.TS, self.Stats)
         self.Stats.close_files()
         return
 

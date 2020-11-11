@@ -46,6 +46,10 @@ class DiagnosticVariables:
         Stats.add_zonal_mean('zonal_mean_V')
         Stats.add_zonal_mean('zonal_mean_gZ')
         Stats.add_zonal_mean('zonal_mean_Wp')
+        Stats.add_meridional_mean('meridional_mean_U')
+        Stats.add_meridional_mean('meridional_mean_V')
+        Stats.add_meridional_mean('meridional_mean_gZ')
+        Stats.add_meridional_mean('meridional_mean_Wp')
         return
 
     def physical_to_spectral(self, Gr):
@@ -72,6 +76,10 @@ class DiagnosticVariables:
         Stats.write_zonal_mean('zonal_mean_V',self.V.values, TS.t)
         Stats.write_zonal_mean('zonal_mean_Wp',self.Wp.values[:,:,1:4], TS.t)
         Stats.write_zonal_mean('zonal_mean_gZ',self.gZ.values[:,:,0:3], TS.t)
+        Stats.write_meridional_mean('meridional_mean_U',self.U.values, TS.t)
+        Stats.write_meridional_mean('meridional_mean_V',self.V.values, TS.t)
+        Stats.write_meridional_mean('meridional_mean_Wp',self.Wp.values[:,:,1:4], TS.t)
+        Stats.write_meridional_mean('meridional_mean_gZ',self.gZ.values[:,:,0:3], TS.t)
         return
 
     def io(self, Gr, TS, Stats):
