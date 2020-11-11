@@ -23,8 +23,6 @@ class Simulation:
         self.Case = CasesFactory(namelist, self.Gr)
         self.DF = NumericalDiffusion()
         self.TS = TimeStepping(namelist)
-        # self.RS = ReferenceState()
-        # self.AB = AdamsBashforth()
         self.Stats = Stats(namelist, self.Gr)
         return
 
@@ -38,11 +36,8 @@ class Simulation:
         self.TS.initialize(self.Gr, self.PV, self.DV, self.DF, namelist)
         self.initialize_io()
         self.io()
-
-
         # self.get_parameters(namelist)
-        # self.RS.initialize(self.Gr)
-        # self.Case.initialize_reference(self.Gr)
+
     def run(self, namelist):
         while self.TS.t <= self.TS.t_max:
             self.PV.reset_pressures(self.Gr)
