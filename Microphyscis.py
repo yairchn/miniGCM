@@ -10,7 +10,6 @@ class Microphysics:
         return
 
     def initialize_io(self, Stats):
-        Stats.add_profile('Rain')
         return
 
     def update(self, Gr):
