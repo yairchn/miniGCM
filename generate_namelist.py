@@ -77,7 +77,7 @@ def HeldSuarez(namelist_defaults):
     namelist = copy.deepcopy(namelist_defaults)
 
     namelist['timestepping']['dt'] = 100.0
-    namelist['timestepping']['t_max'] = 20.0*24.0*3600.0
+    namelist['timestepping']['t_max'] = 100.0*24.0*3600.0
 
     namelist['meta']['simname'] = 'HeldSuarez'
     namelist['meta']['casename'] = 'HeldSuarez'
