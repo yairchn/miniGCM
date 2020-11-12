@@ -74,6 +74,7 @@ class Simulation:
     def stats_io(self):
         self.Stats.open_files()
         # YAIR - move all write_3D_data to here and concentrate all vars in a single file per times step 
+        self.Stats.write_simulation_time(self.TS.t)
         self.DV.stats_io(self.TS, self.Stats)
         self.PV.stats_io(self.TS, self.Stats)
         self.Case.Fo.stats_io(self.TS, self.Stats)

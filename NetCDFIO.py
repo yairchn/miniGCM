@@ -141,22 +141,16 @@ class Stats:
         return
 
     def write_global_mean(self, var_name, data, t):
-        variable_t = self.global_mean_grp.variables['t']
-        variable_t[variable_t.shape[0]] = t
         var = self.global_mean_grp.variables[var_name]
-        var[-1, :] = np.array(np.mean(np.mean(data,0),0))
+        var[-1,:] = np.array(np.mean(np.mean(data,0),0))
         return
 
     def write_meridional_mean(self, var_name, data, t):
-        variable_t = self.meridional_mean_grp.variables['t']
-        variable_t[variable_t.shape[0]] = t
         var = self.meridional_mean_grp.variables[var_name]
         var[-1, :,:] = np.array(np.mean(data,0))
         return
 
     def write_zonal_mean(self, var_name, data, t):
-        variable_t = self.zonal_mean_grp.variables['t']
-        variable_t[variable_t.shape[0]] = t
         var = self.zonal_mean_grp.variables[var_name]
         var[-1, :,:] = np.array(np.mean(data,1))
         return
@@ -169,4 +163,18 @@ class Stats:
         var = root_grp.createVariable(var_name, 'f8', ('lat', 'lon','lay'),fill_value=0.0)
         var[:,:,:] = np.array(data)
         root_grp.close()
+        return
+
+    def write_simulation_time(self, t):
+        # Write to global mean group
+        global_mean_t = self.global_mean_grp.variables['t']
+        global_mean_t[global_mean_t.shape[0]] = t
+
+        # Write to zonal mean group
+        zonal_mean_t = self.zonal_mean_grp.variables['t']
+        zonal_mean_t[zonal_mean_t.shape[0]] = t
+
+        # Write to meridional mean group
+        meridional_mean_t = self.meridional_mean_grp.variables['t']
+        meridional_mean_t[meridional_mean_t.shape[0]] = t
         return
