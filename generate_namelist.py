@@ -56,8 +56,8 @@ def main():
     # namelist_defaults['io']['global_mean_frequency'] = 60.0
     # namelist_defaults['io']['meridional_mean_frequency'] = 60.0
     # namelist_defaults['io']['zonal_mean_frequency'] = 60.0
-    namelist_defaults['io']['stats_frequency'] = 60.0
-    namelist_defaults['io']['output_frequency'] = 600.0
+    namelist_defaults['io']['stats_frequency'] = 24.0*3600.0
+    namelist_defaults['io']['output_frequency'] = 24.0*3600.0*7.0
 
     namelist_defaults['meta'] = {}
 

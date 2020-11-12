@@ -11,7 +11,7 @@ def main():
     args = parser.parse_args()
     varname = args.varname
 
-    folder = '/Users/yaircohen/Documents/codes/miniGCM/Output.HeldSuarez.67799/stats/'
+    folder = '/Users/yaircohen/Documents/codes/miniGCM/Output.HeldSuarez._long/stats/'
     ncfile = folder + 'Stats.HeldSuarez.nc'
     data = nc.Dataset(ncfile, 'r')
 
@@ -23,7 +23,6 @@ def main():
     t = np.divide(data.groups['zonal_mean'].variables['t'],3600.0*24.0)
 
     X, Y = np.meshgrid(t,lat_list)
-    print(n)
     fig = plt.figure(varname)
     for i in range(n):
         ax1 = fig.add_subplot(n, 1, i+1)
