@@ -12,17 +12,8 @@ class TimeStepping:
 		return
 
 	def update(self, Gr, PV, DV, DF, namelist):
-		# self.dt = CFL_limiter(self, Gr, PV, DV, DF, namelist)
-		CFL_limit = namelist['timestepping']['CFL_limit']
-		dt = namelist['timestepping']['dt']
-		self.dx = 2.0*np.pi/Gr.nlats*Gr.rsphere
-		self.dy = 2.0*np.pi/Gr.nlons*Gr.rsphere
-		self.dp = np.max([Gr.p_ref-Gr.p3,Gr.p3-Gr.p2,Gr.p2-Gr.p1])
-		zonal_timescale = np.min(self.dx)/np.max(np.abs(DV.U.values) + 1e-10)
-		meridional_timescale = np.min(self.dy)/np.max(np.abs(DV.V.values) + 1e-10)
-		vertical_timescale = np.min(self.dp)/np.max(np.abs(DV.Wp.values) + 1e-10)
-		# dt = np.minimum(dt, CFL_limit*np.max([zonal_timescale ,meridional_timescale ,vertical_timescale]))
-		dt=100.0 # overwrite for now
+		self.CFL_limiter(Gr, DV, namelist)
+		dt = self.dt
 
 		F_Divergence = PV.Divergence.spectral
 		F_Vorticity  = PV.Vorticity.spectral
@@ -65,12 +56,18 @@ class TimeStepping:
 		self.ncycle += 1
 		return
 
-	# def CFL_limiter(self, Gr, PV, DV, DF, namelist):
-	# 	# YAIR
-	# 	# (1) - find out how to limit a CFL in a spectral model
-	# 	# (2) - define the pointwise U/DX ratio and find its maximum value for i,j,k
-	# 	# in Grid line 40 self.longitute , self.latitute  are defines. Take diff or gradient of these to get the differneces matrix.
-	# 	return dt
+	def CFL_limiter(self, Gr, DV, namelist):
+		# consider calling this every some time to save computation
+		CFL_limit = namelist['timestepping']['CFL_limit']
+		dt = namelist['timestepping']['dt']
+		self.dx = 2.0*np.pi/Gr.nlats*Gr.rsphere
+		self.dy = 2.0*np.pi/Gr.nlons*Gr.rsphere
+		self.dp = np.max([Gr.p_ref-Gr.p3,Gr.p3-Gr.p2,Gr.p2-Gr.p1])
+		zonal_timescale = np.min(self.dx)/np.max(np.abs(DV.U.values) + 1e-10)
+		meridional_timescale = np.min(self.dy)/np.max(np.abs(DV.V.values) + 1e-10)
+		vertical_timescale = np.min(self.dp)/np.max(np.abs(DV.Wp.values) + 1e-10)
+		self.dt = np.minimum(dt, CFL_limit*np.max([zonal_timescale ,meridional_timescale ,vertical_timescale]))
+		return
 
 
 
