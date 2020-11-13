@@ -1,5 +1,5 @@
 import cython
-from Grid cimport Grid
+from Grid import Grid
 from math import *
 from DiagnosticVariables cimport DiagnosticVariables
 import matplotlib.pyplot as plt
@@ -9,6 +9,7 @@ import numpy as np
 import scipy as sc
 import sys
 from TimeStepping cimport TimeStepping
+from sphTrans import Spharmt
 
 cdef class PrognosticVariable:
     cdef:

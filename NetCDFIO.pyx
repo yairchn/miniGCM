@@ -1,5 +1,5 @@
 import cython
-from Grid cimport Grid
+from Grid import Grid
 from math import *
 import netCDF4 as nc
 import numpy as np

@@ -1,6 +1,6 @@
 import sys
 import cython
-from Grid cimport Grid
+from Grid import Grid
 
 cdef class Thermodynamics:
 	def __init__(self, namelist):

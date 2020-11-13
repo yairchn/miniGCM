@@ -4,11 +4,11 @@ from math import *
 import numpy as np
 import scipy as sc
 import shtns
-from sphTrans cimport Spharmt
+from sphTrans import Spharmt
 import time
 import sys
 
-cdef class Grid:
+class Grid:
     def __init__(self, namelist):
         self.nlats             = namelist['grid']['number_of_latitute_points']
         self.nlons             = namelist['grid']['number_of_longitude_points']
@@ -26,9 +26,9 @@ cdef class Grid:
         self.Omega = namelist['planet']['omega_rotation']
         self.kappa = self.Rd/self.cp
 		# setup up spherical harmonic instance, set lats/lons of grid
-        self.SphericalGrid = Spharmt(self.nlons, self.nlats, self.truncation_number, self.rsphere, gridtype='gaussian')
+        # self.SphericalGrid = Spharmt(self.nlons, self.nlats, self.truncation_number, self.rsphere, gridtype='gaussian')
 		# build the physical space grid
-        self.lon, self.lat = np.meshgrid(self.SphericalGrid.lons, self.SphericalGrid.lats) # these are in radians
+        self.lon, self.lat = np.meshgrid(Spharmt.lons, Spharmt.lats) # these are in radians
         self.longitude = np.degrees(self.lon)
         self.latitude  = np.degrees(self.lat)
         self.longitude_list = self.longitude[1,:]

@@ -1,5 +1,5 @@
 import os
-from Grid cimport Grid
+from Grid import Grid
 import numpy as np
 import scipy as sc
 from math import *

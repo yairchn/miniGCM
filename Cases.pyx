@@ -1,7 +1,7 @@
 import numpy as np
 from PrognosticVariables cimport PrognosticVariables
 from PrognosticVariables cimport PrognosticVariables
-from Grid cimport Grid
+from Grid import Grid
 from NetCDFIO cimport NetCDFIO_Stats
 cimport Forcing
 cimport Surface

@@ -1,9 +1,10 @@
 import cython
 import numpy as np
-from Grid cimport Grid
+from Grid import Grid
 from NetCDFIO cimport NetCDFIO_Stats
 from PrognosticVariables cimport PrognosticVariables
 from TimeStepping cimport TimeStepping
+from sphTrans import Spharmt
 
 cdef class DiagnosticVariable:
     cdef:
