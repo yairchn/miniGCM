@@ -1,6 +1,6 @@
 import sys
 import cython
-from Grid import Grid
+from Grid cimport Grid
 
 cdef class Thermodynamics:
 	cdef:

@@ -1,5 +1,5 @@
 import cython
-from Grid import Grid
+from Grid cimport Grid
 from DiagnosticVariables cimport DiagnosticVariables
 from math import *
 import matplotlib.pyplot as plt

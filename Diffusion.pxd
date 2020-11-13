@@ -1,5 +1,5 @@
 import cython
-from Grid import Grid
+from Grid cimport Grid
 from math import *
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,7 +9,7 @@ from scipy.signal import savgol_filter
 import time
 from TimeStepping cimport TimeStepping
 import sys
-from sphTrans import Spharmt
+from sphTrans cimport Spharmt
 
 cdef class Diffusion:
     # cdef: this one is for init

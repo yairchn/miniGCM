@@ -1,5 +1,5 @@
 import cython
-from Grid import Grid
+from Grid cimport Grid
 from math import *
 import matplotlib.pyplot as plt
 import numpy as np

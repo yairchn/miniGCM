@@ -1,7 +1,7 @@
 import numpy as np
 import sys
 import cython
-from Grid import Grid
+from Grid cimport Grid
 from PrognosticVariables cimport PrognosticVariables
 from DiagnosticVariables cimport DiagnosticVariables
 from Diffusion cimport Diffusion
