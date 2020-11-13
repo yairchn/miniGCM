@@ -12,7 +12,7 @@ import time
 import xarray
 
 
-class Spharmt(object):
+cdef class Spharmt:
     """
     wrapper class for commonly used spectral transform operations in
     atmospheric models.  Provides an interface to shtns compatible
@@ -22,8 +22,7 @@ class Spharmt(object):
         """initialize
         nlons:  number of longitudes
         nlats:  number of latitudes"""
-        self._shtns = shtns.sht(ntrunc, ntrunc, 1, \
-                shtns.sht_orthonormal+shtns.SHT_NO_CS_PHASE)
+        self._shtns = shtns.sht(ntrunc, ntrunc, 1, shtns.sht_orthonormal+shtns.SHT_NO_CS_PHASE)
         if gridtype == 'gaussian':
             #self._shtns.set_grid(nlats,nlons,shtns.sht_gauss_fly|shtns.SHT_PHI_CONTIGUOUS,1.e-10)
             self._shtns.set_grid(nlats,nlons,shtns.sht_quick_init|shtns.SHT_PHI_CONTIGUOUS,1.e-10)
@@ -43,25 +42,25 @@ class Spharmt(object):
         self.lap = self.lap/self.rsphere**2
         self.invlap = self.invlap*self.rsphere**2
 
-    def grdtospec(self,data):
+    cpdef grdtospec(self,data):
         """compute spectral coefficients from gridded data"""
         return self._shtns.analys(data)
-    
-    def spectogrd(self,dataspec):
+
+    cpdef spectogrd(self,dataspec):
         """compute gridded data from spectral coefficients"""
         return self._shtns.synth(dataspec)
-    
-    def getuv(self,vrtspec,divspec):
+
+    cpdef getuv(self,vrtspec,divspec):
         """compute wind vector from spectral coeffs of vorticity and divergence"""
         return self._shtns.synth((self.invlap/self.rsphere)*vrtspec,
                 (self.invlap/self.rsphere)*divspec)
 
-    def getvrtdivspec(self,u,v):
+    cpdef getvrtdivspec(self,u,v):
         """compute spectral coeffs of vorticity and divergence from wind vector"""
         vrtspec, divspec = self._shtns.analys(u, v)
         return self.lap*self.rsphere*vrtspec, self.lap*self.rsphere*divspec
-    
-    def getgrad(self,divspec):
+
+    cpdef getgrad(self,divspec):
         """compute gradient vector from spectral coeffs"""
         vrtspec = np.zeros(divspec.shape, dtype=np.complex)
         u,v = self._shtns.synth(vrtspec,divspec)

@@ -11,10 +11,11 @@ import sys
 import time
 import xarray
 
-cdef class Spharmt(object):
+
+cdef class Spharmt:
 
     cdef:
-        double [:,:] _shtns
+        double _shtns
         double lats
         double lons
         double nlons

@@ -12,5 +12,5 @@ import sys
 
 cdef class Diffusion:
     # cdef: this one is for init
-    cpdef initialize(self, Grid Gr,TimeStepping TS, namelist)
+    cpdef initialize(self, Grid Gr, TimeStepping TS, namelist)
     cpdef update(self, Grid Gr, PrognosticVariables PV, namelist, dt)

@@ -10,12 +10,12 @@ import time
 from TimeStepping cimport TimeStepping
 import sys
 
-class Diffusion:
+cdef class Diffusion:
 
     def __init__(self):
         return
 
-    def initialize(self, Gr, TS, namelist):
+    cpdef initialize(self, Grid Gr, TimeStepping TS, namelist):
         dissipation_order = namelist['diffusion']['dissipation_order']
         truncation_order = namelist['diffusion']['truncation_order']
         truncation_number = int(Gr.nlons/truncation_order)
@@ -25,7 +25,7 @@ class Diffusion:
         self.HyperDiffusionFactor[Gr.SphericalGrid._shtns.l>=Gr.truncation_number] = 0.0
         return
 
-    def update(self, Gr, PV, namelist, dt):
+    cpdef update(self, Grid Gr, PrognosticVariables PV, namelist, dt):
         for k in range(Gr.n_layers):
             dissipation_order = namelist['diffusion']['dissipation_order']
             diffusion_factor = (1e-5*((Gr.SphericalGrid.lap/Gr.SphericalGrid.lap[-1])**(dissipation_order/2)))
