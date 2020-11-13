@@ -80,7 +80,7 @@ class Forcing_HelzSuarez:
 			self.k_T[:,:,k] = np.add(self.k_a,self.k_T[:,:,k])
 			self.k_v[:,:,k] = np.multiply(self.k_f,sigma_ratio_k)
 
-			self.Tbar[:,:,k]  = (315.0-self.DT_y*np.sin(np.radians(Gr.lat))**2-self.Dtheta_z**2*
+			self.Tbar[:,:,k]  = (315.0-self.DT_y*np.sin(np.radians(Gr.lat))**2-self.Dtheta_z*
 				np.log(PV.P.values[:,:,k]/Gr.p_ref)*np.cos(np.radians(Gr.lat))**2)*(PV.P.values[:,:,k]/Gr.p_ref)**self.kappa
 
 			self.Tbar[:,:,k] = np.clip(self.Tbar[:,:,k],200.0,350.0)
