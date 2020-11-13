@@ -1,20 +1,15 @@
-from __future__ import print_function
-import numpy as np
-import shtns
-import numpy as np
-import sphTrans as sph
-import matplotlib.pyplot as plt
-import time
-# import AdamsBashforth
-import sphericalForcing as spf
-import scipy as sc
-import xarray
-import logData
+import cython
+from Grid cimport Grid
+from math import *
 import netCDF4
 import numpy as np
-from math import *
+import scipy as sc
 from scipy.signal import savgol_filter
-
+import shtns
+import sphericalForcing as spf
+import sys
+import time
+import xarray
 
 cdef class Spharmt(object):
 

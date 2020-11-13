@@ -1,17 +1,23 @@
 import numpy as np
+import sys
+import cython
+from Grid cimport Grid
+from PrognosticVariables cimport PrognosticVariables
+from DiagnosticVariables cimport DiagnosticVariables
+from Diffusion cimport Diffusion
 
-class TimeStepping:
+cdef class TimeStepping:
 	def __init__(self, namelist):
 		self.dt = namelist['timestepping']['dt']
 		self.t_max = namelist['timestepping']['t_max']
 		return
 
-	def initialize(self, Gr, PV, DV, DF, namelist):
+	cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, Diffusion DF, namelist):
 		self.t = 0.0
 		self.ncycle = 0
 		return
 
-	def update(self, Gr, PV, DV, DF, namelist):
+	cpdef update(self, Grid Gr,  PrognosticVariables PV, DiagnosticVariables DV, Diffusion DF, namelist):
 		# self.dt = CFL_limiter(self, Gr, PV, DV, DF, namelist)
 		CFL_limit = namelist['timestepping']['CFL_limit']
 		dt = namelist['timestepping']['dt']

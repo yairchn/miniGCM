@@ -1,6 +1,6 @@
-import scipy as sc
-import numpy as np
-from math import *
+import sys
+import cython
+from Grid cimport Grid
 
 cdef class Thermodynamics:
 	cdef:

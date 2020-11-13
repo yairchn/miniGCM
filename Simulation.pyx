@@ -1,16 +1,17 @@
-import numpy as np
-import matplotlib.pyplot as plt
 from Cases import CasesFactory
 from Cases import  CasesBase
-import time
-import Thermodynamics
+import cython
+from DiagnosticVariables import DiagnosticVariables, DiagnosticVariable
 from Diffusion import NumericalDiffusion
 import Grid
-from ReferenceState import ReferenceState
-from NetCDFIO import Stats
-from TimeStepping import TimeStepping
-from DiagnosticVariables import DiagnosticVariables, DiagnosticVariable
+import numpy as np
+from NetCDFIO import NetCDFIO_Stats
+from NetCDFIO cimport NetCDFIO_Stats
 from PrognosticVariables import PrognosticVariables, PrognosticVariable
+import sys
+import time
+import Thermodynamics
+from TimeStepping import TimeStepping
 
 class Simulation:
 
@@ -23,7 +24,7 @@ class Simulation:
         self.Case = CasesFactory(namelist, self.Gr)
         self.DF = NumericalDiffusion()
         self.TS = TimeStepping(namelist)
-        self.Stats = Stats(namelist, self.Gr)
+        self.Stats = NetCDFIO_Stats(namelist, self.Gr)
         return
 
     def initialize(self, namelist):
@@ -36,7 +37,6 @@ class Simulation:
         self.TS.initialize(self.Gr, self.PV, self.DV, self.DF, namelist)
         self.initialize_io()
         self.io()
-        # self.get_parameters(namelist)
 
     def run(self, namelist):
         while self.TS.t <= self.TS.t_max:

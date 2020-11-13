@@ -1,13 +1,14 @@
-
+import cython
+import matplotlib.pyplot as plt
+from math import *
 import numpy as np
+import scipy as sc
 import shtns
 import sphTrans as sph
-import matplotlib.pyplot as plt
 import time
-import scipy as sc
-from math import *
+import sys
 
-class Grid:
+cdef class Grid:
     def __init__(self, namelist):
         self.nlats             = namelist['grid']['number_of_latitute_points']
         self.nlons             = namelist['grid']['number_of_longitude_points']

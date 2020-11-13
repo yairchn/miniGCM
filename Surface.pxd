@@ -1,15 +1,29 @@
-import numpy as np
-import scipy as sc
+import cython
+from Grid cimport Grid
+from DiagnosticVariables cimport DiagnosticVariables
 from math import *
+import matplotlib.pyplot as plt
+import numpy as np
+from NetCDFIO cimport NetCDFIO_Stats
+from PrognosticVariables cimport PrognosticVariables
+import scipy as sc
+import sphericalForcing as spf
+import time
+from TimeStepping cimport TimeStepping
+import sys
 
-cdef class SurfaceNone:
-    cdef:
-    cpdef initialize(self)
-    cpdef update(self)
-    cpdef initialize_io(self, Stats)
-    cpdef io(self, Stats)
 
-cdef class Surface_HelzSuarez:
-	cdef:
-	cpdef initialize(self, Gr, Stats)
-	cpdef update()
+cdef class SurfaceBase:
+    cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+    cpdef initialize_io(self, NetCDFIO_Stats Stats)
+    cpdef update(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+    cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
+    cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats)
+
+
+cdef class SurfaceNone():
+    cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+    cpdef initialize_io(self, NetCDFIO_Stats Stats)
+    cpdef update(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+    cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
+    cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats)

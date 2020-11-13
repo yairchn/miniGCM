@@ -1,13 +1,16 @@
-from __future__ import print_function
-import numpy as np
-import matplotlib.pyplot as plt
-import time
-import scipy as sc
+import cython
+from Grid cimport Grid
 from math import *
+import matplotlib.pyplot as plt
+import numpy as np
+from PrognosticVariables cimport PrognosticVariables
+import scipy as sc
 from scipy.signal import savgol_filter
+import time
+from TimeStepping cimport TimeStepping
+import sys
 
-
-class NumericalDiffusion:
+class Diffusion:
 
     def __init__(self):
         return

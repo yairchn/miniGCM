@@ -1,13 +1,14 @@
-# from __future__ import print_function
-import numpy as np
-import time
+import cython
+from Grid cimport Grid
 from math import *
-import os
-import shutil
 import netCDF4 as nc
-import pylab as plt
+import numpy as np
+import os
+import time
+import shutil
+import sys
 
-cdef class Stats:
+cdef class NetCDFIO_Stats:
     cdef:
         object root_grp
         object variable_grp
@@ -26,7 +27,7 @@ cdef class Stats:
 
     cpdef open_files(self)
     cpdef close_files(self)
-    cpdef setup_stats_file(self, Gr)
+    cpdef setup_stats_file(self, Grid Gr)
     cpdef add_global_mean(self, var_name)
     cpdef add_meridional_mean(self, var_name)
     cpdef add_zonal_mean(self, var_name)

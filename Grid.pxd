@@ -1,16 +1,18 @@
+import cython
+import matplotlib.pyplot as plt
+from math import *
 import numpy as np
+import scipy as sc
 import shtns
 import sphTrans as sph
-import matplotlib.pyplot as plt
 import time
-import scipy as sc
-from math import *
+import sys
 
 cdef class Grid:
     cdef:
-        double nlats
-        double nlons
-        double n_layers
+        Py_ssize_t nlats
+        Py_ssize_t nlons
+        Py_ssize_t n_layers
         int truncation_number
         double p1
         double p2
