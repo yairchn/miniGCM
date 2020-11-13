@@ -61,12 +61,11 @@ class DiagnosticVariables:
         return
 
     # convert spectral data to spherical
-    # I needto define this function to ast on a general variable 
     def spectral_to_physical(self):
         for k in range(self.n_layers):
-            self.U.values[:,:,k], self.V.spectral[:,:,k] = Gr.SphericalGrid.getuv(self.Vorticity.spectral[:,:,k], self.Divergence.spectral[:,:,k])
-            self.Wp.values[:,:,k+1] = Gr.SphericalGrid.spectogrd(self.Wp.values[:,:,k+1])
-            self.gZ.values[:,:,k] = Gr.SphericalGrid.spectogrd(self.gZ.values[:,:,k])
+            self.U.values[:,:,k], self.V.value[:,:,k] = Gr.SphericalGrid.getuv(self.Vorticity.spectral[:,k], self.Divergence.spectral[:,k])
+            self.Wp.values[:,:,k+1] = Gr.SphericalGrid.spectogrd(self.Wp.spectral[:,k+1])
+            self.gZ.values[:,:,k] = Gr.SphericalGrid.spectogrd(self.gZ.spectral[:,k])
         return
 
     def stats_io(self, TS, Stats):
