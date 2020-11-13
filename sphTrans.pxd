@@ -23,10 +23,7 @@ cdef class Spharmt(object):
         double nlm
         double degree
         double lap
-        double invlap
-        double invlap
         double rsphere
-        double lap
         double invlap
 
     cpdef grdtospec(self, data)

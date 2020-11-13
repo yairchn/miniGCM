@@ -1,14 +1,9 @@
 import cython
+import numpy as np
 from Grid cimport Grid
-from math import *
-import matplotlib.pyplot as plt
-import NetCDFIO as NetCDFIO_Stats
 from NetCDFIO cimport NetCDFIO_Stats
 from PrognosticVariables cimport PrognosticVariables
 from TimeStepping cimport TimeStepping
-import numpy as np
-import time
-import sys
 
 cdef class DiagnosticVariable:
     cdef:
@@ -26,9 +21,6 @@ cdef class DiagnosticVariables:
         DiagnosticVariable gZ
         DiagnosticVariable Wp
         Py_ssize_t k
-        # Py_ssize_t nlats
-        # Py_ssize_t nlons
-        # Py_ssize_t n_layers
 
     cpdef initialize(self, Grid Gr)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)

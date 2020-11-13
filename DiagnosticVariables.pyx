@@ -1,13 +1,9 @@
 import cython
+import numpy as np
 from Grid cimport Grid
-from math import *
-import matplotlib.pyplot as plt
 from NetCDFIO cimport NetCDFIO_Stats
 from PrognosticVariables cimport PrognosticVariables
-import numpy as np
-import time
 from TimeStepping cimport TimeStepping
-import sys
 
 cdef class DiagnosticVariable:
     def __init__(self, nx,ny,nl,n_spec, kind, name, units):
@@ -35,7 +31,7 @@ cdef class DiagnosticVariables:
         self.KE.values     = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
         self.gZ.values     = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.double, order='c') # josef place here the initial values for the variable 
         self.Wp.values     = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.double, order='c') # josef place here the initial values for the variable 
-        for k in range(n_layers):
+        for k in range(Gr.n_layers):
             self.U.spectral[:,k]  = np.array(Gr.SphericalGrid.grdtospec(self.U.values[:,:,k]))
             self.V.spectral[:,k]  = np.array(Gr.SphericalGrid.grdtospec(self.V.values[:,:,k]))
             self.KE.spectral[:,k] = np.array(Gr.SphericalGrid.grdtospec(self.KE.values[:,:,k]))
@@ -59,23 +55,23 @@ cdef class DiagnosticVariables:
     cpdef physical_to_spectral(self, Grid Gr):
         cdef:
             Py_ssize_t k
-        for k in range(n_layers):
+        for k in range(Gr.n_layers):
             self.U.spectral[:,k]    = np.array(Gr.SphericalGrid.grdtospec(self.U.values[:,:,k]))
             self.V.spectral[:,k]    = np.array(Gr.SphericalGrid.grdtospec(self.V.values[:,:,k]))
             self.Wp.spectral[:,k+1] = np.array(Gr.SphericalGrid.grdtospec(self.Wp.values[:,:,k+1]))
             self.gZ.spectral[:,k]   = np.array(Gr.SphericalGrid.grdtospec(self.gZ.values[:,:,k]))
         return
 
-    # convert spectral data to spherical
-    # I need to define this function to ast on a general variable
-    # cpdef spectral_to_physical(self):
-    #     cdef:
-    #         Py_ssize_t k
-    #     for k in range(self.n_layers):
-    #         self.U.values[:,:,k], self.V.value[:,:,k] = np.array(Gr.SphericalGrid.getuv(self.Vorticity.spectral[:,k], self.Divergence.spectral[:,k]))
-    #         self.Wp.values[:,:,k+1] = np.array(Gr.SphericalGrid.spectogrd(self.Wp.spectral[:,k+1]))
-    #         self.gZ.values[:,:,k] = np.array(Gr.SphericalGrid.spectogrd(self.gZ.spectral[:,k]))
-    #     return
+    # # convert spectral data to spherical
+    # # I need to define this function to ast on a general variable
+    # # cpdef spectral_to_physical(self):
+    # #     cdef:
+    # #         Py_ssize_t k
+    # #     for k in range(self.n_layers):
+    # #         self.U.values[:,:,k], self.V.value[:,:,k] = np.array(Gr.SphericalGrid.getuv(self.Vorticity.spectral[:,k], self.Divergence.spectral[:,k]))
+    # #         self.Wp.values[:,:,k+1] = np.array(Gr.SphericalGrid.spectogrd(self.Wp.spectral[:,k+1]))
+    # #         self.gZ.values[:,:,k] = np.array(Gr.SphericalGrid.spectogrd(self.gZ.spectral[:,k]))
+    # #     return
 
     cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats):
         Stats.write_global_mean('global_mean_KE', self.KE.values, TS.t)
@@ -106,11 +102,13 @@ cdef class DiagnosticVariables:
         self.gZ.values[:,:,Gr.n_layers] = np.zeros_like(self.Wp.values[:,:,0])
         for k in range(Gr.n_layers): # n_layers = 3; k=0,1,2
             j = Gr.n_layers-k-1 # geopotential is computed bottom -> up
-            self.U.values[:,:,k], self.V.values[:,:,k] = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
-            self.KE.values[:,:,k]    = 0.5*np.add(np.power(self.U.values[:,:,k],2.0),np.power(self.V.values[:,:,k],2.0))
+            U, V = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
+            self.U.values[:,:,k] = np.array(U)
+            self.V.values[:,:,k] = np.array(V)
+            self.KE.values[:,:,k]    = 0.5*np.add(np.power(U,2.0),np.power(V,2.0))
             self.Wp.values[:,:,k+1]  = np.subtract(self.Wp.values[:,:,k],
                                        np.multiply(np.subtract(PV.P.values[:,:,k+1],PV.P.values[:,:,k]),PV.Divergence.values[:,:,k]))
             self.gZ.values[:,:,j]  = np.add(np.multiply(np.multiply(Gr.Rd,PV.T.values[:,:,j]),np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))),self.gZ.values[:,:,j+1])
         return
 
-    # yair - need to add here diagnostic functions of stats
+    # # yair - need to add here diagnostic functions of stats
