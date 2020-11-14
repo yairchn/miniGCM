@@ -2,6 +2,7 @@ import numpy as np
 import netCDF4 as nc
 import pylab as plt
 import argparse
+import os
 
 # command line:
 # python viz/contour_zonal_mean.py zonal_mean_U
@@ -11,7 +12,7 @@ def main():
     args = parser.parse_args()
     varname = args.varname
 
-    folder = '/Users/yaircohen/Documents/codes/miniGCM/Output.HeldSuarez._long/stats/'
+    folder = os.getcwd() + '/Output.HeldSuarez._long/stats/'
     ncfile = folder + 'Stats.HeldSuarez.nc'
     data = nc.Dataset(ncfile, 'r')
 

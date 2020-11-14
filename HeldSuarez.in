@@ -53,8 +53,8 @@
         "thermodynamics_type": "dry"
     },
     "timestepping": {
-        "CFL_limit": 0.5,
-        "dt": 100.0,
+        "CFL_limit": 0.1,
+        "dt": 1000.0,
         "t_max": 1728000.0
     }
 }

@@ -13,7 +13,7 @@ class TimeStepping:
 
 	def update(self, Gr, PV, DV, DF, namelist):
 		self.CFL_limiter(Gr, DV, namelist)
-		dt = self.dt
+		dt = 100.0
 
 		F_Divergence = PV.Divergence.spectral
 		F_Vorticity  = PV.Vorticity.spectral
@@ -66,7 +66,12 @@ class TimeStepping:
 		zonal_timescale = np.min(self.dx)/np.max(np.abs(DV.U.values) + 1e-10)
 		meridional_timescale = np.min(self.dy)/np.max(np.abs(DV.V.values) + 1e-10)
 		vertical_timescale = np.min(self.dp)/np.max(np.abs(DV.Wp.values) + 1e-10)
-		self.dt = np.minimum(dt, CFL_limit*np.max([zonal_timescale ,meridional_timescale ,vertical_timescale]))
+		self.dt = np.(dt, CFL_limit*np.max([zonal_timescale ,meridional_timescale ,vertical_timescale]))
+		print('in CFL_limiter', self.dt)
+		print('zonal_timescale ', zonal_timescale)
+		print('meridional_timescale ', meridional_timescale)
+		print('vertical_timescale ', vertical_timescale)
+
 		return
 
 

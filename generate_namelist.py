@@ -17,7 +17,7 @@ def main():
     namelist_defaults = {}
     namelist_defaults['timestepping'] = {}
     namelist_defaults['timestepping']['CFL_limit'] = 0.5
-    namelist_defaults['timestepping']['dt'] = 100.0
+    namelist_defaults['timestepping']['dt'] = 1000.0
 
     namelist_defaults['forcing'] = {}
 
