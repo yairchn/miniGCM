@@ -51,9 +51,9 @@ class Forcing_HelzSuarez:
 		self.kappa = self.Rd/self.cp
 		self.k_T = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
 		self.k_v = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
-		for k in range(Gr.n_layers):
-			self.Tbar[:,:,k]  = (315.0-self.DT_y*np.sin(np.radians(Gr.lat))**2-self.Dtheta_z*
-				np.log(PV.P.values[:,:,k]/Gr.p_ref)*np.cos(np.radians(Gr.lat))**2)*(PV.P.values[:,:,k]/Gr.p_ref)**self.kappa
+		# for k in range(Gr.n_layers):
+		# 	self.Tbar[:,:,k]  = (315.0-self.DT_y*np.sin(np.radians(Gr.lat))**2-self.Dtheta_z*
+		# 		np.log(PV.P.values[:,:,k]/Gr.p_ref)*np.cos(np.radians(Gr.lat))**2)*(PV.P.values[:,:,k]/Gr.p_ref)**self.kappa
 
 		self.QTbar = np.zeros((Gr.nlats, Gr.nlons,Gr.n_layers))
 
@@ -80,8 +80,8 @@ class Forcing_HelzSuarez:
 			self.k_T[:,:,k] = np.add(self.k_a,self.k_T[:,:,k])
 			self.k_v[:,:,k] = np.multiply(self.k_f,sigma_ratio_k)
 
-			self.Tbar[:,:,k]  = (315.0-self.DT_y*np.sin(np.radians(Gr.lat))**2-self.Dtheta_z*
-				np.log(PV.P.values[:,:,k]/Gr.p_ref)*np.cos(np.radians(Gr.lat))**2)*(PV.P.values[:,:,k]/Gr.p_ref)**self.kappa
+			# self.Tbar[:,:,k]  = (315.0-self.DT_y*np.sin(np.radians(Gr.lat))**2-self.Dtheta_z*
+			# 	np.log(PV.P.values[:,:,k]/Gr.p_ref)*np.cos(np.radians(Gr.lat))**2)*(PV.P.values[:,:,k]/Gr.p_ref)**self.kappa
 
 			self.Tbar[:,:,k] = np.clip(self.Tbar[:,:,k],200.0,350.0)
 			self.QTbar[:,:,k] = np.multiply(0.0,self.Tbar[:,:,k])

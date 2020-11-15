@@ -53,11 +53,22 @@ class DiagnosticVariables:
         return
 
     def physical_to_spectral(self, Gr):
-        for k in range(Gr.n_layers):
-            self.U.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.U.values[:,:,k])
-            self.V.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.V.values[:,:,k])
-            self.Wp.spectral[:,k+1] = Gr.SphericalGrid.grdtospec(self.Wp.values[:,:,k+1])
-            self.gZ.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.gZ.values[:,:,k])
+        k=0
+        self.U.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.U.values[:,:,k])
+        self.V.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.V.values[:,:,k])
+        self.Wp.spectral[:,k+1] = Gr.SphericalGrid.grdtospec(self.Wp.values[:,:,k+1])
+        self.gZ.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.gZ.values[:,:,k])
+        k=1
+        self.U.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.U.values[:,:,k])
+        self.V.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.V.values[:,:,k])
+        self.Wp.spectral[:,k+1] = Gr.SphericalGrid.grdtospec(self.Wp.values[:,:,k+1])
+        self.gZ.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.gZ.values[:,:,k])
+        k=2
+        self.U.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.U.values[:,:,k])
+        self.V.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.V.values[:,:,k])
+        self.Wp.spectral[:,k+1] = Gr.SphericalGrid.grdtospec(self.Wp.values[:,:,k+1])
+        self.gZ.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.gZ.values[:,:,k])
+        # for k in range(Gr.n_layers):
         return
 
     # convert spectral data to spherical
@@ -89,15 +100,49 @@ class DiagnosticVariables:
         Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'Kinetic_enegry',self.KE.values)
         return
 
+    # def update(self, Gr, PV):
+    #     self.Wp.values[:,:,0] = np.zeros_like(self.Wp.values[:,:,0])
+    #     self.gZ.values[:,:,Gr.n_layers] = np.zeros_like(self.Wp.values[:,:,0])
+    #     for k in range(Gr.n_layers): # Gr.n_layers = 3; k=0,1,2
+    #         j = Gr.n_layers-k-1 # geopotential is computed bottom -> up
+    #         self.U.values[:,:,k], self.V.values[:,:,k] = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
+    #         self.KE.values[:,:,k]    = 0.5*np.add(np.power(self.U.values[:,:,k],2.0),np.power(self.V.values[:,:,k],2.0))
+    #         self.Wp.values[:,:,k+1]  = self.Wp.values[:,:,k]-np.multiply(PV.P.values[:,:,k+1]-PV.P.values[:,:,k],PV.Divergence.values[:,:,k])
+    #         # if np.any(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))<=0.0:
+    #         print(j)
+    #         print(np.min(PV.P.values[:,:,j+1]), np.max(PV.P.values[:,:,j+1]))
+    #         print(np.min(PV.P.values[:,:,j]), np.max(PV.P.values[:,:,j]))
+    #         self.gZ.values[:,:,j]  = np.multiply(Gr.Rd*PV.T.values[:,:,j],np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))) + self.gZ.values[:,:,j+1]
+    #     return
+
     def update(self, Gr, PV):
         self.Wp.values[:,:,0] = np.zeros_like(self.Wp.values[:,:,0])
         self.gZ.values[:,:,Gr.n_layers] = np.zeros_like(self.Wp.values[:,:,0])
-        for k in range(Gr.n_layers): # Gr.n_layers = 3; k=0,1,2
-            j = Gr.n_layers-k-1 # geopotential is computed bottom -> up
-            self.U.values[:,:,k], self.V.values[:,:,k] = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
-            self.KE.values[:,:,k]    = 0.5*np.add(np.power(self.U.values[:,:,k],2.0),np.power(self.V.values[:,:,k],2.0))
-            self.Wp.values[:,:,k+1]  = self.Wp.values[:,:,k]-np.multiply(PV.P.values[:,:,k+1]-PV.P.values[:,:,k],PV.Divergence.values[:,:,k])
-            self.gZ.values[:,:,j]  = np.multiply(Gr.Rd*PV.T.values[:,:,j],np.log(PV.P.values[:,:,j+1]/PV.P.values[:,:,j])) + self.gZ.values[:,:,j+1]
+        k=0
+        j = 2
+        self.U.values[:,:,k], self.V.values[:,:,k] = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
+        self.KE.values[:,:,k]    = 0.5*np.add(np.power(self.U.values[:,:,k],2.0),np.power(self.V.values[:,:,k],2.0))
+        self.Wp.values[:,:,k+1]  = self.Wp.values[:,:,k]-np.multiply(PV.P.values[:,:,k+1]-PV.P.values[:,:,k],PV.Divergence.values[:,:,k])
+        self.gZ.values[:,:,j]  = np.multiply(Gr.Rd*PV.T.values[:,:,j],np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))) + self.gZ.values[:,:,j+1]
+        k=1
+        j = 1
+        self.U.values[:,:,k], self.V.values[:,:,k] = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
+        self.KE.values[:,:,k]    = 0.5*np.add(np.power(self.U.values[:,:,k],2.0),np.power(self.V.values[:,:,k],2.0))
+        self.Wp.values[:,:,k+1]  = self.Wp.values[:,:,k]-np.multiply(PV.P.values[:,:,k+1]-PV.P.values[:,:,k],PV.Divergence.values[:,:,k])
+        self.gZ.values[:,:,j]  = np.multiply(Gr.Rd*PV.T.values[:,:,j],np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))) + self.gZ.values[:,:,j+1]
+        k=2
+        j = 0
+        self.U.values[:,:,k], self.V.values[:,:,k] = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
+        self.KE.values[:,:,k]    = 0.5*np.add(np.power(self.U.values[:,:,k],2.0),np.power(self.V.values[:,:,k],2.0))
+        self.Wp.values[:,:,k+1]  = self.Wp.values[:,:,k]-np.multiply(PV.P.values[:,:,k+1]-PV.P.values[:,:,k],PV.Divergence.values[:,:,k])
+        self.gZ.values[:,:,j]  = np.multiply(Gr.Rd*PV.T.values[:,:,j],np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))) + self.gZ.values[:,:,j+1]
+        DV.Wp.values[:,:,0] = np.zeros_like(self.P.values[:,:,0])
+        # for k in range(Gr.n_layers): # Gr.n_layers = 3; k=0,1,2
+        #     j = Gr.n_layers-k-1 # geopotential is computed bottom -> up
+        #     # if np.any(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))<=0.0:
+        #     print(j)
+        #     print(np.min(PV.P.values[:,:,j+1]), np.max(PV.P.values[:,:,j+1]))
+        #     print(np.min(PV.P.values[:,:,j]), np.max(PV.P.values[:,:,j]))
         return
 
     # yair - need to add here diagnostic functions of stats
