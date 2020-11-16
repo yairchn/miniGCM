@@ -5,15 +5,15 @@ import argparse
 import os
 
 # command line:
-# python viz/contour_zonal_mean.py zonal_mean_U
+# python viz/contour_zonal_mean.py zonal_mean_P
 def main():
     parser = argparse.ArgumentParser(prog='miniGCM')
     parser.add_argument("varname")
     args = parser.parse_args()
     varname = args.varname
 
-    folder = os.getcwd() + '/Output.HeldSuarez._long/stats/'
-    ncfile = folder + 'Stats.HeldSuarez.nc'
+    folder = os.getcwd() + '/Output.HeldSuarez.4a92e/stats/'
+    ncfile = folder + 'Stats.HeldSuarez.Restart_44.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])

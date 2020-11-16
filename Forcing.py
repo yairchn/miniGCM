@@ -54,7 +54,7 @@ class Forcing_HelzSuarez:
 		for k in range(Gr.n_layers):
 			self.Tbar[:,:,k]  = (315.0-self.DT_y*np.sin(np.radians(Gr.lat))**2-self.Dtheta_z*
 				np.log(PV.P.values[:,:,k]/Gr.p_ref)*np.cos(np.radians(Gr.lat))**2)*(PV.P.values[:,:,k]/Gr.p_ref)**self.kappa
-
+			self.Tbar[:,:,k] = np.clip(self.Tbar[:,:,k],200.0,350.0)
 		self.QTbar = np.zeros((Gr.nlats, Gr.nlons,Gr.n_layers))
 
 		return
