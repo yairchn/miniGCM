@@ -42,10 +42,10 @@ class Simulation:
         while self.TS.t <= self.TS.t_max:
             self.PV.reset_pressures(self.Gr)
             self.PV.spectral_to_physical(self.Gr)
-            self.DV.update(self.Gr, self.PV)
-            self.DV.physical_to_spectral(self.Gr)
-            self.Case.update_surface(self.TS)
-            self.Case.update_forcing(self.TS, self.Gr, self.PV, self.DV, namelist)
+            # self.DV.update(self.Gr, self.PV)
+            # self.DV.physical_to_spectral(self.Gr)
+            # self.Case.update_surface(self.TS)
+            # self.Case.update_forcing(self.TS, self.Gr, self.PV, self.DV, namelist)
             # move this into timestepping-adams bashford
             self.PV.compute_tendencies(self.Gr, self.PV, self.DV, namelist)
             self.TS.update(self.Gr, self.PV, self.DV, self.DF, namelist)

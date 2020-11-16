@@ -92,5 +92,6 @@ class HeldSuarez(CasesBase):
         return
 
     def update_forcing(self, TS, Gr, PV, DV, namelist):
+        print("update forcing at cases")
         self.Fo.update(TS, Gr, PV, DV, namelist)
         return

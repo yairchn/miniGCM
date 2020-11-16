@@ -123,20 +123,20 @@ class DiagnosticVariables:
         self.U.values[:,:,k], self.V.values[:,:,k] = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
         self.KE.values[:,:,k]    = 0.5*np.add(np.power(self.U.values[:,:,k],2.0),np.power(self.V.values[:,:,k],2.0))
         self.Wp.values[:,:,k+1]  = self.Wp.values[:,:,k]-np.multiply(PV.P.values[:,:,k+1]-PV.P.values[:,:,k],PV.Divergence.values[:,:,k])
-        self.gZ.values[:,:,j]  = np.multiply(Gr.Rd*PV.T.values[:,:,j],np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))) + self.gZ.values[:,:,j+1]
+        self.gZ.values[:,:,j]    = np.multiply(Gr.Rd*PV.T.values[:,:,j],np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))) + self.gZ.values[:,:,j+1]
         k=1
         j = 1
         self.U.values[:,:,k], self.V.values[:,:,k] = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
         self.KE.values[:,:,k]    = 0.5*np.add(np.power(self.U.values[:,:,k],2.0),np.power(self.V.values[:,:,k],2.0))
         self.Wp.values[:,:,k+1]  = self.Wp.values[:,:,k]-np.multiply(PV.P.values[:,:,k+1]-PV.P.values[:,:,k],PV.Divergence.values[:,:,k])
-        self.gZ.values[:,:,j]  = np.multiply(Gr.Rd*PV.T.values[:,:,j],np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))) + self.gZ.values[:,:,j+1]
+        self.gZ.values[:,:,j]    = np.multiply(Gr.Rd*PV.T.values[:,:,j],np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))) + self.gZ.values[:,:,j+1]
         k=2
         j = 0
         self.U.values[:,:,k], self.V.values[:,:,k] = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
         self.KE.values[:,:,k]    = 0.5*np.add(np.power(self.U.values[:,:,k],2.0),np.power(self.V.values[:,:,k],2.0))
         self.Wp.values[:,:,k+1]  = self.Wp.values[:,:,k]-np.multiply(PV.P.values[:,:,k+1]-PV.P.values[:,:,k],PV.Divergence.values[:,:,k])
-        self.gZ.values[:,:,j]  = np.multiply(Gr.Rd*PV.T.values[:,:,j],np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))) + self.gZ.values[:,:,j+1]
-        DV.Wp.values[:,:,0] = np.zeros_like(self.P.values[:,:,0])
+        self.gZ.values[:,:,j]    = np.multiply(Gr.Rd*PV.T.values[:,:,j],np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))) + self.gZ.values[:,:,j+1]
+        self.Wp.values[:,:,0]    = np.zeros_like(self.Wp.values[:,:,0])
         # for k in range(Gr.n_layers): # Gr.n_layers = 3; k=0,1,2
         #     j = Gr.n_layers-k-1 # geopotential is computed bottom -> up
         #     # if np.any(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))<=0.0:
