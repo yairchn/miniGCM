@@ -73,8 +73,8 @@ class Forcing_HelzSuarez:
 
 		# Field initialisation
 		for k in range(Gr.n_layers):
-			p_ratio_k = np.divide(PV.P.values[:,:,k],PV.P.values[:,:,Gr.n_layers]) # as in josef's code for now
-			sigma_ratio_k = np.clip(np.divide(p_ratio_k-self.sigma_b,(1.0-self.sigma_b)) ,0.0, None)
+			sigma_k = np.divide(PV.P.values[:,:,k],PV.P.values[:,:,Gr.n_layers]) # as in josef's code for now
+			sigma_ratio_k = np.clip(np.divide(sigma_k-self.sigma_b,(1.0-self.sigma_b)) ,0.0, None)
 			cos4_lat = np.power(np.cos(Gr.lat),4.0)
 			self.k_T[:,:,k] = np.multiply(np.multiply((self.k_s-self.k_a),sigma_ratio_k),cos4_lat)
 			self.k_T[:,:,k] = np.add(self.k_a,self.k_T[:,:,k])
