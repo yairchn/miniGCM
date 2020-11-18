@@ -42,6 +42,9 @@ class Simulation:
         while self.TS.t <= self.TS.t_max:
             self.PV.reset_pressures(self.Gr)
             self.PV.spectral_to_physical(self.Gr)
+            print('Ps max = ', np.max(self.PV.P.values[:,:,3]))
+            print('Ps min = ', np.min(self.PV.P.values[:,:,3]))
+            print('time', self.TS.t)
             # self.DV.update(self.Gr, self.PV)
             # self.DV.physical_to_spectral(self.Gr)
             # self.Case.update_surface(self.TS)
