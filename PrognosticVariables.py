@@ -648,20 +648,20 @@ class PrognosticVariables:
         ddivsp1 = tmpa1 -Gr.SphericalGrid.lap*tmpf1  -divsp21 +fdivsp1 
         #ddivsp1 = tmpa1 -Gr.SphericalGrid.lap*tmpf1 -divsp21  
         #
-        PV.P.tendency[:,3] = dpssp
-        for k in range(Gr.n_layers):
-            PV.Divergence.tendency[:,k] = ddivsp1
-            PV.Vorticity.tendency[:,k]  = dvrtsp1
-            PV.T.tendency[:,k] = dtempsp1
-        # k=1
-        # PV.Divergence.tendency[:,k] = ddivsp2
-        # PV.Vorticity.tendency[:,k]  = dvrtsp2
-        # PV.T.tendency[:,k] = dtempsp2
-        # k=2
-        # PV.Divergence.tendency[:,k] = ddivsp3
-        # PV.Vorticity.tendency[:,k]  = dvrtsp3
-        # PV.T.tendency[:,k] = dtempsp3
+        k=0
+        PV.Divergence.tendency[:,k] = ddivsp1
+        PV.Vorticity.tendency[:,k]  = dvrtsp1
+        PV.T.tendency[:,k] = dtempsp1
+        k=1
+        PV.Divergence.tendency[:,k] = ddivsp2
+        PV.Vorticity.tendency[:,k]  = dvrtsp2
+        PV.T.tendency[:,k] = dtempsp2
+        k=2
+        PV.Divergence.tendency[:,k] = ddivsp3
+        PV.Vorticity.tendency[:,k]  = dvrtsp3
+        PV.T.tendency[:,k] = dtempsp3
 
+        PV.P.tendency[:,3] = dpssp
 
 
         # for k in range(nz):
