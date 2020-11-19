@@ -536,24 +536,24 @@ class PrognosticVariables:
         # bulku21=0.5*omega2*(u2-u1)/p21
         # bulkv21=0.5*omega2*(v2-v1)/p21
         # bulktemp21=0.5*omega2*(temp2+temp1)/p21
-        bulku21    = 0.5*np.multiply(DV.Wp.values[:,:,1],(DV.U.values[:,:,1]-DV.U.values[:,:,0])/p21)
-        bulkv21    = 0.5*np.multiply(DV.Wp.values[:,:,1],(DV.V.values[:,:,1]-DV.V.values[:,:,0])/p21)
-        bulktemp21 = 0.5*np.multiply(DV.Wp.values[:,:,1],(PV.T.values[:,:,1]+PV.T.values[:,:,0])/p21)
+        bulku21    = 0.5*np.multiply(DV.Wp.values[:,:,1],(DV.U.values[:,:,1]-DV.U.values[:,:,0])/(PV.P.values[:,:,1]-PV.P.values[:,:,0]))
+        bulkv21    = 0.5*np.multiply(DV.Wp.values[:,:,1],(DV.V.values[:,:,1]-DV.V.values[:,:,0])/(PV.P.values[:,:,1]-PV.P.values[:,:,0]))
+        bulktemp21 = 0.5*np.multiply(DV.Wp.values[:,:,1],(PV.T.values[:,:,1]+PV.T.values[:,:,0])/(PV.P.values[:,:,1]-PV.P.values[:,:,0]))
 
 
         # bulku32=0.5*omega3*(u3-u2)/p32
         # bulkv32=0.5*omega3*(v3-v2)/p32
         # bulktemp32=0.5*omega3*(temp3+temp2)/p32
-        bulku32=0.5*np.multiply(DV.Wp.values[:,:,2],(DV.U.values[:,:,2]-DV.U.values[:,:,1])/p32)
-        bulkv32=0.5*np.multiply(DV.Wp.values[:,:,2],(DV.V.values[:,:,2]-DV.V.values[:,:,1])/p32)
-        bulktemp32=0.5*np.multiply(DV.Wp.values[:,:,2],(PV.T.values[:,:,2]+PV.T.values[:,:,1])/p32)
+        bulku32=0.5*np.multiply(DV.Wp.values[:,:,2],(DV.U.values[:,:,2]-DV.U.values[:,:,1])/(PV.P.values[:,:,2]-PV.P.values[:,:,1]))
+        bulkv32=0.5*np.multiply(DV.Wp.values[:,:,2],(DV.V.values[:,:,2]-DV.V.values[:,:,1])/(PV.P.values[:,:,2]-PV.P.values[:,:,1]))
+        bulktemp32=0.5*np.multiply(DV.Wp.values[:,:,2],(PV.T.values[:,:,2]+PV.T.values[:,:,1])/(PV.P.values[:,:,2]-PV.P.values[:,:,1]))
 
         # bulku3s=0.5*omega3*(u3-u2)/(ps-p3)
         # bulkv3s=0.5*omega3*(v3-v2)/(ps-p3)
         # bulktemp3s=omegas*temp3/(ps-p3)
-        bulku3s=0.5*np.multiply(DV.Wp.values[:,:,3],(DV.U.values[:,:,2]-DV.U.values[:,:,1])/(ps-p3))
-        bulkv3s=0.5*np.multiply(DV.Wp.values[:,:,3],(DV.V.values[:,:,2]-DV.V.values[:,:,1])/(ps-p3))
-        bulktemp3s=0.5*np.multiply(DV.Wp.values[:,:,3],(PV.T.values[:,:,2]+PV.T.values[:,:,2])/(ps-p3))
+        bulku3s=0.5*np.multiply(DV.Wp.values[:,:,3],(DV.U.values[:,:,2]-DV.U.values[:,:,1])/(PV.P.values[:,:,3]-PV.P.values[:,:,2]))
+        bulkv3s=0.5*np.multiply(DV.Wp.values[:,:,3],(DV.V.values[:,:,2]-DV.V.values[:,:,1])/(PV.P.values[:,:,3]-PV.P.values[:,:,2]))
+        bulktemp3s=0.5*np.multiply(DV.Wp.values[:,:,3],(PV.T.values[:,:,2]+PV.T.values[:,:,2])/(PV.P.values[:,:,3]-PV.P.values[:,:,2]))
 
 
         vrtsp21, divsp21 = Gr.SphericalGrid.getvrtdivspec(bulku21, bulkv21)
@@ -604,8 +604,8 @@ class PrognosticVariables:
 
 
         ### level 3 ###
-        tmp31 = DV.U.values[:,:,2]*(vrt3+Gr.Coriolis)
-        tmp32 = DV.V.values[:,:,2]*(vrt3+Gr.Coriolis)
+        tmp31 = DV.U.values[:,:,2]*(PV.Vorticity.values[:,:,2]+Gr.Coriolis)
+        tmp32 = DV.V.values[:,:,2]*(PV.Vorticity.values[:,:,2]+Gr.Coriolis)
         tmpa3, tmpb3 = Gr.SphericalGrid.getvrtdivspec(tmp31, tmp32)
         # F3 = fr.forcingFn(F0)
         dvrtsp3 = -tmpb3  -vrtsp3s +fvrtsp3
@@ -625,8 +625,8 @@ class PrognosticVariables:
 
 
         ### level 2 ###
-        tmp21 = DV.U.values[:,:,1]*(vrt2+Gr.Coriolis)
-        tmp22 = DV.V.values[:,:,1]*(vrt2+Gr.Coriolis)
+        tmp21 = DV.U.values[:,:,1]*(PV.Vorticity.values[:,:,1]+Gr.Coriolis)
+        tmp22 = DV.V.values[:,:,1]*(PV.Vorticity.values[:,:,1]+Gr.Coriolis)
         tmpa2, tmpb2 = Gr.SphericalGrid.getvrtdivspec(tmp21, tmp22)
         # F2 = fr.forcingFn(F0)
         p1_ = 25000.0
@@ -649,8 +649,8 @@ class PrognosticVariables:
 
 
         ### level 1 ###
-        tmp11 = DV.U.values[:,:,0]*(vrt1+Gr.Coriolis)
-        tmp12 = DV.V.values[:,:,0]*(vrt1+Gr.Coriolis)
+        tmp11 = DV.U.values[:,:,0]*(PV.Vorticity.values[:,:,0]+Gr.Coriolis)
+        tmp12 = DV.V.values[:,:,0]*(PV.Vorticity.values[:,:,0]+Gr.Coriolis)
         tmpa1, tmpb1 = Gr.SphericalGrid.getvrtdivspec(tmp11, tmp12)
         # F1 = fr.forcingFn(F0)
         dvrtsp1 = -tmpb1 -vrtsp21 +fvrtsp1
