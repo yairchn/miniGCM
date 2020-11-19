@@ -454,9 +454,9 @@ class PrognosticVariables:
         #     Tbar2[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p2[:,jj]+p3[:,jj])/(2.*p0))*np.cos(y)**2)*((p2[:,jj]+p3[:,jj])/(2.*p0))**Gr.kappa
         #     Tbar3[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p3[:,jj]+ps[:,jj])/(2.*p0))*np.cos(y)**2)*((p3[:,jj]+ps[:,jj])/(2.*p0))**Gr.kappa
         for jj in np.arange(0,Gr.nlons,1):
-            Tbar1[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p1[:,jj]+p2[:,jj])/(2.*p0))*np.cos(y)**2)*((p1[:,jj]+p2[:,jj])/(2.*p0))**Gr.kappa
-            Tbar2[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p2[:,jj]+p3[:,jj])/(2.*p0))*np.cos(y)**2)*((p2[:,jj]+p3[:,jj])/(2.*p0))**Gr.kappa
-            Tbar3[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p3[:,jj]+ps[:,jj])/(2.*p0))*np.cos(y)**2)*((p3[:,jj]+ps[:,jj])/(2.*p0))**Gr.kappa
+            Tbar1[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((PV.P.values[:,jj,0]+PV.P.values[:,jj,1])/(2.*p0))*np.cos(y)**2)*((PV.P.values[:,jj,0]+PV.P.values[:,jj,1])/(2.*p0))**Gr.kappa
+            Tbar2[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((PV.P.values[:,jj,1]+PV.P.values[:,jj,2])/(2.*p0))*np.cos(y)**2)*((PV.P.values[:,jj,1]+PV.P.values[:,jj,2])/(2.*p0))**Gr.kappa
+            Tbar3[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((PV.P.values[:,jj,2]+PV.P.values[:,jj,3])/(2.*p0))*np.cos(y)**2)*((PV.P.values[:,jj,2]+PV.P.values[:,jj,3])/(2.*p0))**Gr.kappa
         
         Tbar1[Tbar1<=200.]=200. # minimum equilibrium Temperature is 200 K
         Tbar2[Tbar2<=200.]=200. # minimum equilibrium Temperature is 200 K
@@ -466,9 +466,9 @@ class PrognosticVariables:
         # But make sure to run the simulation till at least twice this value
         #run 1000 days
         # from Held&Suarez (1994)
-        sigma1=np.divide((p1+p2)/2.,ps)
-        sigma2=np.divide((p2+p3)/2.,ps)
-        sigma3=np.divide((p3+ps)/2.,ps)
+        sigma1=np.divide((PV.P.values[:,:,0]+PV.P.values[:,:,1])/2.,ps)
+        sigma2=np.divide((PV.P.values[:,:,1]+PV.P.values[:,:,2])/2.,ps)
+        sigma3=np.divide((PV.P.values[:,:,2]+PV.P.values[:,:,3])/2.,ps)
         #sigma1=np.divide(p1,ps)
         #sigma2=np.divide(p2,ps)
         #sigma3=np.divide(p3,ps)
@@ -525,8 +525,8 @@ class PrognosticVariables:
         omegasps=DV.Wp.spectral[:,3]
 
         #ps_div = div((u3,v3)*(p3-ps))
-        tmp1=DV.U.values[:,:,2]*(p3-ps)
-        tmp2=DV.V.values[:,:,2]*(p3-ps)
+        tmp1=DV.U.values[:,:,2]*(PV.P.values[:,:,2]-PV.P.values[:,:,3])
+        tmp2=DV.V.values[:,:,2]*(PV.P.values[:,:,2]-PV.P.values[:,:,3])
         ps_vrt, ps_div = Gr.SphericalGrid.getvrtdivspec(tmp1, tmp2)
 
         #surface pressure
