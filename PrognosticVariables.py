@@ -408,14 +408,14 @@ class PrognosticVariables:
         u3 = DV.U.values[:,:,2]
         v3 = DV.V.values[:,:,2]
 
-        p1 = 25000.0#PV.P.values[:,:,0]
-        p2 = 50000.0#PV.P.values[:,:,1]
-        p3 = 85000.0#PV.P.values[:,:,2]
+        p1 = PV.P.values[:,:,0]
+        p2 = PV.P.values[:,:,1]
+        p3 = PV.P.values[:,:,2]
         ps = Gr.SphericalGrid.spectogrd(PV.P.spectral[:,3])
 
-        p1_sp = 25000.0#PV.P.spectral[:,0]
-        p2_sp = 50000.0#PV.P.spectral[:,1]
-        p3_sp = 85000.0#PV.P.spectral[:,2]
+        p1_sp = PV.P.spectral[:,0]
+        p2_sp = PV.P.spectral[:,1]
+        p3_sp = PV.P.spectral[:,2]
         ps_sp = PV.P.spectral[:,3]
 
         vrt1 = PV.Vorticity.values[:,:,0]
@@ -454,9 +454,9 @@ class PrognosticVariables:
         #     Tbar2[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p2[:,jj]+p3[:,jj])/(2.*p0))*np.cos(y)**2)*((p2[:,jj]+p3[:,jj])/(2.*p0))**Gr.kappa
         #     Tbar3[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p3[:,jj]+ps[:,jj])/(2.*p0))*np.cos(y)**2)*((p3[:,jj]+ps[:,jj])/(2.*p0))**Gr.kappa
         for jj in np.arange(0,Gr.nlons,1):
-            Tbar1[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p1+p2)/(2.*p0))*np.cos(y)**2)*((p1+p2)/(2.*p0))**Gr.kappa
-            Tbar2[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p2+p3)/(2.*p0))*np.cos(y)**2)*((p2+p3)/(2.*p0))**Gr.kappa
-            Tbar3[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p3+ps[:,jj])/(2.*p0))*np.cos(y)**2)*((p3+ps[:,jj])/(2.*p0))**Gr.kappa
+            Tbar1[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p1[:,jj]+p2[:,jj])/(2.*p0))*np.cos(y)**2)*((p1[:,jj]+p2[:,jj])/(2.*p0))**Gr.kappa
+            Tbar2[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p2[:,jj]+p3[:,jj])/(2.*p0))*np.cos(y)**2)*((p2[:,jj]+p3[:,jj])/(2.*p0))**Gr.kappa
+            Tbar3[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p3[:,jj]+ps[:,jj])/(2.*p0))*np.cos(y)**2)*((p3[:,jj]+ps[:,jj])/(2.*p0))**Gr.kappa
         
         Tbar1[Tbar1<=200.]=200. # minimum equilibrium Temperature is 200 K
         Tbar2[Tbar2<=200.]=200. # minimum equilibrium Temperature is 200 K
