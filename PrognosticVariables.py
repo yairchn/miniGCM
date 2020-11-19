@@ -575,9 +575,13 @@ class PrognosticVariables:
 
 
         # geopotentials
-        phi3 =Gr.Rd*temp3*np.log(ps/p3)
-        phi2 =Gr.Rd*temp2*np.log(p3/p2)  + phi3
-        phi1 =Gr.Rd*temp1*np.log(p2/p1)  + phi2
+        # phi3 =Gr.Rd*temp3*np.log(ps/p3)
+        # phi2 =Gr.Rd*temp2*np.log(p3/p2)  + phi3
+        # phi1 =Gr.Rd*temp1*np.log(p2/p1)  + phi2
+
+        phi3 =Gr.Rd*PV.T.values[:,:,2]*np.log(ps/PV.P.values[:,:,2])
+        phi2 =Gr.Rd*PV.T.values[:,:,1]*np.log(p3/PV.P.values[:,:,1])  + phi3
+        phi1 =Gr.Rd*PV.T.values[:,:,0]*np.log(p2/PV.P.values[:,:,0])  + phi2
 
 
         # kinetic energy
