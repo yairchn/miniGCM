@@ -507,12 +507,15 @@ class PrognosticVariables:
 
         #
         # quantities across levels
-        omega2=(p1-p2)*div1
-        omega3=omega2+(p2-p3)*div2
-        omegas=omega3+(p3-ps)*div3
-        # omega2=DV.Wp.values[:,:,1]
-        # omega3=DV.Wp.values[:,:,2]
-        # omegas=DV.Wp.values[:,:,3]
+        # omega2=(p1-p2)*div1
+        # omega3=omega2+(p2-p3)*div2
+        # omegas=omega3+(p3-ps)*div3
+        # omega2=(PV.P.values[:,:,0]-PV.P.values[:,:,1])*PV.Divergence.values[:,:,0]
+        # omega3=omega2+(PV.P.values[:,:,1]-PV.P.values[:,:,2])*PV.Divergence.values[:,:,1]
+        # omegas=omega3+(PV.P.values[:,:,2]-PV.P.values[:,:,3])*PV.Divergence.values[:,:,2]
+        omega2=DV.Wp.values[:,:,1]
+        omega3=DV.Wp.values[:,:,2]
+        omegas=DV.Wp.values[:,:,3]
         #
         omegasp2=Gr.SphericalGrid.grdtospec(omega2)
         omegasp3=Gr.SphericalGrid.grdtospec(omega3)
@@ -583,8 +586,8 @@ class PrognosticVariables:
 
         # kinetic energy
         ekin3=0.5*(u3**2+v3**2)
-        ekin2=0.5*(u2**2+v2**2)
         ekin1=0.5*(u1**2+v1**2)
+        ekin2=0.5*(u2**2+v2**2)
 
 
 
