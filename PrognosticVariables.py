@@ -457,7 +457,7 @@ class PrognosticVariables:
             Tbar1[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((PV.P.values[:,jj,0]+PV.P.values[:,jj,1])/(2.*p0))*np.cos(y)**2)*((PV.P.values[:,jj,0]+PV.P.values[:,jj,1])/(2.*p0))**Gr.kappa
             Tbar2[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((PV.P.values[:,jj,1]+PV.P.values[:,jj,2])/(2.*p0))*np.cos(y)**2)*((PV.P.values[:,jj,1]+PV.P.values[:,jj,2])/(2.*p0))**Gr.kappa
             Tbar3[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((PV.P.values[:,jj,2]+PV.P.values[:,jj,3])/(2.*p0))*np.cos(y)**2)*((PV.P.values[:,jj,2]+PV.P.values[:,jj,3])/(2.*p0))**Gr.kappa
-        
+
         Tbar1[Tbar1<=200.]=200. # minimum equilibrium Temperature is 200 K
         Tbar2[Tbar2<=200.]=200. # minimum equilibrium Temperature is 200 K
         Tbar3[Tbar3<=200.]=200. # minimum equilibrium Temperature is 200 K
@@ -612,9 +612,11 @@ class PrognosticVariables:
         #dvrtsp3 += Gr.SphericalGrid.lap*F3*.1
         #
         tmp33 = DV.U.values[:,:,2]*(PV.T.values[:,:,2])
-        tmp34 = v3*(PV.T.values[:,:,2])
+        tmp34 = DV.V.values[:,:,2]*(PV.T.values[:,:,2])
         tmpd3, tmpe3 = Gr.SphericalGrid.getvrtdivspec(tmp33,tmp34)
-        dtempsp3 = -tmpe3 +Gr.SphericalGrid.grdtospec(np.multiply(DV.Wp.values[:,:,3],np.divide(phi3,(ps-p3)))/Gr.cp -bulktemp3s + np.divide(bulktemp32*(p3-p2),(ps-p3)) +fT3) 
+        dtempsp3 = -tmpe3 +Gr.SphericalGrid.grdtospec(np.multiply(DV.Wp.values[:,:,3],
+              np.divide(phi3,(PV.P.values[:,:,3]-PV.P.values[:,:,2])))/Gr.cp -bulktemp3s
+            + np.divide(bulktemp32*(PV.P.values[:,:,2]-PV.P.values[:,:,1]),(PV.P.values[:,:,3]-PV.P.values[:,:,2])) +fT3)
         #
         tmpf3 = Gr.SphericalGrid.grdtospec(phi3+ekin3)
         #tmpf3 = Gr.SphericalGrid.grdtospec(phi3m+ekin3)
@@ -629,16 +631,17 @@ class PrognosticVariables:
         tmp22 = DV.V.values[:,:,1]*(PV.Vorticity.values[:,:,1]+Gr.Coriolis)
         tmpa2, tmpb2 = Gr.SphericalGrid.getvrtdivspec(tmp21, tmp22)
         # F2 = fr.forcingFn(F0)
-        p1_ = 25000.0
-        p2_ = 50000.0
-        p3_ = 85000.0
+        p1_ = PV.P.spectral[:,0]
+        p2_ = PV.P.spectral[:,1]
+        p3_ = PV.P.spectral[:,2]
         dvrtsp2 = -tmpb2 -vrtsp32  -vrtsp21*(p2_-p1_)/(p3_-p2_) +fvrtsp2 
         #dvrtsp2 += Gr.SphericalGrid.lap*F2*.15
         #
-        tmp23 = u2*(PV.T.values[:,:,1])
-        tmp24 = v2*(PV.T.values[:,:,1])
+        tmp23 = DV.U.values[:,:,1]*(PV.T.values[:,:,1])
+        tmp24 = DV.V.values[:,:,1]*(PV.T.values[:,:,1])
         tmpd2, tmpe2 = Gr.SphericalGrid.getvrtdivspec(tmp23,tmp24)
-        dtempsp2 = -tmpe2 +Gr.SphericalGrid.grdtospec(-np.multiply(DV.Wp.values[:,:,2],(phi3-phi2)/(p3-p2))/Gr.cp -bulktemp32 +bulktemp21*(p2-p1)/(p3-p2) + fT2)  
+        dtempsp2 = -tmpe2 +Gr.SphericalGrid.grdtospec(-np.multiply(DV.Wp.values[:,:,2],(phi3-phi2)/(PV.P.values[:,:,2]-PV.P.values[:,:,1]))/Gr.cp
+         -bulktemp32 +bulktemp21*(PV.P.values[:,:,1]-PV.P.values[:,:,0])/(PV.P.values[:,:,2]-PV.P.values[:,:,1]) + fT2)
         #
         tmpf2 = Gr.SphericalGrid.grdtospec(phi2+ekin2)
         #tmpf2 = Gr.SphericalGrid.grdtospec(phi2m+ekin2)
@@ -660,7 +663,8 @@ class PrognosticVariables:
         tmp13 = DV.U.values[:,:,0]*(PV.T.values[:,:,0])
         tmp14 = DV.V.values[:,:,0]*(PV.T.values[:,:,0])
         tmpd1, tmpe1 = Gr.SphericalGrid.getvrtdivspec(tmp13,tmp14)
-        dtempsp1 = -tmpe1 +Gr.SphericalGrid.grdtospec(-np.multiply(DV.Wp.values[:,:,1],(phi2-phi1)/(p2-p1))/Gr.cp -bulktemp21 +fT1)  
+        dtempsp1 = -tmpe1 +Gr.SphericalGrid.grdtospec(-np.multiply(DV.Wp.values[:,:,1],(phi2-phi1)/(PV.P.values[:,:,1]-PV.P.values[:,:,0]))/Gr.cp 
+            -bulktemp21 +fT1)
         #
         tmpf1 = Gr.SphericalGrid.grdtospec(phi1+ekin1)
         #tmpf1 = Gr.SphericalGrid.grdtospec(phi1m+ekin1)
