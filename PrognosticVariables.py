@@ -115,9 +115,9 @@ class PrognosticVariables:
         self.P.values[:,:,0] = np.add(np.zeros_like(self.P.values[:,:,0]),self.P_init[0])
         self.P.values[:,:,1] = np.add(np.zeros_like(self.P.values[:,:,1]),self.P_init[1])
         self.P.values[:,:,2] = np.add(np.zeros_like(self.P.values[:,:,2]),self.P_init[2])
-        self.P.spectral[:,0] = np.add(np.zeros_like(self.T.spectral[:,:,0]),self.P_init[0])
-        self.P.spectral[:,1] = np.add(np.zeros_like(self.T.spectral[:,:,1]),self.P_init[1])
-        self.P.spectral[:,2] = np.add(np.zeros_like(self.T.spectral[:,:,2]),self.P_init[2])
+        self.P.spectral[:,0] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,0])
+        self.P.spectral[:,1] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,1])
+        self.P.spectral[:,2] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,2])
         return
 
     # this should be done in time intervals and save each time new files,not part of stats 
@@ -412,7 +412,6 @@ class PrognosticVariables:
         # p1 = PV.P.values[:,:,0]
         # p2 = PV.P.values[:,:,1]
         # p3 = PV.P.values[:,:,2]
-        # ps = Gr.SphericalGrid.spectogrd(PV.P.spectral[:,3])
 
         # p1_sp = PV.P.spectral[:,0]
         # p2_sp = PV.P.spectral[:,1]
@@ -446,6 +445,8 @@ class PrognosticVariables:
         # phi3 =Gr.Rd*PV.T.values[:,:,2]*np.log(PV.P.values[:,:,3]/PV.P.values[:,:,2])
         # phi2 =Gr.Rd*PV.T.values[:,:,1]*np.log(PV.P.values[:,:,2]/PV.P.values[:,:,1])  + phi3
         # phi1 =Gr.Rd*PV.T.values[:,:,0]*np.log(PV.P.values[:,:,1]/PV.P.values[:,:,0])  + phi2
+        # ps = Gr.SphericalGrid.spectogrd(PV.P.spectral[:,3])
+        ps = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,Gr.n_layers])
 
         phi3 =DV.gZ.values[:,:,2]
         phi2 =DV.gZ.values[:,:,1]
@@ -486,9 +487,9 @@ class PrognosticVariables:
         Tbar3[Tbar3<=200.]=200. # minimum equilibrium Temperature is 200 K
 
         # from Held&Suarez (1994)
-        sigma1=np.divide((PV.P.values[:,:,0]+PV.P.values[:,:,1])/2.,PV.P.values[:,:,3])
-        sigma2=np.divide((PV.P.values[:,:,1]+PV.P.values[:,:,2])/2.,PV.P.values[:,:,3])
-        sigma3=np.divide((PV.P.values[:,:,2]+PV.P.values[:,:,3])/2.,PV.P.values[:,:,3])
+        sigma1=np.divide((PV.P.values[:,:,0]+PV.P.values[:,:,1])/2.,ps)
+        sigma2=np.divide((PV.P.values[:,:,1]+PV.P.values[:,:,2])/2.,ps)
+        sigma3=np.divide((PV.P.values[:,:,2]+PV.P.values[:,:,3])/2.,ps)
 
         sigma_ratio1=np.clip(np.divide(sigma1-sigma_b,1-sigma_b),0,None)
         sigma_ratio2=np.clip(np.divide(sigma2-sigma_b,1-sigma_b),0,None)
@@ -564,9 +565,9 @@ class PrognosticVariables:
         tmp21 = DV.U.values[:,:,1]*(PV.Vorticity.values[:,:,1]+Gr.Coriolis)
         tmp22 = DV.V.values[:,:,1]*(PV.Vorticity.values[:,:,1]+Gr.Coriolis)
         tmpa2, tmpb2 = Gr.SphericalGrid.getvrtdivspec(tmp21, tmp22)
-        p1_ = PV.P.spectral[:,0] #25000.0
-        p2_ = PV.P.spectral[:,1] #50000.0
-        p3_ = PV.P.spectral[:,2] #85000.0
+        p1_ = 25000.0
+        p2_ = 50000.0
+        p3_ = 85000.0
         dvrtsp2 = -tmpb2 -vrtsp32  -vrtsp21*(p2_-p1_)/(p3_-p2_) +fvrtsp2
 
         tmp23 = DV.U.values[:,:,1]*(PV.T.values[:,:,1])
