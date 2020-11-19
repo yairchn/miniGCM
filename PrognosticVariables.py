@@ -11,6 +11,7 @@ class PrognosticVariable:
         self.old = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         self.now = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         self.tendency = np.zeros((n_spec,nl),dtype = np.complex, order='c')
+        self.forcing = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         if name != 'Pressure':
             self.SurfaceFlux = np.zeros((nx,ny),dtype=np.double, order='c')
             self.VerticalFlux = np.zeros((nx,ny,nl+1),dtype=np.double, order='c')
@@ -461,61 +462,62 @@ class PrognosticVariables:
         # ekin3=DV.KE.values[:,:,2]
 
 
-        ps = Gr.SphericalGrid.spectogrd(PV.P.spectral[:,Gr.n_layers])
+        # ps = Gr.SphericalGrid.spectogrd(PV.P.spectral[:,Gr.n_layers])
+        # ps = PV.P.values[:,:,Gr.n_layers]
 
         # Forcing      
-        y=Gr.lat[:,0]
-        p0 = Gr.p_ref
-        sigma_b=0.7      # sigma coordiantes as sigma=p/ps
-        k_a = 1./40./(3600.*24)     # [1/s]
-        k_b = 1./10./(3600.*24)     # [1/s]
-        k_s = 1./4./(3600.*24)      # [1/s]
-        k_f = 1./(3600.*24)         # [1/s]
-        DT_y= 60.        # Characteristic temperature change in meridional direction [K]
-        Dtheta_z = 10.   # Characteristic potential temperature change in vertical [K]
-        Tbar1=np.zeros_like(PV.T.values[:,:,0])
-        Tbar2=np.zeros_like(PV.T.values[:,:,1])
-        Tbar3=np.zeros_like(PV.T.values[:,:,2])
+        # y=Gr.lat[:,0]
+        # p0 = Gr.p_ref
+        # sigma_b=0.7      # sigma coordiantes as sigma=p/ps
+        # k_a = 1./40./(3600.*24)     # [1/s]
+        # k_b = 1./10./(3600.*24)     # [1/s]
+        # k_s = 1./4./(3600.*24)      # [1/s]
+        # k_f = 1./(3600.*24)         # [1/s]
+        # DT_y= 60.        # Characteristic temperature change in meridional direction [K]
+        # Dtheta_z = 10.   # Characteristic potential temperature change in vertical [K]
+        # Tbar1=np.zeros_like(PV.T.values[:,:,0])
+        # Tbar2=np.zeros_like(PV.T.values[:,:,1])
+        # Tbar3=np.zeros_like(PV.T.values[:,:,2])
 
-        for jj in np.arange(0,Gr.nlons,1):
-            Tbar1[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((PV.P.values[:,jj,0]+PV.P.values[:,jj,1])/(2.*p0))*np.cos(y)**2)*((PV.P.values[:,jj,0]+PV.P.values[:,jj,1])/(2.*p0))**Gr.kappa
-            Tbar2[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((PV.P.values[:,jj,1]+PV.P.values[:,jj,2])/(2.*p0))*np.cos(y)**2)*((PV.P.values[:,jj,1]+PV.P.values[:,jj,2])/(2.*p0))**Gr.kappa
-            Tbar3[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((PV.P.values[:,jj,2]+PV.P.values[:,jj,3])/(2.*p0))*np.cos(y)**2)*((PV.P.values[:,jj,2]+PV.P.values[:,jj,3])/(2.*p0))**Gr.kappa
+        # for jj in np.arange(0,Gr.nlons,1):
+        #     Tbar1[:,jj]=(315.-DT_y*np.sin(Gr.lat[:,0])**2-Dtheta_z*np.log((PV.P.values[:,jj,0]+PV.P.values[:,jj,1])/(2.*p0))*np.cos(y)**2)*((PV.P.values[:,jj,0]+PV.P.values[:,jj,1])/(2.*p0))**Gr.kappa
+        #     Tbar2[:,jj]=(315.-DT_y*np.sin(Gr.lat[:,0])**2-Dtheta_z*np.log((PV.P.values[:,jj,1]+PV.P.values[:,jj,2])/(2.*p0))*np.cos(y)**2)*((PV.P.values[:,jj,1]+PV.P.values[:,jj,2])/(2.*p0))**Gr.kappa
+        #     Tbar3[:,jj]=(315.-DT_y*np.sin(Gr.lat[:,0])**2-Dtheta_z*np.log((PV.P.values[:,jj,2]+PV.P.values[:,jj,3])/(2.*p0))*np.cos(y)**2)*((PV.P.values[:,jj,2]+PV.P.values[:,jj,3])/(2.*p0))**Gr.kappa
 
-        Tbar1[Tbar1<=200.]=200. # minimum equilibrium Temperature is 200 K
-        Tbar2[Tbar2<=200.]=200. # minimum equilibrium Temperature is 200 K
-        Tbar3[Tbar3<=200.]=200. # minimum equilibrium Temperature is 200 K
+        # Tbar1[Tbar1<=200.]=200. # minimum equilibrium Temperature is 200 K
+        # Tbar2[Tbar2<=200.]=200. # minimum equilibrium Temperature is 200 K
+        # Tbar3[Tbar3<=200.]=200. # minimum equilibrium Temperature is 200 K
 
-        # from Held&Suarez (1994)
-        sigma1=np.divide((PV.P.values[:,:,0]+PV.P.values[:,:,1])/2.,ps)
-        sigma2=np.divide((PV.P.values[:,:,1]+PV.P.values[:,:,2])/2.,ps)
-        sigma3=np.divide((PV.P.values[:,:,2]+PV.P.values[:,:,3])/2.,ps)
+        # # from Held&Suarez (1994)
+        # sigma1=np.divide((PV.P.values[:,:,0]+PV.P.values[:,:,1])/2.,PV.P.values[:,:,Gr.n_layers])
+        # sigma2=np.divide((PV.P.values[:,:,1]+PV.P.values[:,:,2])/2.,PV.P.values[:,:,Gr.n_layers])
+        # sigma3=np.divide((PV.P.values[:,:,2]+PV.P.values[:,:,3])/2.,PV.P.values[:,:,Gr.n_layers])
 
-        sigma_ratio1=np.clip(np.divide(sigma1-sigma_b,1-sigma_b),0,None)
-        sigma_ratio2=np.clip(np.divide(sigma2-sigma_b,1-sigma_b),0,None)
-        sigma_ratio3=np.clip(np.divide(sigma3-sigma_b,1-sigma_b),0,None)
-        k_T1=k_a+(k_s-k_a)*np.multiply(sigma_ratio1,np.power(np.cos(Gr.lat),4))
-        k_T2=k_a+(k_s-k_a)*np.multiply(sigma_ratio2,np.power(np.cos(Gr.lat),4))
-        k_T3=k_a+(k_s-k_a)*np.multiply(sigma_ratio3,np.power(np.cos(Gr.lat),4))
-        k_v1=k_b+k_f*sigma_ratio1
-        k_v2=k_b+k_f*sigma_ratio2
-        k_v3=k_b+k_f*sigma_ratio3
+        # sigma_ratio1=np.clip(np.divide(sigma1-sigma_b,1-sigma_b),0,None)
+        # sigma_ratio2=np.clip(np.divide(sigma2-sigma_b,1-sigma_b),0,None)
+        # sigma_ratio3=np.clip(np.divide(sigma3-sigma_b,1-sigma_b),0,None)
+        # k_T1=k_a+(k_s-k_a)*np.multiply(sigma_ratio1,np.power(np.cos(Gr.lat),4))
+        # k_T2=k_a+(k_s-k_a)*np.multiply(sigma_ratio2,np.power(np.cos(Gr.lat),4))
+        # k_T3=k_a+(k_s-k_a)*np.multiply(sigma_ratio3,np.power(np.cos(Gr.lat),4))
+        # k_v1=k_b+k_f*sigma_ratio1
+        # k_v2=k_b+k_f*sigma_ratio2
+        # k_v3=k_b+k_f*sigma_ratio3
 
-        #wind forcing from H&S
-        fu1=-np.multiply(k_v1,DV.U.values[:,:,0])
-        fu2=-np.multiply(k_v2,DV.U.values[:,:,1])
-        fu3=-np.multiply(k_v3,DV.U.values[:,:,2])
-        fv1=-np.multiply(k_v1,DV.V.values[:,:,0])
-        fv2=-np.multiply(k_v2,DV.V.values[:,:,1])
-        fv3=-np.multiply(k_v3,DV.V.values[:,:,2])
-        fvrtsp1, fdivsp1 = Gr.SphericalGrid.getvrtdivspec(fu1, fv1)
-        fvrtsp2, fdivsp2 = Gr.SphericalGrid.getvrtdivspec(fu2, fv2)
-        fvrtsp3, fdivsp3 = Gr.SphericalGrid.getvrtdivspec(fu3, fv3)
+        # #wind forcing from H&S
+        # fu1=-np.multiply(k_v1,DV.U.values[:,:,0])
+        # fu2=-np.multiply(k_v2,DV.U.values[:,:,1])
+        # fu3=-np.multiply(k_v3,DV.U.values[:,:,2])
+        # fv1=-np.multiply(k_v1,DV.V.values[:,:,0])
+        # fv2=-np.multiply(k_v2,DV.V.values[:,:,1])
+        # fv3=-np.multiply(k_v3,DV.V.values[:,:,2])
+        # fvrtsp1, fdivsp1 = Gr.SphericalGrid.getvrtdivspec(fu1, fv1)
+        # fvrtsp2, fdivsp2 = Gr.SphericalGrid.getvrtdivspec(fu2, fv2)
+        # fvrtsp3, fdivsp3 = Gr.SphericalGrid.getvrtdivspec(fu3, fv3)
 
-        #temperature forcing
-        fT1=-np.multiply(k_T1,(PV.T.values[:,:,0]-Tbar1))
-        fT2=-np.multiply(k_T2,(PV.T.values[:,:,1]-Tbar2))
-        fT3=-np.multiply(k_T3,(PV.T.values[:,:,2]-Tbar3))
+        # #temperature forcing
+        # fT1=-np.multiply(k_T1,(PV.T.values[:,:,0]-Tbar1))
+        # fT2=-np.multiply(k_T2,(PV.T.values[:,:,1]-Tbar2))
+        # fT3=-np.multiply(k_T3,(PV.T.values[:,:,2]-Tbar3))
 
         # equations         
         tmp1=DV.U.values[:,:,2]*(PV.P.values[:,:,2]-PV.P.values[:,:,3])
@@ -548,7 +550,7 @@ class PrognosticVariables:
         tmp32 = DV.V.values[:,:,2]*(PV.Vorticity.values[:,:,2]+Gr.Coriolis)
         tmpa3, tmpb3 = Gr.SphericalGrid.getvrtdivspec(tmp31, tmp32)
         # F3 = fr.forcingFn(F0)
-        dvrtsp3 = -tmpb3  -vrtsp3s +fvrtsp3
+        dvrtsp3 = -tmpb3  -vrtsp3s +PV.Vorticity.forcing[:,2]
         #dvrtsp3 += Gr.SphericalGrid.lap*F3*.1
         #
         tmp33 = DV.U.values[:,:,2]*(PV.T.values[:,:,2])
@@ -556,10 +558,10 @@ class PrognosticVariables:
         tmpd3, tmpe3 = Gr.SphericalGrid.getvrtdivspec(tmp33,tmp34)
         dtempsp3 = -tmpe3 +Gr.SphericalGrid.grdtospec(np.multiply(DV.Wp.values[:,:,3],
               np.divide(DV.gZ.values[:,:,2],(PV.P.values[:,:,3]-PV.P.values[:,:,2])))/Gr.cp -bulktemp3s
-            + np.divide(bulktemp32*(PV.P.values[:,:,2]-PV.P.values[:,:,1]),(PV.P.values[:,:,3]-PV.P.values[:,:,2])) +fT3)
+            + np.divide(bulktemp32*(PV.P.values[:,:,2]-PV.P.values[:,:,1]),(PV.P.values[:,:,3]-PV.P.values[:,:,2]))) + PV.T.forcing[:,2]
 
         tmpf3 = Gr.SphericalGrid.grdtospec(DV.gZ.values[:,:,2]+DV.KE.values[:,:,2])
-        ddivsp3 = tmpa3 - Gr.SphericalGrid.lap*tmpf3 -divsp3s +fdivsp3
+        ddivsp3 = tmpa3 - Gr.SphericalGrid.lap*tmpf3 -divsp3s +PV.Divergence.forcing[:,2]
 
         ### level 2 ###
         tmp21 = DV.U.values[:,:,1]*(PV.Vorticity.values[:,:,1]+Gr.Coriolis)
@@ -568,16 +570,16 @@ class PrognosticVariables:
         p1_ = 25000.0
         p2_ = 50000.0
         p3_ = 85000.0
-        dvrtsp2 = -tmpb2 -vrtsp32  -vrtsp21*(p2_-p1_)/(p3_-p2_) +fvrtsp2
+        dvrtsp2 = -tmpb2 -vrtsp32  -vrtsp21*(p2_-p1_)/(p3_-p2_) +PV.Vorticity.forcing[:,1]
 
         tmp23 = DV.U.values[:,:,1]*(PV.T.values[:,:,1])
         tmp24 = DV.V.values[:,:,1]*(PV.T.values[:,:,1])
         tmpd2, tmpe2 = Gr.SphericalGrid.getvrtdivspec(tmp23,tmp24)
         dtempsp2 = -tmpe2 +Gr.SphericalGrid.grdtospec(-np.multiply(DV.Wp.values[:,:,2],(DV.gZ.values[:,:,2]-DV.gZ.values[:,:,1])/(PV.P.values[:,:,2]-PV.P.values[:,:,1]))/Gr.cp
-         -bulktemp32 +bulktemp21*(PV.P.values[:,:,1]-PV.P.values[:,:,0])/(PV.P.values[:,:,2]-PV.P.values[:,:,1]) + fT2)
+         -bulktemp32 +bulktemp21*(PV.P.values[:,:,1]-PV.P.values[:,:,0])/(PV.P.values[:,:,2]-PV.P.values[:,:,1])) + PV.T.forcing[:,1]
 
         tmpf2 = Gr.SphericalGrid.grdtospec(DV.gZ.values[:,:,1]+DV.KE.values[:,:,1])
-        ddivsp2 = tmpa2 - Gr.SphericalGrid.lap*tmpf2  -divsp32 -divsp21*(p2_-p1_)/(p3_-p2_)  +fdivsp2 
+        ddivsp2 = tmpa2 - Gr.SphericalGrid.lap*tmpf2  -divsp32 -divsp21*(p2_-p1_)/(p3_-p2_)  +PV.Divergence.forcing[:,1]
 
 
 
@@ -587,16 +589,16 @@ class PrognosticVariables:
         tmp11 = DV.U.values[:,:,0]*(PV.Vorticity.values[:,:,0]+Gr.Coriolis)
         tmp12 = DV.V.values[:,:,0]*(PV.Vorticity.values[:,:,0]+Gr.Coriolis)
         tmpa1, tmpb1 = Gr.SphericalGrid.getvrtdivspec(tmp11, tmp12)
-        dvrtsp1 = -tmpb1 -vrtsp21 +fvrtsp1
+        dvrtsp1 = -tmpb1 -vrtsp21 +PV.Vorticity.forcing[:,0]
 
         tmp13 = DV.U.values[:,:,0]*(PV.T.values[:,:,0])
         tmp14 = DV.V.values[:,:,0]*(PV.T.values[:,:,0])
         tmpd1, tmpe1 = Gr.SphericalGrid.getvrtdivspec(tmp13,tmp14)
         dtempsp1 = -tmpe1 +Gr.SphericalGrid.grdtospec(-np.multiply(DV.Wp.values[:,:,1],(DV.gZ.values[:,:,1]-DV.gZ.values[:,:,0])/(PV.P.values[:,:,1]-PV.P.values[:,:,0]))/Gr.cp 
-            -bulktemp21 +fT1)
+            -bulktemp21)+PV.T.forcing[:,0]
 
         tmpf1 = Gr.SphericalGrid.grdtospec(DV.gZ.values[:,:,0]+DV.KE.values[:,:,0])
-        ddivsp1 = tmpa1 -Gr.SphericalGrid.lap*tmpf1  -divsp21 +fdivsp1
+        ddivsp1 = tmpa1 -Gr.SphericalGrid.lap*tmpf1  -divsp21 +PV.Divergence.forcing[:,0]
         #
         k=0
         PV.Divergence.tendency[:,k] = ddivsp1
