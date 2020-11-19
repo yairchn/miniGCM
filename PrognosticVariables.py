@@ -446,7 +446,7 @@ class PrognosticVariables:
         # phi2 =Gr.Rd*PV.T.values[:,:,1]*np.log(PV.P.values[:,:,2]/PV.P.values[:,:,1])  + phi3
         # phi1 =Gr.Rd*PV.T.values[:,:,0]*np.log(PV.P.values[:,:,1]/PV.P.values[:,:,0])  + phi2
         # ps = Gr.SphericalGrid.spectogrd(PV.P.spectral[:,3])
-        ps = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,Gr.n_layers])
+        ps = Gr.SphericalGrid.spectogrd(PV.P.spectral[:,Gr.n_layers])
 
         phi3 =DV.gZ.values[:,:,2]
         phi2 =DV.gZ.values[:,:,1]
