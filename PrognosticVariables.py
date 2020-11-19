@@ -393,20 +393,20 @@ class PrognosticVariables:
         # temp1 = Gr.SphericalGrid.spectogrd(PV.T.spectral[:,0])
         # temp2 = Gr.SphericalGrid.spectogrd(PV.T.spectral[:,1])
         # temp3 = Gr.SphericalGrid.spectogrd(PV.T.spectral[:,2])
-        temp1 = PV.T.values[:,0]
-        temp2 = PV.T.values[:,1]
-        temp3 = PV.T.values[:,2]
+        temp1 = PV.T.values[:,:,0]
+        temp2 = PV.T.values[:,:,1]
+        temp3 = PV.T.values[:,:,2]
 
-        u1, v1 = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,0],PV.Divergence.spectral[:,0])
-        u2, v2 = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,1],PV.Divergence.spectral[:,1])
-        u3, v3 = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,2],PV.Divergence.spectral[:,2])
+        # u1, v1 = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,0],PV.Divergence.spectral[:,0])
+        # u2, v2 = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,1],PV.Divergence.spectral[:,1])
+        # u3, v3 = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,2],PV.Divergence.spectral[:,2])
 
-        # u1 = DV.U.values[:,:,0]
-        # v1 = DV.V.values[:,:,0]
-        # u2 = DV.U.values[:,:,1]
-        # v2 = DV.V.values[:,:,1]
-        # u3 = DV.U.values[:,:,2]
-        # v3 = DV.V.values[:,:,2]
+        u1 = DV.U.values[:,:,0]
+        v1 = DV.V.values[:,:,0]
+        u2 = DV.U.values[:,:,1]
+        v2 = DV.V.values[:,:,1]
+        u3 = DV.U.values[:,:,2]
+        v3 = DV.V.values[:,:,2]
 
         p1 = 25000.0#PV.P.values[:,:,0]
         p2 = 50000.0#PV.P.values[:,:,1]
@@ -418,12 +418,12 @@ class PrognosticVariables:
         p3_sp = 85000.0#PV.P.spectral[:,2]
         ps_sp = PV.P.spectral[:,3]
 
-        vrt1 = Gr.SphericalGrid.spectogrd(PV.Vorticity.spectral[:,0])
-        vrt2 = Gr.SphericalGrid.spectogrd(PV.Vorticity.spectral[:,1])
-        vrt3 = Gr.SphericalGrid.spectogrd(PV.Vorticity.spectral[:,2])
-        div1 = Gr.SphericalGrid.spectogrd(PV.Divergence.spectral[:,0])
-        div2 = Gr.SphericalGrid.spectogrd(PV.Divergence.spectral[:,1])
-        div3 = Gr.SphericalGrid.spectogrd(PV.Divergence.spectral[:,2])
+        vrt1 = PV.Vorticity.values[:,:,0]
+        vrt2 = PV.Vorticity.values[:,:,1]
+        vrt3 = PV.Vorticity.values[:,:,2]
+        div1 = PV.Divergence.values[:,:,0]
+        div2 = PV.Divergence.values[:,:,1]
+        div3 = PV.Divergence.values[:,:,2]
 
         vrtsp1 = PV.Vorticity.spectral[:,0]
         vrtsp2 = PV.Vorticity.spectral[:,1]
@@ -510,6 +510,9 @@ class PrognosticVariables:
         omega2=(p1-p2)*div1
         omega3=omega2+(p2-p3)*div2
         omegas=omega3+(p3-ps)*div3
+        # omega2=DV.Wp.values[:,:,1]
+        # omega3=DV.Wp.values[:,:,2]
+        # omegas=DV.Wp.values[:,:,3]
         #
         omegasp2=Gr.SphericalGrid.grdtospec(omega2)
         omegasp3=Gr.SphericalGrid.grdtospec(omega3)
