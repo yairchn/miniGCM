@@ -579,15 +579,14 @@ class PrognosticVariables:
         phi2 =Gr.Rd*temp2*np.log(p3/p2)  + phi3
         phi1 =Gr.Rd*temp1*np.log(p2/p1)  + phi2
 
-        # geopotentials in the middle of each layer
-        #phi3m=R*temp3*np.log(0.5*(p3+ps)/p3)
-        #phi2m=R*temp2*np.log(0.5*p23/p2)      + phi3
-        #phi1m=R*temp1*np.log(0.5*p12/p1)      + phi2
 
         # kinetic energy
-        ekin3=0.5*(u3**2+v3**2)
-        ekin1=0.5*(u1**2+v1**2)
-        ekin2=0.5*(u2**2+v2**2)
+        # ekin3=0.5*(u3**2+v3**2)
+        # ekin1=0.5*(u1**2+v1**2)
+        # ekin2=0.5*(u2**2+v2**2)
+        ekin1=DV.KE.values[:,:,0]
+        ekin2=DV.KE.values[:,:,1]
+        ekin3=DV.KE.values[:,:,2]
 
 
 
