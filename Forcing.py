@@ -159,43 +159,58 @@ class Forcing_HelzSuarez:
 		Tbar3[Tbar3<=200.]=200. # minimum equilibrium Temperature is 200 K
 
 		# from Held&Suarez (1994)
-		sigma1=np.divide((PV.P.values[:,:,0]+PV.P.values[:,:,1])/2.,PV.P.values[:,:,Gr.n_layers])
-		sigma2=np.divide((PV.P.values[:,:,1]+PV.P.values[:,:,2])/2.,PV.P.values[:,:,Gr.n_layers])
-		sigma3=np.divide((PV.P.values[:,:,2]+PV.P.values[:,:,3])/2.,PV.P.values[:,:,Gr.n_layers])
 
-		sigma_ratio1=np.clip(np.divide(sigma1-sigma_b,1-sigma_b),0,None)
-		sigma_ratio2=np.clip(np.divide(sigma2-sigma_b,1-sigma_b),0,None)
-		sigma_ratio3=np.clip(np.divide(sigma3-sigma_b,1-sigma_b),0,None)
-		k_T1=k_a+(k_s-k_a)*np.multiply(sigma_ratio1,np.power(np.cos(Gr.lat),4))
-		k_T2=k_a+(k_s-k_a)*np.multiply(sigma_ratio2,np.power(np.cos(Gr.lat),4))
-		k_T3=k_a+(k_s-k_a)*np.multiply(sigma_ratio3,np.power(np.cos(Gr.lat),4))
-		k_v1=k_b+k_f*sigma_ratio1
-		k_v2=k_b+k_f*sigma_ratio2
-		k_v3=k_b+k_f*sigma_ratio3
+		for k in range(Gr.n_layers):
+			for jj in np.arange(0,Gr.nlons,1):
+				self.Tbar[:,jj,k]=((315.-self.DT_y*np.sin(Gr.lat[:,0])**2-self.Dtheta_z*np.log((PV.P.values[:,jj,k]
+					+PV.P.values[:,jj,k+1])/(2.*p0))*np.cos(Gr.lat[:,0])**2)*((PV.P.values[:,jj,k]+PV.P.values[:,jj,k+1])/(2.*p0))**Gr.kappa)
+			self.Tbar[:,:,k][self.Tbar[:,:,k]<=200.]=200.
+			sigma=np.divide((PV.P.values[:,:,k]+PV.P.values[:,:,k+1])/2.,PV.P.values[:,:,Gr.n_layers])
+			sigma_ratio=np.clip(np.divide(sigma-sigma_b,1-sigma_b),0,None)
+			self.k_T[:,:,k] = k_a+(k_s-k_a)*np.multiply(sigma_ratio,np.power(np.cos(Gr.lat),4))
+			self.k_v[:,:,k] = k_b+k_f*sigma_ratio
+			PV.Vorticity.forcing[:,k] ,PV.Divergence.forcing[:,k] = (
+			   Gr.SphericalGrid.getvrtdivspec(-np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k]),
+			                                  -np.multiply(self.k_v[:,:,k],DV.V.values[:,:,k])))
+			PV.T.forcing[:,k] = -Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(PV.T.values[:,:,k]-self.Tbar[:,:,k])))
+
+		# sigma1=np.divide((PV.P.values[:,:,0]+PV.P.values[:,:,1])/2.,PV.P.values[:,:,Gr.n_layers])
+		# sigma2=np.divide((PV.P.values[:,:,1]+PV.P.values[:,:,2])/2.,PV.P.values[:,:,Gr.n_layers])
+		# sigma3=np.divide((PV.P.values[:,:,2]+PV.P.values[:,:,3])/2.,PV.P.values[:,:,Gr.n_layers])
+
+		# sigma_ratio1=np.clip(np.divide(sigma1-sigma_b,1-sigma_b),0,None)
+		# sigma_ratio2=np.clip(np.divide(sigma2-sigma_b,1-sigma_b),0,None)
+		# sigma_ratio3=np.clip(np.divide(sigma3-sigma_b,1-sigma_b),0,None)
+		# self.k_T[:,:,0]=k_a+(k_s-k_a)*np.multiply(sigma_ratio1,np.power(np.cos(Gr.lat),4))
+		# self.k_T[:,:,1]=k_a+(k_s-k_a)*np.multiply(sigma_ratio2,np.power(np.cos(Gr.lat),4))
+		# self.k_T[:,:,2]=k_a+(k_s-k_a)*np.multiply(sigma_ratio3,np.power(np.cos(Gr.lat),4))
+		# k_v1=k_b+k_f*sigma_ratio1
+		# k_v2=k_b+k_f*sigma_ratio2
+		# k_v3=k_b+k_f*sigma_ratio3
 
 		#wind forcing from H&S
-		fu1=-np.multiply(k_v1,DV.U.values[:,:,0])
-		fu2=-np.multiply(k_v2,DV.U.values[:,:,1])
-		fu3=-np.multiply(k_v3,DV.U.values[:,:,2])
-		fv1=-np.multiply(k_v1,DV.V.values[:,:,0])
-		fv2=-np.multiply(k_v2,DV.V.values[:,:,1])
-		fv3=-np.multiply(k_v3,DV.V.values[:,:,2])
-		fvrtsp1, fdivsp1 = Gr.SphericalGrid.getvrtdivspec(fu1, fv1)
-		fvrtsp2, fdivsp2 = Gr.SphericalGrid.getvrtdivspec(fu2, fv2)
-		fvrtsp3, fdivsp3 = Gr.SphericalGrid.getvrtdivspec(fu3, fv3)
+		# fu1=-np.multiply(k_v1,DV.U.values[:,:,0])
+		# fu2=-np.multiply(k_v2,DV.U.values[:,:,1])
+		# fu3=-np.multiply(k_v3,DV.U.values[:,:,2])
+		# fv1=-np.multiply(k_v1,DV.V.values[:,:,0])
+		# fv2=-np.multiply(k_v2,DV.V.values[:,:,1])
+		# fv3=-np.multiply(k_v3,DV.V.values[:,:,2])
+		# # fvrtsp1, fdivsp1 = Gr.SphericalGrid.getvrtdivspec(fu1, fv1)
+		# # fvrtsp2, fdivsp2 = Gr.SphericalGrid.getvrtdivspec(fu2, fv2)
+		# # fvrtsp3, fdivsp3 = Gr.SphericalGrid.getvrtdivspec(fu3, fv3)
 
-		k=0
-		PV.Divergence.forcing[:,k] =  fdivsp1
-		PV.Vorticity.forcing[:,k]  =  fvrtsp1
-		PV.T.forcing[:,k]          = -Gr.SphericalGrid.grdtospec(np.multiply(k_T1,(PV.T.values[:,:,0]-Tbar1)))
-		k=1
-		PV.Divergence.forcing[:,k] =  fdivsp2
-		PV.Vorticity.forcing[:,k]  =  fvrtsp2
-		PV.T.forcing[:,k]          = -Gr.SphericalGrid.grdtospec(np.multiply(k_T2,(PV.T.values[:,:,1]-Tbar2)))
-		k=2
-		PV.Divergence.forcing[:,k] = fdivsp3
-		PV.Vorticity.forcing[:,k]  = fvrtsp3
-		PV.T.forcing[:,k]          = -Gr.SphericalGrid.grdtospec(np.multiply(k_T3,(PV.T.values[:,:,2]-Tbar3)))
+		# for k in range(Gr.n_layers):
+		# 	PV.Vorticity.forcing[:,k] ,PV.Divergence.forcing[:,k] = (
+		# 		       Gr.SphericalGrid.getvrtdivspec(fu1, fv1))
+		# k=0
+		# PV.Vorticity.forcing[:,k] ,PV.Divergence.forcing[:,k] = Gr.SphericalGrid.getvrtdivspec(fu1, fv1)
+		# PV.T.forcing[:,k]          = -Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(PV.T.values[:,:,0]-Tbar1)))
+		# k=1
+		# PV.Vorticity.forcing[:,k] ,PV.Divergence.forcing[:,k] = Gr.SphericalGrid.getvrtdivspec(fu2, fv2)
+		# PV.T.forcing[:,k]          = -Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(PV.T.values[:,:,1]-Tbar2)))
+		# k=2
+		# PV.Vorticity.forcing[:,k] ,PV.Divergence.forcing[:,k] = Gr.SphericalGrid.getvrtdivspec(fu3, fv3)
+		# PV.T.forcing[:,k]          = -Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(PV.T.values[:,:,2]-Tbar3)))
 
 		return
 
