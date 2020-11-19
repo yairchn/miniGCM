@@ -390,9 +390,12 @@ class PrognosticVariables:
         # PV.QT.tendency[:,k]          = np.zeros_like(PV.QT.spectral[:,k])
 
         # yair stopped here
-        temp1 = Gr.SphericalGrid.spectogrd(PV.T.spectral[:,0])
-        temp2 = Gr.SphericalGrid.spectogrd(PV.T.spectral[:,1])
-        temp3 = Gr.SphericalGrid.spectogrd(PV.T.spectral[:,2])
+        # temp1 = Gr.SphericalGrid.spectogrd(PV.T.spectral[:,0])
+        # temp2 = Gr.SphericalGrid.spectogrd(PV.T.spectral[:,1])
+        # temp3 = Gr.SphericalGrid.spectogrd(PV.T.spectral[:,2])
+        temp1 = PV.T.values[:,0]
+        temp2 = PV.T.values[:,1]
+        temp3 = PV.T.values[:,2]
 
         u1, v1 = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,0],PV.Divergence.spectral[:,0])
         u2, v2 = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,1],PV.Divergence.spectral[:,1])
