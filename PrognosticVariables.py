@@ -517,9 +517,12 @@ class PrognosticVariables:
         omega3=DV.Wp.values[:,:,2]
         omegas=DV.Wp.values[:,:,3]
         #
-        omegasp2=Gr.SphericalGrid.grdtospec(omega2)
-        omegasp3=Gr.SphericalGrid.grdtospec(omega3)
-        omegasps=Gr.SphericalGrid.grdtospec(omegas)
+        # omegasp2=Gr.SphericalGrid.grdtospec(omega2)
+        # omegasp3=Gr.SphericalGrid.grdtospec(omega3)
+        # omegasps=Gr.SphericalGrid.grdtospec(omegas)
+        omegasp2=DV.Wp.spectral[:,1]
+        omegasp3=DV.Wp.spectral[:,2]
+        omegasps=DV.Wp.spectral[:,3]
 
         #ps_div = div((u3,v3)*(p3-ps))
         tmp1=u3*(p3-ps)
