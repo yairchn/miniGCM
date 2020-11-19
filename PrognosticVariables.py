@@ -530,30 +530,30 @@ class PrognosticVariables:
         ps_vrt, ps_div = Gr.SphericalGrid.getvrtdivspec(tmp1, tmp2)
 
         #surface pressure
-        dpssp=ps_div + omegasp3
+        dpssp=ps_div + DV.Wp.spectral[:,2]
 
         #exchange terms (vertical)
         # bulku21=0.5*omega2*(u2-u1)/p21
         # bulkv21=0.5*omega2*(v2-v1)/p21
         # bulktemp21=0.5*omega2*(temp2+temp1)/p21
-        bulku21    = 0.5*np.multiply(omega2,(DV.U.values[:,:,1]-DV.U.values[:,:,0])/p21)
-        bulkv21    = 0.5*np.multiply(omega2,(DV.V.values[:,:,1]-DV.V.values[:,:,0])/p21)
-        bulktemp21 = 0.5*np.multiply(omega2,(PV.T.values[:,:,1]+PV.T.values[:,:,0])/p21)
+        bulku21    = 0.5*np.multiply(DV.Wp.values[:,:,1],(DV.U.values[:,:,1]-DV.U.values[:,:,0])/p21)
+        bulkv21    = 0.5*np.multiply(DV.Wp.values[:,:,1],(DV.V.values[:,:,1]-DV.V.values[:,:,0])/p21)
+        bulktemp21 = 0.5*np.multiply(DV.Wp.values[:,:,1],(PV.T.values[:,:,1]+PV.T.values[:,:,0])/p21)
 
 
         # bulku32=0.5*omega3*(u3-u2)/p32
         # bulkv32=0.5*omega3*(v3-v2)/p32
         # bulktemp32=0.5*omega3*(temp3+temp2)/p32
-        bulku32=0.5*np.multiply(omega3,(DV.U.values[:,:,2]-DV.U.values[:,:,1])/p32)
-        bulkv32=0.5*np.multiply(omega3,(DV.V.values[:,:,2]-DV.V.values[:,:,1])/p32)
-        bulktemp32=0.5*np.multiply(omega3,(PV.T.values[:,:,2]+PV.T.values[:,:,1])/p32)
+        bulku32=0.5*np.multiply(DV.Wp.values[:,:,2],(DV.U.values[:,:,2]-DV.U.values[:,:,1])/p32)
+        bulkv32=0.5*np.multiply(DV.Wp.values[:,:,2],(DV.V.values[:,:,2]-DV.V.values[:,:,1])/p32)
+        bulktemp32=0.5*np.multiply(DV.Wp.values[:,:,2],(PV.T.values[:,:,2]+PV.T.values[:,:,1])/p32)
 
         # bulku3s=0.5*omega3*(u3-u2)/(ps-p3)
         # bulkv3s=0.5*omega3*(v3-v2)/(ps-p3)
         # bulktemp3s=omegas*temp3/(ps-p3)
-        bulku3s=0.5*np.multiply(omegas,(DV.U.values[:,:,2]-DV.U.values[:,:,1])/(ps-p3))
-        bulkv3s=0.5*np.multiply(omegas,(DV.V.values[:,:,2]-DV.V.values[:,:,1])/(ps-p3))
-        bulktemp3s=0.5*np.multiply(omegas,(PV.T.values[:,:,2]+PV.T.values[:,:,2])/(ps-p3))
+        bulku3s=0.5*np.multiply(DV.Wp.values[:,:,3],(DV.U.values[:,:,2]-DV.U.values[:,:,1])/(ps-p3))
+        bulkv3s=0.5*np.multiply(DV.Wp.values[:,:,3],(DV.V.values[:,:,2]-DV.V.values[:,:,1])/(ps-p3))
+        bulktemp3s=0.5*np.multiply(DV.Wp.values[:,:,3],(PV.T.values[:,:,2]+PV.T.values[:,:,2])/(ps-p3))
 
 
         vrtsp21, divsp21 = Gr.SphericalGrid.getvrtdivspec(bulku21, bulkv21)
@@ -614,7 +614,7 @@ class PrognosticVariables:
         tmp33 = DV.U.values[:,:,2]*(PV.T.values[:,:,2])
         tmp34 = v3*(PV.T.values[:,:,2])
         tmpd3, tmpe3 = Gr.SphericalGrid.getvrtdivspec(tmp33,tmp34)
-        dtempsp3 = -tmpe3 +Gr.SphericalGrid.grdtospec(np.multiply(omegas,np.divide(phi3,(ps-p3)))/Gr.cp -bulktemp3s + np.divide(bulktemp32*(p3-p2),(ps-p3)) +fT3) 
+        dtempsp3 = -tmpe3 +Gr.SphericalGrid.grdtospec(np.multiply(DV.Wp.values[:,:,3],np.divide(phi3,(ps-p3)))/Gr.cp -bulktemp3s + np.divide(bulktemp32*(p3-p2),(ps-p3)) +fT3) 
         #
         tmpf3 = Gr.SphericalGrid.grdtospec(phi3+ekin3)
         #tmpf3 = Gr.SphericalGrid.grdtospec(phi3m+ekin3)
@@ -638,7 +638,7 @@ class PrognosticVariables:
         tmp23 = u2*(PV.T.values[:,:,1])
         tmp24 = v2*(PV.T.values[:,:,1])
         tmpd2, tmpe2 = Gr.SphericalGrid.getvrtdivspec(tmp23,tmp24)
-        dtempsp2 = -tmpe2 +Gr.SphericalGrid.grdtospec(-np.multiply(omega3,(phi3-phi2)/(p3-p2))/Gr.cp -bulktemp32 +bulktemp21*(p2-p1)/(p3-p2) + fT2)  
+        dtempsp2 = -tmpe2 +Gr.SphericalGrid.grdtospec(-np.multiply(DV.Wp.values[:,:,2],(phi3-phi2)/(p3-p2))/Gr.cp -bulktemp32 +bulktemp21*(p2-p1)/(p3-p2) + fT2)  
         #
         tmpf2 = Gr.SphericalGrid.grdtospec(phi2+ekin2)
         #tmpf2 = Gr.SphericalGrid.grdtospec(phi2m+ekin2)
@@ -660,7 +660,7 @@ class PrognosticVariables:
         tmp13 = DV.U.values[:,:,0]*(PV.T.values[:,:,0])
         tmp14 = DV.V.values[:,:,0]*(PV.T.values[:,:,0])
         tmpd1, tmpe1 = Gr.SphericalGrid.getvrtdivspec(tmp13,tmp14)
-        dtempsp1 = -tmpe1 +Gr.SphericalGrid.grdtospec(-np.multiply(omega2,(phi2-phi1)/(p2-p1))/Gr.cp -bulktemp21 +fT1)  
+        dtempsp1 = -tmpe1 +Gr.SphericalGrid.grdtospec(-np.multiply(DV.Wp.values[:,:,1],(phi2-phi1)/(p2-p1))/Gr.cp -bulktemp21 +fT1)  
         #
         tmpf1 = Gr.SphericalGrid.grdtospec(phi1+ekin1)
         #tmpf1 = Gr.SphericalGrid.grdtospec(phi1m+ekin1)
