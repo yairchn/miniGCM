@@ -393,9 +393,9 @@ class PrognosticVariables:
         # temp1 = Gr.SphericalGrid.spectogrd(PV.T.spectral[:,0])
         # temp2 = Gr.SphericalGrid.spectogrd(PV.T.spectral[:,1])
         # temp3 = Gr.SphericalGrid.spectogrd(PV.T.spectral[:,2])
-        temp1 = PV.T.values[:,:,0]
-        temp2 = PV.T.values[:,:,1]
-        temp3 = PV.T.values[:,:,2]
+        # temp1 = PV.T.values[:,:,0]
+        # temp2 = PV.T.values[:,:,1]
+        # temp3 = PV.T.values[:,:,2]
 
         # u1, v1 = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,0],PV.Divergence.spectral[:,0])
         # u2, v2 = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,1],PV.Divergence.spectral[:,1])
@@ -441,9 +441,9 @@ class PrognosticVariables:
         k_f = 1./(3600.*24)         # [1/s]
         DT_y= 60.        # Characteristic temperature change in meridional direction [K]
         Dtheta_z = 10.   # Characteristic potential temperature change in vertical [K]
-        Tbar1=np.zeros_like(temp1)
-        Tbar2=np.zeros_like(temp2)
-        Tbar3=np.zeros_like(temp3)
+        Tbar1=np.zeros_like(PV.T.values[:,:,0])
+        Tbar2=np.zeros_like(PV.T.values[:,:,1])
+        Tbar3=np.zeros_like(PV.T.values[:,:,2])
         p21=p2-p1
         p12=p2+p1
         p32=p3-p2
@@ -525,8 +525,8 @@ class PrognosticVariables:
         omegasps=DV.Wp.spectral[:,3]
 
         #ps_div = div((u3,v3)*(p3-ps))
-        tmp1=u3*(p3-ps)
-        tmp2=v3*(p3-ps)
+        tmp1=DV.U.values[:,:,2]*(p3-ps)
+        tmp2=DV.V.values[:,:,2]*(p3-ps)
         ps_vrt, ps_div = Gr.SphericalGrid.getvrtdivspec(tmp1, tmp2)
 
         #surface pressure
@@ -536,24 +536,24 @@ class PrognosticVariables:
         # bulku21=0.5*omega2*(u2-u1)/p21
         # bulkv21=0.5*omega2*(v2-v1)/p21
         # bulktemp21=0.5*omega2*(temp2+temp1)/p21
-        bulku21=0.5*np.multiply(omega2,(u2-u1)/p21)
-        bulkv21=0.5*np.multiply(omega2,(v2-v1)/p21)
-        bulktemp21=0.5*np.multiply(omega2,(temp2+temp1)/p21)
+        bulku21    = 0.5*np.multiply(omega2,(DV.U.values[:,:,1]-DV.U.values[:,:,0])/p21)
+        bulkv21    = 0.5*np.multiply(omega2,(DV.V.values[:,:,1]-DV.V.values[:,:,0])/p21)
+        bulktemp21 = 0.5*np.multiply(omega2,(PV.T.values[:,:,1]+PV.T.values[:,:,0])/p21)
 
 
         # bulku32=0.5*omega3*(u3-u2)/p32
         # bulkv32=0.5*omega3*(v3-v2)/p32
         # bulktemp32=0.5*omega3*(temp3+temp2)/p32
-        bulku32=0.5*np.multiply(omega3,(u3-u2)/p32)
-        bulkv32=0.5*np.multiply(omega3,(v3-v2)/p32)
-        bulktemp32=0.5*np.multiply(omega3,(temp3+temp2)/p32)
+        bulku32=0.5*np.multiply(omega3,(DV.U.values[:,:,2]-DV.U.values[:,:,1])/p32)
+        bulkv32=0.5*np.multiply(omega3,(DV.V.values[:,:,2]-DV.V.values[:,:,1])/p32)
+        bulktemp32=0.5*np.multiply(omega3,(PV.T.values[:,:,2]+PV.T.values[:,:,1])/p32)
 
         # bulku3s=0.5*omega3*(u3-u2)/(ps-p3)
         # bulkv3s=0.5*omega3*(v3-v2)/(ps-p3)
         # bulktemp3s=omegas*temp3/(ps-p3)
-        bulku3s=0.5*np.multiply(omegas,(u3-u2)/(ps-p3))
-        bulkv3s=0.5*np.multiply(omegas,(v3-v2)/(ps-p3))
-        bulktemp3s=0.5*np.multiply(omegas,(temp3+temp2)/(ps-p3))
+        bulku3s=0.5*np.multiply(omegas,(DV.U.values[:,:,2]-DV.U.values[:,:,1])/(ps-p3))
+        bulkv3s=0.5*np.multiply(omegas,(DV.V.values[:,:,2]-DV.V.values[:,:,1])/(ps-p3))
+        bulktemp3s=0.5*np.multiply(omegas,(PV.T.values[:,:,2]+PV.T.values[:,:,2])/(ps-p3))
 
 
         vrtsp21, divsp21 = Gr.SphericalGrid.getvrtdivspec(bulku21, bulkv21)
@@ -561,20 +561,20 @@ class PrognosticVariables:
         vrtsp3s, divsp3s = Gr.SphericalGrid.getvrtdivspec(bulku3s, bulkv3s)
 
         #wind forcing from H&S
-        fu1=-np.multiply(k_v1,u1)
-        fu2=-np.multiply(k_v2,u2)
-        fu3=-np.multiply(k_v3,u3)
-        fv1=-np.multiply(k_v1,v1)
-        fv2=-np.multiply(k_v2,v2)
-        fv3=-np.multiply(k_v3,v3)
+        fu1=-np.multiply(k_v1,DV.U.values[:,:,0])
+        fu2=-np.multiply(k_v2,DV.U.values[:,:,1])
+        fu3=-np.multiply(k_v3,DV.U.values[:,:,2])
+        fv1=-np.multiply(k_v1,DV.V.values[:,:,0])
+        fv2=-np.multiply(k_v2,DV.V.values[:,:,1])
+        fv3=-np.multiply(k_v3,DV.V.values[:,:,2])
         fvrtsp1, fdivsp1 = Gr.SphericalGrid.getvrtdivspec(fu1, fv1)
         fvrtsp2, fdivsp2 = Gr.SphericalGrid.getvrtdivspec(fu2, fv2)
         fvrtsp3, fdivsp3 = Gr.SphericalGrid.getvrtdivspec(fu3, fv3)
 
         #temperature forcing
-        fT1=-np.multiply(k_T1,(temp1-Tbar1))
-        fT2=-np.multiply(k_T2,(temp2-Tbar2))
-        fT3=-np.multiply(k_T3,(temp3-Tbar3))
+        fT1=-np.multiply(k_T1,(PV.T.values[:,:,0]-Tbar1))
+        fT2=-np.multiply(k_T2,(PV.T.values[:,:,1]-Tbar2))
+        fT3=-np.multiply(k_T3,(PV.T.values[:,:,2]-Tbar3))
 
 
         # geopotentials
@@ -604,15 +604,15 @@ class PrognosticVariables:
 
 
         ### level 3 ###
-        tmp31 = u3*(vrt3+Gr.Coriolis)
-        tmp32 = v3*(vrt3+Gr.Coriolis)
+        tmp31 = DV.U.values[:,:,2]*(vrt3+Gr.Coriolis)
+        tmp32 = DV.V.values[:,:,2]*(vrt3+Gr.Coriolis)
         tmpa3, tmpb3 = Gr.SphericalGrid.getvrtdivspec(tmp31, tmp32)
         # F3 = fr.forcingFn(F0)
         dvrtsp3 = -tmpb3  -vrtsp3s +fvrtsp3
         #dvrtsp3 += Gr.SphericalGrid.lap*F3*.1
         #
-        tmp33 = u3*(temp3)
-        tmp34 = v3*(temp3)
+        tmp33 = DV.U.values[:,:,2]*(PV.T.values[:,:,2])
+        tmp34 = v3*(PV.T.values[:,:,2])
         tmpd3, tmpe3 = Gr.SphericalGrid.getvrtdivspec(tmp33,tmp34)
         dtempsp3 = -tmpe3 +Gr.SphericalGrid.grdtospec(np.multiply(omegas,np.divide(phi3,(ps-p3)))/Gr.cp -bulktemp3s + np.divide(bulktemp32*(p3-p2),(ps-p3)) +fT3) 
         #
@@ -625,8 +625,8 @@ class PrognosticVariables:
 
 
         ### level 2 ###
-        tmp21 = u2*(vrt2+Gr.Coriolis)
-        tmp22 = v2*(vrt2+Gr.Coriolis)
+        tmp21 = DV.U.values[:,:,1]*(vrt2+Gr.Coriolis)
+        tmp22 = DV.V.values[:,:,1]*(vrt2+Gr.Coriolis)
         tmpa2, tmpb2 = Gr.SphericalGrid.getvrtdivspec(tmp21, tmp22)
         # F2 = fr.forcingFn(F0)
         p1_ = 25000.0
@@ -635,8 +635,8 @@ class PrognosticVariables:
         dvrtsp2 = -tmpb2 -vrtsp32  -vrtsp21*(p2_-p1_)/(p3_-p2_) +fvrtsp2 
         #dvrtsp2 += Gr.SphericalGrid.lap*F2*.15
         #
-        tmp23 = u2*(temp2)
-        tmp24 = v2*(temp2)
+        tmp23 = u2*(PV.T.values[:,:,1])
+        tmp24 = v2*(PV.T.values[:,:,1])
         tmpd2, tmpe2 = Gr.SphericalGrid.getvrtdivspec(tmp23,tmp24)
         dtempsp2 = -tmpe2 +Gr.SphericalGrid.grdtospec(-np.multiply(omega3,(phi3-phi2)/(p3-p2))/Gr.cp -bulktemp32 +bulktemp21*(p2-p1)/(p3-p2) + fT2)  
         #
@@ -649,16 +649,16 @@ class PrognosticVariables:
 
 
         ### level 1 ###
-        tmp11 = u1*(vrt1+Gr.Coriolis)
-        tmp12 = v1*(vrt1+Gr.Coriolis)
+        tmp11 = DV.U.values[:,:,0]*(vrt1+Gr.Coriolis)
+        tmp12 = DV.V.values[:,:,0]*(vrt1+Gr.Coriolis)
         tmpa1, tmpb1 = Gr.SphericalGrid.getvrtdivspec(tmp11, tmp12)
         # F1 = fr.forcingFn(F0)
         dvrtsp1 = -tmpb1 -vrtsp21 +fvrtsp1
         #dvrtsp1 = -tmpb1 -vrtsp21  
         #dvrtsp1 += Gr.SphericalGrid.lap*F1*.2
         #
-        tmp13 = u1*(temp1)
-        tmp14 = v1*(temp1)
+        tmp13 = DV.U.values[:,:,0]*(PV.T.values[:,:,0])
+        tmp14 = DV.V.values[:,:,0]*(PV.T.values[:,:,0])
         tmpd1, tmpe1 = Gr.SphericalGrid.getvrtdivspec(tmp13,tmp14)
         dtempsp1 = -tmpe1 +Gr.SphericalGrid.grdtospec(-np.multiply(omega2,(phi2-phi1)/(p2-p1))/Gr.cp -bulktemp21 +fT1)  
         #
