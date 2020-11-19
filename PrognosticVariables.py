@@ -112,9 +112,12 @@ class PrognosticVariables:
 
     def reset_pressures(self, Gr):
         n=Gr.n_layers
-        self.P.spectral[:,0] = Gr.SphericalGrid.grdtospec(np.multiply(np.ones((Gr.nlats, Gr.nlons),  dtype=np.double, order='c'),self.P_init[0]))
-        self.P.spectral[:,1] = Gr.SphericalGrid.grdtospec(np.multiply(np.ones((Gr.nlats, Gr.nlons),  dtype=np.double, order='c'),self.P_init[1]))
-        self.P.spectral[:,2] = Gr.SphericalGrid.grdtospec(np.multiply(np.ones((Gr.nlats, Gr.nlons),  dtype=np.double, order='c'),self.P_init[2]))
+        self.P.values[:,:,0] = np.add(np.zeros_like(self.P.values[:,:,0]),self.P_init[0])
+        self.P.values[:,:,1] = np.add(np.zeros_like(self.P.values[:,:,1]),self.P_init[1])
+        self.P.values[:,:,2] = np.add(np.zeros_like(self.P.values[:,:,2]),self.P_init[2])
+        self.P.spectral[:,0] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,0])
+        self.P.spectral[:,1] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,1])
+        self.P.spectral[:,2] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,2])
         return
 
     # this should be done in time intervals and save each time new files,not part of stats 
@@ -387,33 +390,37 @@ class PrognosticVariables:
         # PV.QT.tendency[:,k]          = np.zeros_like(PV.QT.spectral[:,k])
 
         # yair stopped here
-        temp1 = PV.T.values[:,:,0]
-        temp2 = PV.T.values[:,:,1]
-        temp3 = PV.T.values[:,:,2]
+        temp1 = Gr.SphericalGrid.spectogrd(PV.T.spectral[:,0])
+        temp2 = Gr.SphericalGrid.spectogrd(PV.T.spectral[:,1])
+        temp3 = Gr.SphericalGrid.spectogrd(PV.T.spectral[:,2])
 
-        u1 = DV.U.values[:,:,0]
-        v1 = DV.V.values[:,:,0]
-        u2 = DV.U.values[:,:,1]
-        v2 = DV.V.values[:,:,1]
-        u3 = DV.U.values[:,:,2]
-        v3 = DV.V.values[:,:,2]
+        u1, v1 = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,0],PV.Divergence.spectral[:,0])
+        u2, v2 = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,1],PV.Divergence.spectral[:,1])
+        u3, v3 = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,2],PV.Divergence.spectral[:,2])
 
-        p1 = PV.P.values[:,:,0]
-        p2 = PV.P.values[:,:,1]
-        p3 = PV.P.values[:,:,2]
-        ps = PV.P.values[:,:,3]
+        # u1 = DV.U.values[:,:,0]
+        # v1 = DV.V.values[:,:,0]
+        # u2 = DV.U.values[:,:,1]
+        # v2 = DV.V.values[:,:,1]
+        # u3 = DV.U.values[:,:,2]
+        # v3 = DV.V.values[:,:,2]
 
-        p1_sp = PV.P.spectral[:,0]
-        p2_sp = PV.P.spectral[:,1]
-        p3_sp = PV.P.spectral[:,2]
+        p1 = 25000.0#PV.P.values[:,:,0]
+        p2 = 50000.0#PV.P.values[:,:,1]
+        p3 = 85000.0#PV.P.values[:,:,2]
+        ps = Gr.SphericalGrid.spectogrd(PV.P.spectral[:,3])
+
+        p1_sp = 25000.0#PV.P.spectral[:,0]
+        p2_sp = 50000.0#PV.P.spectral[:,1]
+        p3_sp = 85000.0#PV.P.spectral[:,2]
         ps_sp = PV.P.spectral[:,3]
 
-        vrt1 = PV.Vorticity.values[:,:,0]
-        vrt2 = PV.Vorticity.values[:,:,1]
-        vrt3 = PV.Vorticity.values[:,:,2]
-        div1 = PV.Divergence.values[:,:,0]
-        div2 = PV.Divergence.values[:,:,1]
-        div3 = PV.Divergence.values[:,:,2]
+        vrt1 = Gr.SphericalGrid.spectogrd(PV.Vorticity.spectral[:,0])
+        vrt2 = Gr.SphericalGrid.spectogrd(PV.Vorticity.spectral[:,1])
+        vrt3 = Gr.SphericalGrid.spectogrd(PV.Vorticity.spectral[:,2])
+        div1 = Gr.SphericalGrid.spectogrd(PV.Divergence.spectral[:,0])
+        div2 = Gr.SphericalGrid.spectogrd(PV.Divergence.spectral[:,1])
+        div3 = Gr.SphericalGrid.spectogrd(PV.Divergence.spectral[:,2])
 
         vrtsp1 = PV.Vorticity.spectral[:,0]
         vrtsp2 = PV.Vorticity.spectral[:,1]
@@ -439,17 +446,18 @@ class PrognosticVariables:
         p32=p3-p2
         p23=p3+p2
 
+        # for jj in np.arange(0,Gr.nlons,1):
+        #     Tbar1[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p1[:,jj]+p2[:,jj])/(2.*p0))*np.cos(y)**2)*((p1[:,jj]+p2[:,jj])/(2.*p0))**Gr.kappa
+        #     Tbar2[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p2[:,jj]+p3[:,jj])/(2.*p0))*np.cos(y)**2)*((p2[:,jj]+p3[:,jj])/(2.*p0))**Gr.kappa
+        #     Tbar3[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p3[:,jj]+ps[:,jj])/(2.*p0))*np.cos(y)**2)*((p3[:,jj]+ps[:,jj])/(2.*p0))**Gr.kappa
         for jj in np.arange(0,Gr.nlons,1):
-            Tbar1[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p1[:,jj]+p2[:,jj])/(2.*p0))*np.cos(y)**2)*((p1[:,jj]+p2[:,jj])/(2.*p0))**Gr.kappa
-            Tbar2[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p2[:,jj]+p3[:,jj])/(2.*p0))*np.cos(y)**2)*((p2[:,jj]+p3[:,jj])/(2.*p0))**Gr.kappa
-            Tbar3[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p3[:,jj]+ps[:,jj])/(2.*p0))*np.cos(y)**2)*((p3[:,jj]+ps[:,jj])/(2.*p0))**Gr.kappa
+            Tbar1[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p1+p2)/(2.*p0))*np.cos(y)**2)*((p1+p2)/(2.*p0))**Gr.kappa
+            Tbar2[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p2+p3)/(2.*p0))*np.cos(y)**2)*((p2+p3)/(2.*p0))**Gr.kappa
+            Tbar3[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z*np.log((p3+ps[:,jj])/(2.*p0))*np.cos(y)**2)*((p3+ps[:,jj])/(2.*p0))**Gr.kappa
         
         Tbar1[Tbar1<=200.]=200. # minimum equilibrium Temperature is 200 K
         Tbar2[Tbar2<=200.]=200. # minimum equilibrium Temperature is 200 K
         Tbar3[Tbar3<=200.]=200. # minimum equilibrium Temperature is 200 K
-        Tbar1
-        Tbar2
-        Tbar3
         # Relaxation time scales
         # May be increase time scales to 1000 or 2000 days to see the formation of jets
         # But make sure to run the simulation till at least twice this value
@@ -513,17 +521,28 @@ class PrognosticVariables:
         dpssp=ps_div + omegasp3
 
         #exchange terms (vertical)
-        bulku21=0.5*omega2*(u2-u1)/p21
-        bulkv21=0.5*omega2*(v2-v1)/p21
-        bulktemp21=0.5*omega2*(temp2+temp1)/p21 #flux form
+        # bulku21=0.5*omega2*(u2-u1)/p21
+        # bulkv21=0.5*omega2*(v2-v1)/p21
+        # bulktemp21=0.5*omega2*(temp2+temp1)/p21
+        bulku21=0.5*np.multiply(omega2,(u2-u1)/p21)
+        bulkv21=0.5*np.multiply(omega2,(v2-v1)/p21)
+        bulktemp21=0.5*np.multiply(omega2,(temp2+temp1)/p21)
 
-        bulku32=0.5*omega3*(u3-u2)/p32
-        bulkv32=0.5*omega3*(v3-v2)/p32
-        bulktemp32=0.5*omega3*(temp3+temp2)/p32
 
-        bulku3s=0.5*omega3*(u3-u2)/(ps-p3)
-        bulkv3s=0.5*omega3*(v3-v2)/(ps-p3)
-        bulktemp3s=omegas*temp3/(ps-p3)
+        # bulku32=0.5*omega3*(u3-u2)/p32
+        # bulkv32=0.5*omega3*(v3-v2)/p32
+        # bulktemp32=0.5*omega3*(temp3+temp2)/p32
+        bulku32=0.5*np.multiply(omega3,(u3-u2)/p32)
+        bulkv32=0.5*np.multiply(omega3,(v3-v2)/p32)
+        bulktemp32=0.5*np.multiply(omega3,(temp3+temp2)/p32)
+
+        # bulku3s=0.5*omega3*(u3-u2)/(ps-p3)
+        # bulkv3s=0.5*omega3*(v3-v2)/(ps-p3)
+        # bulktemp3s=omegas*temp3/(ps-p3)
+        bulku3s=0.5*np.multiply(omegas,(u3-u2)/(ps-p3))
+        bulkv3s=0.5*np.multiply(omegas,(v3-v2)/(ps-p3))
+        bulktemp3s=0.5*np.multiply(omegas,(temp3+temp2)/(ps-p3))
+
 
         vrtsp21, divsp21 = Gr.SphericalGrid.getvrtdivspec(bulku21, bulkv21)
         vrtsp32, divsp32 = Gr.SphericalGrid.getvrtdivspec(bulku32, bulkv32)
@@ -629,19 +648,20 @@ class PrognosticVariables:
         ddivsp1 = tmpa1 -Gr.SphericalGrid.lap*tmpf1  -divsp21 +fdivsp1 
         #ddivsp1 = tmpa1 -Gr.SphericalGrid.lap*tmpf1 -divsp21  
         #
+        PV.P.tendency[:,3] = dpssp
+        for k in range(Gr.n_layers):
+            PV.Divergence.tendency[:,k] = ddivsp1
+            PV.Vorticity.tendency[:,k]  = dvrtsp1
+            PV.T.tendency[:,k] = dtempsp1
+        # k=1
+        # PV.Divergence.tendency[:,k] = ddivsp2
+        # PV.Vorticity.tendency[:,k]  = dvrtsp2
+        # PV.T.tendency[:,k] = dtempsp2
+        # k=2
+        # PV.Divergence.tendency[:,k] = ddivsp3
+        # PV.Vorticity.tendency[:,k]  = dvrtsp3
+        # PV.T.tendency[:,k] = dtempsp3
 
-        k=0
-        PV.Divergence.tendency[:,k] = ddivsp1
-        PV.Vorticity.tendency[:,k]  = dtempsp1
-        PV.T.tendency[:,k] = dvrtsp1
-        k=1
-        PV.Divergence.tendency[:,k] = ddivsp2
-        PV.Vorticity.tendency[:,k]  = dtempsp2
-        PV.T.tendency[:,k] = dvrtsp2
-        k=2
-        PV.Divergence.tendency[:,k] = ddivsp3
-        PV.Vorticity.tendency[:,k]  = dtempsp3
-        PV.T.tendency[:,k] = dvrtsp3
 
 
         # for k in range(nz):
