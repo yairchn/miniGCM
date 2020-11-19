@@ -579,9 +579,13 @@ class PrognosticVariables:
         # phi2 =Gr.Rd*temp2*np.log(p3/p2)  + phi3
         # phi1 =Gr.Rd*temp1*np.log(p2/p1)  + phi2
 
-        phi3 =Gr.Rd*PV.T.values[:,:,2]*np.log(ps/PV.P.values[:,:,2])
-        phi2 =Gr.Rd*PV.T.values[:,:,1]*np.log(p3/PV.P.values[:,:,1])  + phi3
-        phi1 =Gr.Rd*PV.T.values[:,:,0]*np.log(p2/PV.P.values[:,:,0])  + phi2
+        # phi3 =Gr.Rd*PV.T.values[:,:,2]*np.log(PV.P.values[:,:,3]/PV.P.values[:,:,2])
+        # phi2 =Gr.Rd*PV.T.values[:,:,1]*np.log(PV.P.values[:,:,2]/PV.P.values[:,:,1])  + phi3
+        # phi1 =Gr.Rd*PV.T.values[:,:,0]*np.log(PV.P.values[:,:,1]/PV.P.values[:,:,0])  + phi2
+
+        phi3 =DV.gZ.values[:,:,2]
+        phi2 =DV.gZ.values[:,:,1]
+        phi1 =DV.gZ.values[:,:,0]
 
 
         # kinetic energy
