@@ -46,10 +46,9 @@ class Simulation:
             self.DV.physical_to_spectral(self.Gr)
             # self.Case.update_surface(self.TS)
             self.Case.update_forcing(self.TS, self.Gr, self.PV, self.DV, namelist)
-            # move this into timestepping-adams bashford
             self.PV.compute_tendencies(self.Gr, self.PV, self.DV, namelist)
             self.TS.update(self.Gr, self.PV, self.DV, self.DF, namelist)
-            # Apply the tendencies, also update the BCs and diagnostic thermodynamics
+
             if np.mod(self.TS.t, (24.0*3600.0)) == 0:
                 print('elapsed time [days] about', np.floor_divide(self.TS.t,(24.0*3600.0)))
             if np.mod(self.TS.t, self.Stats.stats_frequency) == 0:
