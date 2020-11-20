@@ -87,7 +87,6 @@ class PrognosticVariables:
         for k in range(Gr.n_layers):
             self.Vorticity.values[:,:,k]  = Gr.SphericalGrid.spectogrd(self.Vorticity.spectral[:,k])
             self.Divergence.values[:,:,k] = Gr.SphericalGrid.spectogrd(self.Divergence.spectral[:,k])
-            self.P.values[:,:,k]          = Gr.SphericalGrid.spectogrd(self.P.spectral[:,k])
             self.T.values[:,:,k]          = Gr.SphericalGrid.spectogrd(self.T.spectral[:,k])
             self.QT.values[:,:,k]         = Gr.SphericalGrid.spectogrd(self.QT.spectral[:,k])
         # I am updating only the surface pressure 
@@ -116,9 +115,9 @@ class PrognosticVariables:
         self.P.values[:,:,0] = np.add(np.zeros_like(self.P.values[:,:,0]),self.P_init[0])
         self.P.values[:,:,1] = np.add(np.zeros_like(self.P.values[:,:,1]),self.P_init[1])
         self.P.values[:,:,2] = np.add(np.zeros_like(self.P.values[:,:,2]),self.P_init[2])
-        self.P.spectral[:,0] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,0])
-        self.P.spectral[:,1] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,1])
-        self.P.spectral[:,2] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,2])
+        self.P.spectral[:,0] = np.add(np.zeros_like(self.P.spectral[:,0]),self.P_init[0])
+        self.P.spectral[:,1] = np.add(np.zeros_like(self.P.spectral[:,1]),self.P_init[1])
+        self.P.spectral[:,2] = np.add(np.zeros_like(self.P.spectral[:,2]),self.P_init[2])
         return
 
     # this should be done in time intervals and save each time new files,not part of stats 
@@ -567,9 +566,9 @@ class PrognosticVariables:
         tmp21 = DV.U.values[:,:,1]*(PV.Vorticity.values[:,:,1]+Gr.Coriolis)
         tmp22 = DV.V.values[:,:,1]*(PV.Vorticity.values[:,:,1]+Gr.Coriolis)
         tmpa2, tmpb2 = Gr.SphericalGrid.getvrtdivspec(tmp21, tmp22)
-        p1_ = 25000.0
-        p2_ = 50000.0
-        p3_ = 85000.0
+        p1_ = self.P.spectral[:,0]
+        p2_ = self.P.spectral[:,1]
+        p3_ = self.P.spectral[:,2]
         dvrtsp2 = -tmpb2 -vrtsp32  -vrtsp21*(p2_-p1_)/(p3_-p2_) +PV.Vorticity.forcing[:,1]
 
         tmp23 = DV.U.values[:,:,1]*(PV.T.values[:,:,1])
