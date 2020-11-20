@@ -535,8 +535,10 @@ class PrognosticVariables:
         bulkv32=0.5*np.multiply(DV.Wp.values[:,:,2],(DV.V.values[:,:,2]-DV.V.values[:,:,1])/(PV.P.values[:,:,2]-PV.P.values[:,:,1]))
         bulktemp32=0.5*np.multiply(DV.Wp.values[:,:,2],(PV.T.values[:,:,2]+PV.T.values[:,:,1])/(PV.P.values[:,:,2]-PV.P.values[:,:,1]))
 
-        bulku3s=0.5*np.multiply(DV.Wp.values[:,:,3],(DV.U.values[:,:,2]-DV.U.values[:,:,1])/(PV.P.values[:,:,3]-PV.P.values[:,:,2]))
-        bulkv3s=0.5*np.multiply(DV.Wp.values[:,:,3],(DV.V.values[:,:,2]-DV.V.values[:,:,1])/(PV.P.values[:,:,3]-PV.P.values[:,:,2]))
+        # bulku3s=0.5*np.multiply(DV.Wp.values[:,:,3],(DV.U.values[:,:,2]-DV.U.values[:,:,1])/(PV.P.values[:,:,3]-PV.P.values[:,:,2]))
+        # bulkv3s=0.5*np.multiply(DV.Wp.values[:,:,3],(DV.V.values[:,:,2]-DV.V.values[:,:,1])/(PV.P.values[:,:,3]-PV.P.values[:,:,2]))
+        bulku3s=0.5*np.multiply(bulku32,(PV.P.values[:,:,2]-PV.P.values[:,:,1])/(PV.P.values[:,:,3]-PV.P.values[:,:,2]))
+        bulkv3s=0.5*np.multiply(bulkv32,(PV.P.values[:,:,2]-PV.P.values[:,:,1])/(PV.P.values[:,:,3]-PV.P.values[:,:,2]))
         bulktemp3s=0.5*np.multiply(DV.Wp.values[:,:,3],(PV.T.values[:,:,2]+PV.T.values[:,:,2])/(PV.P.values[:,:,3]-PV.P.values[:,:,2]))
 
 
