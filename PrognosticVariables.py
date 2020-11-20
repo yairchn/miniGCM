@@ -526,32 +526,27 @@ class PrognosticVariables:
         #surface pressure
         dpssp=ps_div + DV.Wp.spectral[:,2]
 
+        dp_ratio32sp = (PV.P.spectral[:,2]-PV.P.spectral[:,1])/(PV.P.spectral[:,3]-PV.P.spectral[:,2])
         #exchange terms (vertical)
         bulku21    = 0.5*np.multiply(DV.Wp.values[:,:,1],(DV.U.values[:,:,1]-DV.U.values[:,:,0])/(PV.P.values[:,:,1]-PV.P.values[:,:,0]))
-        bulkv21    = 0.5*np.multiply(DV.Wp.values[:,:,1],(DV.V.values[:,:,1]-DV.V.values[:,:,0])/(PV.P.values[:,:,1]-PV.P.values[:,:,0]))
-        bulktemp21 = 0.5*np.multiply(DV.Wp.values[:,:,1],(PV.T.values[:,:,1]+PV.T.values[:,:,0])/(PV.P.values[:,:,1]-PV.P.values[:,:,0]))
-
         bulku32=0.5*np.multiply(DV.Wp.values[:,:,2],(DV.U.values[:,:,2]-DV.U.values[:,:,1])/(PV.P.values[:,:,2]-PV.P.values[:,:,1]))
+        bulkv21    = 0.5*np.multiply(DV.Wp.values[:,:,1],(DV.V.values[:,:,1]-DV.V.values[:,:,0])/(PV.P.values[:,:,1]-PV.P.values[:,:,0]))
         bulkv32=0.5*np.multiply(DV.Wp.values[:,:,2],(DV.V.values[:,:,2]-DV.V.values[:,:,1])/(PV.P.values[:,:,2]-PV.P.values[:,:,1]))
-        bulktemp32=0.5*np.multiply(DV.Wp.values[:,:,2],(PV.T.values[:,:,2]+PV.T.values[:,:,1])/(PV.P.values[:,:,2]-PV.P.values[:,:,1]))
 
-        # bulku3s=0.5*np.multiply(DV.Wp.values[:,:,3],(DV.U.values[:,:,2]-DV.U.values[:,:,1])/(PV.P.values[:,:,3]-PV.P.values[:,:,2]))
-        # bulkv3s=0.5*np.multiply(DV.Wp.values[:,:,3],(DV.V.values[:,:,2]-DV.V.values[:,:,1])/(PV.P.values[:,:,3]-PV.P.values[:,:,2]))
-        bulku3s=0.5*np.multiply(bulku32,(PV.P.values[:,:,2]-PV.P.values[:,:,1])/(PV.P.values[:,:,3]-PV.P.values[:,:,2]))
-        bulkv3s=0.5*np.multiply(bulkv32,(PV.P.values[:,:,2]-PV.P.values[:,:,1])/(PV.P.values[:,:,3]-PV.P.values[:,:,2]))
+        bulktemp21 = 0.5*np.multiply(DV.Wp.values[:,:,1],(PV.T.values[:,:,1]+PV.T.values[:,:,0])/(PV.P.values[:,:,1]-PV.P.values[:,:,0]))
+        bulktemp32=0.5*np.multiply(DV.Wp.values[:,:,2],(PV.T.values[:,:,2]+PV.T.values[:,:,1])/(PV.P.values[:,:,2]-PV.P.values[:,:,1]))
         bulktemp3s=0.5*np.multiply(DV.Wp.values[:,:,3],(PV.T.values[:,:,2]+PV.T.values[:,:,2])/(PV.P.values[:,:,3]-PV.P.values[:,:,2]))
 
 
         vrtsp21, divsp21 = Gr.SphericalGrid.getvrtdivspec(bulku21, bulkv21)
         vrtsp32, divsp32 = Gr.SphericalGrid.getvrtdivspec(bulku32, bulkv32)
-        vrtsp3s, divsp3s = Gr.SphericalGrid.getvrtdivspec(bulku3s, bulkv3s)
 
         ### level 3 ###
         tmp31 = DV.U.values[:,:,2]*(PV.Vorticity.values[:,:,2]+Gr.Coriolis)
         tmp32 = DV.V.values[:,:,2]*(PV.Vorticity.values[:,:,2]+Gr.Coriolis)
         tmpa3, tmpb3 = Gr.SphericalGrid.getvrtdivspec(tmp31, tmp32)
         # F3 = fr.forcingFn(F0)
-        dvrtsp3 = -tmpb3  -vrtsp3s +PV.Vorticity.forcing[:,2]
+        dvrtsp3 = -tmpb3  -np.multiply(vrtsp32,dp_ratio32sp) +PV.Vorticity.forcing[:,2]
         #dvrtsp3 += Gr.SphericalGrid.lap*F3*.1
         #
         tmp33 = DV.U.values[:,:,2]*(PV.T.values[:,:,2])
@@ -562,16 +557,13 @@ class PrognosticVariables:
             + np.divide(bulktemp32*(PV.P.values[:,:,2]-PV.P.values[:,:,1]),(PV.P.values[:,:,3]-PV.P.values[:,:,2]))) + PV.T.forcing[:,2]
 
         tmpf3 = Gr.SphericalGrid.grdtospec(DV.gZ.values[:,:,2]+DV.KE.values[:,:,2])
-        ddivsp3 = tmpa3 - Gr.SphericalGrid.lap*tmpf3 -divsp3s +PV.Divergence.forcing[:,2]
+        ddivsp3 = tmpa3 - Gr.SphericalGrid.lap*tmpf3 -np.multiply(divsp32,dp_ratio32sp) +PV.Divergence.forcing[:,2]
 
         ### level 2 ###
         tmp21 = DV.U.values[:,:,1]*(PV.Vorticity.values[:,:,1]+Gr.Coriolis)
         tmp22 = DV.V.values[:,:,1]*(PV.Vorticity.values[:,:,1]+Gr.Coriolis)
         tmpa2, tmpb2 = Gr.SphericalGrid.getvrtdivspec(tmp21, tmp22)
-        p1_ = self.P.spectral[:,0]
-        p2_ = self.P.spectral[:,1]
-        p3_ = self.P.spectral[:,2]
-        dvrtsp2 = -tmpb2 -vrtsp32  -vrtsp21*(p2_-p1_)/(p3_-p2_) +PV.Vorticity.forcing[:,1]
+        dvrtsp2 = -tmpb2 -vrtsp32  -vrtsp21*dp_ratio32sp +PV.Vorticity.forcing[:,1]
 
         tmp23 = DV.U.values[:,:,1]*(PV.T.values[:,:,1])
         tmp24 = DV.V.values[:,:,1]*(PV.T.values[:,:,1])
@@ -580,10 +572,7 @@ class PrognosticVariables:
          -bulktemp32 +bulktemp21*(PV.P.values[:,:,1]-PV.P.values[:,:,0])/(PV.P.values[:,:,2]-PV.P.values[:,:,1])) + PV.T.forcing[:,1]
 
         tmpf2 = Gr.SphericalGrid.grdtospec(DV.gZ.values[:,:,1]+DV.KE.values[:,:,1])
-        ddivsp2 = tmpa2 - Gr.SphericalGrid.lap*tmpf2  -divsp32 -divsp21*(p2_-p1_)/(p3_-p2_)  +PV.Divergence.forcing[:,1]
-
-
-
+        ddivsp2 = tmpa2 - Gr.SphericalGrid.lap*tmpf2  -divsp32 -divsp21*dp_ratio32sp  +PV.Divergence.forcing[:,1]
 
 
         ### level 1 ###
