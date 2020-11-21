@@ -552,28 +552,56 @@ class PrognosticVariables:
             Vortical_momentum_flux, Divergent_momentum_flux = Gr.SphericalGrid.getvrtdivspec(
                 DV.U.values[:,:,k]*(PV.Vorticity.values[:,:,k]+Gr.Coriolis),
                 DV.V.values[:,:,k]*(PV.Vorticity.values[:,:,k]+Gr.Coriolis))
+            Vortical_T_flux, Divergent_T_flux = Gr.SphericalGrid.getvrtdivspec(
+                np.multiply(DV.U.values[:,:,k],PV.T.values[:,:,k]),
+                np.multiply(DV.V.values[:,:,k],PV.T.values[:,:,k])) # Vortical_T_flux is not used
             if k==0:
                 vrt_flux_dn = PV.Vorticity.sp_VerticalFlux[:,k]
                 vrt_flux_up = np.zeros_like(PV.Vorticity.sp_VerticalFlux[:,k])
                 div_flux_dn = PV.Divergence.sp_VerticalFlux[:,k]
                 div_flux_up = np.zeros_like(PV.Divergence.sp_VerticalFlux[:,k])
+                T_flux_dn   = PV.T.VerticalFlux[:,:,k]
+                T_flux_up   = np.zeros_like(PV.T.VerticalFlux[:,:,k])
+                Thermal_expension = (DV.Wp.values[:,:,k+1]*(DV.gZ.values[:,:,k+1]
+                    - DV.gZ.values[:,:,k])/(PV.P.values[:,:,k+1] - PV.P.values[:,:,k]))/Gr.cp
             elif k==Gr.n_layers-1:
                 vrt_flux_dn = np.zeros_like(PV.Vorticity.sp_VerticalFlux[:,k])
                 vrt_flux_up = PV.Vorticity.sp_VerticalFlux[:,k-1]*dp_ratio32sp
                 div_flux_dn = np.zeros_like(PV.Divergence.sp_VerticalFlux[:,k])
                 div_flux_up = PV.Divergence.sp_VerticalFlux[:,k-1]*dp_ratio32sp
+                T_flux_dn   = np.zeros_like(PV.T.VerticalFlux[:,:,k])
+                T_flux_up   = PV.T.VerticalFlux[:,:,k-1]*(PV.P.values[:,:,k]-PV.P.values[:,:,k-1])/(PV.P.values[:,:,k+1]-PV.P.values[:,:,k])
+                Thermal_expension = -(DV.Wp.values[:,:,k+1]*(DV.gZ.values[:,:,k])
+                                                          /(PV.P.values[:,:,k+1] - PV.P.values[:,:,k]))/Gr.cp
             else:
                 vrt_flux_dn = PV.Vorticity.sp_VerticalFlux[:,k]
                 vrt_flux_up = PV.Vorticity.sp_VerticalFlux[:,k-1]*dp_ratio32sp
                 div_flux_dn = PV.Divergence.sp_VerticalFlux[:,k]
                 div_flux_up = PV.Divergence.sp_VerticalFlux[:,k-1]*dp_ratio32sp
+                T_flux_dn   = PV.T.VerticalFlux[:,:,k]
+                T_flux_up   = PV.T.VerticalFlux[:,:,k-1]*(PV.P.values[:,:,k]-PV.P.values[:,:,k-1])/(PV.P.values[:,:,k+1]-PV.P.values[:,:,k])
+                Thermal_expension = (DV.Wp.values[:,:,k+1]*(DV.gZ.values[:,:,k+1]
+                    - DV.gZ.values[:,:,k])/(PV.P.values[:,:,k+1] - PV.P.values[:,:,k]))/Gr.cp
+
             PV.Vorticity.tendency[:,k]  = - Divergent_momentum_flux - vrt_flux_up - vrt_flux_dn + PV.Vorticity.forcing[:,k]
             PV.Divergence.tendency[:,k] =  (Vortical_momentum_flux  - Dry_Energy_laplacian
                 - div_flux_up - div_flux_dn  +PV.Divergence.forcing[:,k])
+            # PV.T.tendency[:,k] = -Divergent_T_flux + Gr.SphericalGrid.grdtospec(Thermal_expension - T_flux_dn + T_flux_up) + PV.T.forcing[:,k]
 
-        # PV.Divergence.tendency[:,k] = tmpa1 - Gr.SphericalGrid.lap*tmpf1  -PV.Divergence.sp_VerticalFlux[:,k]                                                    +PV.Divergence.forcing[:,k]
-        # PV.Divergence.tendency[:,k] = tmpa2 - Gr.SphericalGrid.lap*tmpf2  -PV.Divergence.sp_VerticalFlux[:,k] -PV.Divergence.sp_VerticalFlux[:,k-1]*dp_ratio32sp +PV.Divergence.forcing[:,k]
-        # PV.Divergence.tendency[:,k] = tmpa3 - Gr.SphericalGrid.lap*tmpf3                                      -PV.Divergence.sp_VerticalFlux[:,k-1]*dp_ratio32sp +PV.Divergence.forcing[:,k]
+            if k==0:
+                PV.T.tendency[:,k] = (-Divergent_T_flux
+                    +Gr.SphericalGrid.grdtospec(-Thermal_expension-PV.T.VerticalFlux[:,:,k])
+                    +PV.T.forcing[:,k])
+            if k==1:
+                PV.T.tendency[:,k] = (-Divergent_T_flux
+                    +Gr.SphericalGrid.grdtospec(-Thermal_expension-PV.T.VerticalFlux[:,:,k]
+                    +PV.T.VerticalFlux[:,:,k-1]*(PV.P.values[:,:,k]-PV.P.values[:,:,k-1])/(PV.P.values[:,:,k+1]-PV.P.values[:,:,k])) + PV.T.forcing[:,k])
+            if k==2:
+                PV.T.tendency[:,k] = (-Divergent_T_flux
+                    +Gr.SphericalGrid.grdtospec(-Thermal_expension-PV.T.VerticalFlux[:,:,k]
+                    + np.divide(PV.T.VerticalFlux[:,:,k-1]*(PV.P.values[:,:,k]-PV.P.values[:,:,k-1]),(PV.P.values[:,:,k+1]-PV.P.values[:,:,k]))) + PV.T.forcing[:,k])
+
+
         ### level 1 ###
         k=0
         tmpa1, tmpb1 = Gr.SphericalGrid.getvrtdivspec(
@@ -584,9 +612,9 @@ class PrognosticVariables:
         tmpd1, tmpe1 = Gr.SphericalGrid.getvrtdivspec(
             DV.U.values[:,:,k]*(PV.T.values[:,:,k]),
             DV.V.values[:,:,k]*(PV.T.values[:,:,k]))
-        PV.T.tendency[:,k] = -tmpe1 +Gr.SphericalGrid.grdtospec(-np.multiply(DV.Wp.values[:,:,1],
-            (DV.gZ.values[:,:,k+1]-DV.gZ.values[:,:,k])/(PV.P.values[:,:,k+1]-PV.P.values[:,:,k]))/Gr.cp
-            -PV.T.VerticalFlux[:,:,k])+PV.T.forcing[:,k]
+        # PV.T.tendency[:,k] = -tmpe1 +Gr.SphericalGrid.grdtospec(-np.multiply(DV.Wp.values[:,:,1],
+        #     (DV.gZ.values[:,:,k+1]-DV.gZ.values[:,:,k])/(PV.P.values[:,:,k+1]-PV.P.values[:,:,k]))/Gr.cp
+        #     -PV.T.VerticalFlux[:,:,k])+PV.T.forcing[:,k]
 
         tmpf1 = Gr.SphericalGrid.grdtospec(DV.gZ.values[:,:,k]+DV.KE.values[:,:,k])
         # PV.Divergence.tendency[:,k] = tmpa1 -Gr.SphericalGrid.lap*tmpf1  -PV.Divergence.sp_VerticalFlux[:,k] +PV.Divergence.forcing[:,k]
@@ -600,8 +628,8 @@ class PrognosticVariables:
         tmpd2, tmpe2 = Gr.SphericalGrid.getvrtdivspec(
             DV.U.values[:,:,k]*(PV.T.values[:,:,k]),
             DV.V.values[:,:,k]*(PV.T.values[:,:,k]))
-        PV.T.tendency[:,k] = -tmpe2 +Gr.SphericalGrid.grdtospec(-np.multiply(DV.Wp.values[:,:,k+1],(DV.gZ.values[:,:,k+1]-DV.gZ.values[:,:,k])/(PV.P.values[:,:,k+1]-PV.P.values[:,:,k]))/Gr.cp
-         -PV.T.VerticalFlux[:,:,k] +PV.T.VerticalFlux[:,:,k-1]*(PV.P.values[:,:,k]-PV.P.values[:,:,k-1])/(PV.P.values[:,:,k+1]-PV.P.values[:,:,k])) + PV.T.forcing[:,k]
+        # PV.T.tendency[:,k] = -tmpe2 +Gr.SphericalGrid.grdtospec(-np.multiply(DV.Wp.values[:,:,k+1],(DV.gZ.values[:,:,k+1]-DV.gZ.values[:,:,k])/(PV.P.values[:,:,k+1]-PV.P.values[:,:,k]))/Gr.cp
+        #  -PV.T.VerticalFlux[:,:,k] +PV.T.VerticalFlux[:,:,k-1]*(PV.P.values[:,:,k]-PV.P.values[:,:,k-1])/(PV.P.values[:,:,k+1]-PV.P.values[:,:,k])) + PV.T.forcing[:,k]
 
         tmpf2 = Gr.SphericalGrid.grdtospec(DV.gZ.values[:,:,k]+DV.KE.values[:,:,k])
         # PV.Divergence.tendency[:,k] = tmpa2 - Gr.SphericalGrid.lap*tmpf2  -PV.Divergence.sp_VerticalFlux[:,k] -PV.Divergence.sp_VerticalFlux[:,k-1]*dp_ratio32sp  +PV.Divergence.forcing[:,k]
@@ -618,9 +646,9 @@ class PrognosticVariables:
         tmpd3, tmpe3 = Gr.SphericalGrid.getvrtdivspec(
             DV.U.values[:,:,k]*(PV.T.values[:,:,k]),
             DV.V.values[:,:,k]*(PV.T.values[:,:,k]))
-        PV.T.tendency[:,k] = -tmpe3 +Gr.SphericalGrid.grdtospec(np.multiply(DV.Wp.values[:,:,k+1],
-              np.divide(DV.gZ.values[:,:,k],(PV.P.values[:,:,k+1]-PV.P.values[:,:,k])))/Gr.cp -PV.T.VerticalFlux[:,:,k]
-            + np.divide(PV.T.VerticalFlux[:,:,k-1]*(PV.P.values[:,:,k]-PV.P.values[:,:,k-1]),(PV.P.values[:,:,k+1]-PV.P.values[:,:,k]))) + PV.T.forcing[:,k]
+        # PV.T.tendency[:,k] = -tmpe3 +Gr.SphericalGrid.grdtospec(np.multiply(DV.Wp.values[:,:,k+1],
+        #       np.divide(DV.gZ.values[:,:,k],(PV.P.values[:,:,k+1]-PV.P.values[:,:,k])))/Gr.cp -PV.T.VerticalFlux[:,:,k]
+        #     + np.divide(PV.T.VerticalFlux[:,:,k-1]*(PV.P.values[:,:,k]-PV.P.values[:,:,k-1]),(PV.P.values[:,:,k+1]-PV.P.values[:,:,k]))) + PV.T.forcing[:,k]
 
         tmpf3 = Gr.SphericalGrid.grdtospec(DV.gZ.values[:,:,k]+DV.KE.values[:,:,k])
         # PV.Divergence.tendency[:,k] = tmpa3 - Gr.SphericalGrid.lap*tmpf3 -np.multiply(PV.Divergence.sp_VerticalFlux[:,k-1],dp_ratio32sp) +PV.Divergence.forcing[:,k]

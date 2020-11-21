@@ -13,7 +13,7 @@ def main():
     varname = args.varname
 
     folder = os.getcwd() + '/Output.HeldSuarez.J_ten/stats/'
-    ncfile = folder + 'Stats.HeldSuarez.Restart_112.nc'
+    ncfile = folder + 'Stats.HeldSuarez.Restart_120.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
