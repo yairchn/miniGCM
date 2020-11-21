@@ -546,21 +546,6 @@ class PrognosticVariables:
             PV.T.VerticalFlux[:,:,k] = 0.5*np.multiply(DV.Wp.values[:,:,k+1],
                 (T_low+T_high)/(PV.P.values[:,:,k+1]-PV.P.values[:,:,k]))
 
-        for k in range(Gr.n_layers):
-            if k==0:
-                flux_dn = PV.Vorticity.sp_VerticalFlux[:,k]
-                flux_up = np.zeros_like(PV.Vorticity.sp_VerticalFlux[:,k])
-            elif k==Gr.n_layers-1:
-                flux_dn = np.zeros_like(PV.Vorticity.sp_VerticalFlux[:,k])
-                flux_up = PV.Vorticity.sp_VerticalFlux[:,k-1]*dp_ratio32sp
-            else:
-                flux_up = PV.Vorticity.sp_VerticalFlux[:,k]
-                flux_dn = PV.Vorticity.sp_VerticalFlux[:,k-1]*dp_ratio32sp
-            PV.Vorticity.tendency[:,k] = - tmpb2 - flux_up - flux_dn + PV.Vorticity.forcing[:,k]
-
-        PV.Vorticity.tendency[:,k] = - tmpb1 - PV.Vorticity.sp_VerticalFlux[:,k]                                                    + PV.Vorticity.forcing[:,k]
-        PV.Vorticity.tendency[:,k] = - tmpb2 - PV.Vorticity.sp_VerticalFlux[:,k] - PV.Vorticity.sp_VerticalFlux[:,k-1]*dp_ratio32sp + PV.Vorticity.forcing[:,k]
-        PV.Vorticity.tendency[:,k] = - tmpb3                                     - PV.Vorticity.sp_VerticalFlux[:,k-1]*dp_ratio32sp + PV.Vorticity.forcing[:,k]
         ### level 1 ###
         k=0
         tmpa1, tmpb1 = Gr.SphericalGrid.getvrtdivspec(
