@@ -54,8 +54,6 @@ class Forcing_HelzSuarez:
 		return
 
 	def update(self, TS, Gr, PV, DV, namelist):
-		# Initialise the random forcing function
-
 		for k in range(Gr.n_layers):
 			for jj in np.arange(0,Gr.nlons,1):
 				self.Tbar[:,jj,k]=((315.-self.DT_y*np.sin(Gr.lat[:,0])**2-self.Dtheta_z*np.log((PV.P.values[:,jj,k]

@@ -36,7 +36,6 @@ class CasesBase:
         return
     def io(self, PV, Gr, TS, Stats):
         Stats.write_3D_variable(Gr, int(TS.t), 1, 'shf', PV.T.SurfaceFlux)
-        Stats.write_3D_variable(Gr, int(TS.t), 1, 'lhf', PV.QT.SurfaceFlux)
         return
     def update_surface(self):
         return

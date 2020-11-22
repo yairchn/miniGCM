@@ -31,7 +31,6 @@ class PrognosticVariables:
         return
 
     def initialize(self, Gr, DV):
-        # need to define self.base_pressure as vector of n_layers
         self.Base_pressure = 100000.0
         self.T_init  = [229.0, 257.0, 295.0]
         self.P_init  = [Gr.p1, Gr.p2, Gr.p3, Gr.p_ref]
@@ -63,28 +62,23 @@ class PrognosticVariables:
         return
 
     # convert spherical data to spectral
-    # I needto define this function to ast on a general variable
     def physical_to_spectral(self, Gr):
         for k in range(Gr.n_layers):
             self.Vorticity.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.Vorticity.values[:,:,k])
             self.Divergence.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.Divergence.values[:,:,k])
             self.T.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.T.values[:,:,k])
-            # self.P.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,k])
         self.P.spectral[:,Gr.n_layers] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,Gr.n_layers])
         return
 
     # convert spectral data to spherical
-    # I needto define this function to ast on a general variable
     def spectral_to_physical(self, Gr):
         for k in range(Gr.n_layers):
             self.Vorticity.values[:,:,k]  = Gr.SphericalGrid.spectogrd(self.Vorticity.spectral[:,k])
             self.Divergence.values[:,:,k] = Gr.SphericalGrid.spectogrd(self.Divergence.spectral[:,k])
             self.T.values[:,:,k]          = Gr.SphericalGrid.spectogrd(self.T.spectral[:,k])
-        # I am updating only the surface pressure 
         self.P.values[:,:,Gr.n_layers] = Gr.SphericalGrid.spectogrd(self.P.spectral[:,Gr.n_layers])
         return
 
-    # quick utility to set arrays with values in the "new" arrays
     def set_old_with_now(self):
         self.Vorticity.old  = self.Vorticity.now.copy()
         self.Divergence.old = self.Divergence.now.copy()
@@ -109,7 +103,6 @@ class PrognosticVariables:
         self.P.spectral[:,2] = np.add(np.zeros_like(self.P.spectral[:,2]),self.P_init[2])
         return
 
-    # this should be done in time intervals and save each time new files,not part of stats 
     def stats_io(self, TS, Stats):
         Stats.write_global_mean('global_mean_T', self.T.values, TS.t)
         Stats.write_zonal_mean('zonal_mean_P',self.P.values[:,:,1:4], TS.t)
@@ -130,7 +123,6 @@ class PrognosticVariables:
         return
 
     def compute_tendencies(self, Gr, PV, DV, namelist):
-        #surface pressure
         ps_vrt, ps_div = Gr.SphericalGrid.getvrtdivspec(
             DV.U.values[:,:,2]*(PV.P.values[:,:,2]-PV.P.values[:,:,3]),
             DV.V.values[:,:,2]*(PV.P.values[:,:,2]-PV.P.values[:,:,3]))
@@ -139,7 +131,6 @@ class PrognosticVariables:
 
         dp_ratio32sp = (PV.P.spectral[:,2]-PV.P.spectral[:,1])/(PV.P.spectral[:,3]-PV.P.spectral[:,2])
 
-        #exchange terms (vertical)
         for k in range(Gr.n_layers-1):
             u_vertical_flux = 0.5*np.multiply(DV.Wp.values[:,:,k+1],(DV.U.values[:,:,k+1]-DV.U.values[:,:,k])/(PV.P.values[:,:,k+1]-PV.P.values[:,:,k]))
             v_vertical_flux = 0.5*np.multiply(DV.Wp.values[:,:,k+1],(DV.V.values[:,:,k+1]-DV.V.values[:,:,k])/(PV.P.values[:,:,k+1]-PV.P.values[:,:,k]))

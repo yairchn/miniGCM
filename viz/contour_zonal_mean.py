@@ -14,7 +14,7 @@ def main():
 
     folder = os.getcwd() + '/Output.HeldSuarez.J_ten/stats/'
     # folder = os.getcwd() + '/Output.HeldSuarez._long/'
-    ncfile = folder + 'Stats.HeldSuarez.Restart_2.nc'
+    ncfile = folder + 'Stats.HeldSuarez.Restart_4.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
