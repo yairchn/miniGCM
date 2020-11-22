@@ -13,8 +13,6 @@ import ReferenceState
 def CasesFactory(namelist, Gr):
     if namelist['meta']['casename'] == 'HeldSuarez':
         return HeldSuarez(namelist, Gr)
-    elif namelist['meta']['casename'] == 'HeldSuarez_moist':
-        return HeldSuarez_moist(namelist, Gr)
     # anthoer example
     # elif namelist['meta']['casename'] == 'Stochastic_Forcing':
     #     return Stochastic_Frorcing(paramlist)
