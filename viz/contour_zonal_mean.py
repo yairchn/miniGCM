@@ -12,8 +12,9 @@ def main():
     args = parser.parse_args()
     varname = args.varname
 
-    folder = os.getcwd() + '/Output.HeldSuarez.4a92e/stats/'
-    ncfile = folder + 'Stats.HeldSuarez.Restart_44.nc'
+    folder = os.getcwd() + '/Output.HeldSuarez.J_ten/stats/'
+    # folder = os.getcwd() + '/Output.HeldSuarez._long/'
+    ncfile = folder + 'Stats.HeldSuarez.Restart_5.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
