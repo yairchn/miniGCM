@@ -164,12 +164,17 @@ class PrognosticVariables:
 
         for k in range(Gr.n_layers):
             T_high = PV.T.values[:,:,k]
+            QT_high = PV.QT.values[:,:,k]
             if k ==Gr.n_layers-1:
                 T_low = T_high
+                QT_low = QT_high
             else:
                 T_low = PV.T.values[:,:,k+1]
+                QT_low = PV.QT.values[:,:,k+1]
             PV.T.VerticalFlux[:,:,k] = 0.5*np.multiply(DV.Wp.values[:,:,k+1],
                 (T_low+T_high)/(PV.P.values[:,:,k+1]-PV.P.values[:,:,k]))
+            PV.QT.VerticalFlux[:,:,k] = 0.5*np.multiply(DV.Wp.values[:,:,k+1],
+                (QT_low+QT_high)/(PV.P.values[:,:,k+1]-PV.P.values[:,:,k]))
 
         for k in range(Gr.n_layers):
             Dry_Energy_laplacian = Gr.SphericalGrid.lap*Gr.SphericalGrid.grdtospec(
@@ -180,12 +185,16 @@ class PrognosticVariables:
             Vortical_T_flux, Divergent_T_flux = Gr.SphericalGrid.getvrtdivspec(
                 np.multiply(DV.U.values[:,:,k],PV.T.values[:,:,k]),
                 np.multiply(DV.V.values[:,:,k],PV.T.values[:,:,k])) # Vortical_T_flux is not used
+            Vortical_QT_flux, Divergent_QT_flux = Gr.SphericalGrid.getvrtdivspec(
+                np.multiply(DV.U.values[:,:,k],PV.QT.values[:,:,k]),
+                np.multiply(DV.V.values[:,:,k],PV.QT.values[:,:,k])) # Vortical_T_flux is not used
             if k==0:
                 vrt_flux_dn = PV.Vorticity.sp_VerticalFlux[:,k]
                 vrt_flux_up = np.zeros_like(PV.Vorticity.sp_VerticalFlux[:,k])
                 div_flux_dn = PV.Divergence.sp_VerticalFlux[:,k]
                 div_flux_up = np.zeros_like(PV.Divergence.sp_VerticalFlux[:,k])
                 T_flux_up   = np.zeros_like(PV.T.VerticalFlux[:,:,k])
+                QT_flux_up   = np.zeros_like(PV.QT.VerticalFlux[:,:,k])
                 Thermal_expension = (DV.Wp.values[:,:,k+1]*(DV.gZ.values[:,:,k+1]
                     - DV.gZ.values[:,:,k])/(PV.P.values[:,:,k+1] - PV.P.values[:,:,k]))/Gr.cp
             elif k==Gr.n_layers-1:
@@ -194,6 +203,7 @@ class PrognosticVariables:
                 div_flux_dn = np.zeros_like(PV.Divergence.sp_VerticalFlux[:,k])
                 div_flux_up = PV.Divergence.sp_VerticalFlux[:,k-1]*dp_ratio32sp
                 T_flux_up   = PV.T.VerticalFlux[:,:,k-1]*(PV.P.values[:,:,k]-PV.P.values[:,:,k-1])/(PV.P.values[:,:,k+1]-PV.P.values[:,:,k])
+                QT_flux_up  = PV.QT.VerticalFlux[:,:,k-1]*(PV.P.values[:,:,k]-PV.P.values[:,:,k-1])/(PV.P.values[:,:,k+1]-PV.P.values[:,:,k])
                 Thermal_expension = -(DV.Wp.values[:,:,k+1]*(DV.gZ.values[:,:,k])
                                                           /(PV.P.values[:,:,k+1] - PV.P.values[:,:,k]))/Gr.cp
             else:
@@ -202,6 +212,7 @@ class PrognosticVariables:
                 div_flux_dn = PV.Divergence.sp_VerticalFlux[:,k]
                 div_flux_up = PV.Divergence.sp_VerticalFlux[:,k-1]*dp_ratio32sp
                 T_flux_up   = PV.T.VerticalFlux[:,:,k-1]*(PV.P.values[:,:,k]-PV.P.values[:,:,k-1])/(PV.P.values[:,:,k+1]-PV.P.values[:,:,k])
+                QT_flux_up  = PV.QT.VerticalFlux[:,:,k-1]*(PV.P.values[:,:,k]-PV.P.values[:,:,k-1])/(PV.P.values[:,:,k+1]-PV.P.values[:,:,k])
                 Thermal_expension = (DV.Wp.values[:,:,k+1]*(DV.gZ.values[:,:,k+1]
                     - DV.gZ.values[:,:,k])/(PV.P.values[:,:,k+1] - PV.P.values[:,:,k]))/Gr.cp
 
@@ -210,5 +221,7 @@ class PrognosticVariables:
                 - div_flux_up - div_flux_dn + PV.Divergence.forcing[:,k])
             PV.T.tendency[:,k] = (-Divergent_T_flux
                     +Gr.SphericalGrid.grdtospec(-Thermal_expension-PV.T.VerticalFlux[:,:,k]+T_flux_up) + PV.T.forcing[:,k])
+            PV.QT.tendency[:,k] = (-Divergent_QT_flux
+                    +Gr.SphericalGrid.grdtospec(-Thermal_expension-PV.QT.VerticalFlux[:,:,k]+QT_flux_up) + PV.T.forcing[:,k])
 
         return
