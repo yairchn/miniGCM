@@ -6,12 +6,6 @@ from math import *
 import sys
 import cython
 
-# make sure that total moisture content is non-negative
-cpdef set_min_vapour(qp,qbar):
-    qtot = qp + qbar
-    qtot[qtot<0] = 0
-    return (qtot-qbar)
-
 # Function for plotting KE spectra
 cpdef keSpectra(u,v):
     uk = x.grdtospec(u)

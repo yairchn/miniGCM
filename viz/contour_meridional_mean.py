@@ -2,6 +2,7 @@ import numpy as np
 import netCDF4 as nc
 import pylab as plt
 import argparse
+import os
 
 # command line:
 # python viz/contour_meridional_mean.py meridional_mean_V
@@ -11,7 +12,7 @@ def main():
     args = parser.parse_args()
     varname = args.varname
 
-    folder = '/Users/yaircohen/Documents/codes/miniGCM/Output.HeldSuarez.67799/stats/'
+    folder = os.getcwd() + '/miniGCM/Output.HeldSuarez.67799/stats/'
     ncfile = folder + 'Stats.HeldSuarez.nc'
     data = nc.Dataset(ncfile, 'r')
 

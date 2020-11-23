@@ -62,16 +62,12 @@ cdef class DiagnosticVariables:
             self.gZ.spectral[:,k]   = np.array(Gr.SphericalGrid.grdtospec(self.gZ.values[:,:,k]))
         return
 
-    # # convert spectral data to spherical
-    # # I need to define this function to ast on a general variable
-    # # cpdef spectral_to_physical(self):
-    # #     cdef:
-    # #         Py_ssize_t k
-    # #     for k in range(self.n_layers):
-    # #         self.U.values[:,:,k], self.V.value[:,:,k] = np.array(Gr.SphericalGrid.getuv(self.Vorticity.spectral[:,k], self.Divergence.spectral[:,k]))
-    # #         self.Wp.values[:,:,k+1] = np.array(Gr.SphericalGrid.spectogrd(self.Wp.spectral[:,k+1]))
-    # #         self.gZ.values[:,:,k] = np.array(Gr.SphericalGrid.spectogrd(self.gZ.spectral[:,k]))
-    # #     return
+    dpdef spectral_to_physical(self):
+        for k in range(self.n_layers):
+            self.U.values[:,:,k], self.V.value[:,:,k] = Gr.SphericalGrid.getuv(self.Vorticity.spectral[:,k], self.Divergence.spectral[:,k])
+            self.Wp.values[:,:,k+1] = Gr.SphericalGrid.spectogrd(self.Wp.spectral[:,k+1])
+            self.gZ.values[:,:,k] = Gr.SphericalGrid.spectogrd(self.gZ.spectral[:,k])
+        return
 
     cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats):
         Stats.write_global_mean('global_mean_KE', self.KE.values, TS.t)
@@ -102,13 +98,8 @@ cdef class DiagnosticVariables:
         self.gZ.values[:,:,Gr.n_layers] = np.zeros_like(self.Wp.values[:,:,0])
         for k in range(Gr.n_layers): # n_layers = 3; k=0,1,2
             j = Gr.n_layers-k-1 # geopotential is computed bottom -> up
-            U, V = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
-            self.U.values[:,:,k] = np.array(U)
-            self.V.values[:,:,k] = np.array(V)
-            self.KE.values[:,:,k]    = 0.5*np.add(np.power(U,2.0),np.power(V,2.0))
-            self.Wp.values[:,:,k+1]  = np.subtract(self.Wp.values[:,:,k],
-                                       np.multiply(np.subtract(PV.P.values[:,:,k+1],PV.P.values[:,:,k]),PV.Divergence.values[:,:,k]))
-            self.gZ.values[:,:,j]  = np.add(np.multiply(np.multiply(Gr.Rd,PV.T.values[:,:,j]),np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))),self.gZ.values[:,:,j+1])
+            self.U.values[:,:,k], self.V.values[:,:,k] = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
+            self.KE.values[:,:,k]    = 0.5*np.add(np.power(self.U.values[:,:,k],2.0),np.power(self.V.values[:,:,k],2.0))
+            self.Wp.values[:,:,k+1]  = self.Wp.values[:,:,k]-np.multiply(PV.P.values[:,:,k+1]-PV.P.values[:,:,k],PV.Divergence.values[:,:,k])
+            self.gZ.values[:,:,j]  = np.multiply(Gr.Rd*PV.T.values[:,:,j],np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))) + self.gZ.values[:,:,j+1]
         return
-
-    # # yair - need to add here diagnostic functions of stats

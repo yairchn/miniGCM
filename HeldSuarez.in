@@ -6,7 +6,7 @@
         "type": "hyperdiffusion"
     },
     "forcing": {
-        "1.0": 8.101851851851852e-06,
+        "k_f": 8.101851851851852e-06,
         "DT_y": 60.0,
         "forcing_type": "HeldSuarez",
         "k_a": 2.8935185185185185e-07,
@@ -34,7 +34,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "0b678552-af6d-4183-b14d-9d7c35e67799"
+        "uuid": "779e531e-562c-48b3-aef2-ddf852eJ_ten"
     },
     "microphysics": {
         "rain_model": "None"
@@ -53,8 +53,8 @@
         "thermodynamics_type": "dry"
     },
     "timestepping": {
-        "CFL_limit": 0.5,
-        "dt": 100.0,
-        "t_max": 3600.0
+        "CFL_limit": 0.1,
+        "dt": 120.0,
+        "t_max": 86400.0
     }
 }
