@@ -34,7 +34,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "779e531e-562c-48b3-aef2-ddf852eJ_ten"
+        "uuid": "779e531e-562c-48b3-aef2-ddf852e_test"
     },
     "microphysics": {
         "rain_model": "None"
