@@ -161,7 +161,7 @@ class Stats:
         root_grp.createDimension('lon', Gr.nlons)
         root_grp.createDimension('lay', n_layers)
         var = root_grp.createVariable(var_name, 'f8', ('lat', 'lon','lay'),fill_value=0.0)
-        var[:,:,n_layers-1] = np.array(data)
+        var[:,:,:] = np.array(data)
         root_grp.close()
         return
 
