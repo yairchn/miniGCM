@@ -17,7 +17,7 @@ def main():
     namelist_defaults = {}
     namelist_defaults['timestepping'] = {}
     namelist_defaults['timestepping']['CFL_limit'] = 0.5
-    namelist_defaults['timestepping']['dt'] = 100.0
+    namelist_defaults['timestepping']['dt'] = 1000.0
 
     namelist_defaults['forcing'] = {}
 
@@ -85,7 +85,7 @@ def HeldSuarez(namelist_defaults):
     namelist['forcing']['sigma_b'] = 0.7      # sigma coordiantes as sigma=p/ps
     namelist['forcing']['k_a'] = 1./40.0/(24.0*3600.0)      # [1/sec]
     namelist['forcing']['k_s'] =  1./4.0/(24.0*3600.0)      # [1/sec]
-    namelist['forcing']['1.0'] = 0.7/(24.0*3600.0)          # [1/sec]
+    namelist['forcing']['k_f'] = 1.0/(24.0*3600.0)          # [1/sec]
     namelist['forcing']['DT_y'] = 60.        # Characteristic temperature change in meridional direction [K]
     namelist['forcing']['lapse_rate'] = 10.0   # Characteristic potential temperature change in vertical [K]
     namelist['forcing']['relaxation_temperature'] = 300.      # mean temp (some typical range) [K]

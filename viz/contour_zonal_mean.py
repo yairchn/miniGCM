@@ -2,17 +2,19 @@ import numpy as np
 import netCDF4 as nc
 import pylab as plt
 import argparse
+import os
 
 # command line:
-# python viz/contour_zonal_mean.py zonal_mean_U
+# python viz/contour_zonal_mean.py zonal_mean_P
 def main():
     parser = argparse.ArgumentParser(prog='miniGCM')
     parser.add_argument("varname")
     args = parser.parse_args()
     varname = args.varname
 
-    folder = '/Users/yaircohen/Documents/codes/miniGCM/Output.HeldSuarez._long/stats/'
-    ncfile = folder + 'Stats.HeldSuarez.nc'
+    folder = os.getcwd() + '/Output.HeldSuarez.J_ten/stats/'
+    # folder = os.getcwd() + '/Output.HeldSuarez._long/'
+    ncfile = folder + 'Stats.HeldSuarez.Restart_5.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])

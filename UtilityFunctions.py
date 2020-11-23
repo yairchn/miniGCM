@@ -3,12 +3,6 @@ import numpy as np
 import scipy as sc
 from math import *
 
-# make sure that total moisture content is non-negative
-def set_min_vapour(qp,qbar):
-    qtot = qp + qbar
-    qtot[qtot<0] = 0
-    return (qtot-qbar)
-
 # Function for plotting KE spectra
 def keSpectra(u,v):
     uk = x.grdtospec(u)

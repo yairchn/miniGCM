@@ -2,7 +2,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-# import sphericalForcing as spf
 import NetCDFIO as Stats
 from math import *
 
@@ -61,12 +60,11 @@ class DiagnosticVariables:
         return
 
     # convert spectral data to spherical
-    # I needto define this function to ast on a general variable 
     def spectral_to_physical(self):
         for k in range(self.n_layers):
-            self.U.values[:,:,k], self.V.spectral[:,:,k] = Gr.SphericalGrid.getuv(self.Vorticity.spectral[:,:,k], self.Divergence.spectral[:,:,k])
-            self.Wp.values[:,:,k+1] = Gr.SphericalGrid.spectogrd(self.Wp.values[:,:,k+1])
-            self.gZ.values[:,:,k] = Gr.SphericalGrid.spectogrd(self.gZ.values[:,:,k])
+            self.U.values[:,:,k], self.V.value[:,:,k] = Gr.SphericalGrid.getuv(self.Vorticity.spectral[:,k], self.Divergence.spectral[:,k])
+            self.Wp.values[:,:,k+1] = Gr.SphericalGrid.spectogrd(self.Wp.spectral[:,k+1])
+            self.gZ.values[:,:,k] = Gr.SphericalGrid.spectogrd(self.gZ.spectral[:,k])
         return
 
     def stats_io(self, TS, Stats):
@@ -98,7 +96,6 @@ class DiagnosticVariables:
             self.U.values[:,:,k], self.V.values[:,:,k] = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
             self.KE.values[:,:,k]    = 0.5*np.add(np.power(self.U.values[:,:,k],2.0),np.power(self.V.values[:,:,k],2.0))
             self.Wp.values[:,:,k+1]  = self.Wp.values[:,:,k]-np.multiply(PV.P.values[:,:,k+1]-PV.P.values[:,:,k],PV.Divergence.values[:,:,k])
-            self.gZ.values[:,:,j]  = np.multiply(Gr.Rd*PV.T.values[:,:,j],np.log(PV.P.values[:,:,j+1]/PV.P.values[:,:,j])) + self.gZ.values[:,:,j+1]
+            self.gZ.values[:,:,j]  = np.multiply(Gr.Rd*PV.T.values[:,:,j],np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))) + self.gZ.values[:,:,j+1]
         return
-
     # yair - need to add here diagnostic functions of stats
