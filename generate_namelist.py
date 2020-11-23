@@ -46,7 +46,8 @@ def main():
     namelist_defaults['thermodynamics'] = {}
     namelist_defaults['thermodynamics']['heat_capacity'] = 1004.0     # [J / (kg K)]
     namelist_defaults['thermodynamics']['ideal_gas_constant'] = 287.0 # [J / (kg K)]
-
+    namelist_defaults['thermodynamics']['molar_mass_ratio'] = 1.60745384883
+    namelist_defaults['thermodynamics']['latent_heat_vap'] = 26400000 # [J / (kg K)]
 
     namelist_defaults['output'] = {}
     namelist_defaults['output']['output_root'] = './'

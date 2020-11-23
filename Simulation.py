@@ -23,6 +23,7 @@ class Simulation:
         self.Case = CasesFactory(namelist, self.Gr)
         self.DF = NumericalDiffusion()
         self.TS = TimeStepping(namelist)
+        self.MP = Microphysics(namelist)
         self.Stats = Stats(namelist, self.Gr)
         return
 
@@ -30,6 +31,7 @@ class Simulation:
         #initialize via Case
         self.DV.initialize(self.Gr)
         self.PV.initialize(self.Gr,self.DV)
+        self.MP.initialize(self.Gr)
         self.Case.initialize_forcing(self.Gr, self.PV, self.DV, namelist)
         self.Case.initialize_surface(self.Gr, namelist)
         self.DF.initialize(self.Gr, self.TS, namelist)
@@ -46,7 +48,8 @@ class Simulation:
             self.DV.physical_to_spectral(self.Gr)
             # self.Case.update_surface(self.TS)
             self.Case.update_forcing(self.TS, self.Gr, self.PV, self.DV, namelist)
-            self.PV.compute_tendencies(self.Gr, self.PV, self.DV, namelist)
+            self.MP.update(self.Gr, self.PV, self.TS)
+            self.PV.compute_tendencies(self.Gr, self.PV, self.DV, self.MP, namelist)
             self.TS.update(self.Gr, self.PV, self.DV, self.DF, namelist)
 
             if np.mod(self.TS.t, (24.0*3600.0)) == 0:
