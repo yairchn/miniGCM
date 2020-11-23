@@ -13,8 +13,6 @@ import ReferenceState
 def CasesFactory(namelist, Gr):
     if namelist['meta']['casename'] == 'HeldSuarez':
         return HeldSuarez(namelist, Gr)
-    elif namelist['meta']['casename'] == 'HeldSuarez_moist':
-        return HeldSuarez_moist(namelist, Gr)
     # anthoer example
     # elif namelist['meta']['casename'] == 'Stochastic_Forcing':
     #     return Stochastic_Frorcing(paramlist)
@@ -38,7 +36,6 @@ class CasesBase:
         return
     def io(self, PV, Gr, TS, Stats):
         Stats.write_3D_variable(Gr, int(TS.t), 1, 'shf', PV.T.SurfaceFlux)
-        Stats.write_3D_variable(Gr, int(TS.t), 1, 'lhf', PV.QT.SurfaceFlux)
         return
     def update_surface(self):
         return

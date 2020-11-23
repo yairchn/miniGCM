@@ -5,7 +5,7 @@ import argparse
 import os
 
 # command line:
-# python viz/contour_zonal_mean.py zonal_mean_U
+# python viz/contour_zonal_mean.py zonal_mean_P
 def main():
     parser = argparse.ArgumentParser(prog='miniGCM')
     parser.add_argument("varname")

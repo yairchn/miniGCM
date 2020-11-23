@@ -13,7 +13,6 @@ class ForcingNone():
 		return
 	def initialize(self, Gr, PV, DV, namelist):
 		self.Tbar = np.zeros((Gr.nx,Gr.ny, Gr.nz), dtype=np.double, order='c')
-		self.QTbar = np.zeros((Gr.nx,Gr.ny, Gr.nz), dtype=np.double, order='c')
 		return
 	def update(self, TS, Gr, PV, DV, namelist):
 		return
@@ -34,7 +33,6 @@ class Forcing_HelzSuarez:
 		self.k_T   = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
 		self.k_Q   = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
 		self.k_v   = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
-		self.QTbar = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
 		self.sigma_b = namelist['forcing']['sigma_b']
 		self.k_a = namelist['forcing']['k_a']
 		self.k_s = namelist['forcing']['k_s']
@@ -47,24 +45,15 @@ class Forcing_HelzSuarez:
 		self.kappa = self.Rd/self.cp
 		self.k_T = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
 		self.k_v = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
-		# for k in range(Gr.n_layers):
-		# 	self.Tbar[:,:,k]  = (315.0-self.DT_y*np.sin(np.radians(Gr.lat))**2-self.Dtheta_z*
-		# 		np.log(PV.P.values[:,:,k]/Gr.p_ref)*np.cos(np.radians(Gr.lat))**2)*(PV.P.values[:,:,k]/Gr.p_ref)**self.kappa
-
-		self.QTbar = np.zeros((Gr.nlats, Gr.nlons,Gr.n_layers))
 
 		return
 
 	def initialize_io(self, Stats):
 		Stats.add_zonal_mean('zonal_mean_T_eq')
-		Stats.add_zonal_mean('zonal_mean_QT_eq')
 		Stats.add_meridional_mean('meridional_mean_T_eq')
-		Stats.add_meridional_mean('meridional_mean_QT_eq')
 		return
 
 	def update(self, TS, Gr, PV, DV, namelist):
-		# Initialise the random forcing function
-
 		for k in range(Gr.n_layers):
 			for jj in np.arange(0,Gr.nlons,1):
 				self.Tbar[:,jj,k]=((315.-self.DT_y*np.sin(Gr.lat[:,0])**2-self.Dtheta_z*np.log((PV.P.values[:,jj,k]
@@ -83,48 +72,9 @@ class Forcing_HelzSuarez:
 
 	def io(self, Gr, TS, Stats):
 		Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'T_eq', self.Tbar)
-		Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'QT_eq',   self.QTbar)
 		return
 
 	def stats_io(self, TS, Stats):
 		Stats.write_zonal_mean('zonal_mean_T_eq', self.Tbar, TS.t)
-		Stats.write_zonal_mean('zonal_mean_QT_eq', self.QTbar, TS.t)
 		Stats.write_meridional_mean('meridional_mean_T_eq', self.Tbar, TS.t)
-		Stats.write_meridional_mean('meridional_mean_QT_eq', self.QTbar, TS.t)
-		return
-
-class Forcing_HelzSuarez_moist:
-	def __init__(self, Gr):
-		self.Tbar = np.zeros(Gr.nx,Gr.ny, Gr.nz, dtype=np.double, order='c')
-		self.QTbar = np.zeros(Gr.nx,Gr.ny, Gr.nz, dtype=np.double, order='c')
-		return
-
-	def initialize(self, Gr, PV, DV, namelist):
-		# for k in range(self.n_layers):
-		# 	self.Tbar[:,:,k]  = (315.0-DT_y*np.sin(y)**2-Dtheta_z**2*np.log(p1/ps[:,jj])*np.cos(y)**2)*(p1/ps[:,jj])**kappa
-	 #        self.QTbar[:,:,k]  = 0.0
-		return
-
-	def initialize_io(self, Stats):
-		Stats.add_variable('relaxation_temp')
-		Stats.add_variable('relaxation_qt')
-		return
-
-	def update():
-		# # Initialise the random forcing function
-		# F0 = np.zeros(x.nlm, dtype = np.complex)
-		# fr = spf.sphForcing(nlons,nlats,truncation_number,rsphere,lmin= 98, lmax= 102, magnitude = 5, correlation = 0.)
-		# #fr = spf.sphForcing(nlons,nlats,truncation_number,rsphere,lmin= 68, lmax=  72, magnitude = 5, correlation = 0.)
-		# #fr = spf.sphForcing(nlons,nlats,truncation_number,rsphere,lmin= 48, lmax=  52, magnitude = 5, correlation = 0.)
-		# #fr = spf.sphForcing(nlons,nlats,truncation_number,rsphere,lmin= 18, lmax=  22, magnitude = 5, correlation = 0.)
-		# # lmin and lmax are the wavenumbers range which is forced
-		# # Field initialisation
-		# for k in range(self.n_layers):
-		# 	self.Tbar[:,:,k]  = Tbar1[:,jj]=(315.-DT_y*np.sin(y)**2-Dtheta_z**2*np.log(p1/ps[:,jj])*np.cos(y)**2)*(p1/ps[:,jj])**kappa
-	 #        self.QTbar[:,:,k]  = 0.0
-		return
-
-	def io(self, Stats):
-		Stats.write_variable('relaxation_temp', self.Tbar)
-		Stats.write_variable('relaxation_qt',   self.QTbar)
 		return
