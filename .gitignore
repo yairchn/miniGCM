@@ -17,4 +17,4 @@ _templates/
 *.mod
 *.nc
 *.pyc
-
+*.out
