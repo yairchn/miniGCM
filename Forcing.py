@@ -58,8 +58,8 @@ class Forcing_HelzSuarez:
 	def update(self, TS, Gr, PV, DV, namelist):
 		for k in range(Gr.n_layers):
                     self.pressure_ratio_meridional=(np.mean(PV.P.values[:,:,k], axis=1)+np.mean(PV.P.values[:,:,k+1],axis=1))/(2.*Gr.p_ref)
-                    print("k, self.pressure_ratio_meridional.min(), self.pressure_ratio_meridional.max()",k,self.pressure_ratio_meridional.min(),self.pressure_ratio_meridional.max())
-                    print("k, PV.P.values[0,0,k], PV.P.values[0,0,k+1]",k,PV.P.values[0,0,k].min(),PV.P.values[0,0,k+1].max())
+                    #print("k, self.pressure_ratio_meridional.min(), self.pressure_ratio_meridional.max()",k,self.pressure_ratio_meridional.min(),self.pressure_ratio_meridional.max())
+                    #print("k, PV.P.values[0,0,k], PV.P.values[0,0,k+1]",k,PV.P.values[0,0,k].min(),PV.P.values[0,0,k+1].max())
                     self.Tbar_meridional=((315.-self.DT_y*np.sin(Gr.lat[:,0])**2-self.Dtheta_z*np.log(self.pressure_ratio_meridional)*np.cos(Gr.lat[:,0])**2)*(self.pressure_ratio_meridional)**Gr.kappa)
                     self.Tbar_layer = np.repeat(self.Tbar_meridional[:, np.newaxis], Gr.nlons, axis=1)
                     self.Tbar_layer[:,:][self.Tbar_layer[:,:]<=200.]=200.
