@@ -12,7 +12,6 @@ class ForcingNone():
 		return
 	def initialize(self, Gr, PV, DV, namelist):
                 self.Tbar                       = np.zeros((Gr.nx,Gr.ny,Gr.nz), dtype=np.double, order='c')
-                self.Tbar_layer                 = np.zeros((Gr.nx,Gr.ny      ), dtype=np.double, order='c')
                 self.Tbar_meridional            = np.zeros((      Gr.ny,Gr.nz), dtype=np.double, order='c')
                 self.pressure_ratio_meridional  = np.zeros(       Gr.ny,        dtype=np.double, order='c')
                 return

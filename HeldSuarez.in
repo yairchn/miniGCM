@@ -27,14 +27,14 @@
         "p_ref": 100000.0
     },
     "io": {
-        "output_frequency": 604800.0,
+        "output_frequency": 86400.0,
         "stats_dir": "stats",
         "stats_frequency": 86400.0
     },
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "a707a689-d872-4cfd-8a35-1b7084060b64"
+        "uuid": "a707a689-d872-4cfd-8a35-1b70840first"
     },
     "microphysics": {
         "rain_model": "None"
