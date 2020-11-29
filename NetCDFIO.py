@@ -84,15 +84,15 @@ class Stats:
         coordinate_grp.createDimension('lon', Gr.nlons)
         coordinate_grp.createDimension('lay', 1)
 
-        latitude = coordinate_grp.createVariable('latitude', 'f8',  ('lat', 'lon'), fill_value=0.0)
+        latitude = coordinate_grp.createVariable('latitude', 'f8',  ('lat', 'lon'))
         latitude[:,:] = np.array(Gr.latitude)
-        latitude_list = coordinate_grp.createVariable('latitude_list', 'f8', ('lat'), fill_value=0.0)
+        latitude_list = coordinate_grp.createVariable('latitude_list', 'f8', ('lat'))
         latitude_list[:] = np.array(Gr.latitude_list)
-        longitude = coordinate_grp.createVariable('longitude', 'f8', ('lat', 'lon'), fill_value=0.0)
+        longitude = coordinate_grp.createVariable('longitude', 'f8', ('lat', 'lon'))
         longitude[:,:] = np.array(Gr.longitude)
         longitude_list = coordinate_grp.createVariable('longitude_list', 'f8', ('lon') ,fill_value=0.0)
         longitude_list[:] = np.array(Gr.longitude_list)
-        layer = coordinate_grp.createVariable('layers', 'f8',('lay'), fill_value=0.0)
+        layer = coordinate_grp.createVariable('layers', 'f8',('lay'))
         layer[:] = np.array(Gr.n_layers)
         del latitude, latitude_list, longitude, longitude_list, layer
 
@@ -101,41 +101,41 @@ class Stats:
         meridional_mean_grp.createDimension('time', None)
         meridional_mean_grp.createDimension('lon', Gr.nlons)
         meridional_mean_grp.createDimension('lay',  Gr.n_layers)
-        t = meridional_mean_grp.createVariable('t', 'f8', ('time'), fill_value=0.0)
+        t = meridional_mean_grp.createVariable('t', 'f8', ('time'))
 
         # Set zonal mean
         zonal_mean_grp = root_grp.createGroup('zonal_mean')
         zonal_mean_grp.createDimension('time', None)
         zonal_mean_grp.createDimension('lat', Gr.nlats)
         zonal_mean_grp.createDimension('lay',  Gr.n_layers)
-        t = zonal_mean_grp.createVariable('t', 'f8',  ('time'), fill_value=0.0)
+        t = zonal_mean_grp.createVariable('t', 'f8',  ('time'))
 
         # Set global_mean
         global_mean_grp = root_grp.createGroup('global_mean')
         global_mean_grp.createDimension('time', None)
         global_mean_grp.createDimension('lay',  Gr.n_layers)
-        t = global_mean_grp.createVariable('t', 'f8', ('time'), fill_value=0.0)
+        t = global_mean_grp.createVariable('t', 'f8', ('time'))
         root_grp.close()
         return
 
     def add_global_mean(self, var_name):
         root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
         global_grp = root_grp.groups['global_mean']
-        new_var = global_grp.createVariable(var_name, 'f8',('time', 'lay'), fill_value=0.0)
+        new_var = global_grp.createVariable(var_name, 'f8',('time', 'lay'))
         root_grp.close()
         return
 
     def add_meridional_mean(self, var_name):
         root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
         meridional_mean_grp = root_grp.groups['meridional_mean']
-        new_var = meridional_mean_grp.createVariable(var_name, 'f8', ('time','lon','lay'), fill_value=0.0)
+        new_var = meridional_mean_grp.createVariable(var_name, 'f8', ('time','lon','lay'))
         root_grp.close()
         return
 
     def add_zonal_mean(self, var_name):
         root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
         zonal_mean_grp = root_grp.groups['zonal_mean']
-        new_var = zonal_mean_grp.createVariable(var_name, 'f8', ('time', 'lat','lay'), fill_value=0.0)
+        new_var = zonal_mean_grp.createVariable(var_name, 'f8', ('time', 'lat','lay'))
         root_grp.close()
 
         return
@@ -160,7 +160,7 @@ class Stats:
         root_grp.createDimension('lat', Gr.nlats)
         root_grp.createDimension('lon', Gr.nlons)
         root_grp.createDimension('lay', n_layers)
-        var = root_grp.createVariable(var_name, 'f8', ('lat', 'lon','lay'),fill_value=0.0)
+        var = root_grp.createVariable(var_name, 'f8', ('lat', 'lon','lay'))
         var[:,:,:] = np.array(data)
         root_grp.close()
         return
