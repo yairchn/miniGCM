@@ -1,4 +1,3 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
 import sphericalForcing as spf
@@ -12,8 +11,11 @@ class ForcingNone():
 	def __init__(self):
 		return
 	def initialize(self, Gr, PV, DV, namelist):
-		self.Tbar = np.zeros((Gr.nx,Gr.ny, Gr.nz), dtype=np.double, order='c')
-		return
+                self.Tbar                       = np.zeros((Gr.nx,Gr.ny,Gr.nz), dtype=np.double, order='c')
+                self.Tbar_layer                 = np.zeros((Gr.nx,Gr.ny      ), dtype=np.double, order='c')
+                self.Tbar_meridional            = np.zeros((      Gr.ny,Gr.nz), dtype=np.double, order='c')
+                self.pressure_ratio_meridional  = np.zeros(       Gr.ny,        dtype=np.double, order='c')
+                return
 	def update(self, TS, Gr, PV, DV, namelist):
 		return
 	def initialize_io(self, Stats):
@@ -55,19 +57,18 @@ class Forcing_HelzSuarez:
 
 	def update(self, TS, Gr, PV, DV, namelist):
 		for k in range(Gr.n_layers):
-			for jj in np.arange(0,Gr.nlons,1):
-				self.Tbar[:,jj,k]=((315.-self.DT_y*np.sin(Gr.lat[:,0])**2-self.Dtheta_z*np.log((PV.P.values[:,jj,k]
-					+PV.P.values[:,jj,k+1])/(2.*Gr.p_ref))*np.cos(Gr.lat[:,0])**2)*((PV.P.values[:,jj,k]+PV.P.values[:,jj,k+1])/(2.*Gr.p_ref))**Gr.kappa)
-			self.Tbar[:,:,k][self.Tbar[:,:,k]<=200.]=200.
+			self.pressure_ratio_meridional=(np.mean(PV.P.values[:,:,k], axis=1)+np.mean(PV.P.values[:,:,k+1],axis=1))/(2.0*Gr.p_ref)
+			self.Tbar_meridional=((315.0-self.DT_y*np.sin(Gr.lat[:,0])**2-self.Dtheta_z*np.log(self.pressure_ratio_meridional)*np.cos(Gr.lat[:,0])**2)*(self.pressure_ratio_meridional)**Gr.kappa)
+			self.Tbar[:,:,k] = np.repeat(self.Tbar_meridional[:, np.newaxis], Gr.nlons, axis=1)
+			self.Tbar[:,:,k][self.Tbar[:,:,k]<=200.0]=200.0
 			sigma=np.divide((PV.P.values[:,:,k]+PV.P.values[:,:,k+1])/2.,PV.P.values[:,:,Gr.n_layers])
 			sigma_ratio=np.clip(np.divide(sigma-self.sigma_b,1-self.sigma_b),0,None)
 			self.k_T[:,:,k] = self.k_a+(self.k_s-self.k_a)*np.multiply(sigma_ratio,np.power(np.cos(Gr.lat),4))
 			self.k_v[:,:,k] = self.k_a+self.k_f*sigma_ratio
 			PV.Vorticity.forcing[:,k] ,PV.Divergence.forcing[:,k] = (
-			   Gr.SphericalGrid.getvrtdivspec(-np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k]),
-			                                  -np.multiply(self.k_v[:,:,k],DV.V.values[:,:,k])))
+              	Gr.SphericalGrid.getvrtdivspec(-np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k]),
+												-np.multiply(self.k_v[:,:,k],DV.V.values[:,:,k])))
 			PV.T.forcing[:,k] = -Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(PV.T.values[:,:,k]-self.Tbar[:,:,k])))
-
 		return
 
 	def io(self, Gr, TS, Stats):

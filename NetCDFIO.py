@@ -90,7 +90,7 @@ class Stats:
         latitude_list[:] = np.array(Gr.latitude_list)
         longitude = coordinate_grp.createVariable('longitude', 'f8', ('lat', 'lon'))
         longitude[:,:] = np.array(Gr.longitude)
-        longitude_list = coordinate_grp.createVariable('longitude_list', 'f8', ('lon') ,fill_value=0.0)
+        longitude_list = coordinate_grp.createVariable('longitude_list', 'f8', ('lon'))
         longitude_list[:] = np.array(Gr.longitude_list)
         layer = coordinate_grp.createVariable('layers', 'f8',('lay'))
         layer[:] = np.array(Gr.n_layers)
@@ -153,6 +153,15 @@ class Stats:
     def write_zonal_mean(self, var_name, data, t):
         var = self.zonal_mean_grp.variables[var_name]
         var[-1, :,:] = np.array(np.mean(data,1))
+        return
+
+    def write_2D_variable(self, Gr, t, var_name, data):
+        root_grp = nc.Dataset(self.path_plus_var+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')
+        root_grp.createDimension('lat', Gr.nlats)
+        root_grp.createDimension('lon', Gr.nlons)
+        var = root_grp.createVariable(var_name, 'f8', ('lat', 'lon'))
+        var[:,:] = np.array(data)
+        root_grp.close()
         return
 
     def write_3D_variable(self, Gr, t, n_layers, var_name, data):

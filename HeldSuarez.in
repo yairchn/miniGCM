@@ -1,0 +1,60 @@
+{
+    "diffusion": {
+        "dissipation_order": 8.0,
+        "order": 8.0,
+        "truncation_order": 4,
+        "type": "hyperdiffusion"
+    },
+    "forcing": {
+        "DT_y": 60.0,
+        "forcing_type": "HeldSuarez",
+        "k_a": 2.8935185185185185e-07,
+        "k_f": 1.1574074074074073e-05,
+        "k_s": 2.8935185185185184e-06,
+        "lapse_rate": 10.0,
+        "relaxation_temperature": 300.0,
+        "sigma_b": 0.7
+    },
+    "grid": {
+        "dims": 1,
+        "gw": 2,
+        "number_of_latitute_points": 256,
+        "number_of_layers": 3,
+        "number_of_longitude_points": 512,
+        "p1": 25000.0,
+        "p2": 50000.0,
+        "p3": 85000.0,
+        "p_ref": 100000.0
+    },
+    "io": {
+        "output_frequency": 604800.0,
+        "stats_dir": "stats",
+        "stats_frequency": 86400.0
+    },
+    "meta": {
+        "casename": "HeldSuarez",
+        "simname": "HeldSuarez",
+        "uuid": "a707a689-d872-4cfd-8a35-1b7084060b64"
+    },
+    "microphysics": {
+        "rain_model": "None"
+    },
+    "output": {
+        "output_root": "./"
+    },
+    "planet": {
+        "gravity": 9.80616,
+        "omega_rotation": 7.292e-05,
+        "planet_radius": 6371220.0
+    },
+    "thermodynamics": {
+        "heat_capacity": 1004.0,
+        "ideal_gas_constant": 287.0,
+        "thermodynamics_type": "dry"
+    },
+    "timestepping": {
+        "CFL_limit": 0.5,
+        "dt": 100.0,
+        "t_max": 8640000.0
+    }
+}
