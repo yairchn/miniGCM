@@ -57,22 +57,18 @@ class Forcing_HelzSuarez:
 
 	def update(self, TS, Gr, PV, DV, namelist):
 		for k in range(Gr.n_layers):
-                    self.pressure_ratio_meridional=(np.mean(PV.P.values[:,:,k], axis=1)+np.mean(PV.P.values[:,:,k+1],axis=1))/(2.*Gr.p_ref)
-                    #print("k, self.pressure_ratio_meridional.min(), self.pressure_ratio_meridional.max()",k,self.pressure_ratio_meridional.min(),self.pressure_ratio_meridional.max())
-                    #print("k, PV.P.values[0,0,k], PV.P.values[0,0,k+1]",k,PV.P.values[0,0,k].min(),PV.P.values[0,0,k+1].max())
-                    self.Tbar_meridional=((315.-self.DT_y*np.sin(Gr.lat[:,0])**2-self.Dtheta_z*np.log(self.pressure_ratio_meridional)*np.cos(Gr.lat[:,0])**2)*(self.pressure_ratio_meridional)**Gr.kappa)
-                    self.Tbar_layer = np.repeat(self.Tbar_meridional[:, np.newaxis], Gr.nlons, axis=1)
-                    self.Tbar_layer[:,:][self.Tbar_layer[:,:]<=200.]=200.
-                    self.Tbar[:,:,k]=self.Tbar_layer
-                    sigma=np.divide((PV.P.values[:,:,k]+PV.P.values[:,:,k+1])/2.,PV.P.values[:,:,Gr.n_layers])
-                    sigma_ratio=np.clip(np.divide(sigma-self.sigma_b,1-self.sigma_b),0,None)
-                    self.k_T[:,:,k] = self.k_a+(self.k_s-self.k_a)*np.multiply(sigma_ratio,np.power(np.cos(Gr.lat),4))
-                    self.k_v[:,:,k] = self.k_a+self.k_f*sigma_ratio
-                    PV.Vorticity.forcing[:,k] ,PV.Divergence.forcing[:,k] = (
-                       Gr.SphericalGrid.getvrtdivspec(-np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k]),
-                                                      -np.multiply(self.k_v[:,:,k],DV.V.values[:,:,k])))
-                    PV.T.forcing[:,k] = -Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(PV.T.values[:,:,k]-self.Tbar[:,:,k])))
-
+			self.pressure_ratio_meridional=(np.mean(PV.P.values[:,:,k], axis=1)+np.mean(PV.P.values[:,:,k+1],axis=1))/(2.0*Gr.p_ref)
+			self.Tbar_meridional=((315.0-self.DT_y*np.sin(Gr.lat[:,0])**2-self.Dtheta_z*np.log(self.pressure_ratio_meridional)*np.cos(Gr.lat[:,0])**2)*(self.pressure_ratio_meridional)**Gr.kappa)
+			self.Tbar[:,:,k] = np.repeat(self.Tbar_meridional[:, np.newaxis], Gr.nlons, axis=1)
+			self.Tbar[:,:,k][self.Tbar[:,:,k]<=200.0]=200.0
+			sigma=np.divide((PV.P.values[:,:,k]+PV.P.values[:,:,k+1])/2.,PV.P.values[:,:,Gr.n_layers])
+			sigma_ratio=np.clip(np.divide(sigma-self.sigma_b,1-self.sigma_b),0,None)
+			self.k_T[:,:,k] = self.k_a+(self.k_s-self.k_a)*np.multiply(sigma_ratio,np.power(np.cos(Gr.lat),4))
+			self.k_v[:,:,k] = self.k_a+self.k_f*sigma_ratio
+			PV.Vorticity.forcing[:,k] ,PV.Divergence.forcing[:,k] = (
+              	Gr.SphericalGrid.getvrtdivspec(-np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k]),
+												-np.multiply(self.k_v[:,:,k],DV.V.values[:,:,k])))
+			PV.T.forcing[:,k] = -Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(PV.T.values[:,:,k]-self.Tbar[:,:,k])))
 		return
 
 	def io(self, Gr, TS, Stats):

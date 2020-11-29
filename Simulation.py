@@ -18,8 +18,8 @@ class Simulation:
         # define the member classes
         self.Gr = Grid.Grid(namelist)
         # self.TH = Thermodynamics(namelist)
-        self.DV = DiagnosticVariables(self.Gr)
         self.PV = PrognosticVariables(self.Gr)
+        self.DV = DiagnosticVariables(self.Gr)
         self.Case = CasesFactory(namelist, self.Gr)
         self.DF = NumericalDiffusion()
         self.TS = TimeStepping(namelist)
@@ -28,8 +28,8 @@ class Simulation:
 
     def initialize(self, namelist):
         #initialize via Case
-        self.DV.initialize(self.Gr)
-        self.PV.initialize(self.Gr,self.DV)
+        self.PV.initialize(self.Gr)
+        self.DV.initialize(self.Gr,self.PV)
         self.Case.initialize_forcing(self.Gr, self.PV, self.DV, namelist)
         self.Case.initialize_surface(self.Gr, namelist)
         self.DF.initialize(self.Gr, self.TS, namelist)
@@ -39,6 +39,7 @@ class Simulation:
         # self.get_parameters(namelist)
 
     def run(self, namelist):
+        print('run')
         while self.TS.t <= self.TS.t_max:
             self.PV.reset_pressures(self.Gr)
             self.PV.spectral_to_physical(self.Gr)
@@ -49,11 +50,10 @@ class Simulation:
             self.PV.compute_tendencies(self.Gr, self.PV, self.DV, namelist)
             self.TS.update(self.Gr, self.PV, self.DV, self.DF, namelist)
 
-            if np.mod(self.TS.t, (24.0*3600.0)) == 0:
-                print('elapsed time [days] about', np.floor_divide(self.TS.t,(24.0*3600.0)))
             if np.mod(self.TS.t, self.Stats.stats_frequency) == 0:
                 self.stats_io()
             if np.mod(self.TS.t, self.Stats.output_frequency) == 0:
+                print('elapsed time [days] about', np.floor_divide(self.TS.t,(24.0*3600.0)))
                 self.io()
         return
 
@@ -98,7 +98,7 @@ class Simulation:
         self.t2   = 0.0 # initial time = 0
         self.t1   = 0.0 # initial time = 0
         self.dt   = 50.0 # timestep = 50 or 100sec (make sure it satisfies CFL)
-        self.dt   =100.0 # timestep = 50 or 100sec (make sure it satisfies CFL)
+        self.dt   = 100.0 # timestep = 50 or 100sec (make sure it satisfies CFL)
         self.ii   = 0.0  # counter for plotting
         self.jj   = 0.0  # counter for profile loop
         self.t_next = 0.0

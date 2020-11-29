@@ -30,7 +30,7 @@ class PrognosticVariables:
         self.P           = PrognosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers+1,Gr.SphericalGrid.nlm,'Pressure'          ,  'p','pasc' )
         return
 
-    def initialize(self, Gr, DV):
+    def initialize(self, Gr):
         self.Base_pressure = 100000.0
         self.T_init  = [229.0, 257.0, 295.0]
         self.P_init  = [Gr.p1, Gr.p2, Gr.p3, Gr.p_ref]
@@ -116,10 +116,10 @@ class PrognosticVariables:
         return
 
     def io(self, Gr, TS, Stats):
-        Stats.write_3D_variable(Gr, int(TS.t),Gr.n_layers, 'Vorticity',         self.Vorticity.values)
-        Stats.write_3D_variable(Gr, int(TS.t),Gr.n_layers, 'Divergence',        self.Divergence.values)
-        Stats.write_3D_variable(Gr, int(TS.t),Gr.n_layers, 'Temperature',       self.T.values)
-        Stats.write_2D_variable(Gr, int(TS.t),             'Pressure',          self.P.values[:,:,Gr.n_layers])
+        Stats.write_3D_variable(Gr, int(TS.t),Gr.n_layers, self.Vorticity.name,   self.Vorticity.values)
+        Stats.write_3D_variable(Gr, int(TS.t),Gr.n_layers, self.Divergence.name,  self.Divergence.values)
+        Stats.write_3D_variable(Gr, int(TS.t),Gr.n_layers, self.T.name,           self.T.values)
+        Stats.write_2D_variable(Gr, int(TS.t),             self.P.name,           self.P.values[:,:,Gr.n_layers])
         return
 
     def compute_tendencies(self, Gr, PV, DV, namelist):
