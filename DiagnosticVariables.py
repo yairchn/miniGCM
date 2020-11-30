@@ -21,10 +21,10 @@ class DiagnosticVariables:
         self.V     = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers,   Gr.SphericalGrid.nlm, 'meridional_velocity', 'v','m/s' )
         self.KE    = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers,   Gr.SphericalGrid.nlm, 'kinetic_enetry',      'Ek','m^2/s^2' )
         self.gZ    = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers+1, Gr.SphericalGrid.nlm, 'Geopotential', 'z','m^/s^2' )
-        self.Wp    = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers+1, Gr.SphericalGrid.nlm, 'Wp', 'w','pasc/s' )
+        self.Wp    = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers+1, Gr.SphericalGrid.nlm, 'Omega', 'Wp','pasc/s' )
         return
 
-    def initialize(self, Gr):
+    def initialize(self, Gr, PV):
         self.U.values      = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
         self.V.values      = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
         self.KE.values     = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
@@ -34,8 +34,10 @@ class DiagnosticVariables:
             self.U.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.U.values[:,:,k])
             self.V.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.V.values[:,:,k])
             self.KE.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.KE.values[:,:,k])
-            self.gZ.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.gZ.values[:,:,k])
             self.Wp.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.Wp.values[:,:,k])
+            j = Gr.n_layers-k-1 # geopotential is computed bottom -> up
+            self.gZ.values[:,:,j]  = np.multiply(Gr.Rd*PV.T.values[:,:,j],np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))) + self.gZ.values[:,:,j+1]
+            self.gZ.spectral[:,j] = Gr.SphericalGrid.grdtospec(self.gZ.values[:,:,j])
         return
 
     def initialize_io(self, Stats):
@@ -81,11 +83,11 @@ class DiagnosticVariables:
         return
 
     def io(self, Gr, TS, Stats):
-        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'Geopotential',  self.gZ.values[:,:,0:Gr.n_layers])
-        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'Wp',            self.Wp.values[:,:,1:Gr.n_layers+1])
-        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'U',             self.V.values)
-        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'V',             self.V.values)
-        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'Kinetic_enegry',self.KE.values)
+        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, self.gZ.name,self.gZ.values[:,:,0:Gr.n_layers])
+        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, self.Wp.name,self.Wp.values[:,:,1:Gr.n_layers+1])
+        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, self.V.name,self.V.values)
+        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, self.V.name,self.V.values)
+        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, self.KE.name,self.KE.values)
         return
 
     def update(self, Gr, PV):
