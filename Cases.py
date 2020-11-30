@@ -35,6 +35,7 @@ class CasesBase:
     def initialize_io(self, Stats):
         return
     def io(self, PV, Gr, TS, Stats):
+        Stats.write_2D_variable(Gr, int(TS.t), 'shf', PV.T.SurfaceFlux)
         return
     def update_surface(self):
         return
