@@ -119,7 +119,7 @@ class PrognosticVariables:
         Stats.write_3D_variable(Gr, int(TS.t),Gr.n_layers, self.Vorticity.name,   self.Vorticity.values)
         Stats.write_3D_variable(Gr, int(TS.t),Gr.n_layers, self.Divergence.name,  self.Divergence.values)
         Stats.write_3D_variable(Gr, int(TS.t),Gr.n_layers, self.T.name,           self.T.values)
-        Stats.write_3D_variable(Gr, int(TS.t),1,           self.P.name,           self.P.values[:,:,Gr.n_layers])
+        Stats.write_2D_variable(Gr, int(TS.t),             self.P.name,           self.P.values[:,:,Gr.n_layers])
         return
 
     def compute_tendencies(self, Gr, PV, DV, namelist):
