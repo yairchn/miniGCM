@@ -30,6 +30,7 @@ def main():
     namelist_defaults['microphysics']['Magnus_formula_B'] = 17.625
     namelist_defaults['microphysics']['Magnus_formula_C'] = 243.04
     namelist_defaults['microphysics']['molar_mass_ratio'] = 1.60745384883
+    namelist_defaults['microphysics']['max_supersaturation'] = 0.01
 
 
     namelist_defaults['grid'] = {}

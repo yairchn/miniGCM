@@ -11,10 +11,10 @@ class ForcingNone():
 	def __init__(self):
 		return
 	def initialize(self, Gr, PV, DV, namelist):
-                self.Tbar                       = np.zeros((Gr.nx,Gr.ny,Gr.nz), dtype=np.double, order='c')
-                self.Tbar_meridional            = np.zeros((      Gr.ny,Gr.nz), dtype=np.double, order='c')
-                self.pressure_ratio_meridional  = np.zeros(       Gr.ny,        dtype=np.double, order='c')
-                return
+		self.Tbar                       = np.zeros((Gr.nx,Gr.ny,Gr.nz), dtype=np.double, order='c')
+		self.Tbar_meridional            = np.zeros((      Gr.ny,Gr.nz), dtype=np.double, order='c')
+		self.pressure_ratio_meridional  = np.zeros(       Gr.ny,        dtype=np.double, order='c')
+		return
 	def update(self, TS, Gr, PV, DV, namelist):
 		return
 	def initialize_io(self, Stats):

@@ -21,7 +21,7 @@ class Simulation:
         # self.TH = Thermodynamics(namelist)
         self.PV = PrognosticVariables(self.Gr)
         self.DV = DiagnosticVariables(self.Gr)
-        self.MP = Microphysics(namelist, self.Gr)
+        self.MP = Microphysics()
         self.Case = CasesFactory(namelist, self.Gr)
         self.DF = NumericalDiffusion()
         self.TS = TimeStepping(namelist)
@@ -31,7 +31,7 @@ class Simulation:
     def initialize(self, namelist):
         self.PV.initialize(self.Gr)
         self.DV.initialize(self.Gr,self.PV)
-        self.MP.initialize(self.Gr)
+        self.MP.initialize(namelist, self.Gr)
         self.Case.initialize_forcing(self.Gr, self.PV, self.DV, namelist)
         self.Case.initialize_surface(self.Gr, namelist)
         self.DF.initialize(self.Gr, self.TS, namelist)
