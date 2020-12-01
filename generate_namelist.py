@@ -25,7 +25,12 @@ def main():
     namelist_defaults['diffusion']['dissipation_order'] = 8.0
     namelist_defaults['diffusion']['truncation_order'] = 4
 
-    namelist_defaults['microphysics'] = {}
+    namelist_defaults['microphysics'][] = {}
+    namelist_defaults['microphysics']['Magnus_formula_A'] = 6.1094
+    namelist_defaults['microphysics']['Magnus_formula_B'] = 17.625
+    namelist_defaults['microphysics']['Magnus_formula_C'] = 243.04
+    namelist_defaults['microphysics']['molar_mass_ratio'] = 1.60745384883
+
 
     namelist_defaults['grid'] = {}
     namelist_defaults['grid']['dims'] = 1
@@ -46,7 +51,6 @@ def main():
     namelist_defaults['thermodynamics'] = {}
     namelist_defaults['thermodynamics']['heat_capacity'] = 1004.0     # [J / (kg K)]
     namelist_defaults['thermodynamics']['ideal_gas_constant'] = 287.0 # [J / (kg K)]
-    namelist_defaults['thermodynamics']['molar_mass_ratio'] = 1.60745384883
     namelist_defaults['thermodynamics']['latent_heat_vap'] = 26400000 # [J / (kg K)]
 
     namelist_defaults['output'] = {}

@@ -7,12 +7,15 @@ class Microphysics:
         return
 
     def initialize(self, Gr):
-        self.eps_v =  namelist['thermodynamics']['molar_mass_ratio']
+        self.eps_v     =  namelist['microphysics']['molar_mass_ratio']
+        self.MagFormA  =  namelist['microphysics']['Magnus_formula_A']
+        self.MagFormB  =  namelist['microphysics']['Magnus_formula_B']
+        self.MagFormC  =  namelist['microphysics']['Magnus_formula_C']
         self.QL[:,:,k] = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),dtype=np.double, order='c')
         self.QV[:,:,k] = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),dtype=np.double, order='c')
         self.QR[:,:,k] = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),dtype=np.double, order='c')
         self.dQTdt[:,:,k] = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),dtype=np.double, order='c')
-        self.dTdt[:,:,k] = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),dtype=np.double, order='c')
+        self.dTdt[:,:,k]  = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),dtype=np.double, order='c')
         return
 
     def initialize_io(self, Stats):
@@ -21,7 +24,7 @@ class Microphysics:
 
     def update(self, Gr, PV, TS):
         for k in range(Gr.n_layers):
-            pv_star = 6.1094*np.exp((17.625*(PV.T.values[:,:,k] - 273.15))/((PV.T.values[:,:,k] - 273.15)+243.04))*100.0
+            pv_star = self.MagFormA*np.exp((self.MagFormB*(PV.T.values[:,:,k] - 273.15))/((PV.T.values[:,:,k] - 273.15)+self.MagFormC))*100.0
             qv_star = self.eps_v * (1.0 - PV.QT.values[:,:,k]) * self.pv_star[:,:,k] / (PV.P.values[:,:,k] - self.pv_star[:,:,k])
             self.QL[:,:,k] = np.clip(PV.QT.values[:,:,k] - qv_star,0.0, None)
             # qv = min(qt,qv_star) - need to think about this one
