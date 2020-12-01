@@ -28,7 +28,7 @@ class Microphysics:
             qv_star = self.eps_v * (1.0 - PV.QT.values[:,:,k]) * self.pv_star[:,:,k] / (PV.P.values[:,:,k] - self.pv_star[:,:,k])
             self.QL[:,:,k] = np.clip(PV.QT.values[:,:,k] - qv_star,0.0, None)
             # qv = min(qt,qv_star) - need to think about this one
-            # self.QV[:,:,k] = np.clip(qv_star - PV.QT.values[:,:,k],0.0, None)
+            self.QV[:,:,k] = np.maximum(qv_star,PV.QT.values[:,:,k])
             self.QR[:,:,k] = np.clip(self.QL[:,:,k] - self.max_supersaturation*self.QV[:,:,k],0.0, None)
             self.dQTdt[:,:,k] = -self.QR[:,:,k]/TS.dt
             self.dTdt[:,:,k] = -(Gr.Lv/Gr.cp)*self.dQTdt[:,:,k]

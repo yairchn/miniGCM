@@ -11,6 +11,7 @@ from NetCDFIO import Stats
 from TimeStepping import TimeStepping
 from DiagnosticVariables import DiagnosticVariables, DiagnosticVariable
 from PrognosticVariables import PrognosticVariables, PrognosticVariable
+from Microphysics import Microphysics
 
 class Simulation:
 
@@ -20,10 +21,10 @@ class Simulation:
         # self.TH = Thermodynamics(namelist)
         self.PV = PrognosticVariables(self.Gr)
         self.DV = DiagnosticVariables(self.Gr)
+        self.MP = Microphysics(namelist, self.Gr)
         self.Case = CasesFactory(namelist, self.Gr)
         self.DF = NumericalDiffusion()
         self.TS = TimeStepping(namelist)
-        self.MP = Microphysics(namelist)
         self.Stats = Stats(namelist, self.Gr)
         return
 
