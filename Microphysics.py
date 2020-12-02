@@ -8,11 +8,11 @@ class MicrophysicsNone():
     def __init__(self):
         return
     def initialize(self, Gr, namelist):
-        self.QL = np.zeros((Gr.nx,Gr.ny,Gr.nz), dtype=np.double, order='c')
-        self.QV = np.zeros((Gr.nx,Gr.ny,Gr.nz), dtype=np.double, order='c')
-        self.QR = np.zeros((Gr.nx,Gr.ny,Gr.nz), dtype=np.double, order='c')
-        self.dQTdt = np.zeros((Gr.nx,Gr.ny,Gr.nz), dtype=np.double, order='c')
-        self.dTdt = np.zeros((Gr.nx,Gr.ny,Gr.nz), dtype=np.double, order='c')
+        self.QL    = np.zeros((Gr.nx,Gr.ny,Gr.nz), dtype=np.double, order ='c')
+        self.QV    = np.zeros((Gr.nx,Gr.ny,Gr.nz), dtype=np.double, order ='c')
+        self.QR    = np.zeros((Gr.nx,Gr.ny,Gr.nz), dtype=np.double, order ='c')
+        self.dQTdt = np.zeros((Gr.nx,Gr.ny,Gr.nz), dtype=np.double, order ='c')
+        self.dTdt  = np.zeros((Gr.nx,Gr.ny,Gr.nz), dtype=np.double, order ='c')
         return
     def update(self, Gr, PV, TS):
         return
@@ -48,7 +48,8 @@ class Microphysics:
 
     def update(self, Gr, PV, TS):
         for k in range(Gr.n_layers):
-            pv_star = self.MagFormA*np.exp((self.MagFormB*(PV.T.values[:,:,k] - 273.15))/((PV.T.values[:,:,k] - 273.15)+self.MagFormC))*100.0
+            T_cel = PV.T.values[:,:,k] - 273.15
+            pv_star = self.MagFormA*np.exp(self.MagFormB*T_cel/(T_cel+self.MagFormC))*100.0
             qv_star = self.eps_v * (1.0 - PV.QT.values[:,:,k]) * pv_star / (PV.P.values[:,:,k] - pv_star)
             self.QL[:,:,k] = np.clip(PV.QT.values[:,:,k] - qv_star,0.0, None)
             self.QV[:,:,k] = np.minimum(qv_star,PV.QT.values[:,:,k])
@@ -58,11 +59,11 @@ class Microphysics:
         return
 
     def stats_io(self, TS, Stats):
-        Stats.write_global_mean('global_mean_QR', self.QR.values, TS.t)
-        Stats.write_zonal_mean('zonal_mean_QR',self.QR.values, TS.t)
-        Stats.write_meridional_mean('meridional_mean_QR',self.QR.values, TS.t)
+        Stats.write_global_mean('global_mean_QR', self.QR, TS.t)
+        Stats.write_zonal_mean('zonal_mean_QR',self.QR, TS.t)
+        Stats.write_meridional_mean('meridional_mean_QR',self.QR, TS.t)
         return
 
     def io(self, Gr, TS, Stats):
-        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'Rain',self.QR.values[:,:,0:Gr.n_layers])
+        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'Rain',self.QR[:,:,0:Gr.n_layers])
         return

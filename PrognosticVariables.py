@@ -6,17 +6,17 @@ from math import *
 
 class PrognosticVariable:
     def __init__(self, nx, ny, nl, n_spec, kind, name, units):
-        self.values = np.zeros((nx,ny,nl),dtype=np.double, order='c')
+        self.values   = np.zeros((nx,ny,nl), dtype = np.double,  order='c')
         self.spectral = np.zeros((n_spec,nl),dtype = np.complex, order='c')
-        self.old = np.zeros((n_spec,nl),dtype = np.complex, order='c')
-        self.now = np.zeros((n_spec,nl),dtype = np.complex, order='c')
+        self.old      = np.zeros((n_spec,nl),dtype = np.complex, order='c')
+        self.now      = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         self.tendency = np.zeros((n_spec,nl),dtype = np.complex, order='c')
-        self.forcing = np.zeros((n_spec,nl),dtype = np.complex, order='c')
+        self.forcing  = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         if name != 'Pressure':
-            self.SurfaceFlux = np.zeros((nx,ny),dtype=np.double, order='c')
-            self.VerticalFlux = np.zeros((nx,ny,nl+1),dtype=np.double, order='c')
-            self.sp_VerticalFlux = np.zeros((n_spec,nl),dtype = np.complex, order='c')
-            self.forcing = np.zeros((n_spec,nl),dtype = np.complex, order='c')
+            self.SurfaceFlux     = np.zeros((nx,ny),     dtype = np.double,  order='c')
+            self.VerticalFlux    = np.zeros((nx,ny,nl+1),dtype = np.double,  order='c')
+            self.sp_VerticalFlux = np.zeros((n_spec,nl), dtype = np.complex, order='c')
+            self.forcing         = np.zeros((n_spec,nl), dtype = np.complex, order='c')
         self.kind = kind
         self.name = name
         self.units = units
@@ -33,9 +33,9 @@ class PrognosticVariables:
 
     def initialize(self, Gr):
         self.Base_pressure = 100000.0
-        self.T_init  = [229.0, 257.0, 295.0]
-        self.QT_init  = [0.0, 0.0, 0.0]
-        self.P_init  = [Gr.p1, Gr.p2, Gr.p3, Gr.p_ref]
+        self.P_init        = [Gr.p1, Gr.p2, Gr.p3, Gr.p_ref]
+        self.T_init        = [229.0, 257.0, 295.0]
+        self.QT_init       = [0.0, 0.0, 0.0]
 
         self.Vorticity.values  = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
         self.Divergence.values = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
@@ -55,23 +55,26 @@ class PrognosticVariables:
 
     def initialize_io(self, Stats):
         Stats.add_global_mean('global_mean_T')
+        Stats.add_global_mean('global_mean_QT')
         Stats.add_zonal_mean('zonal_mean_P')
         Stats.add_zonal_mean('zonal_mean_T')
+        Stats.add_zonal_mean('zonal_mean_QT')
         Stats.add_zonal_mean('zonal_mean_divergence')
         Stats.add_zonal_mean('zonal_mean_vorticity')
         Stats.add_meridional_mean('meridional_mean_divergence')
         Stats.add_meridional_mean('meridional_mean_vorticity')
         Stats.add_meridional_mean('meridional_mean_P')
         Stats.add_meridional_mean('meridional_mean_T')
+        Stats.add_meridional_mean('meridional_mean_QT')
         return
 
     # convert spherical data to spectral
     def physical_to_spectral(self, Gr):
         for k in range(Gr.n_layers):
-            self.Vorticity.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.Vorticity.values[:,:,k])
+            self.Vorticity.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.Vorticity.values[:,:,k])
             self.Divergence.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.Divergence.values[:,:,k])
-            self.T.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.T.values[:,:,k])
-        self.P.spectral[:,Gr.n_layers] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,Gr.n_layers])
+            self.T.spectral[:,k]          = Gr.SphericalGrid.grdtospec(self.T.values[:,:,k])
+        self.P.spectral[:,Gr.n_layers]    = Gr.SphericalGrid.grdtospec(self.P.values[:,:,Gr.n_layers])
         return
 
     # convert spectral data to spherical
@@ -112,6 +115,7 @@ class PrognosticVariables:
 
     def stats_io(self, TS, Stats):
         Stats.write_global_mean('global_mean_T', self.T.values, TS.t)
+        Stats.write_global_mean('global_mean_QT', self.QT.values, TS.t)
         Stats.write_zonal_mean('zonal_mean_P',self.P.values[:,:,1:4], TS.t)
         Stats.write_zonal_mean('zonal_mean_T',self.T.values, TS.t)
         Stats.write_zonal_mean('zonal_mean_QT',self.QT.values, TS.t)
