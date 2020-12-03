@@ -48,14 +48,18 @@ class Microphysics:
 
     def update(self, Gr, PV, TS):
         for k in range(Gr.n_layers):
-            T_cel = PV.T.values[:,:,k] - 273.15
-            pv_star = self.MagFormA*np.exp(self.MagFormB*T_cel/(T_cel+self.MagFormC))*100.0
-            qv_star = self.eps_v * (1.0 - PV.QT.values[:,:,k]) * pv_star / (PV.P.values[:,:,k] - pv_star)
+            qv_star = (self.eps_v / (PV.P.values[:,:,k] + PV.P.values[:,:,k+1]) 
+                * np.exp(-Gr.Lv/Gr.Rv)*(1/PV.T.values[:,:,k] - 1/Gr.T_0))
             self.QL[:,:,k] = np.clip(PV.QT.values[:,:,k] - qv_star,0.0, None)
             self.QV[:,:,k] = np.minimum(qv_star,PV.QT.values[:,:,k])
             self.QR[:,:,k] = np.clip(self.QL[:,:,k] - self.max_ss*self.QV[:,:,k],0.0, None)
             self.dQTdt[:,:,k] = -self.QR[:,:,k]/TS.dt
             self.dTdt[:,:,k] = -(Gr.Lv/Gr.cp)*self.dQTdt[:,:,k]
+
+            # magnus formula alternative
+            # T_cel = PV.T.values[:,:,k] - 273.15
+            # pv_star = self.MagFormA*np.exp(self.MagFormB*T_cel/(T_cel+self.MagFormC))*100.0
+            # qv_star = self.eps_v * (1.0 - PV.QT.values[:,:,k]) * pv_star / (PV.P.values[:,:,k] - pv_star)
         return
 
     def stats_io(self, TS, Stats):

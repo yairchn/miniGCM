@@ -29,7 +29,7 @@ class Simulation:
         return
 
     def initialize(self, namelist):
-        self.PV.initialize(self.Gr)
+        self.Case.initialize(self.Gr)
         self.DV.initialize(self.Gr,self.PV)
         self.MP.initialize(namelist, self.Gr)
         self.Case.initialize_forcing(self.Gr, self.PV, self.DV, namelist)

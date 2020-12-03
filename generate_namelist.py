@@ -50,9 +50,11 @@ def main():
     namelist_defaults['planet']['gravity']          = 9.80616   # gravity [m/s**2]
 
     namelist_defaults['thermodynamics'] = {}
-    namelist_defaults['thermodynamics']['heat_capacity'] = 1004.0     # [J / (kg K)]
-    namelist_defaults['thermodynamics']['ideal_gas_constant'] = 287.0 # [J / (kg K)]
-    namelist_defaults['thermodynamics']['latent_heat_vap'] = 26400000 # [J / (kg K)]
+    namelist_defaults['thermodynamics']['heat_capacity']        = 1004.0    # [J / (kg K)]
+    namelist_defaults['thermodynamics']['dry_air_gas_constant'] = 287.0     # [J / (kg K)]
+    namelist_defaults['thermodynamics']['vapor_gas_constant']   = 461.5     # [J / (kg K)]
+    namelist_defaults['thermodynamics']['latent_heat_evap']     = 26400000  # [J / (kg K)]
+    namelist_defaults['thermodynamics']['triple_point_temp']    = 273.16    # [K]
 
     namelist_defaults['output'] = {}
     namelist_defaults['output']['output_root'] = './'
@@ -67,7 +69,7 @@ def main():
     if case_name == 'HeldSuarez':
         namelist = HeldSuarez(namelist_defaults)
     elif case_name == 'HeldSuarez_moist':
-        namelist = HeldSuarez(namelist_defaults)
+        namelist = HeldSuarez_moist(namelist_defaults)
     else:
         print('Not a valid case name')
         exit()
@@ -88,13 +90,13 @@ def HeldSuarez(namelist_defaults):
     namelist['thermodynamics']['thermodynamics_type'] = 'dry'
 
     namelist['forcing']['forcing_type'] = 'HeldSuarez'
-    namelist['forcing']['sigma_b'] = 0.7      # sigma coordiantes as sigma=p/ps
-    namelist['forcing']['k_a'] = 1./40.0/(24.0*3600.0)      # [1/sec]
-    namelist['forcing']['k_s'] =  1./4.0/(24.0*3600.0)      # [1/sec]
-    namelist['forcing']['k_f'] = 1.0/(24.0*3600.0)          # [1/sec]
-    namelist['forcing']['DT_y'] = 60.        # Characteristic temperature change in meridional direction [K]
-    namelist['forcing']['lapse_rate'] = 10.0   # Characteristic potential temperature change in vertical [K]
-    namelist['forcing']['relaxation_temperature'] = 300.      # mean temp (some typical range) [K]
+    namelist['forcing']['sigma_b']      = 0.7                    # sigma coordiantes as sigma=p/ps
+    namelist['forcing']['k_a']          = 1./40.0/(24.0*3600.0)  # [1/sec]
+    namelist['forcing']['k_s']          =  1./4.0/(24.0*3600.0)  # [1/sec]
+    namelist['forcing']['k_f']          = 1.0/(24.0*3600.0)      # [1/sec]
+    namelist['forcing']['DT_y']         = 60.                    # Characteristic temperature change in meridional direction [K]
+    namelist['forcing']['lapse_rate']   = 10.0                   # Characteristic potential temperature change in vertical [K]
+    namelist['forcing']['relaxation_temperature'] = 300.         # mean temp (some typical range) [K]
 
     namelist['microphysics']['rain_model'] = 'None'
 
@@ -117,11 +119,11 @@ def HeldSuarez_moist(namelist_defaults):
     namelist['meta']['simname'] = 'HeldSuarez_moist'
     namelist['meta']['casename'] = 'HeldSuarez_moist'
 
-    namelist_defaults['thermodynamics'] = {}
-    namelist_defaults['thermodynamics']['thermodynamics_type'] = 'moist'
+    namelist['thermodynamics']['thermodynamics_type'] = 'moist'
+    namelist['thermodynamics']['verical half-width of the q'] = 30000.0 # pasc
+    namelist['thermodynamics']['horizontal half-width of the q'] = 40.0 # deg lat
 
-    namelist_defaults['microphysics'] = {}
-    namelist_defaults['microphysics']['rain_model'] = 'None'
+    namelist['microphysics']['rain_model'] = 'None'
 
     return namelist
 
