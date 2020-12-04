@@ -67,11 +67,11 @@ class Forcing_HelzSuarez:
               	Gr.SphericalGrid.getvrtdivspec(-np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k]),
 												-np.multiply(self.k_v[:,:,k],DV.V.values[:,:,k])))
 			PV.T.forcing[:,k] = -Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(PV.T.values[:,:,k]-self.Tbar[:,:,k])))
-			plt.figure(k)
-			plt.contourf(self.Tbar[:,:,k])
-			plt.colorbar()
-
-		plt.show()
+			#plt.figure(k)
+			#plt.contourf(self.Tbar[:,:,k])
+			#plt.colorbar()
+#
+		#plt.show()
 		return
 
 	def io(self, Gr, TS, Stats):
