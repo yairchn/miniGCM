@@ -31,7 +31,7 @@ class PrognosticVariables:
         self.P           = PrognosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers+1,Gr.SphericalGrid.nlm,'Pressure'          ,'p'    ,'pasc')
         return
 
-    def initialize(self, Gr):
+    def initialize(self, Pr):
         self.Base_pressure = 100000.0
         self.P_init        = [Pr.p1, Pr.p2, Pr.p3, Pr.p_ref]
         self.T_init        = [229.0, 257.0, 295.0]
@@ -53,7 +53,7 @@ class PrognosticVariables:
         return
 
     # convert spherical data to spectral
-    def physical_to_spectral(self, Gr):
+    def physical_to_spectral(self, Pr, Gr):
         for k in range(Pr.n_layers):
             self.Vorticity.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.Vorticity.values[:,:,k])
             self.Divergence.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.Divergence.values[:,:,k])
@@ -62,7 +62,7 @@ class PrognosticVariables:
         return
 
     # convert spectral data to spherical
-    def spectral_to_physical(self, Gr):
+    def spectral_to_physical(self, Pr, Gr):
         for k in range(Pr.n_layers):
             self.Vorticity.values[:,:,k]  = Gr.SphericalGrid.spectogrd(self.Vorticity.spectral[:,k])
             self.Divergence.values[:,:,k] = Gr.SphericalGrid.spectogrd(self.Divergence.spectral[:,k])
@@ -87,14 +87,10 @@ class PrognosticVariables:
         self.P.now          = self.P.tendency.copy()
         return
 
-    def reset_pressures(self, Gr):
-        n=Pr.n_layers
-        self.P.values[:,:,0] = np.add(np.zeros_like(self.P.values[:,:,0]),self.P_init[0])
-        self.P.values[:,:,1] = np.add(np.zeros_like(self.P.values[:,:,1]),self.P_init[1])
-        self.P.values[:,:,2] = np.add(np.zeros_like(self.P.values[:,:,2]),self.P_init[2])
-        self.P.spectral[:,0] = np.add(np.zeros_like(self.P.spectral[:,0]),self.P_init[0])
-        self.P.spectral[:,1] = np.add(np.zeros_like(self.P.spectral[:,1]),self.P_init[1])
-        self.P.spectral[:,2] = np.add(np.zeros_like(self.P.spectral[:,2]),self.P_init[2])
+    def reset_pressures(self, Pr, Gr):
+        for k in range(Pr.n_layers):
+            self.P.values[:,:,k] = np.add(np.zeros_like(self.P.values[:,:,k]),self.P_init[k])
+            self.P.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,k])
         return
 
     def stats_io(self, TS, Stats):
@@ -112,15 +108,15 @@ class PrognosticVariables:
         Stats.write_meridional_mean('meridional_mean_vorticity',self.Vorticity.values, TS.t)
         return
 
-    def io(self, Gr, TS, Stats):
-        Stats.write_3D_variable(Gr, int(TS.t),Pr.n_layers, self.Vorticity.name,   self.Vorticity.values)
-        Stats.write_3D_variable(Gr, int(TS.t),Pr.n_layers, self.Divergence.name,  self.Divergence.values)
-        Stats.write_3D_variable(Gr, int(TS.t),Pr.n_layers, self.T.name,           self.T.values)
-        Stats.write_3D_variable(Gr, int(TS.t),Pr.n_layers, self.QT.name,          self.QT.values)
-        Stats.write_2D_variable(Gr, int(TS.t),             self.P.name,           self.P.values[:,:,Pr.n_layers])
+    def io(self, Pr, TS, Stats):
+        Stats.write_3D_variable(Pr, int(TS.t),Pr.n_layers, self.Vorticity.name,   self.Vorticity.values)
+        Stats.write_3D_variable(Pr, int(TS.t),Pr.n_layers, self.Divergence.name,  self.Divergence.values)
+        Stats.write_3D_variable(Pr, int(TS.t),Pr.n_layers, self.T.name,           self.T.values)
+        Stats.write_3D_variable(Pr, int(TS.t),Pr.n_layers, self.QT.name,          self.QT.values)
+        Stats.write_2D_variable(Pr, int(TS.t),             self.P.name,           self.P.values[:,:,Pr.n_layers])
         return
 
-    def compute_tendencies(self, Gr, PV, DV, MP, namelist):
+    def compute_tendencies(self, Pr, Gr, PV, DV, MP):
         ps_vrt, ps_div = Gr.SphericalGrid.getvrtdivspec(
             DV.U.values[:,:,2]*(PV.P.values[:,:,2]-PV.P.values[:,:,3]),
             DV.V.values[:,:,2]*(PV.P.values[:,:,2]-PV.P.values[:,:,3]))

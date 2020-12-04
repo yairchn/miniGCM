@@ -4,37 +4,31 @@ from math import *
 import PrognosticVariables
 import DiagnosticVariables
 
-# def MicrophysicsFactory(Pr, Gr, namelist):
-#     if namelist['microphysics']['rain_model'] == 'None':
-#         return MicrophysicsNone()
-#     elif namelist['microphysics']['rain_model'] == 'Kessler_cutoff':
-#         return MicrophysicsCutoff()
-#     else:
-#         print('Microphysics is not recognized')
-#     return
-
 class MicrophysicsBase:
     def __init__(self):
         return
-    def initialize(self, Pr, Gr, namelist):
+    def initialize(self, Pr):
         return
     def update(self, Pr, Gr, PV, TS):
         return
     def initialize_io(self, Stats):
         return
-    def io(self, Stats):
+    def io(self, Pr, TS, Stats):
         return
 
 class MicrophysicsNone(MicrophysicsBase):
     def __init__(self):
+        MicrophysicsBase.__init__(self)
         return
-    def initialize(self, Pr, Gr, namelist):
+    def initialize(self, Pr):
+        self.dQTdt = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
+        self.dTdt  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         return
     def update(self, Pr, Gr, PV, TS):
         return
     def initialize_io(self, Stats):
         return
-    def io(self, Stats):
+    def io(self, Pr, TS, Stats):
         return
 
 class MicrophysicsCutoff(MicrophysicsBase):
@@ -101,7 +95,7 @@ class MicrophysicsCutoff(MicrophysicsBase):
         Stats.write_meridional_mean('meridional_mean_QR',self.QR, TS.t)
         return
 
-    def io(self, Pr, Gr, TS, Stats):
-        Stats.write_3D_variable(Gr, int(TS.t), Pr.n_layers, 'Rain',self.QR[:,:,0:Pr.n_layers])
+    def io(self, Pr, TS, Stats):
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Rain',self.QR[:,:,0:Pr.n_layers])
         Stats.write_2D_variable(Gr, int(TS.t)             , 'Rain Rate',self.RainRate)
         return

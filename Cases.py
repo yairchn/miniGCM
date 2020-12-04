@@ -29,17 +29,17 @@ def CasesFactory(Pr, namelist):
 class CasesBase:
     def __init__(self, Pr, namelist):
         return
-    def initialize(self, Pr, Gr, PV):
+    def initialize(self, Pr, Gr, PV, namelist):
         return
-    def initialize_surface(self, Pr, Gr):
+    def update_surface(self, Pr, Gr, TS, PV):
         return
-    def initialize_forcing(self, Pr, Gr, PV, DV):
+    def initialize_forcing(self, Pr):
         return
-    def initialize_microphysics(self, Pr, Gr, PV, DV):
+    def initialize_microphysics(self, Pr):
         return
     def initialize_io(self, Stats):
         return
-    def io(self, Pr, Gr, TS, PV, Stats):
+    def io(self, Pr, TS, PV, Stats):
         return
     def update_surface(self, Pr, Gr):
         self.Sur.update()
@@ -57,7 +57,7 @@ class HeldSuarez(CasesBase):
         self.MP = Microphysics.MicrophysicsNone()
         return
 
-    def initialize(self, Pr, Gr, PV):
+    def initialize(self, Pr, Gr, PV, namelist):
         self.Base_pressure = 100000.0
         PV.P_init        = [Pr.p1, Pr.p2, Pr.p3, Pr.p_ref]
         PV.T_init        = [229.0, 257.0, 295.0]
@@ -68,7 +68,7 @@ class HeldSuarez(CasesBase):
         Pr.k_s = namelist['forcing']['k_s']
         Pr.k_f = namelist['forcing']['k_f']
         Pr.DT_y = namelist['forcing']['equator_to_pole_dT']
-        Pr.T_equator = namelist['thermodynamics']['equatorial Temperature']
+        Pr.T_equator = namelist['forcing']['equatorial_temperature']
         Pr.Dtheta_z = namelist['forcing']['lapse_rate']
         Pr.Tbar0 = namelist['forcing']['relaxation_temperature']
         Pr.cp = namelist['thermodynamics']['heat_capacity']
@@ -94,27 +94,28 @@ class HeldSuarez(CasesBase):
     def initialize_surface(self, Pr, Gr):
         return
 
-    def initialize_forcing(self, Pr, Gr, PV, DV):
-        self.Fo.initialize(Gr, PV, DV, namelist)
+    def initialize_forcing(self, Pr):
+        self.Fo.initialize(Pr)
         return
 
-    def initialize_microphysics(self, Pr, Gr, PV, DV):
+    def initialize_microphysics(self, Pr):
+        self.MP.initialize(Pr)
         return
 
     def initialize_io(self, Stats):
         Stats.initialize_io(self, Stats)
         return
 
-    def io(self, Pr, Gr, TS, PV, Stats):
-        CasesBase.io(self, PV, Gr, TS, Stats)
+    def io(self, Pr, TS, PV, Stats):
+        CasesBase.io(self, Pr, PV, TS, Stats)
         return
 
-    def update_surface(self, Pr, Gr):
-        self.Sur.update()
+    def update_surface(self, Pr, Gr, TS, PV):
+        self.Sur.update(Pr, Gr, TS, PV)
         return
 
     def update_forcing(self, Pr, Gr, TS,  PV, DV):
-        self.Fo.update(TS, Gr, PV, DV, namelist)
+        self.Fo.update(Pr, Gr, TS, PV, DV)
         return
 
     def update_microphysics(self, Pr, Gr, PV, TS):
@@ -129,7 +130,7 @@ class HeldSuarez_moist(CasesBase):
         self.MP = Microphysics.MicrophysicsCutoff()
         return
 
-    def initialize(self, Pr, Gr, PV):
+    def initialize(self, Pr, Gr, PV, namelist):
         self.Base_pressure = 100000.0
         PV.P_init        = [Pr.p1, Pr.p2, Pr.p3, Pr.p_ref]
         PV.T_init        = [229.0, 257.0, 295.0]
@@ -142,9 +143,9 @@ class HeldSuarez_moist(CasesBase):
         Pr.k_a = namelist['forcing']['k_a']
         Pr.k_s = namelist['forcing']['k_s']
         Pr.k_f = namelist['forcing']['k_f']
+        Pr.T_equator = namelist['forcing']['equatorial_temperature']
         Pr.DT_y = namelist['forcing']['equator_to_pole_dT']
         Pr.Dtheta_z = namelist['forcing']['lapse_rate']
-        Pr.T_equator = namelist['thermodynamics']['equatorial Temperature']
         Pr.Tbar0 = namelist['forcing']['relaxation_temperature']
 
         PV.Vorticity.values  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
@@ -172,28 +173,28 @@ class HeldSuarez_moist(CasesBase):
         self.Sur.initialize()
         return
 
-    def initialize_forcing(self, Pr, Gr, PV, DV):
-        self.Fo.initialize(Gr, PV, DV, namelist)
+    def initialize_forcing(self, Pr):
+        self.Fo.initialize(Pr)
         return
 
     def initialize_microphysics(self, Pr, Gr, namelist):
-        self.MP.update(TS, Gr, PV, DV, namelist)
+        self.MP.initialize(Pr)
         return
 
     def initialize_io(self, Stats):
         Stats.initialize_io(self, Stats)
         return
 
-    def io(self, Pr, Gr, TS, PV, Stats):
-        CasesBase.io(self, PV, Gr, TS, Stats)
+    def io(self, Pr, TS, PV, Stats):
+        CasesBase.io(self, Pr, TS, PV, Stats)
         return
 
-    def update_surface(self, Pr, Gr):
+    def update_surface(self, Pr, Gr, TS, PV):
         self.Sur.update()
         return
 
     def update_forcing(self, Pr, Gr, TS,  PV, DV):
-        self.Fo.update(TS, Gr, PV, DV, namelist)
+        self.Fo.update(Pr, Gr, TS, PV, DV)
         return
 
     def update_microphysics(self, Pr, Gr, PV, TS):

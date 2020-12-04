@@ -5,36 +5,36 @@ from math import *
 class SurfaceBase:
     def __init__(self):
         return
-    def initialize(self, Pr, Gr, namelist):
+    def initialize(self, Pr, Gr):
         return
-    def update(self, Pr, Gr, PV, TS):
+    def update(self, Pr, Gr, TS, PV):
         return
     def initialize_io(self, Stats):
         return
-    def io(self, Stats):
+    def io(self, Pr, TS, Stats):
         return
 
 class SurfaceNone(SurfaceBase):
     def __init__(self):
         return
-    def initialize_surface(self, Pr, Gr):
+    def initialize(self, Pr, Gr):
         return
-    def update_surface(self, Pr, Gr):
+    def update(self, Pr, Gr, TS, PV):
         return
     def initialize_io(self, Stats):
         return
-    def io(self, Stats):
+    def io(self, Pr, TS, Stats):
         return
 
 class Surface_BulkFormula(SurfaceBase):
     def __init__(self):
         SurfaceBase.__init__(self)
         return
-    def initialize_surface(self, Pr, Gr):
+    def initialize(self, Pr, Gr):
         return
-    def update_surface(self, Pr, Gr):
+    def update(self, Pr, Gr, TS, PV):
         return
     def initialize_io(self, Stats):
         return
-    def io(self, Stats):
+    def io(self, Pr, TS, Stats):
         return

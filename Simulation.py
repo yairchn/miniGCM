@@ -24,34 +24,34 @@ class Simulation:
         self.PV = PrognosticVariables(self.Pr, self.Gr)
         self.DV = DiagnosticVariables(self.Pr, self.Gr)
         self.DF = NumericalDiffusion()
-        self.TS = TimeStepping(namelist)
-        self.Stats = Stats(namelist, self.Gr)
+        self.TS = TimeStepping(self.Pr, namelist)
+        self.Stats = Stats(self.Pr, self.Gr, namelist)
         return
 
     def initialize(self, namelist):
-        self.Case.initialize(self.Pr, self.Gr, self.PV)
+        self.Case.initialize(self.Pr, self.Gr, self.PV, namelist)
         self.DV.initialize(self.Pr, self.Gr,self.PV)
-        self.Case.initialize_microphysics(self.Pr, self.Gr, namelist)
-        self.Case.initialize_forcing(self.Pr, self.Gr, self.PV, self.DV, namelist)
-        self.Case.initialize_surface(self.Pr, self.Gr, namelist)
+        self.PV.initialize(self.Pr)
+        self.Case.initialize_microphysics(self.Pr)
+        self.Case.initialize_forcing(self.Pr)
+        self.Case.initialize_surface(self.Pr, self.Gr)
         self.DF.initialize(self.Pr, self.Gr, self.TS, namelist)
-        self.TS.initialize(self.Pr, self.Gr, self.PV, self.DV, self.DF, namelist)
+        self.TS.initialize()
         self.initialize_io()
         self.io()
 
     def run(self, namelist):
         print('run')
         while self.TS.t <= self.TS.t_max:
-            self.PV.reset_pressures(self.Gr)
-            self.PV.spectral_to_physical(self.Gr)
-            self.DV.update(self.Gr, self.PV)
-            self.DV.physical_to_spectral(self.Gr)
-            self.Case.update_surface(self.TS, self.Gr, self.PV, self.DV, namelist)
-            self.Case.update_forcing(self.TS, self.Gr, self.PV, self.DV, namelist)
-            self.Case.update_microphysics(self.Pr, self.Gr, namelist)
-            self.MP.update(self.Gr, self.PV, self.TS)
-            self.PV.compute_tendencies(self.Gr, self.PV, self.DV, self.MP, namelist)
-            self.TS.update(self.Gr, self.PV, self.DV, self.DF, namelist)
+            self.PV.reset_pressures(self.Pr, self.Gr)
+            self.PV.spectral_to_physical(self.Pr, self.Gr)
+            self.DV.update(self.Pr, self.Gr, self.PV)
+            self.DV.physical_to_spectral(self.Pr, self.Gr)
+            self.Case.update_surface(self.Pr, self.Gr, self.TS, self.PV)
+            self.Case.update_forcing(self.Pr, self.Gr, self.TS, self.PV, self.DV)
+            self.Case.update_microphysics(self.Pr, self.Gr, self.PV, self.TS)
+            self.PV.compute_tendencies(self.Pr, self.Gr, self.PV, self.DV, self.Case.MP)
+            self.TS.update(self.Pr, self.Gr, self.PV, self.DV, self.DF, namelist)
 
             if np.mod(self.TS.t, self.Stats.stats_frequency) == 0:
                 self.stats_io()
@@ -64,17 +64,17 @@ class Simulation:
 
         self.DV.initialize_io(self.Stats)
         self.PV.initialize_io(self.Stats)
-        self.MP.initialize_io(self.Stats)
+        self.Case.MP.initialize_io(self.Stats)
         self.Case.Fo.initialize_io(self.Stats)
         self.Case.Sur.initialize_io(self.Stats)
         return
 
     def io(self):
-        self.DV.io(self.Gr, self.TS, self.Stats)
-        self.PV.io(self.Gr, self.TS, self.Stats)
-        self.MP.io(self.Gr, self.TS, self.Stats)
-        self.Case.Fo.io(self.Gr, self.TS, self.Stats)
-        self.Case.io(self.PV, self.Gr, self.TS, self.Stats)
+        self.DV.io(self.Pr, self.TS, self.Stats)
+        self.PV.io(self.Pr, self.TS, self.Stats)
+        self.Case.MP.io(self.Pr, self.TS, self.Stats)
+        self.Case.Fo.io(self.Pr, self.TS, self.Stats)
+        self.Case.io(self.Pr, self.TS, self.PV, self.Stats)
         return
 
     def stats_io(self):
@@ -82,7 +82,7 @@ class Simulation:
         self.Stats.write_simulation_time(self.TS.t)
         self.DV.stats_io(self.TS, self.Stats)
         self.PV.stats_io(self.TS, self.Stats)
-        self.MP.stats_io(self.TS, self.Stats)
+        self.Case.MP.stats_io(self.TS, self.Stats)
         self.Case.Fo.stats_io(self.TS, self.Stats)
         self.Stats.close_files()
         return

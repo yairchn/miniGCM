@@ -61,7 +61,7 @@ class Stats:
 
         shutil.copyfile(os.path.join( './', namelist['meta']['simname'] + '.in'),
                         os.path.join( outpath, namelist['meta']['simname'] + '.in'))
-        self.setup_stats_file(Grid)
+        self.setup_stats_file(Pr, Gr)
         return
 
     def open_files(self):
@@ -155,7 +155,7 @@ class Stats:
         var[-1, :,:] = np.array(np.mean(data,1))
         return
 
-    def write_2D_variable(self, Pr, Gr, t, var_name, data):
+    def write_2D_variable(self, Pr, t, var_name, data):
         root_grp = nc.Dataset(self.path_plus_var+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')
         root_grp.createDimension('lat', Pr.nlats)
         root_grp.createDimension('lon', Pr.nlons)
@@ -164,7 +164,7 @@ class Stats:
         root_grp.close()
         return
 
-    def write_3D_variable(self, Gr, t, n_layers, var_name, data):
+    def write_3D_variable(self, Pr, t, n_layers, var_name, data):
         root_grp = nc.Dataset(self.path_plus_var+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')
         root_grp.createDimension('lat', Pr.nlats)
         root_grp.createDimension('lon', Pr.nlons)

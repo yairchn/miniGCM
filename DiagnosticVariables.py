@@ -62,8 +62,8 @@ class DiagnosticVariables:
         return
 
     # convert spectral data to spherical
-    def spectral_to_physical(self):
-        for k in range(self.n_layers):
+    def spectral_to_physical(self, Pr, Gr):
+        for k in range(Pr.n_layers):
             self.U.values[:,:,k], self.V.value[:,:,k] = Gr.SphericalGrid.getuv(self.Vorticity.spectral[:,k], self.Divergence.spectral[:,k])
             self.Wp.values[:,:,k+1] = Gr.SphericalGrid.spectogrd(self.Wp.spectral[:,k+1])
             self.gZ.values[:,:,k] = Gr.SphericalGrid.spectogrd(self.gZ.spectral[:,k])
@@ -82,12 +82,12 @@ class DiagnosticVariables:
         Stats.write_meridional_mean('meridional_mean_gZ',self.gZ.values[:,:,0:3], TS.t)
         return
 
-    def io(self, Pr, Gr, TS, Stats):
-        Stats.write_3D_variable(Gr, int(TS.t), Pr.n_layers, self.gZ.name,self.gZ.values[:,:,0:Pr.n_layers])
-        Stats.write_3D_variable(Gr, int(TS.t), Pr.n_layers, self.Wp.name,self.Wp.values[:,:,1:Pr.n_layers+1])
-        Stats.write_3D_variable(Gr, int(TS.t), Pr.n_layers, self.V.name,self.V.values)
-        Stats.write_3D_variable(Gr, int(TS.t), Pr.n_layers, self.V.name,self.V.values)
-        Stats.write_3D_variable(Gr, int(TS.t), Pr.n_layers, self.KE.name,self.KE.values)
+    def io(self, Pr, TS, Stats):
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, self.gZ.name,self.gZ.values[:,:,0:Pr.n_layers])
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, self.Wp.name,self.Wp.values[:,:,1:Pr.n_layers+1])
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, self.V.name,self.V.values)
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, self.V.name,self.V.values)
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, self.KE.name,self.KE.values)
         return
 
     def update(self, Pr, Gr, PV):
