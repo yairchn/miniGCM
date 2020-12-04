@@ -28,8 +28,9 @@ class NumericalDiffusion:
             diffusion_factor = (1e-5*((Gr.SphericalGrid.lap/Gr.SphericalGrid.lap[-1])**(dissipation_order/2)))
             self.HyperDiffusionFactor = np.exp(-dt*diffusion_factor)
             self.HyperDiffusionFactor[Gr.SphericalGrid._shtns.l>=Gr.truncation_number] = 0.0
-            PV.P.spectral[:,k]  = np.multiply(self.HyperDiffusionFactor, PV.P.spectral[:,k])
             PV.Vorticity.spectral[:,k] = np.multiply(self.HyperDiffusionFactor,PV.Vorticity.spectral[:,k])
             PV.Divergence.spectral[:,k] = np.multiply(self.HyperDiffusionFactor,PV.Divergence.spectral[:,k])
             PV.T.spectral[:,k] = np.multiply(self.HyperDiffusionFactor,PV.T.spectral[:,k])
+
+        PV.P.spectral[:,Gr.n_layers]  = np.multiply(self.HyperDiffusionFactor, PV.P.spectral[:,Gr.n_layers])
         return
