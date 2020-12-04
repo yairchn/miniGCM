@@ -6,12 +6,12 @@ from math import *
 
 class ReferenceState:
 	def __init__(self):
-		# self.p = np.zeros(Gr.n_layers, dtype=np.double, order='c')
+		# self.p = np.zeros(Pr.n_layers, dtype=np.double, order='c')
 		return
 
 	def initialize(self, Gr):
-		self.Tbar = np.zeros((Gr.nlats,Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
-		self.Base_pressure = np.zeros((Gr.nlats,Gr.nlons, Gr.n_layers+1), dtype=np.double, order='c')
+		self.Tbar = np.zeros((Pr.nlats,Pr.nlons, Pr.n_layers), dtype=np.double, order='c')
+		self.Base_pressure = np.zeros((Pr.nlats,Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c')
 		# need to initlize
 		# coordinates in meridional direction for pressure level p
 		y=Gr.lat[:,0]

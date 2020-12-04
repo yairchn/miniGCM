@@ -25,14 +25,6 @@ def main():
     namelist_defaults['diffusion']['dissipation_order'] = 8.0
     namelist_defaults['diffusion']['truncation_order'] = 4
 
-    namelist_defaults['microphysics'] = {}
-    namelist_defaults['microphysics']['Magnus_formula_A'] = 6.1094
-    namelist_defaults['microphysics']['Magnus_formula_B'] = 17.625
-    namelist_defaults['microphysics']['Magnus_formula_C'] = 243.04
-    namelist_defaults['microphysics']['molar_mass_ratio'] = 1.60745384883
-    namelist_defaults['microphysics']['max_supersaturation'] = 0.01
-
-
     namelist_defaults['grid'] = {}
     namelist_defaults['grid']['dims'] = 1
     namelist_defaults['grid']['gw'] = 2
@@ -46,7 +38,7 @@ def main():
 
     namelist_defaults['planet'] = {}
     namelist_defaults['planet']['planet_radius']    = 6.37122e6 # earth radius [m]
-    namelist_defaults['planet']['omega_rotation']   = 7.292e-5  # rotation rate [1/s]
+    namelist_defaults['planet']['Omega_rotation']   = 7.292e-5  # rotation rate [1/s]
     namelist_defaults['planet']['gravity']          = 9.80616   # gravity [m/s**2]
 
     namelist_defaults['thermodynamics'] = {}
@@ -89,12 +81,16 @@ def HeldSuarez(namelist_defaults):
 
     namelist['thermodynamics']['thermodynamics_type'] = 'dry'
 
+    namelist['microphysics'] = {}
+    namelist['microphysics']['rain_model'] = 'None'
+
     namelist['forcing']['forcing_type'] = 'HeldSuarez'
     namelist['forcing']['sigma_b']      = 0.7                    # sigma coordiantes as sigma=p/ps
     namelist['forcing']['k_a']          = 1./40.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_s']          =  1./4.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_f']          = 1.0/(24.0*3600.0)      # [1/sec]
-    namelist['forcing']['DT_y']         = 60.                    # Characteristic temperature change in meridional direction [K]
+    namelist['forcing']['equator_to_pole_dT']         = 60.                    # Characteristic temperature change in meridional direction [K]
+    namelist['forcing']['equatorial Temperature']    = 300.                   # Characteristic temperature at the equator [K]
     namelist['forcing']['lapse_rate']   = 10.0                   # Characteristic potential temperature change in vertical [K]
     namelist['forcing']['relaxation_temperature'] = 300.         # mean temp (some typical range) [K]
 
@@ -124,7 +120,8 @@ def HeldSuarez_moist(namelist_defaults):
     namelist['forcing']['k_a']          = 1./40.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_s']          =  1./4.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_f']          = 1.0/(24.0*3600.0)      # [1/sec]
-    namelist['forcing']['DT_y']         = 60.                    # Characteristic temperature change in meridional direction [K]
+    namelist['forcing']['equatorial Temperature']    = 294.                    # Characteristic temperature change in meridional direction [K]
+    namelist['forcing']['equator_to_pole_dT']         = 65.                    # Characteristic temperature change in meridional direction [K]
     namelist['forcing']['lapse_rate']   = 10.0                   # Characteristic potential temperature change in vertical [K]
     namelist['forcing']['relaxation_temperature'] = 300.         # mean temp (some typical range) [K]
 
@@ -133,7 +130,14 @@ def HeldSuarez_moist(namelist_defaults):
     namelist['thermodynamics']['verical_half_width_of_the_q'] = 30000.0 # pasc
     namelist['thermodynamics']['horizontal_half_width_of_the_q'] = 0.697 # radians lat
 
-    namelist['microphysics']['rain_model'] = 'None'
+    namelist['microphysics'] = {}
+    namelist['microphysics']['rain_model'] = 'Kessler_cutoff'
+    namelist['microphysics']['water_density'] = 1000.0            # g/m^3
+    namelist['microphysics']['Magnus_formula_A'] = 6.1094
+    namelist['microphysics']['Magnus_formula_B'] = 17.625
+    namelist['microphysics']['Magnus_formula_C'] = 243.04
+    namelist['microphysics']['molar_mass_ratio'] = 1.60745384883
+    namelist['microphysics']['max_supersaturation'] = 0.01
 
     return namelist
 

@@ -43,7 +43,7 @@ class TimeStepping:
 			PV.T.spectral          = F_T          + dt*((23.0/12.0)*PV.T.tendency          - (16.0/12.0)*PV.T.now          + (5.0/12.0)*PV.T.old)
 			PV.P.spectral          = F_P          + dt*((23.0/12.0)*PV.P.tendency          - (16.0/12.0)*PV.P.now          + (5.0/12.0)*PV.P.old)
 
-		DF.update(Gr, PV, namelist, self.dt)
+		DF.update(Gr, PV, self.dt, namelist)
 		self.t = self.t+self.dt
 		PV.set_old_with_now()
 		PV.set_now_with_tendencies()
@@ -55,9 +55,9 @@ class TimeStepping:
 		# consider calling this every some time to save computation
 		CFL_limit = namelist['timestepping']['CFL_limit']
 		dt = namelist['timestepping']['dt']
-		self.dx = 2.0*np.divide(np.pi,Gr.nlats)*Gr.rsphere
-		self.dy = 2.0*np.divide(np.pi,Gr.nlons)*Gr.rsphere
-		self.dp = np.max([Gr.p_ref-Gr.p3,Gr.p3-Gr.p2,Gr.p2-Gr.p1])
+		self.dx = 2.0*np.divide(np.pi,Pr.nlats)*Pr.rsphere
+		self.dy = 2.0*np.divide(np.pi,Pr.nlons)*Pr.rsphere
+		self.dp = np.max([Pr.p_ref-Pr.p3,Pr.p3-Pr.p2,Pr.p2-Pr.p1])
 		zonal_timescale = np.min(self.dx)/np.max(np.abs(DV.U.values) + 1e-10)
 		meridional_timescale = np.min(self.dy)/np.max(np.abs(DV.V.values) + 1e-10)
 		vertical_timescale = np.min(self.dp)/np.max(np.abs(DV.Wp.values) + 1e-10)

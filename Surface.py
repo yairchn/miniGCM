@@ -2,24 +2,39 @@ import numpy as np
 import scipy as sc
 from math import *
 
-class SurfaceNone:
+class SurfaceBase:
     def __init__(self):
         return
-    def initialize(self):
+    def initialize(self, Pr, Gr, namelist):
         return
-    def update(self):
+    def update(self, Pr, Gr, PV, TS):
         return
     def initialize_io(self, Stats):
         return
     def io(self, Stats):
         return
 
-class Surface_HelzSuarez:
-	def __init__(self, Gr):
-		return
+class SurfaceNone(SurfaceBase):
+    def __init__(self):
+        return
+    def initialize_surface(self, Pr, Gr):
+        return
+    def update_surface(self, Pr, Gr):
+        return
+    def initialize_io(self, Stats):
+        return
+    def io(self, Stats):
+        return
 
-	def initialize(self, Gr, Stats):
-		return
-
-	def update():
-		return
+class Surface_BulkFormula(SurfaceBase):
+    def __init__(self):
+        SurfaceBase.__init__(self)
+        return
+    def initialize_surface(self, Pr, Gr):
+        return
+    def update_surface(self, Pr, Gr):
+        return
+    def initialize_io(self, Stats):
+        return
+    def io(self, Stats):
+        return

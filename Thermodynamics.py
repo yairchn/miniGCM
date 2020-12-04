@@ -4,8 +4,8 @@ from math import *
 
 def eos(QT, T, Grid):
 
-	p_tilde	   = Gr.p_ref
-	Rd		   = Gr.Rd
+	p_tilde	   = Pr.p_ref
+	Rd		   = Pr.Rd
 	eps_vi	   = namelist['thermodynamics']['molar_mass_ratio']
 	cpd		   = 1000.4
 	kappa	   =  0.285956175299

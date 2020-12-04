@@ -11,34 +11,33 @@ from NetCDFIO import Stats
 from TimeStepping import TimeStepping
 from DiagnosticVariables import DiagnosticVariables, DiagnosticVariable
 from PrognosticVariables import PrognosticVariables, PrognosticVariable
-from Microphysics import Microphysics
+from Microphysics import MicrophysicsBase
+import Parameters
 
 class Simulation:
 
     def __init__(self, namelist):
         # define the member classes
-        self.Gr = Grid.Grid(namelist)
-        # self.TH = Thermodynamics(namelist)
-        self.PV = PrognosticVariables(self.Gr)
-        self.DV = DiagnosticVariables(self.Gr)
-        self.MP = Microphysics()
-        self.Case = CasesFactory(namelist, self.Gr)
+        self.Pr = Parameters.Parameters(namelist)
+        self.Gr = Grid.Grid(self.Pr, namelist)
+        self.Case = CasesFactory(self.Pr, namelist)
+        self.PV = PrognosticVariables(self.Pr, self.Gr)
+        self.DV = DiagnosticVariables(self.Pr, self.Gr)
         self.DF = NumericalDiffusion()
         self.TS = TimeStepping(namelist)
         self.Stats = Stats(namelist, self.Gr)
         return
 
     def initialize(self, namelist):
-        self.Case.initialize(self.Gr, self.PV)
-        self.DV.initialize(self.Gr,self.PV)
-        self.MP.initialize(namelist, self.Gr)
-        self.Case.initialize_forcing(self.Gr, self.PV, self.DV, namelist)
-        self.Case.initialize_surface(self.Gr, namelist)
-        self.DF.initialize(self.Gr, self.TS, namelist)
-        self.TS.initialize(self.Gr, self.PV, self.DV, self.DF, namelist)
+        self.Case.initialize(self.Pr, self.Gr, self.PV)
+        self.DV.initialize(self.Pr, self.Gr,self.PV)
+        self.Case.initialize_microphysics(self.Pr, self.Gr, namelist)
+        self.Case.initialize_forcing(self.Pr, self.Gr, self.PV, self.DV, namelist)
+        self.Case.initialize_surface(self.Pr, self.Gr, namelist)
+        self.DF.initialize(self.Pr, self.Gr, self.TS, namelist)
+        self.TS.initialize(self.Pr, self.Gr, self.PV, self.DV, self.DF, namelist)
         self.initialize_io()
         self.io()
-        # self.get_parameters(namelist)
 
     def run(self, namelist):
         print('run')
@@ -47,8 +46,9 @@ class Simulation:
             self.PV.spectral_to_physical(self.Gr)
             self.DV.update(self.Gr, self.PV)
             self.DV.physical_to_spectral(self.Gr)
-            # self.Case.update_surface(self.TS)
+            self.Case.update_surface(self.TS, self.Gr, self.PV, self.DV, namelist)
             self.Case.update_forcing(self.TS, self.Gr, self.PV, self.DV, namelist)
+            self.Case.update_microphysics(self.Pr, self.Gr, namelist)
             self.MP.update(self.Gr, self.PV, self.TS)
             self.PV.compute_tendencies(self.Gr, self.PV, self.DV, self.MP, namelist)
             self.TS.update(self.Gr, self.PV, self.DV, self.DF, namelist)
@@ -79,7 +79,6 @@ class Simulation:
 
     def stats_io(self):
         self.Stats.open_files()
-        # YAIR - move all write_3D_data to here and concentrate all vars in a single file per times step 
         self.Stats.write_simulation_time(self.TS.t)
         self.DV.stats_io(self.TS, self.Stats)
         self.PV.stats_io(self.TS, self.Stats)
@@ -89,33 +88,4 @@ class Simulation:
         return
 
     def force_io(self):
-        return
-
-    def get_parameters(self, namelist):
-        # move all parameters to namelist default
-        # parameters = OrderedDict()
-
-        ##################################################################
-        # may be run for even longer time
-
-        # what are all of these ?
-        self.t    = 0.0 # initial time = 0
-        self.t3   = 0.0 # initial time = 0
-        self.t2   = 0.0 # initial time = 0
-        self.t1   = 0.0 # initial time = 0
-        self.dt   = 50.0 # timestep = 50 or 100sec (make sure it satisfies CFL)
-        self.dt   = 100.0 # timestep = 50 or 100sec (make sure it satisfies CFL)
-        self.ii   = 0.0  # counter for plotting
-        self.jj   = 0.0  # counter for profile loop
-        self.t_next = 0.0
-        # setting up the integration
-        self.tmax =   10.01*24.0*3600.0  #(time to integrate, here 1000 days)
-        self.tmax =   90.01*24.0*3600.0  #(time to integrate, here 1000 days)
-        self.tmax = 1000.01*24.0*3600.0  #(time to integrate, here 1000 days)
-        ################################################################
-        # Logging the data
-        #time_step = 5*24*3600.
-        #time_step =   24*3600.
-        self.time_step  =    2*3600.0
-        self.ndiss = namelist['diffusion']['order']
         return
