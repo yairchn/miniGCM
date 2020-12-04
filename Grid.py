@@ -26,8 +26,8 @@ class Grid:
         self.Rv = namelist['thermodynamics']['vapor_gas_constant']
         self.Lv = namelist['thermodynamics']['latent_heat_evap']
         self.T_0 = namelist['thermodynamics']['triple_point_temp']
-        self.P_hw = namelist['thermodynamics']['vertical half-width of the q']
-        self.phi_hw = namelist['thermodynamics']['horizontal half-width of the q']
+        self.P_hw = namelist['thermodynamics']['verical_half_width_of_the_q']
+        self.phi_hw = namelist['thermodynamics']['horizontal_half_width_of_the_q']
         # self.R = namelist['planet']['planet_radius']
         self.Omega = namelist['planet']['omega_rotation']
         

@@ -8,6 +8,7 @@ import TimeStepping
 import Forcing
 import Surface
 import ReferenceState
+import pylab as plt
 
 
 def CasesFactory(namelist, Gr):
@@ -26,8 +27,8 @@ def CasesFactory(namelist, Gr):
 class CasesBase:
     def __init__(self, namelist):
         return
-    # def initialize_prognostic_vars(self, Gr, PV, DV):
-    #     return
+    def initialize(self, Gr, PV):
+        return
     def initialize_surface(self, Gr):
         return
     def initialize_forcing(self, Gr, PV, DV, namelist):
@@ -60,16 +61,16 @@ class HeldSuarez(CasesBase):
 
         return
 
-    def initialize(self, Gr, PV, DV):
+    def initialize(self, Gr, PV):
         self.Base_pressure = 100000.0
-        self.P_init        = [Gr.p1, Gr.p2, Gr.p3, Gr.p_ref]
-        self.T_init        = [229.0, 257.0, 295.0]
+        PV.P_init        = [Gr.p1, Gr.p2, Gr.p3, Gr.p_ref]
+        PV.T_init        = [229.0, 257.0, 295.0]
         self.QT_init       = [0.0, 0.0, 0.0]
 
         PV.Vorticity.values  = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
         PV.Divergence.values = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
-        PV.P.values          = np.multiply(np.ones((Gr.nlats, Gr.nlons, Gr.n_layers+1), dtype=np.double, order='c'),self.P_init)
-        PV.T.values          = np.multiply(np.ones((Gr.nlats, Gr.nlons, Gr.n_layers),   dtype=np.double, order='c'),self.T_init)
+        PV.P.values          = np.multiply(np.ones((Gr.nlats, Gr.nlons, Gr.n_layers+1), dtype=np.double, order='c'),PV.P_init)
+        PV.T.values          = np.multiply(np.ones((Gr.nlats, Gr.nlons, Gr.n_layers),   dtype=np.double, order='c'),PV.T_init)
         PV.QT.values         = np.multiply(np.ones((Gr.nlats, Gr.nlons, Gr.n_layers),   dtype=np.double, order='c'),self.QT_init)
         # initilize spectral values
         for k in range(Gr.n_layers):
@@ -129,22 +130,23 @@ class HeldSuarez_moist(CasesBase):
 
         return
 
-    def initialize(self, Gr, PV, DV):
+    def initialize(self, Gr, PV):
         self.Base_pressure = 100000.0
-        self.P_init        = [Gr.p1, Gr.p2, Gr.p3, Gr.p_ref]
-        self.T_init        = [229.0, 257.0, 295.0]
-        self.QT_0       = 18.0/1000.0
+        PV.P_init        = [Gr.p1, Gr.p2, Gr.p3, Gr.p_ref]
+        PV.T_init        = [229.0, 257.0, 295.0]
+        PV.QT_0       = 18.0/1000.0
 
         PV.Vorticity.values  = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
         PV.Divergence.values = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
-        PV.P.values          = np.multiply(np.ones((Gr.nlats, Gr.nlons, Gr.n_layers+1), dtype=np.double, order='c'),self.P_init)
-        PV.T.values          = np.multiply(np.ones((Gr.nlats, Gr.nlons, Gr.n_layers),   dtype=np.double, order='c'),self.T_init)
+        PV.P.values          = np.multiply(np.ones((Gr.nlats, Gr.nlons, Gr.n_layers+1), dtype=np.double, order='c'),PV.P_init)
+        Tv                   = np.multiply(np.ones((Gr.nlats, Gr.nlons, Gr.n_layers),   dtype=np.double, order='c'),PV.T_init)
         for k in range(Gr.n_layers):
-            sigma = PV.P.values[:,:,k]/PV.P.values[:,:,Gr.n_layers]
-            PV.QT.values[:,:,k] = (self.QT_0*np.exp(-(Gr.lat[:,0]/Gr.phi_hw)**4.0)
-                *np.exp(-((sigma-1)*(PV.P.values[:,:,k]/Gr.P_hw))**2.0))
-
-        # initilize spectral values
+            sigma_1 = PV.P_init[k]/PV.P_init[Gr.n_layers]-1.0
+            TQ_meridional = np.multiply(PV.QT_0,
+                np.exp(-(Gr.lat[:,0]/Gr.phi_hw)**4.0)*np.exp(-(sigma_1*(Gr.p_ref/Gr.P_hw))**2.0))
+            PV.QT.values[:,:,k] = np.repeat(TQ_meridional[:, np.newaxis], Gr.nlons, axis=1)
+            PV.T.values[:,:,k]  = np.divide(Tv[:,:,k],np.add(1.0,0.608*PV.QT.values[:,:,k]))
+        # # initilize spectral values
         for k in range(Gr.n_layers):
             PV.P.spectral[:,k]           = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,k])
             PV.T.spectral[:,k]           = Gr.SphericalGrid.grdtospec(PV.T.values[:,:,k])

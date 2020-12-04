@@ -119,9 +119,19 @@ def HeldSuarez_moist(namelist_defaults):
     namelist['meta']['simname'] = 'HeldSuarez_moist'
     namelist['meta']['casename'] = 'HeldSuarez_moist'
 
+    namelist['forcing']['forcing_type'] = 'HeldSuarez_moist'
+    namelist['forcing']['sigma_b']      = 0.7                    # sigma coordiantes as sigma=p/ps
+    namelist['forcing']['k_a']          = 1./40.0/(24.0*3600.0)  # [1/sec]
+    namelist['forcing']['k_s']          =  1./4.0/(24.0*3600.0)  # [1/sec]
+    namelist['forcing']['k_f']          = 1.0/(24.0*3600.0)      # [1/sec]
+    namelist['forcing']['DT_y']         = 60.                    # Characteristic temperature change in meridional direction [K]
+    namelist['forcing']['lapse_rate']   = 10.0                   # Characteristic potential temperature change in vertical [K]
+    namelist['forcing']['relaxation_temperature'] = 300.         # mean temp (some typical range) [K]
+
+
     namelist['thermodynamics']['thermodynamics_type'] = 'moist'
-    namelist['thermodynamics']['verical half-width of the q'] = 30000.0 # pasc
-    namelist['thermodynamics']['horizontal half-width of the q'] = 40.0 # deg lat
+    namelist['thermodynamics']['verical_half_width_of_the_q'] = 30000.0 # pasc
+    namelist['thermodynamics']['horizontal_half_width_of_the_q'] = 0.697 # radians lat
 
     namelist['microphysics']['rain_model'] = 'None'
 
