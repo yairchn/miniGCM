@@ -56,9 +56,8 @@ class Forcing_HelzSuarez:
 
 	def update(self, TS, Gr, PV, DV, namelist):
 		for k in range(Gr.n_layers):
-			self.pressure_ratio_meridional=(np.mean(PV.P.values[:,:,k], axis=1)+np.mean(PV.P.values[:,:,k+1],axis=1))/(2.0*Gr.p_ref)
-			self.Tbar_meridional=((315.0-self.DT_y*np.sin(Gr.lat[:,0])**2-self.Dtheta_z*np.log(self.pressure_ratio_meridional)*np.cos(Gr.lat[:,0])**2)*(self.pressure_ratio_meridional)**Gr.kappa)
-			self.Tbar[:,:,k] = np.repeat(self.Tbar_meridional[:, np.newaxis], Gr.nlons, axis=1)
+			self.pressure_ratio=(PV.P.values[:,:,k]+PV.P.values[:,:,k+1])/(2.0*Gr.p_ref)
+			self.Tbar[:,:,k] = ((315.0-self.DT_y*np.sin(Gr.lat)**2-self.Dtheta_z*np.log(self.pressure_ratio)*np.cos(Gr.lat)**2)*(self.pressure_ratio)**Gr.kappa)
 			self.Tbar[:,:,k][self.Tbar[:,:,k]<=200.0]=200.0
 			sigma=np.divide((PV.P.values[:,:,k]+PV.P.values[:,:,k+1])/2.,PV.P.values[:,:,Gr.n_layers])
 			sigma_ratio=np.clip(np.divide(sigma-self.sigma_b,1-self.sigma_b),0,None)
@@ -68,6 +67,11 @@ class Forcing_HelzSuarez:
               	Gr.SphericalGrid.getvrtdivspec(-np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k]),
 												-np.multiply(self.k_v[:,:,k],DV.V.values[:,:,k])))
 			PV.T.forcing[:,k] = -Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(PV.T.values[:,:,k]-self.Tbar[:,:,k])))
+			plt.figure(k)
+			plt.contourf(self.Tbar[:,:,k])
+			plt.colorbar()
+
+		plt.show()
 		return
 
 	def io(self, Gr, TS, Stats):
