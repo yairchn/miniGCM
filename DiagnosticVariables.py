@@ -85,7 +85,7 @@ class DiagnosticVariables:
     def io(self, Gr, TS, Stats):
         Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, self.gZ.name,self.gZ.values[:,:,0:Gr.n_layers])
         Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, self.Wp.name,self.Wp.values[:,:,1:Gr.n_layers+1])
-        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, self.V.name,self.V.values)
+        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, self.U.name,self.U.values)
         Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, self.V.name,self.V.values)
         Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, self.KE.name,self.KE.values)
         return
