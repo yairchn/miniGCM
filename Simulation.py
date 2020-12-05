@@ -52,7 +52,7 @@ class Simulation:
             self.Case.update_microphysics(self.Pr, self.Gr, self.PV, self.TS)
             self.PV.compute_tendencies(self.Pr, self.Gr, self.PV, self.DV, self.Case.MP)
             self.TS.update(self.Pr, self.Gr, self.PV, self.DV, self.DF, namelist)
-            print('elapsed time [days] about', np.floor_divide(self.TS.t,(24.0*3600.0)))
+
             if np.mod(self.TS.t, self.Stats.stats_frequency) == 0:
                 self.stats_io()
             if np.mod(self.TS.t, self.Stats.output_frequency) == 0:
