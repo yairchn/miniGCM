@@ -47,6 +47,13 @@ class PrognosticVariables:
             self.Divergence.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.Divergence.values[:,:,k])
         self.P.spectral[:,Gr.n_layers]     = Gr.SphericalGrid.grdtospec(self.P.values[:,:,Gr.n_layers])
 
+        inoise=1
+        if inoise==1:
+            # load the random noise to grid space
+            noise=np.load('norm_rand_grid_noise_white.npy')/10.
+            self.T.spectral[:,Gr.n_layers-1]          += Gr.SphericalGrid.grdtospec(noise)
+
+
         return
 
     def initialize_io(self, Stats):
