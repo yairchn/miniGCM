@@ -7,7 +7,7 @@ import DiagnosticVariables
 class MicrophysicsBase:
     def __init__(self):
         return
-    def initialize(self, Pr):
+    def initialize(self, Pr, namelist):
         return
     def update(self, Pr, Gr, PV, TS):
         return
@@ -20,9 +20,10 @@ class MicrophysicsNone(MicrophysicsBase):
     def __init__(self):
         MicrophysicsBase.__init__(self)
         return
-    def initialize(self, Pr):
+    def initialize(self, Pr, namelist):
         self.dQTdt = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         self.dTdt  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
+        self.RainRate = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
         return
     def update(self, Pr, Gr, PV, TS):
         return
@@ -36,14 +37,13 @@ class MicrophysicsCutoff(MicrophysicsBase):
         MicrophysicsBase.__init__(self)
         return
 
-    def initialize(self, Pr, Gr, namelist):
-        self.PV = PrognosticVariables.PrognosticVariables(Gr)
-        self.DV = DiagnosticVariables.DiagnosticVariables(Gr)
+    def initialize(self, Pr, namelist):
         self.QL        = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
         self.QV        = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
         self.QR        = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
         self.dQTdt     = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
         self.dTdt      = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
+        self.RainRate = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
         Pr.max_ss    =  namelist['microphysics']['max_supersaturation']
         Pr.eps_v     =  namelist['microphysics']['molar_mass_ratio']
         Pr.MagFormA  =  namelist['microphysics']['Magnus_formula_A']
@@ -58,7 +58,7 @@ class MicrophysicsCutoff(MicrophysicsBase):
         Stats.add_meridional_mean('meridional_mean_QR')
         return
 
-    def update(self, Pr, Gr, PV, TS):
+    def update(self, Pr, Gr, TS, PV):
         for k in range(Pr.n_layers):
             # qv_star = (Pr.eps_v / (PV.P.values[:,:,k] + PV.P.values[:,:,k+1])
             #     * np.exp(-(Pr.Lv/Pr.Rv)*(1/PV.T.values[:,:,k] - 1/Pr.T_0)))
@@ -97,5 +97,5 @@ class MicrophysicsCutoff(MicrophysicsBase):
 
     def io(self, Pr, TS, Stats):
         Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Rain',self.QR[:,:,0:Pr.n_layers])
-        Stats.write_2D_variable(Gr, int(TS.t)             , 'Rain Rate',self.RainRate)
+        Stats.write_2D_variable(Pr, int(TS.t)             , 'Rain Rate',self.RainRate)
         return

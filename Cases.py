@@ -31,18 +31,17 @@ class CasesBase:
         return
     def initialize(self, Pr, Gr, PV, namelist):
         return
-    def update_surface(self, Pr, Gr, TS, PV):
+    def initialize_surface(self, Pr, Gr, PV):
         return
     def initialize_forcing(self, Pr):
         return
-    def initialize_microphysics(self, Pr):
+    def initialize_microphysics(self, Pr, namelist):
         return
     def initialize_io(self, Stats):
         return
     def io(self, Pr, TS, PV, Stats):
         return
     def update_surface(self, Pr, Gr):
-        self.Sur.update()
         return
     def update_forcing(self, Pr, Gr, TS,  PV, DV):
         return
@@ -91,15 +90,14 @@ class HeldSuarez(CasesBase):
 
         return
 
-    def initialize_surface(self, Pr, Gr):
+    def initialize_surface(self, Pr, Gr, PV):
         return
 
     def initialize_forcing(self, Pr):
         self.Fo.initialize(Pr)
         return
 
-    def initialize_microphysics(self, Pr):
-        self.MP.initialize(Pr)
+    def initialize_microphysics(self, Pr, namelist):
         return
 
     def initialize_io(self, Stats):
@@ -123,7 +121,7 @@ class HeldSuarez(CasesBase):
 
 
 class HeldSuarez_moist(CasesBase):
-    def __init__(self, namelist, Pr):
+    def __init__(self, Pr, namelist):
         Pr.casename = namelist['meta']['casename']
         self.Fo  = Forcing.Forcing_HelzSuarezMoist()
         self.Sur = Surface.Surface_BulkFormula()
@@ -155,7 +153,7 @@ class HeldSuarez_moist(CasesBase):
         for k in range(Pr.n_layers):
             sigma_1 = PV.P_init[k]/PV.P_init[Pr.n_layers]-1.0
             TQ_meridional = np.multiply(PV.QT_0,
-                np.exp(-(Gr.lat[:,0]/Gr.phi_hw)**4.0)*np.exp(-(sigma_1*(Pr.p_ref/Gr.P_hw))**2.0))
+                np.exp(-(Gr.lat[:,0]/Pr.phi_hw)**4.0)*np.exp(-(sigma_1*(Pr.p_ref/Pr.P_hw))**2.0))
             PV.QT.values[:,:,k] = np.repeat(TQ_meridional[:, np.newaxis], Pr.nlons, axis=1)
             PV.T.values[:,:,k]  = np.divide(Tv[:,:,k],np.add(1.0,0.608*PV.QT.values[:,:,k]))
         # # initilize spectral values
@@ -169,16 +167,16 @@ class HeldSuarez_moist(CasesBase):
 
         return
 
-    def initialize_surface(self, Pr, Gr, namelist):
-        self.Sur.initialize()
+    def initialize_surface(self, Pr, Gr, PV):
+        self.Sur.initialize(Pr, Gr, PV)
         return
 
     def initialize_forcing(self, Pr):
         self.Fo.initialize(Pr)
         return
 
-    def initialize_microphysics(self, Pr, Gr, namelist):
-        self.MP.initialize(Pr)
+    def initialize_microphysics(self, Pr, namelist):
+        self.MP.initialize(Pr, namelist)
         return
 
     def initialize_io(self, Stats):
@@ -190,7 +188,7 @@ class HeldSuarez_moist(CasesBase):
         return
 
     def update_surface(self, Pr, Gr, TS, PV):
-        self.Sur.update()
+        self.Sur.update(Pr, Gr, TS, PV)
         return
 
     def update_forcing(self, Pr, Gr, TS,  PV, DV):
@@ -198,5 +196,5 @@ class HeldSuarez_moist(CasesBase):
         return
 
     def update_microphysics(self, Pr, Gr, PV, TS):
-        self.MP.update(TS, Gr, PV, DV, namelist)
+        self.MP.update(Pr, Gr, TS, PV)
         return

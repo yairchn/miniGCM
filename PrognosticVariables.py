@@ -90,7 +90,8 @@ class PrognosticVariables:
     def reset_pressures(self, Pr, Gr):
         for k in range(Pr.n_layers):
             self.P.values[:,:,k] = np.add(np.zeros_like(self.P.values[:,:,k]),self.P_init[k])
-            self.P.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,k])
+            # P.spectral is a regular valued P that has the structure of a spectral variable
+            self.P.spectral[:,k] = np.add(np.zeros_like(self.P.spectral[:,k]),self.P_init[k])
         return
 
     def stats_io(self, TS, Stats):

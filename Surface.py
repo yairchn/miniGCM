@@ -5,7 +5,7 @@ from math import *
 class SurfaceBase:
     def __init__(self):
         return
-    def initialize(self, Pr, Gr):
+    def initialize(self, Pr, Gr, PV):
         return
     def update(self, Pr, Gr, TS, PV):
         return
@@ -17,7 +17,7 @@ class SurfaceBase:
 class SurfaceNone(SurfaceBase):
     def __init__(self):
         return
-    def initialize(self, Pr, Gr):
+    def initialize(self, Pr, Gr, PV):
         return
     def update(self, Pr, Gr, TS, PV):
         return
@@ -30,7 +30,7 @@ class Surface_BulkFormula(SurfaceBase):
     def __init__(self):
         SurfaceBase.__init__(self)
         return
-    def initialize(self, Pr, Gr):
+    def initialize(self, Pr, Gr, PV):
         return
     def update(self, Pr, Gr, TS, PV):
         return

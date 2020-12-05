@@ -62,7 +62,7 @@ class Forcing_HelzSuarez:
 		Stats.write_meridional_mean('meridional_mean_T_eq', self.Tbar, TS.t)
 		return
 
-class Forcing_HelzSuarez_moist:
+class Forcing_HelzSuarezMoist:
 	def __init__(self):
 		return
 
