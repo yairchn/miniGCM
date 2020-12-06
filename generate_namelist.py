@@ -23,6 +23,7 @@ def main():
 
     namelist_defaults['diffusion'] = {}
     namelist_defaults['diffusion']['dissipation_order'] = 8.0
+    namelist_defaults['diffusion']['eddy_viscosity'] = 1.e-5
     namelist_defaults['diffusion']['truncation_order'] = 4
 
     namelist_defaults['microphysics'] = {}
@@ -93,7 +94,6 @@ def HeldSuarez(namelist_defaults):
     namelist['microphysics']['rain_model'] = 'None'
 
     namelist['diffusion']['type'] = 'hyperdiffusion'
-    namelist['diffusion']['order'] = 8.0
 
     return namelist
 
