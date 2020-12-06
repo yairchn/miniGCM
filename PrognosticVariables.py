@@ -50,7 +50,7 @@ class PrognosticVariables:
         inoise=1
         if inoise==1:
             # load the random noise to grid space
-            noise=np.load('/home/scoty/norm_rand_grid_noise_white.npy')/10.
+            noise=np.load('../norm_rand_grid_noise_white.npy')/10.
             self.T.spectral[:,Gr.n_layers-1]          += Gr.SphericalGrid.grdtospec(noise)
 
 
