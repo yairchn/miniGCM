@@ -11,6 +11,7 @@ from NetCDFIO import Stats
 from TimeStepping import TimeStepping
 from DiagnosticVariables import DiagnosticVariables, DiagnosticVariable
 from PrognosticVariables import PrognosticVariables, PrognosticVariable
+import os
 
 class Simulation:
 
@@ -53,7 +54,20 @@ class Simulation:
             if np.mod(self.TS.t, self.Stats.stats_frequency) == 0:
                 self.stats_io()
             if np.mod(self.TS.t, self.Stats.output_frequency) == 0:
+                #write to stdoutput
                 print('elapsed time [days] about', np.floor_divide(self.TS.t,(24.0*3600.0)))
+                #write logfile
+                uuid=namelist['meta']['uuid']
+                outpath = str(os.path.join(namelist['output']['output_root'] + 'Output.' + namelist['meta']['simname'] + '.'
+                                   + uuid[len(uuid )-5:len(uuid)]))
+                casename = namelist['meta']['casename']
+                logfile=outpath+'/'+casename+'.log'
+                print('logfile ',logfile)
+                os.system('echo elapsed time [days] about '+str(np.floor_divide(self.TS.t,(24.0*3600.0))) + '>> '+logfile)
+                os.system('echo u layer 1 min max ' + str(self.DV.U.values[:,:,0].min()) + ' ' + str(self.DV.U.values[:,:,0].max()) + '>> '+logfile)
+                os.system('echo u layer 2 min max ' + str(self.DV.U.values[:,:,1].min()) + ' ' + str(self.DV.U.values[:,:,1].max()) + '>> '+logfile)
+                os.system('echo u layer 3 min max ' + str(self.DV.U.values[:,:,2].min()) + ' ' + str(self.DV.U.values[:,:,2].max()) + '>> '+logfile)
+                #write netcdf output
                 self.io()
         return
 
@@ -102,14 +116,4 @@ class Simulation:
         self.ii   = 0.0  # counter for plotting
         self.jj   = 0.0  # counter for profile loop
         self.t_next = 0.0
-        # setting up the integration
-        self.tmax =   10.01*24.0*3600.0  #(time to integrate, here 1000 days)
-        self.tmax =   90.01*24.0*3600.0  #(time to integrate, here 1000 days)
-        self.tmax = 1000.01*24.0*3600.0  #(time to integrate, here 1000 days)
-        ################################################################
-        # Logging the data
-        #time_step = 5*24*3600.
-        #time_step =   24*3600.
-        self.time_step  =    2*3600.0
-        self.ndiss = namelist['diffusion']['order']
         return
