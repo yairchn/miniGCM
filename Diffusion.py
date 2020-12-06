@@ -15,8 +15,9 @@ class NumericalDiffusion:
     def initialize(self, Gr, TS, namelist):
         dissipation_order = namelist['diffusion']['dissipation_order']
         truncation_order = namelist['diffusion']['truncation_order']
+        eddy_viscosity = namelist['diffusion']['eddy_viscosity']
         truncation_number = int(Gr.nlons/truncation_order)
-        diffusion_factor = (1e-5*((Gr.SphericalGrid.lap/Gr.SphericalGrid.lap[-1])**(dissipation_order/2)))
+        diffusion_factor = (eddy_viscosity*((Gr.SphericalGrid.lap/Gr.SphericalGrid.lap[-1])**(dissipation_order/2)))
         self.HyperDiffusionFactor = np.exp(-TS.dt*diffusion_factor)
         # all wave numbers above this value are removed
         self.HyperDiffusionFactor[Gr.SphericalGrid._shtns.l>=Gr.truncation_number] = 0.0
