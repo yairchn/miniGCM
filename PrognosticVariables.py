@@ -191,8 +191,8 @@ class PrognosticVariables:
             PV.Divergence.tendency[:,k] =  (Vortical_momentum_flux  - Dry_Energy_laplacian
                 - div_flux_up - div_flux_dn + PV.Divergence.forcing[:,k])
             PV.T.tendency[:,k] = (-Divergent_T_flux
-                    +Gr.SphericalGrid.grdtospec(-Thermal_expension-PV.T.VerticalFlux[:,:,k]+T_flux_up+ MP.dTdt[:,:,k]) + PV.T.forcing[:,k]) # 
+                    +Gr.SphericalGrid.grdtospec(-Thermal_expension-PV.T.VerticalFlux[:,:,k]+T_flux_up ) + PV.T.forcing[:,k]) # + MP.dTdt[:,:,k]
             PV.QT.tendency[:,k] = (-Divergent_QT_flux
-                    +Gr.SphericalGrid.grdtospec(-Thermal_expension-PV.QT.VerticalFlux[:,:,k]+QT_flux_up+ MP.dQTdt[:,:,k]) + PV.QT.forcing[:,k]) # 
+                    +Gr.SphericalGrid.grdtospec(-Thermal_expension-PV.QT.VerticalFlux[:,:,k]+QT_flux_up + MP.dQTdt[:,:,k]) + PV.QT.forcing[:,k]) # 
 
         return

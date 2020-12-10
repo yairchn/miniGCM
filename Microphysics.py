@@ -29,6 +29,8 @@ class MicrophysicsNone(MicrophysicsBase):
         return
     def initialize_io(self, Stats):
         return
+    def stats_io(self, TS, Stats):
+        return
     def io(self, Pr, TS, Stats):
         return
 
@@ -45,7 +47,6 @@ class MicrophysicsCutoff(MicrophysicsBase):
         self.dTdt      = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
         self.RainRate = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
         Pr.max_ss    =  namelist['microphysics']['max_supersaturation']
-        Pr.eps_v     =  namelist['microphysics']['molar_mass_ratio']
         Pr.MagFormA  =  namelist['microphysics']['Magnus_formula_A']
         Pr.MagFormB  =  namelist['microphysics']['Magnus_formula_B']
         Pr.MagFormC  =  namelist['microphysics']['Magnus_formula_C']
@@ -53,49 +54,59 @@ class MicrophysicsCutoff(MicrophysicsBase):
         return
 
     def initialize_io(self, Stats):
-        Stats.add_global_mean('global_mean_QR')
-        Stats.add_zonal_mean('zonal_mean_QR')
-        Stats.add_meridional_mean('meridional_mean_QR')
+        Stats.add_global_mean('global_mean_QL')
+        Stats.add_zonal_mean('zonal_mean_QL')
+        Stats.add_meridional_mean('meridional_mean_QL')
+        Stats.add_global_mean('global_mean_dQTdt')
+        Stats.add_zonal_mean('zonal_mean_dQTdt')
+        Stats.add_meridional_mean('meridional_mean_dQTdt')
+        Stats.add_surface_zonal_mean('zonal_mean_RainRate')
         return
 
     def update(self, Pr, Gr, TS, PV):
         for k in range(Pr.n_layers):
-            # qv_star = (Pr.eps_v / (PV.P.values[:,:,k] + PV.P.values[:,:,k+1])
-            #     * np.exp(-(Pr.Lv/Pr.Rv)*(1/PV.T.values[:,:,k] - 1/Pr.T_0)))
-            # self.QL[:,:,k] = np.clip(PV.QT.values[:,:,k] - qv_star,0.0, None)
-            # self.QV[:,:,k] = np.minimum(qv_star,PV.QT.values[:,:,k])
-            # self.QR[:,:,k] = PV.QT.values[:,:,k] - (1.0+Pr.max_ss)*qv_star
-            # self.QR[:,:,k] = np.clip(self.QR[:,:,k],0.0, None)
-            # print('exp arg')
-            # print(-(Pr.Lv/Pr.Rv)*(1/PV.T.values[:,:,k] - 1/Pr.T_0))
-            # print('exp val')
-            # print(np.exp(-(Pr.Lv/Pr.Rv)*(1/PV.T.values[:,:,k] - 1/Pr.T_0)))
-            # print(k, np.max(self.QR[:,:,k]), np.max(PV.QT.values[:,:,k]), np.max(qv_star))
-            # # self.QR[:,:,k] = np.clip(self.QL[:,:,k] - Pr.max_ss*self.QV[:,:,k],0.0, None)
-            # self.dQTdt[:,:,k] = -self.QR[:,:,k]/TS.dt
+
+            # dq = np.clip((PV.QT.values[:,:,k]-qv_star), 0.0, None)
+            # print(qv_star)
+            # A = Pr.Lv**2*qv_star
+            # B = Pr.cp*Pr.Rv*PV.T.values[:,:,k]
+            # # print(Pr.Lv**2)
+            # # print(A)
+            # # print(B)
+
+            # denom = (1.0+np.divide(A,B))
+            # self.dQTdt[:,:,k] = -np.divide(dq,denom)/TS.dt
             # self.dTdt[:,:,k]  = -(Pr.Lv/Pr.cp)*self.dQTdt[:,:,k]
 
             # magnus formula alternative
-            T_cel = PV.T.values[:,:,k] - 273.15
-            pv_star = Pr.MagFormA*np.exp(Pr.MagFormB*T_cel/(T_cel+Pr.MagFormC))*100.0
-            qv_star = Pr.eps_v * (1.0 - PV.QT.values[:,:,k]) * pv_star / (PV.P.values[:,:,k] - pv_star)
+            # T_cel = PV.T.values[:,:,k] - 273.15
+            # pv_star = Pr.MagFormA*np.exp(Pr.MagFormB*T_cel/(T_cel+Pr.MagFormC))*100.0
+            # qv_star = Pr.eps_v * (1.0 - PV.QT.values[:,:,k]) * pv_star / (PV.P.values[:,:,k] - pv_star)
+
+            # Clausius–Clapeyron equation based saturation
+            qv_star = (Pr.qv_star0* Pr.eps_v / (PV.P.values[:,:,k] + PV.P.values[:,:,k+1])
+                * np.exp(-(Pr.Lv/Pr.Rv)*(1/PV.T.values[:,:,k] - 1/Pr.T_0)))
+
             self.QL[:,:,k] = np.clip(PV.QT.values[:,:,k] - qv_star,0.0, None)
-            self.QV[:,:,k] = np.minimum(qv_star,PV.QT.values[:,:,k])
-            self.QR[:,:,k] = PV.QT.values[:,:,k] - (1.0+Pr.max_ss)*qv_star
-            self.QR[:,:,k] = np.clip(self.QR[:,:,k],0.0, None)
-            self.dQTdt[:,:,k] = -self.QR[:,:,k]/TS.dt
+            self.dQTdt[:,:,k] = np.clip((self.QL[:,:,k] -  Pr.max_ss * qv_star)/TS.dt,0.0, None)
             self.dTdt[:,:,k]  = -(Pr.Lv/Pr.cp)*self.dQTdt[:,:,k]
-        self.RainRate = np.divide(np.sum(self.dQTdt,2),
+
+        self.RainRate = np.divide(np.sum(-self.dQTdt,2),
                  Pr.rho_w*Pr.g*(PV.P.values[:,:,Pr.n_layers]-PV.P.values[:,:,0]))
         return
 
     def stats_io(self, TS, Stats):
-        Stats.write_global_mean('global_mean_QR', self.QR, TS.t)
-        Stats.write_zonal_mean('zonal_mean_QR',self.QR, TS.t)
-        Stats.write_meridional_mean('meridional_mean_QR',self.QR, TS.t)
+        Stats.write_global_mean('global_mean_QL', self.QL, TS.t)
+        Stats.write_zonal_mean('zonal_mean_QL',self.QL, TS.t)
+        Stats.write_meridional_mean('meridional_mean_QL',self.QL, TS.t)
+        Stats.write_global_mean('global_mean_dQTdt', self.dQTdt, TS.t)
+        Stats.write_zonal_mean('zonal_mean_dQTdt',self.dQTdt, TS.t)
+        Stats.write_meridional_mean('meridional_mean_dQTdt',self.dQTdt, TS.t)
+        Stats.write_surface_zonal_mean('zonal_mean_RainRate',self.RainRate, TS.t)
         return
 
     def io(self, Pr, TS, Stats):
-        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Rain',self.QR[:,:,0:Pr.n_layers])
-        Stats.write_2D_variable(Pr, int(TS.t)             , 'Rain Rate',self.RainRate)
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Liquid_Water',self.QL[:,:,0:Pr.n_layers])
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'dQTdt',self.dQTdt[:,:,0:Pr.n_layers])
+        Stats.write_2D_variable(Pr, int(TS.t)             , 'Rain_Rate',self.RainRate)
         return

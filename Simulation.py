@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from Cases import CasesFactory
 from Cases import  CasesBase
 import time
-import Thermodynamics
 from Diffusion import NumericalDiffusion
 import Grid
 from ReferenceState import ReferenceState
@@ -47,9 +46,9 @@ class Simulation:
             self.PV.spectral_to_physical(self.Pr, self.Gr)
             self.DV.update(self.Pr, self.Gr, self.PV)
             self.DV.physical_to_spectral(self.Pr, self.Gr)
-            self.Case.update_surface(self.Pr, self.Gr, self.TS, self.PV)
-            self.Case.update_forcing(self.Pr, self.Gr, self.TS, self.PV, self.DV)
             self.Case.update_microphysics(self.Pr, self.Gr, self.PV, self.TS)
+            self.Case.update_forcing(self.Pr, self.Gr, self.TS, self.PV, self.DV)
+            self.Case.update_surface(self.Pr, self.Gr, self.TS, self.PV, self.DV)
             self.PV.compute_tendencies(self.Pr, self.Gr, self.PV, self.DV, self.Case.MP)
             self.TS.update(self.Pr, self.Gr, self.PV, self.DV, self.DF, namelist)
 
@@ -57,6 +56,7 @@ class Simulation:
                 self.stats_io()
             if np.mod(self.TS.t, self.Stats.output_frequency) == 0:
                 print('elapsed time [days] about', np.floor_divide(self.TS.t,(24.0*3600.0)))
+                print('minimum surface pressure is', np.min(self.PV.P.values[:,:,self.Pr.n_layers]))
                 self.io()
         return
 

@@ -137,7 +137,13 @@ class Stats:
         zonal_mean_grp = root_grp.groups['zonal_mean']
         new_var = zonal_mean_grp.createVariable(var_name, 'f8', ('time', 'lat','lay'))
         root_grp.close()
+        return
 
+    def add_surface_zonal_mean(self, var_name):
+        root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
+        zonal_mean_grp = root_grp.groups['zonal_mean']
+        new_var = zonal_mean_grp.createVariable(var_name, 'f8', ('time', 'lat'))
+        root_grp.close()
         return
 
     def write_global_mean(self, var_name, data, t):
@@ -155,13 +161,9 @@ class Stats:
         var[-1, :,:] = np.array(np.mean(data,1))
         return
 
-    def write_2D_variable(self, Pr, t, var_name, data):
-        root_grp = nc.Dataset(self.path_plus_var+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')
-        root_grp.createDimension('lat', Pr.nlats)
-        root_grp.createDimension('lon', Pr.nlons)
-        var = root_grp.createVariable(var_name, 'f8', ('lat', 'lon'))
-        var[:,:] = np.array(data)
-        root_grp.close()
+    def write_surface_zonal_mean(self, var_name, data, t):
+        var = self.zonal_mean_grp.variables[var_name]
+        var[-1, :] = np.array(np.mean(data,1))
         return
 
     def write_3D_variable(self, Pr, t, n_layers, var_name, data):
@@ -171,6 +173,15 @@ class Stats:
         root_grp.createDimension('lay', n_layers)
         var = root_grp.createVariable(var_name, 'f8', ('lat', 'lon','lay'))
         var[:,:,:] = np.array(data)
+        root_grp.close()
+        return
+
+    def write_2D_variable(self, Gr, t, var_name, data):
+        root_grp = nc.Dataset(self.path_plus_var+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')
+        root_grp.createDimension('lat', Gr.nlats)
+        root_grp.createDimension('lon', Gr.nlons)
+        var = root_grp.createVariable(var_name, 'f8', ('lat', 'lon'))
+        var[:,:] = np.array(data)
         root_grp.close()
         return
 
