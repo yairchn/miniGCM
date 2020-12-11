@@ -27,12 +27,14 @@ class DiagnosticVariables:
     def initialize(self, Gr, PV):
         self.U.values      = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
         self.V.values      = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
+        self.VT.values      = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
         self.KE.values     = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
         self.gZ.values     = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.double, order='c') # josef place here the initial values for the variable 
         self.Wp.values     = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.double, order='c') # josef place here the initial values for the variable 
         for k in range(Gr.n_layers):
             self.U.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.U.values[:,:,k])
             self.V.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.V.values[:,:,k])
+            self.VT.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.V.values[:,:,k])
             self.KE.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.KE.values[:,:,k])
             self.Wp.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.Wp.values[:,:,k])
             j = Gr.n_layers-k-1 # geopotential is computed bottom -> up
@@ -57,6 +59,7 @@ class DiagnosticVariables:
         for k in range(Gr.n_layers):
             self.U.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.U.values[:,:,k])
             self.V.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.V.values[:,:,k])
+            self.VT.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.V.values[:,:,k])
             self.Wp.spectral[:,k+1] = Gr.SphericalGrid.grdtospec(self.Wp.values[:,:,k+1])
             self.gZ.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.gZ.values[:,:,k])
         return
@@ -74,6 +77,7 @@ class DiagnosticVariables:
         Stats.write_global_mean('global_mean_gZ', self.gZ.values[:,:,0:3], TS.t)
         Stats.write_zonal_mean('zonal_mean_U',self.U.values, TS.t)
         Stats.write_zonal_mean('zonal_mean_V',self.V.values, TS.t)
+        Stats.write_zonal_mean('zonal_mean_VT',self.VT.values, TS.t)
         Stats.write_zonal_mean('zonal_mean_Wp',self.Wp.values[:,:,1:4], TS.t)
         Stats.write_zonal_mean('zonal_mean_gZ',self.gZ.values[:,:,0:3], TS.t)
         Stats.write_meridional_mean('meridional_mean_U',self.U.values, TS.t)
@@ -99,5 +103,6 @@ class DiagnosticVariables:
             self.KE.values[:,:,k]    = 0.5*np.add(np.power(self.U.values[:,:,k],2.0),np.power(self.V.values[:,:,k],2.0))
             self.Wp.values[:,:,k+1]  = self.Wp.values[:,:,k]-np.multiply(PV.P.values[:,:,k+1]-PV.P.values[:,:,k],PV.Divergence.values[:,:,k])
             self.gZ.values[:,:,j]  = np.multiply(Gr.Rd*PV.T.values[:,:,j],np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))) + self.gZ.values[:,:,j+1]
+        self.VT.values = np.multiply(self.V.values,PV.T.values)
         return
     # yair - need to add here diagnostic functions of stats
