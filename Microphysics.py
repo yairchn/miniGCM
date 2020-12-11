@@ -77,18 +77,6 @@ class MicrophysicsCutoff(MicrophysicsBase):
     def update(self, Pr, Gr, TS, PV):
         for k in range(Pr.n_layers):
 
-            # dq = np.clip((PV.QT.values[:,:,k]-qv_star), 0.0, None)
-            # print(qv_star)
-            # A = Pr.Lv**2*qv_star
-            # B = Pr.cp*Pr.Rv*PV.T.values[:,:,k]
-            # # print(Pr.Lv**2)
-            # # print(A)
-            # # print(B)
-
-            # denom = (1.0+np.divide(A,B))
-            # self.dQTdt[:,:,k] = -np.divide(dq,denom)/TS.dt
-            # self.dTdt[:,:,k]  = -(Pr.Lv/Pr.cp)*self.dQTdt[:,:,k]
-
             # magnus formula alternative
             # T_cel = PV.T.values[:,:,k] - 273.15
             # pv_star = Pr.MagFormA*np.exp(Pr.MagFormB*T_cel/(T_cel+Pr.MagFormC))*100.0
