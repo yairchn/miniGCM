@@ -34,9 +34,6 @@ class Parameters:
         self.kappa             = self.Rd/self.cp
 
         self.surface_model    = namelist['surface']['surface_model']
-        self.Cd               = namelist['surface']['momentum_transfer_coeff']
-        self.Ch               = namelist['surface']['sensible_heat_transfer_coeff']
-        self.Cq               = namelist['surface']['latent_heat_transfer_coeff']
 
         return
 

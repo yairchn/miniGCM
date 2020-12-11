@@ -37,7 +37,10 @@ class Surface_BulkFormula(SurfaceBase):
         self.QT_flux = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
         self.T_surf  = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
         self.QT_surf = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
-        self.U_abs = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
+        self.U_abs   = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
+        Pr.Cd = namelist['surface']['momentum_transfer_coeff']
+        Pr.Ch = namelist['surface']['sensible_heat_transfer_coeff']
+        Pr.Cq = namelist['surface']['latent_heat_transfer_coeff']
         return
     def update(self, Pr, Gr, TS, PV, DV):
         U2 = np.multiply(DV.U.values[:,:,Pr.n_layers-1],DV.U.values[:,:,Pr.n_layers-1])
