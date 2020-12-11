@@ -39,7 +39,7 @@ class MicrophysicsCutoff(MicrophysicsBase):
         MicrophysicsBase.__init__(self)
         return
 
-    def initialize(self, Pr, namelist):
+    def initialize(self, Pr, PV, namelist):
         self.QL        = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
         self.QV        = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
         self.QR        = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
@@ -51,6 +51,17 @@ class MicrophysicsCutoff(MicrophysicsBase):
         Pr.MagFormB  =  namelist['microphysics']['Magnus_formula_B']
         Pr.MagFormC  =  namelist['microphysics']['Magnus_formula_C']
         Pr.rho_w     =  namelist['microphysics']['water_density']
+        for k in range(Pr.n_layers):
+            # Clausius–Clapeyron equation based saturation
+            qv_star = (Pr.qv_star0* Pr.eps_v / (PV.P.values[:,:,k] + PV.P.values[:,:,k+1])
+                * np.exp(-(Pr.Lv/Pr.Rv)*(1/PV.T.values[:,:,k] - 1/Pr.T_0)))
+
+            self.QL[:,:,k] = np.clip(PV.QT.values[:,:,k] - qv_star,0.0, None)
+            if np.max(self.QL[:,:,k])>0.0:
+                print('============| WARNING |===============')
+                print('ql is non zero in initial state of layer ', k)
+        self.RainRate = np.divide(np.sum(-self.dQTdt,2),
+                 Pr.rho_w*Pr.g*(PV.P.values[:,:,Pr.n_layers]-PV.P.values[:,:,0]))
         return
 
     def initialize_io(self, Stats):

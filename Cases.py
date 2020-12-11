@@ -57,10 +57,8 @@ class HeldSuarez(CasesBase):
         return
 
     def initialize(self, Pr, Gr, PV, namelist):
-        self.Base_pressure = 100000.0
         PV.P_init        = [Pr.p1, Pr.p2, Pr.p3, Pr.p_ref]
         PV.T_init        = [229.0, 257.0, 295.0]
-        self.QT_init       = [0.0, 0.0, 0.0]
 
         Pr.sigma_b = namelist['forcing']['sigma_b']
         Pr.k_a = namelist['forcing']['k_a']
@@ -76,9 +74,9 @@ class HeldSuarez(CasesBase):
 
         PV.Vorticity.values  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         PV.Divergence.values = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
+        PV.QT.values         = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c')
         PV.P.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),PV.P_init)
         PV.T.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),PV.T_init)
-        PV.QT.values         = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),self.QT_init)
         # initilize spectral values
         for k in range(Pr.n_layers):
             PV.P.spectral[:,k]           = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,k])
@@ -130,44 +128,46 @@ class HeldSuarez_moist(CasesBase):
         return
 
     def initialize(self, Pr, Gr, PV, namelist):
-        self.Base_pressure = 100000.0
-        PV.QT_0 = namelist['forcing']['initial_surface_qt']
-        Pr.T_0 = namelist['thermodynamics']['triple_point_temp']
-        Pr.P_hw = namelist['thermodynamics']['verical_half_width_of_the_q']
-        Pr.phi_hw = namelist['thermodynamics']['horizontal_half_width_of_the_q']
-        Pr.sigma_b = namelist['forcing']['sigma_b']
-        Pr.k_a = namelist['forcing']['k_a']
-        Pr.k_s = namelist['forcing']['k_s']
-        Pr.k_f = namelist['forcing']['k_f']
+        PV.QT_0      = namelist['forcing']['initial_surface_qt']
+        Pr.T_0       = namelist['thermodynamics']['triple_point_temp']
+        Pr.P_hw      = namelist['thermodynamics']['verical_half_width_of_the_q']
+        Pr.phi_hw    = namelist['thermodynamics']['horizontal_half_width_of_the_q']
+        Pr.sigma_b   = namelist['forcing']['sigma_b']
+        Pr.k_a       = namelist['forcing']['k_a']
+        Pr.k_s       = namelist['forcing']['k_s']
+        Pr.k_f       = namelist['forcing']['k_f']
         Pr.T_equator = namelist['forcing']['equatorial_temperature']
-        Pr.T_pole = namelist['forcing']['polar_temperature']
-        Pr.init_k = namelist['forcing']['initial_profile_power']
-        Pr.DT_y = namelist['forcing']['equator_to_pole_dT']
-        Pr.Dtheta_z = namelist['forcing']['lapse_rate']
-        Pr.Tbar0 = namelist['forcing']['relaxation_temperature']
-        Gamma = namelist['forcing']['Gamma_init']
-        z = np.linspace(0,20000,200)
+        Pr.T_pole    = namelist['forcing']['polar_temperature']
+        Pr.init_k    = namelist['forcing']['initial_profile_power']
+        Pr.DT_y      = namelist['forcing']['equator_to_pole_dT']
+        Pr.Dtheta_z  = namelist['forcing']['lapse_rate']
+        Pr.Tbar0     = namelist['forcing']['relaxation_temperature']
+        Gamma        = namelist['forcing']['Gamma_init']
+        z            = np.linspace(0,20000,200)
 
-        PV.P_init        = [Pr.p1, Pr.p2, Pr.p3, Pr.p_ref]
-        PV.T_init        = [245.0, 282.0, 303.0]
-        Tv_ = np.zeros((len(Gr.lat[:,0]), len(z), Pr.n_layers),  dtype=np.double, order='c')
-        p = np.zeros((len(Gr.lat[:,0]), len(z)),  dtype=np.double, order='c')
+        PV.P_init            = [Pr.p1, Pr.p2, Pr.p3, Pr.p_ref]
+        PV.T_init            = [245.0, 282.0, 303.0]
+        Tv_                  = np.zeros((len(Gr.lat[:,0]), len(z), Pr.n_layers),  dtype=np.double, order='c')
+        QT_                  = np.zeros((len(Gr.lat[:,0]), len(z), Pr.n_layers),  dtype=np.double, order='c')
+        qv_star_             = np.zeros((len(Gr.lat[:,0]), len(z), Pr.n_layers),  dtype=np.double, order='c')
+        p                    = np.zeros((len(Gr.lat[:,0]), len(z)),  dtype=np.double, order='c')
         PV.Vorticity.values  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         PV.Divergence.values = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         PV.P.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),PV.P_init)
 
         T_0 = 0.5 * (Pr.T_equator + Pr.T_pole)
-        B = (T_0 - Pr.T_pole) / T_0 / Pr.T_pole
-        C = 0.5 * (Pr.init_k + 2.0)*(Pr.T_equator-Pr.T_pole)/Pr.T_equator/Pr.T_pole
+        B   = (T_0 - Pr.T_pole) / T_0 / Pr.T_pole
+        C   = 0.5 * (Pr.init_k + 2.0)*(Pr.T_equator-Pr.T_pole)/Pr.T_equator/Pr.T_pole
 
-        tau_z_1 = np.exp(Gamma * z / T_0)
-        tau_z_2 = 1.0 - np.multiply(2.0, np.power(np.divide(z / 2.0, Pr.Rd * T_0 / Pr.g),2.0))
-        tau_z_3 = np.exp(-np.power(np.divide(z / 2.0 , Pr.Rd * T_0 / Pr.g),2.0))
-        tau_1 = np.multiply(np.divide(1.0 , T_0) , tau_z_1) + np.multiply(np.multiply(B , tau_z_2) , tau_z_3)
-        tau_2 = np.multiply(np.multiply(C , tau_z_2) , tau_z_3)
+        tau_z_1   = np.exp(Gamma * z / T_0)
+        tau_z_2   = 1.0 - np.multiply(2.0, np.power(np.divide(z / 2.0, Pr.Rd * T_0 / Pr.g),2.0))
+        tau_z_3   = np.exp(-np.power(np.divide(z / 2.0 , Pr.Rd * T_0 / Pr.g),2.0))
+        tau_1     = np.multiply(np.divide(1.0 , T_0) , tau_z_1) + np.multiply(np.multiply(B , tau_z_2) , tau_z_3)
+        tau_2     = np.multiply(np.multiply(C , tau_z_2) , tau_z_3)
         tau_int_1 = np.multiply(1.0 / Gamma , (tau_z_1 - 1.0)) + np.multiply(np.multiply(B , z ), tau_z_3)
         tau_int_2 = np.multiply(np.multiply(C , z) ,tau_z_3);
-        I_T = np.power(np.cos(Gr.lat[:,0]),Pr.init_k) - Pr.init_k/(Pr.init_k + 2.0) * np.power(np.cos(Gr.lat[:,0]),Pr.init_k+2.0)
+        I_T       = (np.power(np.cos(Gr.lat[:,0]),Pr.init_k)
+                   - Pr.init_k/(Pr.init_k + 2.0) * np.power(np.cos(Gr.lat[:,0]),Pr.init_k+2.0))
 
         for i in range(len(Gr.lat[:,0])):
             for j in range(len(z)):
@@ -175,24 +175,21 @@ class HeldSuarez_moist(CasesBase):
                 for k in range(Pr.n_layers):
                     if (p[i,j]>PV.P_init[k] and p[i,j]<PV.P_init[k+1]):
                         Tv_[i,j,k] = np.power(tau_1[j] - tau_2[j] * I_T[i],-1.0)
+                        QT_[i,j,k] = (PV.QT_0 * np.exp(-(Gr.lat[i,0] / Pr.phi_hw)**4.0)
+                                    * np.exp(-((p[i,j]/Pr.p_ref - 1.0) * Pr.p_ref / Pr.P_hw)**2.0))
                     else:
                         Tv_[i,j,k] = np.nan
+                        QT_[i,j,k] = np.nan
 
         for k in range(Pr.n_layers):
             QT_meridional = (PV.QT_0 * np.exp(-(Gr.lat[:,0] / Pr.phi_hw)**4.0)
                 * np.exp(-((PV.P_init[k]/Pr.p_ref - 1.0) * Pr.p_ref / Pr.P_hw)**2.0))
-            T_meridional = np.nanmean(Tv_[:,:,k], axis=1)/(1+0.608*QT_meridional)
+            # QT_meridional = np.nanmean(QT_[:,:,k], axis=1)
+            eps = 1.0/Pr.eps_v-1.0
+            T_meridional = np.nanmean(Tv_[:,:,k]/(1+0.608*QT_[:,:,k]), axis=1)
             PV.QT.values[:,:,k] = np.repeat(QT_meridional[:, np.newaxis], Pr.nlons, axis=1)
             PV.T.values[:,:,k]  = np.repeat(T_meridional[:, np.newaxis], Pr.nlons, axis=1)
-        plt.figure('T')
-        plt.plot(Gr.lat[:,0],PV.T.values[:,0,0], 'r')
-        plt.plot(Gr.lat[:,0],PV.T.values[:,0,1], 'b')
-        plt.plot(Gr.lat[:,0],PV.T.values[:,0,2], 'g')
-        plt.figure('QT')
-        plt.plot(Gr.lat[:,0],PV.QT.values[:,0,0], 'r')
-        plt.plot(Gr.lat[:,0],PV.QT.values[:,0,1], 'b')
-        plt.plot(Gr.lat[:,0],PV.QT.values[:,0,2], 'g')
-        plt.show()
+
         # # initilize spectral values
         for k in range(Pr.n_layers):
             PV.P.spectral[:,k]           = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,k])
@@ -212,8 +209,8 @@ class HeldSuarez_moist(CasesBase):
         self.Fo.initialize(Pr)
         return
 
-    def initialize_microphysics(self, Pr, namelist):
-        self.MP.initialize(Pr, namelist)
+    def initialize_microphysics(self, Pr, PV, namelist):
+        self.MP.initialize(Pr, PV, namelist)
         return
 
     def initialize_io(self, Stats):

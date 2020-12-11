@@ -45,8 +45,7 @@ def main():
     namelist_defaults['thermodynamics']['heat_capacity']        = 1004.0    # [J / (kg K)]
     namelist_defaults['thermodynamics']['dry_air_gas_constant'] = 287.0     # [J / (kg K)]
     namelist_defaults['thermodynamics']['vapor_gas_constant']   = 461.5     # [J / (kg K)]
-    namelist_defaults['thermodynamics']['latent_heat_evap']     = 26400000  # [J / (kg K)]
-    namelist_defaults['thermodynamics']['w_molar_mass_coeff']   = 0.622
+    namelist_defaults['thermodynamics']['latent_heat_evap']     = 2.5008e6  # [J / (kg K)]
     namelist_defaults['thermodynamics']['pv_star_triple_point'] = 610.78
     namelist_defaults['thermodynamics']['triple_point_temp']    = 273.16    # [K]
 
@@ -126,7 +125,7 @@ def HeldSuarez_moist(namelist_defaults):
     namelist['forcing']['k_s']          =  1./4.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_f']          = 1.0/(24.0*3600.0)      # [1/sec]
     namelist['forcing']['equatorial_temperature'] = 310.0 # Surface temperature at the equator [K]
-    namelist['forcing']['polar_temperature']      = 245.0 # Surface temperature at the pole [K]
+    namelist['forcing']['polar_temperature']      = 240.0 # Surface temperature at the pole [K]
     namelist['forcing']['equator_to_pole_dT']     = 65.0  # Characteristic temperature change in meridional direction [K]
     namelist['forcing']['lapse_rate']             = 10.0 # Characteristic potential temperature change in vertical [K]
     namelist['forcing']['relaxation_temperature'] = 300.         # mean temp (some typical range) [K]
@@ -137,7 +136,7 @@ def HeldSuarez_moist(namelist_defaults):
 
     namelist['thermodynamics']['thermodynamics_type'] = 'moist'
     namelist['thermodynamics']['verical_half_width_of_the_q'] = 34000.0 # pasc
-    namelist['thermodynamics']['horizontal_half_width_of_the_q'] = 2.0*3.14 / 9.0 # radians lat
+    namelist['thermodynamics']['horizontal_half_width_of_the_q'] = 0.6981 # radians lat
 
     namelist['microphysics'] = {}
     namelist['microphysics']['rain_model'] = 'Kessler_cutoff'
