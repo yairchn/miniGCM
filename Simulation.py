@@ -12,11 +12,13 @@ from TimeStepping import TimeStepping
 from DiagnosticVariables import DiagnosticVariables, DiagnosticVariable
 from PrognosticVariables import PrognosticVariables, PrognosticVariable
 import os
+from LogFile import LogFile
 
 class Simulation:
 
     def __init__(self, namelist):
         # define the member classes
+        self.LF = LogFile.LogFile(namelist)
         self.Gr = Grid.Grid(namelist)
         # self.TH = Thermodynamics(namelist)
         self.PV = PrognosticVariables(self.Gr)
@@ -29,6 +31,7 @@ class Simulation:
 
     def initialize(self, namelist):
         #initialize via Case
+        self.LF.initialize()
         self.PV.initialize(self.Gr)
         self.DV.initialize(self.Gr,self.PV)
         self.Case.initialize_forcing(self.Gr, self.PV, self.DV, namelist)
@@ -54,20 +57,7 @@ class Simulation:
             if np.mod(self.TS.t, self.Stats.stats_frequency) == 0:
                 self.stats_io()
             if np.mod(self.TS.t, self.Stats.output_frequency) == 0:
-                #write to stdoutput
-                print('elapsed time [days] about', np.floor_divide(self.TS.t,(24.0*3600.0)))
-                #write logfile
-                uuid=namelist['meta']['uuid']
-                outpath = str(os.path.join(namelist['output']['output_root'] + 'Output.' + namelist['meta']['simname'] + '.'
-                                   + uuid[len(uuid )-5:len(uuid)]))
-                casename = namelist['meta']['casename']
-                logfile=outpath+'/'+casename+'.log'
-                print('logfile ',logfile)
-                os.system('echo elapsed time [days] about '+str(np.floor_divide(self.TS.t,(24.0*3600.0))) + '>> '+logfile)
-                os.system('echo u layer 1 min max ' + str(self.DV.U.values[:,:,0].min()) + ' ' + str(self.DV.U.values[:,:,0].max()) + '>> '+logfile)
-                os.system('echo u layer 2 min max ' + str(self.DV.U.values[:,:,1].min()) + ' ' + str(self.DV.U.values[:,:,1].max()) + '>> '+logfile)
-                os.system('echo u layer 3 min max ' + str(self.DV.U.values[:,:,2].min()) + ' ' + str(self.DV.U.values[:,:,2].max()) + '>> '+logfile)
-                #write netcdf output
+                self.LF(self.TS, self.DV, namelist)
                 self.io()
         return
 
@@ -97,23 +87,4 @@ class Simulation:
         return
 
     def force_io(self):
-        return
-
-    def get_parameters(self, namelist):
-        # move all parameters to namelist default
-        # parameters = OrderedDict()
-
-        ##################################################################
-        # may be run for even longer time
-
-        # what are all of these ?
-        self.t    = 0.0 # initial time = 0
-        self.t3   = 0.0 # initial time = 0
-        self.t2   = 0.0 # initial time = 0
-        self.t1   = 0.0 # initial time = 0
-        self.dt   = 50.0 # timestep = 50 or 100sec (make sure it satisfies CFL)
-        self.dt   = 100.0 # timestep = 50 or 100sec (make sure it satisfies CFL)
-        self.ii   = 0.0  # counter for plotting
-        self.jj   = 0.0  # counter for profile loop
-        self.t_next = 0.0
         return
