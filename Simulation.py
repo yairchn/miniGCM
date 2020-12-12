@@ -18,7 +18,7 @@ class Simulation:
 
     def __init__(self, namelist):
         # define the member classes
-        self.LF = LogFile.LogFile(namelist)
+        self.LF = LogFile(namelist)
         self.Gr = Grid.Grid(namelist)
         # self.TH = Thermodynamics(namelist)
         self.PV = PrognosticVariables(self.Gr)
@@ -31,8 +31,8 @@ class Simulation:
 
     def initialize(self, namelist):
         #initialize via Case
-        self.LF.initialize()
-        self.PV.initialize(self.Gr)
+        self.LF.initialize(namelist)
+        self.PV.initialize(self.Gr,namelist)
         self.DV.initialize(self.Gr,self.PV)
         self.Case.initialize_forcing(self.Gr, self.PV, self.DV, namelist)
         self.Case.initialize_surface(self.Gr, namelist)
@@ -57,7 +57,7 @@ class Simulation:
             if np.mod(self.TS.t, self.Stats.stats_frequency) == 0:
                 self.stats_io()
             if np.mod(self.TS.t, self.Stats.output_frequency) == 0:
-                self.LF(self.TS, self.DV, namelist)
+                self.LF.update(self.TS, self.DV, namelist)
                 self.io()
         return
 

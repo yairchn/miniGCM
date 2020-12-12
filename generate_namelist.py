@@ -19,6 +19,8 @@ def main():
     namelist_defaults['timestepping']['CFL_limit'] = 0.5
     namelist_defaults['timestepping']['dt'] = 1000.0
 
+    namelist_defaults['initialize'] = {}
+
     namelist_defaults['forcing'] = {}
 
     namelist_defaults['diffusion'] = {}
@@ -83,9 +85,12 @@ def HeldSuarez(namelist_defaults):
 
     namelist['thermodynamics']['thermodynamics_type'] = 'dry'
 
+    namelist['initialize']['inoise'] = 1 # switch between 0/1 for initial noise
+
     namelist['forcing']['forcing_type'] = 'HeldSuarez'
     namelist['forcing']['sigma_b'] = 0.7      # sigma coordiantes as sigma=p/ps
     namelist['forcing']['k_a'] = 1./40.0/(24.0*3600.0)      # [1/sec]
+    namelist['forcing']['k_b'] = 1./80.0/(24.0*3600.0)      # [1/sec]
     namelist['forcing']['k_s'] =  1./4.0/(24.0*3600.0)      # [1/sec]
     namelist['forcing']['k_f'] = 1.0/(24.0*3600.0)          # [1/sec]
     namelist['forcing']['DT_y'] = 60.        # Characteristic temperature change in meridional direction [K]

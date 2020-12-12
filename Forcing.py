@@ -36,6 +36,7 @@ class Forcing_HelzSuarez:
 		self.k_v   = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
 		self.sigma_b = namelist['forcing']['sigma_b']
 		self.k_a = namelist['forcing']['k_a']
+		self.k_b = namelist['forcing']['k_b']
 		self.k_s = namelist['forcing']['k_s']
 		self.k_f = namelist['forcing']['k_f']
 		self.DT_y = namelist['forcing']['DT_y']
@@ -62,7 +63,7 @@ class Forcing_HelzSuarez:
 			sigma=np.divide((PV.P.values[:,:,k]+PV.P.values[:,:,k+1])/2.,PV.P.values[:,:,Gr.n_layers])
 			sigma_ratio=np.clip(np.divide(sigma-self.sigma_b,1-self.sigma_b),0,None)
 			self.k_T[:,:,k] = self.k_a+(self.k_s-self.k_a)*np.multiply(sigma_ratio,np.power(np.cos(Gr.lat),4))
-			self.k_v[:,:,k] = self.k_a+self.k_f*sigma_ratio
+			self.k_v[:,:,k] = self.k_b+self.k_f*sigma_ratio
 			PV.Vorticity.forcing[:,k] ,PV.Divergence.forcing[:,k] = (
               	Gr.SphericalGrid.getvrtdivspec(-np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k]),
 												-np.multiply(self.k_v[:,:,k],DV.V.values[:,:,k])))
