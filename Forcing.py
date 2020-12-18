@@ -19,7 +19,7 @@ class ForcingNone():
 	def io(self, Pr, TS, Stats):
 		return
 
-class Forcing_HelzSuarez:
+class ForcingHelzSuarez:
 	def __init__(self):
 		return
 
@@ -62,7 +62,7 @@ class Forcing_HelzSuarez:
 		Stats.write_meridional_mean('meridional_mean_T_eq', self.Tbar, TS.t)
 		return
 
-class Forcing_HelzSuarezMoist:
+class ForcingHelzSuarezMoist:
 	def __init__(self):
 		return
 

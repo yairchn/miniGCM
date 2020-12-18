@@ -145,13 +145,16 @@ def HeldSuarez_moist(namelist_defaults):
     namelist['microphysics']['Magnus_formula_B'] = 17.625
     namelist['microphysics']['Magnus_formula_C'] = 243.04
     namelist['microphysics']['molar_mass_ratio'] = 1.60745384883
-    namelist['microphysics']['max_supersaturation'] = 0.01
+    namelist['microphysics']['max_supersaturation'] = 0.0
 
     namelist['surface'] = {}
     namelist['surface']['surface_model'] = 'bulk_formula'
     namelist['surface']['momentum_transfer_coeff'] = 0.0044
     namelist['surface']['sensible_heat_transfer_coeff'] = 0.0044
     namelist['surface']['latent_heat_transfer_coeff'] = 0.0044
+    namelist['surface']['surface_temp_diff'] = 29.0 # [K]
+    namelist['surface']['surface_temp_min'] = 271.0 # [K]
+    namelist['surface']['surface_temp_lat_dif'] = 26.0*3.14/180.0
 
     return namelist
 

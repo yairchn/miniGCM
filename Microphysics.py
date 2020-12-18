@@ -85,10 +85,10 @@ class MicrophysicsCutoff(MicrophysicsBase):
             # Clausius–Clapeyron equation based saturation
             qv_star = (Pr.qv_star0* Pr.eps_v / (PV.P.values[:,:,k] + PV.P.values[:,:,k+1])
                 * np.exp(-(Pr.Lv/Pr.Rv)*(1/PV.T.values[:,:,k] - 1/Pr.T_0)))
-
             self.QL[:,:,k] = np.clip(PV.QT.values[:,:,k] - qv_star,0.0, None)
-            self.dQTdt[:,:,k] = np.clip((self.QL[:,:,k] -  Pr.max_ss * qv_star)/TS.dt,0.0, None)
-            self.dTdt[:,:,k]  = -(Pr.Lv/Pr.cp)*self.dQTdt[:,:,k]
+            denom = 1.0+(Pr.Lv**2.0/Pr.cp/Pr.Rv)*np.divide(qv_star,np.power(PV.T.values[:,:,k],2.0))
+            self.dQTdt[:,:,k] = -np.clip(((PV.QT.values[:,:,k] - (1.0+Pr.max_ss)*qv_star) /denom)/TS.dt, 0.0, None)
+            self.dTdt[:,:,k]  =  np.clip((Pr.Lv/Pr.cp)*((PV.QT.values[:,:,k] -  qv_star)/denom)/TS.dt, 0.0, None)
 
         self.RainRate = np.divide(np.sum(-self.dQTdt,2),
                  Pr.rho_w*Pr.g*(PV.P.values[:,:,Pr.n_layers]-PV.P.values[:,:,0]))

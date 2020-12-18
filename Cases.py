@@ -51,7 +51,7 @@ class CasesBase:
 class HeldSuarez(CasesBase):
     def __init__(self, Pr, namelist):
         Pr.casename = namelist['meta']['casename']
-        self.Fo  = Forcing.Forcing_HelzSuarez()
+        self.Fo  = Forcing.ForcingHelzSuarez()
         self.Sur = Surface.SurfaceNone()
         self.MP = Microphysics.MicrophysicsNone()
         return
@@ -88,7 +88,7 @@ class HeldSuarez(CasesBase):
 
         return
 
-    def initialize_surface(self, Pr, Gr, PV):
+    def initialize_surface(self, Pr, Gr, PV, namelist):
         return
 
     def initialize_forcing(self, Pr):
@@ -122,8 +122,8 @@ class HeldSuarez(CasesBase):
 class HeldSuarez_moist(CasesBase):
     def __init__(self, Pr, namelist):
         Pr.casename = namelist['meta']['casename']
-        self.Fo  = Forcing.Forcing_HelzSuarezMoist()
-        self.Sur = Surface.Surface_BulkFormula()
+        self.Fo  = Forcing.ForcingHelzSuarezMoist()
+        self.Sur = Surface.SurfaceBulkFormula()
         self.MP = Microphysics.MicrophysicsCutoff()
         return
 
@@ -201,8 +201,8 @@ class HeldSuarez_moist(CasesBase):
 
         return
 
-    def initialize_surface(self, Pr, Gr, PV):
-        self.Sur.initialize(Pr, Gr, PV)
+    def initialize_surface(self, Pr, Gr, PV, namelist):
+        self.Sur.initialize(Pr, Gr, PV, namelist)
         return
 
     def initialize_forcing(self, Pr):
@@ -222,7 +222,7 @@ class HeldSuarez_moist(CasesBase):
         return
 
     def update_surface(self, Pr, Gr, TS, PV, DV):
-        # self.Sur.update(Pr, Gr, TS, PV, DV)
+        self.Sur.update(Pr, Gr, TS, PV, DV)
         return
 
     def update_forcing(self, Pr, Gr, TS,  PV, DV):
