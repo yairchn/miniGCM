@@ -15,8 +15,6 @@ class LogFile:
         return
 
     def update(self, TS, DV, namelist):
-    	#write to stdoutput
-        print('elapsed time [days] about', np.floor_divide(TS.t,(24.0*3600.0)))
         #write logfile
         os.system('echo elapsed time [days] about '
         	      +str(np.floor_divide(TS.t,(24.0*3600.0))) + '>> '+self.filename)
