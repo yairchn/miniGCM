@@ -25,7 +25,6 @@ def main():
 
     namelist_defaults['diffusion'] = {}
     namelist_defaults['diffusion']['dissipation_order'] = 8.0
-    namelist_defaults['diffusion']['eddy_viscosity'] = 1.0e-5
     namelist_defaults['diffusion']['efold'] = 300.
     namelist_defaults['diffusion']['truncation_order'] = 4
 
