@@ -11,6 +11,12 @@ from TimeStepping cimport TimeStepping
 import sys
 
 cdef class Diffusion:
-    # cdef: this one is for init
-    cpdef initialize(self, Grid Gr,TimeStepping TS, namelist)
-    cpdef update(self, Grid Gr, PrognosticVariables PV, namelist, dt)
+	cdef:
+		double [:,:] HyperDiffusionFactor
+		double dissipation_order
+		double truncation_order
+		double truncation_number
+		double diffusion_factor
+
+	cpdef initialize(self, Grid Gr, TimeStepping TS, namelist)
+	cpdef update(self, Grid Gr, PrognosticVariables PV, double dt)

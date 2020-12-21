@@ -63,7 +63,7 @@ cdef class TimeStepping:
 			PV.QT.spectral         = F_QT         + dt*((23.0/12.0)*PV.QT.tendency         - (16.0/12.0)*PV.QT.now         + (5.0/12.0)*PV.QT.old)
 			PV.P.spectral          = F_P          + dt*((23.0/12.0)*PV.P.tendency          - (16.0/12.0)*PV.P.now          + (5.0/12.0)*PV.P.old)
 
-		DF.update(Gr, PV, namelist, self.dt)
+		DF.update(Gr, PV, self.dt)
 		self.t = self.t+self.dt
 		PV.set_old_with_now()
 		PV.set_now_with_tendencies()

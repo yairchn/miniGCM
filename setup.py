@@ -79,10 +79,10 @@ _ext = Extension('Simulation', ['Simulation.pyx'], include_dirs=include_path,
 extensions.append(_ext)
 
 
-# _ext = Extension('Diffusion', ['Diffusion.pyx'], include_dirs=include_path,
-#                  extra_compile_args=extra_compile_args, libraries=libraries, library_dirs=library_dirs,
-#                  runtime_library_dirs=library_dirs)
-# extensions.append(_ext)
+_ext = Extension('Diffusion', ['Diffusion.pyx'], include_dirs=include_path,
+                 extra_compile_args=extra_compile_args, libraries=libraries, library_dirs=library_dirs,
+                 runtime_library_dirs=library_dirs)
+extensions.append(_ext)
 
 # _ext = Extension('Microphysics', ['Microphysics.pyx'], include_dirs=include_path,
 #                  extra_compile_args=extra_compile_args, libraries=libraries, library_dirs=library_dirs,
@@ -111,6 +111,11 @@ _ext = Extension('Surface', ['Surface.pyx'], include_dirs=include_path,
 extensions.append(_ext)
 
 _ext = Extension('Cases', ['Cases.pyx'], include_dirs=include_path,
+                 extra_compile_args=extra_compile_args, libraries=libraries, library_dirs=library_dirs,
+                 runtime_library_dirs=library_dirs)
+extensions.append(_ext)
+
+_ext = Extension('sphTrans', ['sphTrans.pyx'], include_dirs=include_path,
                  extra_compile_args=extra_compile_args, libraries=libraries, library_dirs=library_dirs,
                  runtime_library_dirs=library_dirs)
 extensions.append(_ext)
