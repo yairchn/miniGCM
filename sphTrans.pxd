@@ -24,8 +24,8 @@ cdef class Spharmt: # (object)
         double [:] degree
         double complex [:] lap
         double complex [:] invlap
-        # object _shtns
-        cdef _shtns
+        object _shtns
+        # cdef _shtns
 
     cpdef grdtospec(self, data)
     cpdef spectogrd(self,dataspec)

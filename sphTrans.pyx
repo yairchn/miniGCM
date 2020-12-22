@@ -45,16 +45,13 @@ cdef class Spharmt: # (object)
             self.degree[i] = self._shtns.l[i]
         self.lap = -np.multiply(self.degree,(np.add(self.degree,1.0)).astype(np.complex))
         self.invlap = np.zeros_like(self.lap)
-        print(np.shape(self.invlap[1:]))
-        print(np.shape(self.invlap))
-        print(np.shape(np.divide(1.0,self.lap[1:])))
         for i in range(len(self.invlap[1:])):
             self.invlap[i+1] = np.divide(1.0,self.lap[i+1])
         # self.invlap[1:] = np.add(self.invlap[1:],np.divide(1.0,self.lap[1:]))
         self.rsphere = rsphere
         self.lap = np.divide(self.lap,self.rsphere**2)
         self.invlap = np.multiply(self.invlap,self.rsphere**2)
-        print(self._shtns.lons)
+        # print(self._shtns.lons)
 
     cpdef grdtospec(self, data):
         """compute spectral coefficients from gridded data"""

@@ -28,6 +28,9 @@ cdef class Grid:
 		# setup up spherical harmonic instance, set lats/lons of grid
         self.SphericalGrid = Spharmt(self.nlons, self.nlats, self.truncation_number, self.rsphere, gridtype='gaussian')
 		# build the physical space grid
+        temp = vars(self.SphericalGrid)
+        for item in temp:
+            print item , ' : ' , temp[item]
         self.lon, self.lat = np.meshgrid(self.SphericalGrid.lons, self.SphericalGrid.lats) # these are in radians
         self.longitude = np.degrees(self.lon)
         self.latitude  = np.degrees(self.lat)
