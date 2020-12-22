@@ -51,7 +51,6 @@ cdef class Spharmt: # (object)
         self.rsphere = rsphere
         self.lap = np.divide(self.lap,self.rsphere**2)
         self.invlap = np.multiply(self.invlap,self.rsphere**2)
-        # print(self._shtns.lons)
 
     cpdef grdtospec(self, data):
         """compute spectral coefficients from gridded data"""

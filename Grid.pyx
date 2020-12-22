@@ -29,7 +29,8 @@ cdef class Grid:
         self.Omega = namelist['planet']['omega_rotation']
         self.kappa = self.Rd/self.cp
 		# setup up spherical harmonic instance, set lats/lons of grid
-        self.Spharmt = sph.Spharmt(self.nlons, self.nlats, self.truncation_number, self.rsphere, gridtype='gaussian')
+        print(sph.Spharmt(self.nlons, self.nlats, self.truncation_number, self.rsphere, gridtype='gaussian').lons)
+        # self.Spharmt = sph.Spharmt(self.nlons, self.nlats, self.truncation_number, self.rsphere, gridtype='gaussian')
 		# build the physical space grid
         self.lon, self.lat = np.meshgrid(self.Spharmt.lons, self.Spharmt.lats) # these are in radians
         self.longitude = np.degrees(self.lon)
