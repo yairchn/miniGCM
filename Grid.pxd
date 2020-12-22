@@ -5,6 +5,8 @@ import numpy as np
 import scipy as sc
 import shtns
 import sphTrans as sph
+from sphTrans import Spharmt
+from sphTrans cimport Spharmt
 import time
 import sys
 
@@ -26,7 +28,7 @@ cdef class Grid:
         double Omega
         double kappa
 
-        object SphericalGrid
+        object Spharmt
         double [:] longitude_list
         double [:] latitude_list
         double [:,:] lon

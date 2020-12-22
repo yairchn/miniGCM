@@ -16,11 +16,11 @@ cdef class DiagnosticVariable:
 
 cdef class DiagnosticVariables:
     def __init__(self, Gr):
-        self.U     = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers,   Gr.SphericalGrid.nlm, 'zonal_velocity'     , 'u','m/s' )
-        self.V     = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers,   Gr.SphericalGrid.nlm, 'meridional_velocity', 'v','m/s' )
-        self.KE    = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers,   Gr.SphericalGrid.nlm, 'kinetic_enetry',      'Ek','m^2/s^2' )
-        self.gZ    = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers+1, Gr.SphericalGrid.nlm, 'Geopotential', 'z','m^/s^2' )
-        self.Wp    = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers+1, Gr.SphericalGrid.nlm, 'Wp', 'w','pasc/s' )
+        self.U     = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers,   Gr.Spharmt.nlm, 'zonal_velocity'     , 'u','m/s' )
+        self.V     = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers,   Gr.Spharmt.nlm, 'meridional_velocity', 'v','m/s' )
+        self.KE    = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers,   Gr.Spharmt.nlm, 'kinetic_enetry',      'Ek','m^2/s^2' )
+        self.gZ    = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers+1, Gr.Spharmt.nlm, 'Geopotential', 'z','m^/s^2' )
+        self.Wp    = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers+1, Gr.Spharmt.nlm, 'Wp', 'w','pasc/s' )
         return
 
     cpdef initialize(self, Grid Gr):
@@ -32,11 +32,11 @@ cdef class DiagnosticVariables:
         self.gZ.values     = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.double, order='c') # josef place here the initial values for the variable 
         self.Wp.values     = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.double, order='c') # josef place here the initial values for the variable 
         for k in range(Gr.n_layers):
-            self.U.spectral[:,k]  = np.array(Gr.SphericalGrid.grdtospec(self.U.values[:,:,k]))
-            self.V.spectral[:,k]  = np.array(Gr.SphericalGrid.grdtospec(self.V.values[:,:,k]))
-            self.KE.spectral[:,k] = np.array(Gr.SphericalGrid.grdtospec(self.KE.values[:,:,k]))
-            self.gZ.spectral[:,k] = np.array(Gr.SphericalGrid.grdtospec(self.gZ.values[:,:,k]))
-            self.Wp.spectral[:,k] = np.array(Gr.SphericalGrid.grdtospec(self.Wp.values[:,:,k]))
+            self.U.spectral[:,k]  = np.array(Gr.Spharmt.grdtospec(self.U.values[:,:,k]))
+            self.V.spectral[:,k]  = np.array(Gr.Spharmt.grdtospec(self.V.values[:,:,k]))
+            self.KE.spectral[:,k] = np.array(Gr.Spharmt.grdtospec(self.KE.values[:,:,k]))
+            self.gZ.spectral[:,k] = np.array(Gr.Spharmt.grdtospec(self.gZ.values[:,:,k]))
+            self.Wp.spectral[:,k] = np.array(Gr.Spharmt.grdtospec(self.Wp.values[:,:,k]))
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -56,10 +56,10 @@ cdef class DiagnosticVariables:
         cdef:
             Py_ssize_t k
         for k in range(Gr.n_layers):
-            self.U.spectral[:,k]    = np.array(Gr.SphericalGrid.grdtospec(self.U.values[:,:,k]))
-            self.V.spectral[:,k]    = np.array(Gr.SphericalGrid.grdtospec(self.V.values[:,:,k]))
-            self.Wp.spectral[:,k+1] = np.array(Gr.SphericalGrid.grdtospec(self.Wp.values[:,:,k+1]))
-            self.gZ.spectral[:,k]   = np.array(Gr.SphericalGrid.grdtospec(self.gZ.values[:,:,k]))
+            self.U.spectral[:,k]    = np.array(Gr.Spharmt.grdtospec(self.U.values[:,:,k]))
+            self.V.spectral[:,k]    = np.array(Gr.Spharmt.grdtospec(self.V.values[:,:,k]))
+            self.Wp.spectral[:,k+1] = np.array(Gr.Spharmt.grdtospec(self.Wp.values[:,:,k+1]))
+            self.gZ.spectral[:,k]   = np.array(Gr.Spharmt.grdtospec(self.gZ.values[:,:,k]))
         return
 
     # # convert spectral data to spherical
@@ -68,9 +68,9 @@ cdef class DiagnosticVariables:
     # #     cdef:
     # #         Py_ssize_t k
     # #     for k in range(self.n_layers):
-    # #         self.U.values[:,:,k], self.V.value[:,:,k] = np.array(Gr.SphericalGrid.getuv(self.Vorticity.spectral[:,k], self.Divergence.spectral[:,k]))
-    # #         self.Wp.values[:,:,k+1] = np.array(Gr.SphericalGrid.spectogrd(self.Wp.spectral[:,k+1]))
-    # #         self.gZ.values[:,:,k] = np.array(Gr.SphericalGrid.spectogrd(self.gZ.spectral[:,k]))
+    # #         self.U.values[:,:,k], self.V.value[:,:,k] = np.array(Gr.Spharmt.getuv(self.Vorticity.spectral[:,k], self.Divergence.spectral[:,k]))
+    # #         self.Wp.values[:,:,k+1] = np.array(Gr.Spharmt.spectogrd(self.Wp.spectral[:,k+1]))
+    # #         self.gZ.values[:,:,k] = np.array(Gr.Spharmt.spectogrd(self.gZ.spectral[:,k]))
     # #     return
 
     cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats):
@@ -102,7 +102,7 @@ cdef class DiagnosticVariables:
         self.gZ.values[:,:,Gr.n_layers] = np.zeros_like(self.Wp.values[:,:,0])
         for k in range(Gr.n_layers): # n_layers = 3; k=0,1,2
             j = Gr.n_layers-k-1 # geopotential is computed bottom -> up
-            U, V = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
+            U, V = Gr.Spharmt.getuv(PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
             self.U.values[:,:,k] = np.array(U)
             self.V.values[:,:,k] = np.array(V)
             self.KE.values[:,:,k]    = 0.5*np.add(np.power(U,2.0),np.power(V,2.0))

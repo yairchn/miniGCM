@@ -88,7 +88,7 @@ cdef class Forcing_HelzSuarez:
 
 	cpdef update(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
 		# Initialise the random forcing function
-		# F0 = np.zeros(Gr.SphericalGrid.nlm, dtype = np.complex)
+		# F0 = np.zeros(Gr.Spharmt.nlm, dtype = np.complex)
 		# fr = spf.sphForcing(Gr.nlats, Gr.nlons, Gr.truncation_number, Gr.rsphere,lmin= 98, lmax= 102, magnitude = 5, correlation = 0.)
 
 		# Field initialisation
@@ -108,10 +108,10 @@ cdef class Forcing_HelzSuarez:
 
 			u_forcing = np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k])
 			v_forcing = np.multiply(self.k_v[:,:,k],DV.V.values[:,:,k])
-			Vorticity_forcing, Divergece_forcing = Gr.SphericalGrid.getvrtdivspec(u_forcing, v_forcing)
+			Vorticity_forcing, Divergece_forcing = Gr.Spharmt.getvrtdivspec(u_forcing, v_forcing)
 			PV.Divergence.forcing[:,k] = - Divergece_forcing
 			PV.Vorticity.forcing[:,k]  = - Vorticity_forcing
-			PV.T.forcing[:,k]          = - Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(np.subtract(PV.T.values[:,:,k],self.Tbar[:,:,k]))))
+			PV.T.forcing[:,k]          = - Gr.Spharmt.grdtospec(np.multiply(self.k_T[:,:,k],(np.subtract(PV.T.values[:,:,k],self.Tbar[:,:,k]))))
 		return
 
 
@@ -169,7 +169,7 @@ cdef class Forcing_HelzSuarez_moist:
 
 	cpdef update(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
 		# Initialise the random forcing function
-		# F0 = np.zeros(Gr.SphericalGrid.nlm, dtype = np.complex)
+		# F0 = np.zeros(Gr.Spharmt.nlm, dtype = np.complex)
 		# fr = spf.sphForcing(Gr.nlats, Gr.nlons, Gr.truncation_number, Gr.rsphere,lmin= 98, lmax= 102, magnitude = 5, correlation = 0.)
 
 		# Field initialisation
@@ -189,10 +189,10 @@ cdef class Forcing_HelzSuarez_moist:
 
 			u_forcing = np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k])
 			v_forcing = np.multiply(self.k_v[:,:,k],DV.V.values[:,:,k])
-			Vorticity_forcing, Divergece_forcing = Gr.SphericalGrid.getvrtdivspec(u_forcing, v_forcing)
+			Vorticity_forcing, Divergece_forcing = Gr.Spharmt.getvrtdivspec(u_forcing, v_forcing)
 			PV.Divergence.forcing[:,k] = - Divergece_forcing
 			PV.Vorticity.forcing[:,k]  = - Vorticity_forcing
-			PV.T.forcing[:,k]          = - Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(np.subtract(PV.T.values[:,:,k],self.Tbar[:,:,k]))))
+			PV.T.forcing[:,k]          = - Gr.Spharmt.grdtospec(np.multiply(self.k_T[:,:,k],(np.subtract(PV.T.values[:,:,k],self.Tbar[:,:,k]))))
 		return
 
 
