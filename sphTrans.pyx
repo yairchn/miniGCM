@@ -35,13 +35,26 @@ cdef class Spharmt: # (object)
         self.nlats = nlats
         self.ntrunc = ntrunc
         self.nlm = self._shtns.nlm
-        self.degree = self._shtns.l
-        self.lap = -self.degree*(self.degree+1.0).astype(np.complex)
-        self.invlap = np.zeros(self.lap.shape, self.lap.dtype)
-        self.invlap[1:] = 1./self.lap[1:]
+        # print(np.shape(self._shtns.l))
+        # print(self._shtns.l)
+        # print(len(self._shtns.l))
+        self.degree = np.zeros(len(self._shtns.l),dtype=np.double, order='c')
+        self.lap = np.zeros(len(self._shtns.l),dtype=np.cdouble, order='c')
+        # self.invlap = np.zeros(len(self._shtns.l),dtype=np.cdouble, order='c')
+        for i in range(len(self._shtns.l)):
+            self.degree[i] = self._shtns.l[i]
+        self.lap = -np.multiply(self.degree,(np.add(self.degree,1.0)).astype(np.complex))
+        self.invlap = np.zeros_like(self.lap)
+        print(np.shape(self.invlap[1:]))
+        print(np.shape(self.invlap))
+        print(np.shape(np.divide(1.0,self.lap[1:])))
+        for i in range(len(self.invlap[1:])):
+            self.invlap[i+1] = np.divide(1.0,self.lap[i+1])
+        # self.invlap[1:] = np.add(self.invlap[1:],np.divide(1.0,self.lap[1:]))
         self.rsphere = rsphere
-        self.lap = self.lap/self.rsphere**2
-        self.invlap = self.invlap*self.rsphere**2
+        self.lap = np.divide(self.lap,self.rsphere**2)
+        self.invlap = np.multiply(self.invlap,self.rsphere**2)
+        print(self._shtns.lons)
 
     cpdef grdtospec(self, data):
         """compute spectral coefficients from gridded data"""
@@ -53,13 +66,13 @@ cdef class Spharmt: # (object)
     
     cpdef getuv(self,vrtspec,divspec):
         """compute wind vector from spectral coeffs of vorticity and divergence"""
-        return self._shtns.synth((self.invlap/self.rsphere)*vrtspec,
-                (self.invlap/self.rsphere)*divspec)
+        return self._shtns.synth(np.divide(self.invlap,self.rsphere)*vrtspec,
+                np.divide(self.invlap,self.rsphere)*divspec)
 
     cpdef getvrtdivspec(self,u,v):
         """compute spectral coeffs of vorticity and divergence from wind vector"""
         vrtspec, divspec = self._shtns.analys(u, v)
-        return self.lap*self.rsphere*vrtspec, self.lap*self.rsphere*divspec
+        return np.multiply(self.lap,self.rsphere*vrtspec), np.multiply(self.lap,self.rsphere*divspec)
     
     cpdef getgrad(self,divspec):
         """compute gradient vector from spectral coeffs"""
