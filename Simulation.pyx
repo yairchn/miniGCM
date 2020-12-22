@@ -1,13 +1,13 @@
+import cython
 from Cases import CasesFactory
 from Cases import  CasesBase
-import cython
 from DiagnosticVariables import DiagnosticVariables, DiagnosticVariable
-from Diffusion import NumericalDiffusion
+from Diffusion import Diffusion
 import Grid
 import numpy as np
-from NetCDFIO import NetCDFIO_Stats
 from NetCDFIO cimport NetCDFIO_Stats
-from PrognosticVariables import PrognosticVariables, PrognosticVariable
+from NetCDFIO cimport NetCDFIO_Stats
+from PrognosticVariables cimport PrognosticVariables, PrognosticVariable
 import sys
 import time
 import Thermodynamics
@@ -22,7 +22,7 @@ class Simulation:
         self.DV = DiagnosticVariables(self.Gr)
         self.PV = PrognosticVariables(self.Gr)
         self.Case = CasesFactory(namelist, self.Gr)
-        self.DF = NumericalDiffusion()
+        self.DF = Diffusion()
         self.TS = TimeStepping(namelist)
         self.Stats = NetCDFIO_Stats(namelist, self.Gr)
         return
@@ -33,7 +33,7 @@ class Simulation:
         self.PV.initialize(self.Gr,self.DV)
         self.Case.initialize_forcing(self.Gr, self.PV, self.DV, namelist)
         self.Case.initialize_surface(self.Gr, namelist)
-        self.DF.initialize(self.Gr, self.TS, namelist)
+        self.DF.initialize(self.Gr, namelist)
         self.TS.initialize(self.Gr, self.PV, self.DV, self.DF, namelist)
         self.initialize_io()
         self.io()

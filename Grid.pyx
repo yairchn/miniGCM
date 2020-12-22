@@ -4,7 +4,7 @@ from math import *
 import numpy as np
 import scipy as sc
 import shtns
-from sphTrans cimport Spharmt
+from sphTrans import Spharmt
 import time
 import sys
 

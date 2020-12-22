@@ -11,7 +11,7 @@ import sys
 import time
 import xarray
 
-cdef class Spharmt(object):
+cdef class Spharmt: # (object)
 
     cdef:
         double [:,:] _shtns

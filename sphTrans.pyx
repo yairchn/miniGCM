@@ -12,13 +12,13 @@ import time
 import xarray
 
 
-cdef class Spharmt(object):
+cdef class Spharmt: # (object)
     """
     wrapper class for commonly used spectral transform operations in
     atmospheric models.  Provides an interface to shtns compatible
     with pyspharm (pyspharm.googlecode.com).
     """
-    def __init__(self,nlons,nlats,ntrunc,rsphere,gridtype='gaussian'):
+    def __init__(self,nlons,nlats,ntrunc,rsphere, gridtype='gaussian'):
         """initialize
         nlons:  number of longitudes
         nlats:  number of latitudes"""

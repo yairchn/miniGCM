@@ -6,8 +6,6 @@ import numpy as np
 from PrognosticVariables cimport PrognosticVariables
 import scipy as sc
 from scipy.signal import savgol_filter
-import time
-from TimeStepping cimport TimeStepping
 import sys
 
 cdef class Diffusion:
@@ -18,5 +16,5 @@ cdef class Diffusion:
 		double truncation_number
 		double diffusion_factor
 
-	cpdef initialize(self, Grid Gr, TimeStepping TS, namelist)
+	cpdef initialize(self, Grid Gr, namelist)
 	cpdef update(self, Grid Gr, PrognosticVariables PV, double dt)
