@@ -4,8 +4,10 @@ from math import *
 import numpy as np
 import scipy as sc
 import shtns
-from sphTrans import Spharmt
-from sphTrans cimport Spharmt
+import sphTrans as sph
+# cimport sphTrans as sph
+# from sphTrans import Spharmt
+# from sphTrans cimport Spharmt
 import time
 import sys
 
@@ -27,12 +29,8 @@ cdef class Grid:
         self.Omega = namelist['planet']['omega_rotation']
         self.kappa = self.Rd/self.cp
 		# setup up spherical harmonic instance, set lats/lons of grid
-        self.Spharmt = Spharmt(self.nlons, self.nlats, self.truncation_number, self.rsphere, gridtype='gaussian')
+        self.Spharmt = sph.Spharmt(self.nlons, self.nlats, self.truncation_number, self.rsphere, gridtype='gaussian')
 		# build the physical space grid
-        print(type(self.Spharmt))
-        an = self.Spharmt
-        attrs = vars(an)
-        print(', '.join("%s: %s" % item for item in attrs.items()))
         self.lon, self.lat = np.meshgrid(self.Spharmt.lons, self.Spharmt.lats) # these are in radians
         self.longitude = np.degrees(self.lon)
         self.latitude  = np.degrees(self.lat)
