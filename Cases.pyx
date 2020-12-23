@@ -11,7 +11,7 @@ from TimeStepping cimport TimeStepping
 
 def CasesFactory(namelist, Gr):
     if namelist['meta']['casename'] == 'HeldSuarez':
-        return HeldSuarez(namelist, Gr)
+        return HeldSuarez(namelist)
     # elif namelist['meta']['casename'] == 'HeldSuarez_moist':
     #     return HeldSuarez_moist(namelist, Gr)
     # anthoer example
@@ -51,7 +51,6 @@ cdef class HeldSuarez(CasesBase):
         self.dTdy        = 60.0
         self.T_lapserate = 10.0
         self.p_ref       = 10e5
-        self.foring_type = 'relaxation'
         #Temperature profiles from Held and Suarez (1994) -- initialize isothermally in each layer
         self.Tinit  = np.array([229.0, 257.0, 295.0]) # make this a matrix size self.T.values 
         self.Fo  = Forcing.Forcing_HelzSuarez()

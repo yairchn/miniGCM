@@ -21,7 +21,7 @@ cdef class SurfaceBase:
     cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats)
 
 
-cdef class SurfaceNone():
+cdef class SurfaceNone(SurfaceBase):
     cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef update(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)

@@ -34,10 +34,12 @@ cdef class ForcingBase:
 		return
 
 
-cdef class ForcingNone():
+cdef class ForcingNone(ForcingBase):
 	def __init__(self):
+		ForcingBase.__init__(self)
 		return
 	cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
+		ForcingBase.initialize(self, Gr, PV, DV, namelist)
 		return
 	cpdef initialize_io(self, NetCDFIO_Stats Stats):
 		return
@@ -48,11 +50,13 @@ cdef class ForcingNone():
 	cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats):
 		return
 
-cdef class Forcing_HelzSuarez:
+cdef class Forcing_HelzSuarez(ForcingBase):
 	def __init__(self):
+		ForcingBase.__init__(self)
 		return
 
 	cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
+		ForcingBase.initialize(self, Gr, PV, DV, namelist)
 		# constants from Held & Suarez (1994)
 		self.PV = PrognosticVariables.PrognosticVariables(Gr)
 		self.DV = DiagnosticVariables.DiagnosticVariables(Gr)
@@ -127,13 +131,15 @@ cdef class Forcing_HelzSuarez:
 		Stats.write_meridional_mean('meridional_mean_QT_eq', self.QTbar, TS.t)
 		return
 
-cdef class Forcing_HelzSuarez_moist:
+cdef class Forcing_HelzSuarez_moist(ForcingBase):
 	def __init__(self, Gr):
+		ForcingBase.__init__(self)
 		self.Tbar = np.zeros(Gr.nx,Gr.ny, Gr.nz, dtype=np.double, order='c')
 		self.QTbar = np.zeros(Gr.nx,Gr.ny, Gr.nz, dtype=np.double, order='c')
 		return
 
 	cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
+		ForcingBase.initialize(self, Gr, PV, DV, namelist)
 		# constants from Held & Suarez (1994)
 		self.PV = PrognosticVariables.PrognosticVariables(Gr)
 		self.DV = DiagnosticVariables.DiagnosticVariables(Gr)

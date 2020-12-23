@@ -27,7 +27,7 @@ cdef class SurfaceBase:
     cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats):
         return
 
-cdef class SurfaceNone():
+cdef class SurfaceNone(SurfaceBase):
     def __init__(self):
         return
     cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):

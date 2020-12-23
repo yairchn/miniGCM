@@ -7,7 +7,7 @@ from TimeStepping import TimeStepping
 
 cdef class DiagnosticVariable:
     def __init__(self, nx,ny,nl,n_spec, kind, name, units):
-        self.values = np.zeros((nx,ny,nl),dtype=np.int64, order='c')
+        self.values = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
         self.spectral = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         self.kind = kind
         self.name = name
@@ -15,22 +15,22 @@ cdef class DiagnosticVariable:
         return
 
 cdef class DiagnosticVariables:
-    def __init__(self, Gr):
-        self.U     = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers,   Gr.SphericalGrid.nlm, 'zonal_velocity'     , 'u','m/s' )
-        self.V     = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers,   Gr.SphericalGrid.nlm, 'meridional_velocity', 'v','m/s' )
-        self.KE    = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers,   Gr.SphericalGrid.nlm, 'kinetic_enetry',      'Ek','m^2/s^2' )
-        self.gZ    = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers+1, Gr.SphericalGrid.nlm, 'Geopotential', 'z','m^/s^2' )
-        self.Wp    = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers+1, Gr.SphericalGrid.nlm, 'Wp', 'w','pasc/s' )
+    def __init__(self, Grid Gr):
+        self.U  = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers,   Gr.SphericalGrid.nlm, 'zonal_velocity'     , 'u','m/s' )
+        self.V  = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers,   Gr.SphericalGrid.nlm, 'meridional_velocity', 'v','m/s' )
+        self.KE = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers,   Gr.SphericalGrid.nlm, 'kinetic_enetry',      'Ek','m^2/s^2' )
+        self.gZ = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers+1, Gr.SphericalGrid.nlm, 'Geopotential', 'z','m^/s^2' )
+        self.Wp = DiagnosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers+1, Gr.SphericalGrid.nlm, 'Wp', 'w','pasc/s' )
         return
 
     cpdef initialize(self, Grid Gr):
         cdef:
             Py_ssize_t k
-        self.U.values      = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
-        self.V.values      = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
-        self.KE.values     = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
-        self.gZ.values     = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.double, order='c') # josef place here the initial values for the variable 
-        self.Wp.values     = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.double, order='c') # josef place here the initial values for the variable 
+        self.U.values  = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.float64, order='c')
+        self.V.values  = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.float64, order='c')
+        self.KE.values = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.float64, order='c')
+        self.gZ.values = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.float64, order='c')
+        self.Wp.values = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.float64, order='c')
         for k in range(Gr.n_layers):
             self.U.spectral[:,k]  = np.array(Gr.SphericalGrid.grdtospec(self.U.values[:,:,k]))
             self.V.spectral[:,k]  = np.array(Gr.SphericalGrid.grdtospec(self.V.values[:,:,k]))

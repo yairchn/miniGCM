@@ -13,10 +13,13 @@ from TimeStepping cimport TimeStepping
 cdef class PrognosticVariable:
     cdef:
         double [:,:,:] values
-        double [:,:] spectral
-        double [:,:] old
-        double [:,:] now
-        double [:,:] tendency
+        double [:,:,:] VerticalFlux
+        double complex [:,:] spectral
+        double complex [:,:] old
+        double complex [:,:] now
+        double complex [:,:] tendency
+        double complex [:,:] sp_VerticalFlux
+        double complex [:,:] forcing
         str kind
         str name
         str units

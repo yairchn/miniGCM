@@ -35,7 +35,6 @@ cdef class Grid:
         self.longitude_list = self.longitude[1,:]
         self.latitude_list = self.latitude[:,1]
         self.Coriolis = 2.0*self.Omega*np.sin(self.lat)
-        print(self.nlats)
 
         return
 

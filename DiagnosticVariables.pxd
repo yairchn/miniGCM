@@ -8,7 +8,7 @@ from TimeStepping cimport TimeStepping
 cdef class DiagnosticVariable:
     cdef:
         double [:,:,:] values
-        double [:,:] spectral
+        double complex [:,:] spectral
         str kind
         str name
         str units

@@ -26,24 +26,15 @@ cdef class ForcingBase:
 	cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
 	cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats)
 
-cdef class ForcingNone:
-	cdef:
-		double [:,:,:] Tbar
-		double [:,:,:] QTbar
-		double [:,:,:] Divergence_forcing
-		double [:,:,:] Vorticity_forcing
-		double [:,:,:] T_forcing
-		double [:,:,:] QT_forcing
+cdef class ForcingNone(ForcingBase):
 	cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)
 	cpdef update(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
 	cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
 	cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats)
 
-cdef class Forcing_HelzSuarez:
+cdef class Forcing_HelzSuarez(ForcingBase):
 	cdef:
-		double [:,:,:] Tbar
-		double [:,:,:] QTbar
 		double [:,:,:] k_T
 		double [:,:,:] k_Q
 		double [:,:,:] k_v
@@ -62,10 +53,8 @@ cdef class Forcing_HelzSuarez:
 	cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
 	cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats)
 
-cdef class Forcing_HelzSuarez_moist:
+cdef class Forcing_HelzSuarez_moist(ForcingBase):
 	cdef:
-		double [:,:,:] Tbar
-		double [:,:,:] QTbar
 		double [:,:,:] k_T
 		double [:,:,:] k_Q
 		double [:,:,:] k_v

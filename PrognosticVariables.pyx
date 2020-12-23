@@ -16,18 +16,17 @@ cdef class PrognosticVariable:
         self.old = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         self.now = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         self.tendency = np.zeros((n_spec,nl),dtype = np.complex, order='c')
-        if name != 'Pressure':
-            self.SurfaceFlux = np.zeros((nx,ny),dtype=np.double, order='c')
-            self.VerticalFlux = np.zeros((nx,ny,nl+1),dtype=np.double, order='c')
-            self.sp_VerticalFlux = np.zeros((n_spec,nl),dtype = np.complex, order='c')
-            self.forcing = np.zeros((n_spec,nl),dtype = np.complex, order='c')
+        self.VerticalFlux = np.zeros((nx,ny,nl+1),dtype=np.double, order='c')
+        self.sp_VerticalFlux = np.zeros((n_spec,nl),dtype = np.complex, order='c')
+        self.forcing = np.zeros((n_spec,nl),dtype = np.complex, order='c')
+
         self.kind = kind
         self.name = name
         self.units = units
         return
 
 cdef class PrognosticVariables:
-    def __init__(self, Gr):
+    def __init__(self, Grid Gr):
         self.Vorticity   = PrognosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers,  Gr.SphericalGrid.nlm,'Vorticity' , 'zeta',  '1/s' )
         self.Divergence  = PrognosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers,  Gr.SphericalGrid.nlm,'Divergance', 'delta', '1/s' )
         self.T           = PrognosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers,  Gr.SphericalGrid.nlm,'Temperature'       ,  'T','K' )
@@ -215,7 +214,7 @@ cdef class PrognosticVariables:
                                         + PV.Divergence.forcing[:,k])
             PV.Vorticity.tendency[:,k]  = (- Divergence_flux - PV.Vorticity.sp_VerticalFlux[:,k]
                                     - np.multiply(PV.Vorticity.sp_VerticalFlux[:,k-1],dp_ratio) - PV.Vorticity.forcing[:,k])
-            PV.T.tendency[:,k] = (- Divergent_T_flux + Gr.SphericalGrid.grdtospec(-PV.T.VerticalFlux[:,:,k] + np.multiply(PV.T.VerticalFlux[:,:,k-1],dp_ratio_))
+            PV.T.tendency[:,k] = (- Divergent_T_flux - Gr.SphericalGrid.grdtospec(PV.T.VerticalFlux[:,:,k] - np.multiply(PV.T.VerticalFlux[:,:,k-1],dp_ratio_))
                                   - Thermal_expension  + PV.T.forcing[:,k])
             # PV.QT.tendency[:,k] = - Divergent_QT_flux + Gr.SphericalGrid.grdtospec(-PV.QT.VerticalFlux[:,:,k] + np.multiply(PV.QT.VerticalFlux[:,:,k-1],dp_ratio_)) + PV.QT.forcing[:,k]
             PV.QT.tendency[:,k]          = np.zeros_like(PV.QT.spectral[:,k])

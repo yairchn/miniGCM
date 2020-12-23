@@ -20,6 +20,7 @@ cdef class NetCDFIO_Stats:
         str stats_path
         str output_path
         str path_plus_file
+        str path_plus_var
         str uuid
         public double last_output_time
         public double stats_frequency

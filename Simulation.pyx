@@ -3,7 +3,7 @@ from Cases import CasesFactory
 from Cases import  CasesBase
 from DiagnosticVariables import DiagnosticVariables, DiagnosticVariable
 from Diffusion import Diffusion
-from Grid import Grid
+cimport Grid
 import numpy as np
 from NetCDFIO cimport NetCDFIO_Stats
 from NetCDFIO cimport NetCDFIO_Stats
@@ -17,26 +17,19 @@ class Simulation:
 
     def __init__(self, namelist):
         # define the member classes
-        self.Gr = Grid(namelist)
+        self.Gr = Grid.Grid(namelist)
         # self.TH = Thermodynamics(namelist)
         self.DV = DiagnosticVariables(self.Gr)
-        print("self.DV = DiagnosticVariables(self.Gr)")
         self.PV = PrognosticVariables(self.Gr)
-        print("self.PV = PrognosticVariables(self.Gr)")
         self.Case = CasesFactory(namelist, self.Gr)
-        print("self.Case = CasesFactory(namelist, self.Gr)")
         self.DF = Diffusion()
-        print("self.DF = Diffusion()")
         self.TS = TimeStepping(namelist)
-        print("self.TS = TimeStepping(namelist)")
         self.Stats = NetCDFIO_Stats(namelist, self.Gr)
-        print("self.Stats = NetCDFIO_Stats(namelist, self.Gr)")
         return
 
     def initialize(self, namelist):
-        #initialize via Case
-        self.Gr.initialize(namelist)
-        print("self.Gr.initialize(namelist)")
+        # self.Gr.initialize(namelist)
+        # print("self.Gr.initialize(namelist)")
         self.DV.initialize(self.Gr)
         print("self.DV.initialize(self.Gr)")
         self.PV.initialize(self.Gr,self.DV)
