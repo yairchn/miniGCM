@@ -63,7 +63,6 @@ class Simulation:
 
         self.DV.initialize_io(self.Stats)
         self.PV.initialize_io(self.Stats)
-        print(dir(self.Case))
         self.Case.initialize_io(self.Stats)
         return
 

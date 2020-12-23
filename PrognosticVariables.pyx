@@ -147,7 +147,7 @@ cdef class PrognosticVariables:
         Stats.write_meridional_mean('meridional_mean_vorticity',self.Vorticity.values, TS.t)
         return
 
-    cpdef io(self, Gr, TimeStepping TS, NetCDFIO_Stats Stats):
+    cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
         Stats.write_3D_variable(Gr, int(TS.t),Gr.n_layers, 'Vorticity',         self.Vorticity.values)
         Stats.write_3D_variable(Gr, int(TS.t),Gr.n_layers, 'Divergence',        self.Divergence.values)
         Stats.write_3D_variable(Gr, int(TS.t),Gr.n_layers, 'Temperature',       self.T.values)

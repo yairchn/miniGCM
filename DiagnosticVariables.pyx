@@ -93,6 +93,7 @@ cdef class DiagnosticVariables:
         return
 
     cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
+        print(dir(Gr))
         Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'Geopotential',  self.gZ.values[:,:,0:Gr.n_layers])
         Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'Wp',            self.Wp.values[:,:,1:Gr.n_layers+1])
         Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'U',             self.V.values)

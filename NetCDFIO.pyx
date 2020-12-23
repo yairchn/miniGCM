@@ -156,7 +156,7 @@ cdef class NetCDFIO_Stats:
         var[-1, :,:] = np.array(np.mean(data,1))
         return
 
-    cpdef write_3D_variable(self, Gr, t, n_layers, var_name, data):
+    cpdef write_3D_variable(self, Grid Gr, t, n_layers, var_name, data):
         root_grp = nc.Dataset(self.path_plus_var+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')
         root_grp.createDimension('lat', Gr.nlats)
         root_grp.createDimension('lon', Gr.nlons)

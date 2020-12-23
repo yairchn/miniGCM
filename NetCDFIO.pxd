@@ -35,5 +35,5 @@ cdef class NetCDFIO_Stats:
     cpdef write_global_mean(self, var_name, data, t)
     cpdef write_meridional_mean(self, var_name, data, t)
     cpdef write_zonal_mean(self, var_name, data, t)
-    cpdef write_3D_variable(self, Gr, t, n_layers, var_name, data)
+    cpdef write_3D_variable(self, Grid Gr, t, n_layers, var_name, data)
     cpdef write_simulation_time(self, t)
