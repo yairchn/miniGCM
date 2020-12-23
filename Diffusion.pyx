@@ -16,7 +16,7 @@ cdef class Diffusion:
     cpdef initialize(self, Grid Gr, namelist):
         self.dissipation_order = namelist['diffusion']['dissipation_order']
         self.truncation_order = namelist['diffusion']['truncation_order']
-        self.truncation_number = int(Gr.nlons/truncation_order)
+        self.truncation_number = int(Gr.nlons/self.truncation_order)
         self.diffusion_factor = (1e-5*((Gr.SphericalGrid.lap/Gr.SphericalGrid.lap[-1])**(dissipation_order/2)))
         # self.HyperDiffusionFactor = np.exp(-TS.dt*diffusion_factor)
         # # all wave numbers above this value are removed
