@@ -1,24 +1,28 @@
-import cython
-from Grid cimport Grid
-from math import *
+from __future__ import print_function
+import numpy as np
+import shtns
+import numpy as np
+import sphTrans as sph
+import matplotlib.pyplot as plt
+import time
+# import AdamsBashforth
+import sphericalForcing as spf
+import scipy as sc
+import xarray
+import logData
 import netCDF4
 import numpy as np
-import scipy as sc
+from math import *
 from scipy.signal import savgol_filter
-import shtns
-import sphericalForcing as spf
-import sys
-import time
-import xarray
 
 
-cdef class Spharmt: # (object)
+class Spharmt(object):
     """
     wrapper class for commonly used spectral transform operations in
     atmospheric models.  Provides an interface to shtns compatible
     with pyspharm (pyspharm.googlecode.com).
     """
-    def __init__(self,nlons,nlats,ntrunc,rsphere, gridtype='gaussian'):
+    def __init__(self,nlons,nlats,ntrunc,rsphere,gridtype='gaussian'):
         """initialize
         nlons:  number of longitudes
         nlats:  number of latitudes"""
@@ -35,42 +39,33 @@ cdef class Spharmt: # (object)
         self.nlats = nlats
         self.ntrunc = ntrunc
         self.nlm = self._shtns.nlm
-        # print(np.shape(self._shtns.l))
-        # print(self._shtns.l)
-        # print(len(self._shtns.l))
-        self.degree = np.zeros(len(self._shtns.l),dtype=np.double, order='c')
-        self.lap = np.zeros(len(self._shtns.l),dtype=np.cdouble, order='c')
-        # self.invlap = np.zeros(len(self._shtns.l),dtype=np.cdouble, order='c')
-        for i in range(len(self._shtns.l)):
-            self.degree[i] = self._shtns.l[i]
-        self.lap = -np.multiply(self.degree,(np.add(self.degree,1.0)).astype(np.complex))
-        self.invlap = np.zeros_like(self.lap)
-        for i in range(len(self.invlap[1:])):
-            self.invlap[i+1] = np.divide(1.0,self.lap[i+1])
-        # self.invlap[1:] = np.add(self.invlap[1:],np.divide(1.0,self.lap[1:]))
+        self.degree = self._shtns.l
+        self.lap = -self.degree*(self.degree+1.0).astype(np.complex)
+        self.invlap = np.zeros(self.lap.shape, self.lap.dtype)
+        self.invlap[1:] = 1./self.lap[1:]
         self.rsphere = rsphere
-        self.lap = np.divide(self.lap,self.rsphere**2)
-        self.invlap = np.multiply(self.invlap,self.rsphere**2)
+        self.lap = self.lap/self.rsphere**2
+        self.invlap = self.invlap*self.rsphere**2
 
-    cpdef grdtospec(self, data):
+    def grdtospec(self,data):
         """compute spectral coefficients from gridded data"""
         return self._shtns.analys(data)
     
-    cpdef spectogrd(self,dataspec):
+    def spectogrd(self,dataspec):
         """compute gridded data from spectral coefficients"""
         return self._shtns.synth(dataspec)
     
-    cpdef getuv(self,vrtspec,divspec):
+    def getuv(self,vrtspec,divspec):
         """compute wind vector from spectral coeffs of vorticity and divergence"""
-        return self._shtns.synth(np.divide(self.invlap,self.rsphere)*vrtspec,
-                np.divide(self.invlap,self.rsphere)*divspec)
+        return self._shtns.synth((self.invlap/self.rsphere)*vrtspec,
+                (self.invlap/self.rsphere)*divspec)
 
-    cpdef getvrtdivspec(self,u,v):
+    def getvrtdivspec(self,u,v):
         """compute spectral coeffs of vorticity and divergence from wind vector"""
         vrtspec, divspec = self._shtns.analys(u, v)
-        return np.multiply(self.lap,self.rsphere*vrtspec), np.multiply(self.lap,self.rsphere*divspec)
+        return self.lap*self.rsphere*vrtspec, self.lap*self.rsphere*divspec
     
-    cpdef getgrad(self,divspec):
+    def getgrad(self,divspec):
         """compute gradient vector from spectral coeffs"""
         vrtspec = np.zeros(divspec.shape, dtype=np.complex)
         u,v = self._shtns.synth(vrtspec,divspec)

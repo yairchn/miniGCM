@@ -3,7 +3,7 @@ from Cases import CasesFactory
 from Cases import  CasesBase
 from DiagnosticVariables import DiagnosticVariables, DiagnosticVariable
 from Diffusion import Diffusion
-import Grid
+from Grid import Grid
 import numpy as np
 from NetCDFIO cimport NetCDFIO_Stats
 from NetCDFIO cimport NetCDFIO_Stats
@@ -17,26 +17,42 @@ class Simulation:
 
     def __init__(self, namelist):
         # define the member classes
-        self.Gr = Grid.Grid(namelist)
+        self.Gr = Grid(namelist)
         # self.TH = Thermodynamics(namelist)
         self.DV = DiagnosticVariables(self.Gr)
+        print("self.DV = DiagnosticVariables(self.Gr)")
         self.PV = PrognosticVariables(self.Gr)
+        print("self.PV = PrognosticVariables(self.Gr)")
         self.Case = CasesFactory(namelist, self.Gr)
+        print("self.Case = CasesFactory(namelist, self.Gr)")
         self.DF = Diffusion()
+        print("self.DF = Diffusion()")
         self.TS = TimeStepping(namelist)
+        print("self.TS = TimeStepping(namelist)")
         self.Stats = NetCDFIO_Stats(namelist, self.Gr)
+        print("self.Stats = NetCDFIO_Stats(namelist, self.Gr)")
         return
 
     def initialize(self, namelist):
         #initialize via Case
+        self.Gr.initialize(namelist)
+        print("self.Gr.initialize(namelist)")
         self.DV.initialize(self.Gr)
+        print("self.DV.initialize(self.Gr)")
         self.PV.initialize(self.Gr,self.DV)
+        print("self.PV.initialize(self.Gr,self.DV)")
         self.Case.initialize_forcing(self.Gr, self.PV, self.DV, namelist)
+        print("self.Case.initialize_forcing(self.Gr, self.PV, self.DV, namelist)")
         self.Case.initialize_surface(self.Gr, namelist)
+        print("self.Case.initialize_surface(self.Gr, namelist)")
         self.DF.initialize(self.Gr, namelist)
+        print("self.DF.initialize(self.Gr, namelist)")
         self.TS.initialize(self.Gr, self.PV, self.DV, self.DF, namelist)
+        print("self.TS.initialize(self.Gr, self.PV, self.DV, self.DF, namelist)")
         self.initialize_io()
+        print("self.initialize_io()")
         self.io()
+        print("self.io()")
 
     def run(self, namelist):
         while self.TS.t <= self.TS.t_max:

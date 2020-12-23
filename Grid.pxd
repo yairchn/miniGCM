@@ -26,7 +26,7 @@ cdef class Grid:
         double Omega
         double kappa
 
-        object Spharmt
+        object SphericalGrid
         double [:] longitude_list
         double [:] latitude_list
         double [:,:] lon
