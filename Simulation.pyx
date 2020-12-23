@@ -63,15 +63,13 @@ class Simulation:
 
         self.DV.initialize_io(self.Stats)
         self.PV.initialize_io(self.Stats)
-        dir(self.Case)
-        self.Case.Fo.initialize_io(self.Stats)
-        self.Case.Sur.initialize_io(self.Stats)
+        print(dir(self.Case))
+        self.Case.initialize_io(self.Stats)
         return
 
     def io(self):
         self.DV.io(self.Gr, self.TS, self.Stats)
         self.PV.io(self.Gr, self.TS, self.Stats)
-        self.Case.Fo.io(self.Gr, self.TS, self.Stats)
         self.Case.io(self.PV, self.Gr, self.TS, self.Stats)
         return
 
