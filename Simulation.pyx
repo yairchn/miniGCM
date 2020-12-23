@@ -63,6 +63,7 @@ class Simulation:
 
         self.DV.initialize_io(self.Stats)
         self.PV.initialize_io(self.Stats)
+        dir(self.Case)
         self.Case.Fo.initialize_io(self.Stats)
         self.Case.Sur.initialize_io(self.Stats)
         return
