@@ -16,10 +16,10 @@ cdef class ForcingBase:
 	cdef:
 		double [:,:,:] Tbar
 		double [:,:,:] QTbar
-		double [:,:,:] Divergence_forcing
-		double [:,:,:] Vorticity_forcing
-		double [:,:,:] T_forcing
-		double [:,:,:] QT_forcing
+		double [:,:] T_forcing
+		double [:,:] QT_forcing
+		double [:,:] Divergence_forcing
+		double [:,:] Vorticity_forcing
 	cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)
 	cpdef update(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)

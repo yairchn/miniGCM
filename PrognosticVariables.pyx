@@ -128,7 +128,7 @@ cdef class PrognosticVariables:
 
     cpdef reset_pressures(self, Grid Gr):
         n=Gr.n_layers
-        self.P.values[:,:,0:n] = np.multiply(np.ones((Gr.nlats, Gr.nlons, n),  dtype=np.double, order='c'),self.P_init[0:n])
+        self.P.values[:,:,0:n] = np.multiply(np.ones((Gr.nlats, Gr.nlons, n),  dtype=np.float64, order='c'),self.P_init[0:n])
         return
 
     # this should be done in time intervals and save each time new files,not part of stats 

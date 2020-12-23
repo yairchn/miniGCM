@@ -17,12 +17,12 @@ cdef class ForcingBase:
 	def __init__(self):
 		return
 	cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
-		self.Tbar = np.zeros((Gr.nx,Gr.ny, Gr.nz), dtype=np.double, order='c')
-		self.QTbar = np.zeros((Gr.nx,Gr.ny, Gr.nz), dtype=np.double, order='c')
-		self.Divergence_forcing = np.zeros((n_spec,nl), dtype=np.double, order='c')
-		self.Vorticity_forcing = np.zeros((n_spec,nl), dtype=np.double, order='c')
-		self.T_forcing = np.zeros((n_spec,nl), dtype=np.double, order='c')
-		self.QT_forcing = np.zeros((n_spec,nl), dtype=np.double, order='c')
+		self.Tbar = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.float64, order='c')
+		self.QTbar = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.float64, order='c')
+		self.Divergence_forcing = np.zeros((Gr.SphericalGrid.nlm, Gr.n_layers), dtype=np.float64, order='c')
+		self.Vorticity_forcing = np.zeros((Gr.SphericalGrid.nlm, Gr.n_layers), dtype=np.float64, order='c')
+		self.T_forcing = np.zeros((Gr.SphericalGrid.nlm, Gr.n_layers), dtype=np.float64, order='c')
+		self.QT_forcing = np.zeros((Gr.SphericalGrid.nlm, Gr.n_layers), dtype=np.float64, order='c')
 		return
 	cpdef initialize_io(self, NetCDFIO_Stats Stats):
 		return
@@ -58,13 +58,8 @@ cdef class Forcing_HelzSuarez(ForcingBase):
 	cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
 		ForcingBase.initialize(self, Gr, PV, DV, namelist)
 		# constants from Held & Suarez (1994)
-		self.PV = PrognosticVariables.PrognosticVariables(Gr)
-		self.DV = DiagnosticVariables.DiagnosticVariables(Gr)
-		self.Tbar  = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
-		self.k_T   = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
-		self.k_Q   = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
-		self.k_v   = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
-		self.QTbar = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
+		# self.PV = PrognosticVariables(Gr)
+		# self.DV = DiagnosticVariables(Gr)
 		self.sigma_b = namelist['forcing']['sigma_b']
 		self.k_a = namelist['forcing']['k_a']
 		self.k_s = namelist['forcing']['k_s']
@@ -74,11 +69,13 @@ cdef class Forcing_HelzSuarez(ForcingBase):
 		self.cp = namelist['thermodynamics']['heat_capacity']
 		self.Rd = namelist['thermodynamics']['ideal_gas_constant']
 		self.kappa = self.Rd/self.cp
-		self.k_T = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
-		self.k_v = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
-		for k in range(Gr.n_layers):
-			self.Tbar[:,:,k]  = (315.0-self.DT_y*np.sin(np.radians(Gr.lat))**2-self.Dtheta_z**2*
-				np.log(np.divide(PV.P.values[:,:,k],Gr.p_ref))*np.cos(np.radians(Gr.lat))**2)*(np.divide(PV.P.values[:,:,k],Gr.p_ref))**self.kappa
+		self.k_T = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.float64, order='c')
+		self.k_v = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.float64, order='c')
+		for i in range(Gr.nlats):
+			for j in range(Gr.nlons):
+				for k in range(Gr.n_layers):
+					self.Tbar[i,j,k]  = (315.0-self.DT_y*np.sin(np.radians(Gr.lat[i,j]))**2-self.Dtheta_z**2*
+						np.log(np.divide(PV.P.values[i,j,k],Gr.p_ref))*np.cos(np.radians(Gr.lat[i,j]))**2)*(np.divide(PV.P.values[i,j,k],Gr.p_ref))**self.kappa
 
 		self.QTbar = np.zeros((Gr.nlats, Gr.nlons,Gr.n_layers))
 		return
@@ -134,8 +131,8 @@ cdef class Forcing_HelzSuarez(ForcingBase):
 cdef class Forcing_HelzSuarez_moist(ForcingBase):
 	def __init__(self, Gr):
 		ForcingBase.__init__(self)
-		self.Tbar = np.zeros(Gr.nx,Gr.ny, Gr.nz, dtype=np.double, order='c')
-		self.QTbar = np.zeros(Gr.nx,Gr.ny, Gr.nz, dtype=np.double, order='c')
+		self.Tbar = np.zeros(Gr.nx,Gr.ny, Gr.nz, dtype=np.float64, order='c')
+		self.QTbar = np.zeros(Gr.nx,Gr.ny, Gr.nz, dtype=np.float64, order='c')
 		return
 
 	cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
@@ -143,11 +140,11 @@ cdef class Forcing_HelzSuarez_moist(ForcingBase):
 		# constants from Held & Suarez (1994)
 		self.PV = PrognosticVariables.PrognosticVariables(Gr)
 		self.DV = DiagnosticVariables.DiagnosticVariables(Gr)
-		self.Tbar  = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
-		self.k_T   = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
-		self.k_Q   = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
-		self.k_v   = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
-		self.QTbar = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
+		self.Tbar  = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.float64, order='c')
+		self.k_T   = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.float64, order='c')
+		self.k_Q   = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.float64, order='c')
+		self.k_v   = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.float64, order='c')
+		self.QTbar = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.float64, order='c')
 		self.sigma_b = namelist['forcing']['sigma_b']
 		self.k_a = namelist['forcing']['k_a']
 		self.k_s = namelist['forcing']['k_s']
@@ -157,8 +154,8 @@ cdef class Forcing_HelzSuarez_moist(ForcingBase):
 		self.cp = namelist['thermodynamics']['heat_capacity']
 		self.Rd = namelist['thermodynamics']['ideal_gas_constant']
 		self.kappa = self.Rd/self.cp
-		self.k_T = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
-		self.k_v = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.double, order='c')
+		self.k_T = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.float64, order='c')
+		self.k_v = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers), dtype=np.float64, order='c')
 		for k in range(Gr.n_layers):
 			self.Tbar[:,:,k]  = (315.0-self.DT_y*np.sin(np.radians(Gr.lat))**2-self.Dtheta_z**2*
 				np.log(np.divide(PV.P.values[:,:,k],Gr.p_ref))*np.cos(np.radians(Gr.lat))**2)*(np.divide(PV.P.values[:,:,k],Gr.p_ref))**self.kappa
