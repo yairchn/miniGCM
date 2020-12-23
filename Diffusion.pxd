@@ -10,11 +10,11 @@ import sys
 
 cdef class Diffusion:
 	cdef:
-		double [:,:] HyperDiffusionFactor
+		double complex [:] HyperDiffusionFactor
 		double dissipation_order
 		double truncation_order
 		double truncation_number
-		double diffusion_factor
+		double complex [:] diffusion_factor
 
 	cpdef initialize(self, Grid Gr, namelist)
 	cpdef update(self, Grid Gr, PrognosticVariables PV, double dt)
