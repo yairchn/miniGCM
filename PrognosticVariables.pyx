@@ -11,12 +11,12 @@ from TimeStepping cimport TimeStepping
 
 cdef class PrognosticVariable:
     def __init__(self, nx, ny, nl, n_spec, kind, name, units):
-        self.values = np.zeros((nx,ny,nl),dtype=np.double, order='c')
+        self.values = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
         self.spectral = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         self.old = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         self.now = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         self.tendency = np.zeros((n_spec,nl),dtype = np.complex, order='c')
-        self.VerticalFlux = np.zeros((nx,ny,nl+1),dtype=np.double, order='c')
+        self.VerticalFlux = np.zeros((nx,ny,nl+1),dtype=np.float64, order='c')
         self.sp_VerticalFlux = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         self.forcing = np.zeros((n_spec,nl),dtype = np.complex, order='c')
 
@@ -34,27 +34,35 @@ cdef class PrognosticVariables:
         self.P           = PrognosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers+1,Gr.SphericalGrid.nlm,'Pressure'          ,  'p','pasc' )
         return
 
-    cpdef initialize(self, Grid Gr, DiagnosticVariables DV):
+    cpdef initialize(self, Grid Gr):
         cdef:
             Py_ssize_t k
         self.T_init  = np.array([229.0, 257.0, 295.0])
         self.P_init  = np.array([Gr.p1, Gr.p2, Gr.p3, Gr.p_ref])
         self.QT_init = np.array([0.0, 0.0, 0.0])
 
-        self.Vorticity.values  = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
-        self.Divergence.values = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
-        self.P.values          = np.multiply(np.ones((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.double, order='c'),self.P_init)
-        self.T.values          = np.multiply(np.ones((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c'),self.T_init)
-        self.QT.values         = np.multiply(np.ones((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c'),self.QT_init)
+        self.Vorticity.values  = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.float64, order='c')
+        self.Divergence.values = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.float64, order='c')
+        self.P.values          = np.multiply(np.ones((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.float64, order='c'),self.P_init)
+        self.T.values          = np.multiply(np.ones((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.float64, order='c'),self.T_init)
+        self.QT.values         = np.multiply(np.ones((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.float64, order='c'),self.QT_init)
         # initilize spectral values
         for k in range(Gr.n_layers):
-            self.P.spectral[:,k]           = Gr.SphericalGrid.grdtospec(self.P.values[:,:,k])
-            self.T.spectral[:,k]           = Gr.SphericalGrid.grdtospec(self.T.values[:,:,k])
-            self.QT.spectral[:,k]          = Gr.SphericalGrid.grdtospec(self.QT.values[:,:,k])
-            self.Vorticity.spectral[:,k]   = Gr.SphericalGrid.grdtospec(self.Vorticity.values[:,:,k])
-            self.Divergence.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.Divergence.values[:,:,k])
-        self.P.spectral[:,Gr.n_layers]     = Gr.SphericalGrid.grdtospec(self.P.values[:,:,Gr.n_layers])
-
+            Divergence = Gr.SphericalGrid.grdtospec(np.float64(self.Divergence.values[:,:,k]))
+            P          = Gr.SphericalGrid.grdtospec(np.float64(self.P.values[:,:,k]))
+            T          = Gr.SphericalGrid.grdtospec(np.float64(self.T.values[:,:,k]))
+            QT         = Gr.SphericalGrid.grdtospec(np.float64(self.QT.values[:,:,k]))
+            Vorticity  = Gr.SphericalGrid.grdtospec(np.float64(self.Vorticity.values[:,:,k]))
+            for i in range(len(P)):
+                self.P.spectral[i,k]           = P[i]
+                self.T.spectral[i,k]           = T[i]
+                self.QT.spectral[i,k]          = QT[i]
+                self.Vorticity.spectral[i,k]   = Vorticity[i]
+                self.Divergence.spectral[i,k]  = Divergence[i]
+        k = Gr.n_layers
+        P = Gr.SphericalGrid.grdtospec(np.float64(self.P.values[:,:,k]))
+        for i in range(len(P)):
+            self.P.spectral[i,k] = P[i]
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):

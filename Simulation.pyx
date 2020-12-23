@@ -32,7 +32,7 @@ class Simulation:
         # print("self.Gr.initialize(namelist)")
         self.DV.initialize(self.Gr)
         print("self.DV.initialize(self.Gr)")
-        self.PV.initialize(self.Gr,self.DV)
+        self.PV.initialize(self.Gr)
         print("self.PV.initialize(self.Gr,self.DV)")
         self.Case.initialize_forcing(self.Gr, self.PV, self.DV, namelist)
         print("self.Case.initialize_forcing(self.Gr, self.PV, self.DV, namelist)")

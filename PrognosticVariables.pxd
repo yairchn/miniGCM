@@ -36,7 +36,7 @@ cdef class PrognosticVariables:
         double [:] QT_init
         Py_ssize_t k
 
-    cpdef initialize(self, Grid Gr, DiagnosticVariables DV)
+    cpdef initialize(self, Grid Gr)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef physical_to_spectral(self, Grid Gr)
     cpdef spectral_to_physical(self, Grid Gr)
