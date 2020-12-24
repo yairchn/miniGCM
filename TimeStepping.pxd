@@ -8,9 +8,9 @@ from Diffusion cimport Diffusion
 
 cdef class TimeStepping:
 	cdef:
-		double dt
-		double t_max
-		double t
+		public double dt
+		public double t_max
+		public double t
 		double ncycle
 		double dx
 		double dy

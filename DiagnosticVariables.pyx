@@ -32,11 +32,11 @@ cdef class DiagnosticVariables:
         self.gZ.values = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.float64, order='c')
         self.Wp.values = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.float64, order='c')
         for k in range(Gr.n_layers):
-            U = Gr.SphericalGrid.grdtospec(np.float64(self.U.values[:,:,k]))
-            V = Gr.SphericalGrid.grdtospec(np.float64(self.V.values[:,:,k]))
-            KE = Gr.SphericalGrid.grdtospec(np.float64(self.KE.values[:,:,k]))
-            gZ = Gr.SphericalGrid.grdtospec(np.float64(self.gZ.values[:,:,k]))
-            Wp = Gr.SphericalGrid.grdtospec(np.float64(self.Wp.values[:,:,k]))
+            U = Gr.SphericalGrid.grdtospec(self.U.values[:,:,k])
+            V = Gr.SphericalGrid.grdtospec(self.V.values[:,:,k])
+            KE = Gr.SphericalGrid.grdtospec(self.KE.values[:,:,k])
+            gZ = Gr.SphericalGrid.grdtospec(self.gZ.values[:,:,k])
+            Wp = Gr.SphericalGrid.grdtospec(self.Wp.values[:,:,k])
             for i  in range(len(U)):
                 self.U.spectral[i,k]  = U[i]
                 self.V.spectral[i,k]  = V[i]
@@ -93,7 +93,6 @@ cdef class DiagnosticVariables:
         return
 
     cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
-        print(dir(Gr))
         Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'Geopotential',  self.gZ.values[:,:,0:Gr.n_layers])
         Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'Wp',            self.Wp.values[:,:,1:Gr.n_layers+1])
         Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'U',             self.V.values)

@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import netCDF4
 from NetCDFIO cimport NetCDFIO_Stats
 import numpy as np
+cimport numpy as np
 import scipy as sc
 import sys
 from TimeStepping cimport TimeStepping
@@ -48,11 +49,11 @@ cdef class PrognosticVariables:
         self.QT.values         = np.multiply(np.ones((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.float64, order='c'),self.QT_init)
         # initilize spectral values
         for k in range(Gr.n_layers):
-            Divergence = Gr.SphericalGrid.grdtospec(np.float64(self.Divergence.values[:,:,k]))
-            P          = Gr.SphericalGrid.grdtospec(np.float64(self.P.values[:,:,k]))
-            T          = Gr.SphericalGrid.grdtospec(np.float64(self.T.values[:,:,k]))
-            QT         = Gr.SphericalGrid.grdtospec(np.float64(self.QT.values[:,:,k]))
-            Vorticity  = Gr.SphericalGrid.grdtospec(np.float64(self.Vorticity.values[:,:,k]))
+            Divergence = Gr.SphericalGrid.grdtospec(self.Divergence.values[:,:,k])
+            P          = Gr.SphericalGrid.grdtospec(self.P.values[:,:,k])
+            T          = Gr.SphericalGrid.grdtospec(self.T.values[:,:,k])
+            QT         = Gr.SphericalGrid.grdtospec(self.QT.values[:,:,k])
+            Vorticity  = Gr.SphericalGrid.grdtospec(self.Vorticity.values[:,:,k])
             for i in range(len(P)):
                 self.P.spectral[i,k]           = P[i]
                 self.T.spectral[i,k]           = T[i]
@@ -60,7 +61,7 @@ cdef class PrognosticVariables:
                 self.Vorticity.spectral[i,k]   = Vorticity[i]
                 self.Divergence.spectral[i,k]  = Divergence[i]
         k = Gr.n_layers
-        P = Gr.SphericalGrid.grdtospec(np.float64(self.P.values[:,:,k]))
+        P = Gr.SphericalGrid.grdtospec(self.P.values[:,:,k])
         for i in range(len(P)):
             self.P.spectral[i,k] = P[i]
         return
@@ -94,19 +95,21 @@ cdef class PrognosticVariables:
         self.P.spectral[:,Gr.n_layers] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,Gr.n_layers])
         return
 
-    # convert spectral data to spherical
-    # I needto define this function to ast on a general variable
     cpdef spectral_to_physical(self, Grid Gr):
         cdef:
             Py_ssize_t k
+        # Vorticity = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.float64, order='c')
+        # Divergence = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.float64, order='c')
+        # T = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.float64, order='c')
+        # QT = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.float64, order='c')
+        # P = np.zeros((Gr.nlats, Gr.nlons),  dtype=np.float64, order='c')
+
         for k in range(Gr.n_layers):
-            self.Vorticity.values[:,:,k]  = Gr.SphericalGrid.spectogrd(self.Vorticity.spectral[:,k])
-            self.Divergence.values[:,:,k] = Gr.SphericalGrid.spectogrd(self.Divergence.spectral[:,k])
-            self.P.values[:,:,k]          = Gr.SphericalGrid.spectogrd(self.P.spectral[:,k])
-            self.T.values[:,:,k]          = Gr.SphericalGrid.spectogrd(self.T.spectral[:,k])
-            self.QT.values[:,:,k]         = Gr.SphericalGrid.spectogrd(self.QT.spectral[:,k])
-        # I am updating only the surface pressure 
-        self.P.values[:,:,Gr.n_layers] = Gr.SphericalGrid.spectogrd(self.P.spectral[:,Gr.n_layers])
+            self.Vorticity.values.base[:,:,k]  = Gr.SphericalGrid.spectogrd(self.Vorticity.spectral[:,k])
+            self.Divergence.values.base[:,:,k] = Gr.SphericalGrid.spectogrd(self.Divergence.spectral[:,k])
+            self.T.values.base[:,:,k]          = Gr.SphericalGrid.spectogrd(self.T.spectral[:,k])
+            self.QT.values.base[:,:,k]         = Gr.SphericalGrid.spectogrd(self.QT.spectral[:,k])
+        self.P.values.base[:,:,Gr.n_layers] = Gr.SphericalGrid.spectogrd(np.copy(self.P.spectral[:,Gr.n_layers]))
         return
 
     # quick utility to set arrays with values in the "new" arrays
@@ -127,8 +130,10 @@ cdef class PrognosticVariables:
         return
 
     cpdef reset_pressures(self, Grid Gr):
-        n=Gr.n_layers
-        self.P.values[:,:,0:n] = np.multiply(np.ones((Gr.nlats, Gr.nlons, n),  dtype=np.float64, order='c'),self.P_init[0:n])
+        for i in range(Gr.nlats):
+            for j in range(Gr.nlons):
+                for k in range(Gr.n_layers):
+                    self.P.values[i,j,k] = self.P_init[k]
         return
 
     # this should be done in time intervals and save each time new files,not part of stats 

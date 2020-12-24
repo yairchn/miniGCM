@@ -37,12 +37,10 @@ class Simulation:
         self.DF.initialize(self.Gr, namelist)
         self.TS.initialize(self.Gr, self.PV, self.DV, self.DF, namelist)
         self.initialize_io()
-        print("self.initialize_io()")
         self.io()
-        print("self.io()")
 
     def run(self, namelist):
-        while self.TS.t <= self.TS.t_max:
+        while (self.TS.t <= self.TS.t_max):
             self.PV.reset_pressures(self.Gr)
             self.PV.spectral_to_physical(self.Gr)
             self.DV.update(self.Gr, self.PV)
