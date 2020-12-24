@@ -26,23 +26,17 @@ cdef class DiagnosticVariables:
     cpdef initialize(self, Grid Gr):
         cdef:
             Py_ssize_t k
-        self.U.values  = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),    dtype=np.float64, order='c')
-        self.V.values  = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),    dtype=np.float64, order='c')
-        self.KE.values = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),    dtype=np.float64, order='c')
-        self.gZ.values = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.float64, order='c')
-        self.Wp.values = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.float64, order='c')
+        # self.U.values  = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),    dtype=np.float64, order='c')
+        # self.V.values  = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),    dtype=np.float64, order='c')
+        # self.KE.values = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),    dtype=np.float64, order='c')
+        # self.gZ.values = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.float64, order='c')
+        # self.Wp.values = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.float64, order='c')
         for k in range(Gr.n_layers):
-            U = Gr.SphericalGrid.grdtospec(self.U.values[:,:,k])
-            V = Gr.SphericalGrid.grdtospec(self.V.values[:,:,k])
-            KE = Gr.SphericalGrid.grdtospec(self.KE.values[:,:,k])
-            gZ = Gr.SphericalGrid.grdtospec(self.gZ.values[:,:,k])
-            Wp = Gr.SphericalGrid.grdtospec(self.Wp.values[:,:,k])
-            for i  in range(len(U)):
-                self.U.spectral[i,k]  = U[i]
-                self.V.spectral[i,k]  = V[i]
-                self.KE.spectral[i,k] = KE[i]
-                self.gZ.spectral[i,k] = gZ[i]
-                self.Wp.spectral[i,k] = Wp[i]
+            self.U.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(self.U.values[:,:,k])
+            self.V.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(self.V.values[:,:,k])
+            self.KE.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.KE.values[:,:,k])
+            self.gZ.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.gZ.values[:,:,k])
+            self.Wp.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.Wp.values[:,:,k])
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -62,10 +56,10 @@ cdef class DiagnosticVariables:
         cdef:
             Py_ssize_t k
         for k in range(Gr.n_layers):
-            self.U.spectral[:,k]    = np.array(Gr.SphericalGrid.grdtospec(self.U.values[:,:,k]))
-            self.V.spectral[:,k]    = np.array(Gr.SphericalGrid.grdtospec(self.V.values[:,:,k]))
-            self.Wp.spectral[:,k+1] = np.array(Gr.SphericalGrid.grdtospec(self.Wp.values[:,:,k+1]))
-            self.gZ.spectral[:,k]   = np.array(Gr.SphericalGrid.grdtospec(self.gZ.values[:,:,k]))
+            self.U.spectral.base[:,k]    = Gr.SphericalGrid.grdtospec(self.U.values[:,:,k])
+            self.V.spectral.base[:,k]    = Gr.SphericalGrid.grdtospec(self.V.values[:,:,k])
+            self.Wp.spectral.base[:,k+1] = Gr.SphericalGrid.grdtospec(self.Wp.values[:,:,k+1])
+            self.gZ.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(self.gZ.values[:,:,k])
         return
 
     # # convert spectral data to spherical

@@ -49,21 +49,12 @@ cdef class PrognosticVariables:
         self.QT.values         = np.multiply(np.ones((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.float64, order='c'),self.QT_init)
         # initilize spectral values
         for k in range(Gr.n_layers):
-            Divergence = Gr.SphericalGrid.grdtospec(self.Divergence.values[:,:,k])
-            P          = Gr.SphericalGrid.grdtospec(self.P.values[:,:,k])
-            T          = Gr.SphericalGrid.grdtospec(self.T.values[:,:,k])
-            QT         = Gr.SphericalGrid.grdtospec(self.QT.values[:,:,k])
-            Vorticity  = Gr.SphericalGrid.grdtospec(self.Vorticity.values[:,:,k])
-            for i in range(len(P)):
-                self.P.spectral[i,k]           = P[i]
-                self.T.spectral[i,k]           = T[i]
-                self.QT.spectral[i,k]          = QT[i]
-                self.Vorticity.spectral[i,k]   = Vorticity[i]
-                self.Divergence.spectral[i,k]  = Divergence[i]
-        k = Gr.n_layers
-        P = Gr.SphericalGrid.grdtospec(self.P.values[:,:,k])
-        for i in range(len(P)):
-            self.P.spectral[i,k] = P[i]
+            self.P.spectral.base[:,k]           = Gr.SphericalGrid.grdtospec(self.Divergence.values[:,:,k])
+            self.T.spectral.base[:,k]           = Gr.SphericalGrid.grdtospec(self.P.values[:,:,k])
+            self.QT.spectral.base[:,k]          = Gr.SphericalGrid.grdtospec(self.T.values[:,:,k])
+            self.Vorticity.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(self.QT.values[:,:,k])
+            self.Divergence.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(self.Vorticity.values[:,:,k])
+        self.P.spectral.base[:,Gr.n_layers] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,Gr.n_layers])
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -87,22 +78,16 @@ cdef class PrognosticVariables:
         cdef:
             Py_ssize_t k
         for k in range(Gr.n_layers):
-            self.Vorticity.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.Vorticity.values[:,:,k])
-            self.Divergence.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.Divergence.values[:,:,k])
-            self.T.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.T.values[:,:,k])
-            self.QT.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.QT.values[:,:,k])
-            # self.P.spectral[:,k] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,k])
-        self.P.spectral[:,Gr.n_layers] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,Gr.n_layers])
+            self.Vorticity.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.Vorticity.values[:,:,k])
+            self.Divergence.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.Divergence.values[:,:,k])
+            self.T.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.T.values[:,:,k])
+            self.QT.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.QT.values[:,:,k])
+        self.P.spectral.base[:,Gr.n_layers] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,Gr.n_layers])
         return
 
     cpdef spectral_to_physical(self, Grid Gr):
         cdef:
             Py_ssize_t k
-        # Vorticity = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.float64, order='c')
-        # Divergence = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.float64, order='c')
-        # T = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.float64, order='c')
-        # QT = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.float64, order='c')
-        # P = np.zeros((Gr.nlats, Gr.nlons),  dtype=np.float64, order='c')
 
         for k in range(Gr.n_layers):
             self.Vorticity.values.base[:,:,k]  = Gr.SphericalGrid.spectogrd(self.Vorticity.spectral[:,k])
@@ -130,10 +115,8 @@ cdef class PrognosticVariables:
         return
 
     cpdef reset_pressures(self, Grid Gr):
-        for i in range(Gr.nlats):
-            for j in range(Gr.nlons):
-                for k in range(Gr.n_layers):
-                    self.P.values[i,j,k] = self.P_init[k]
+        for k in range(Gr.n_layers):
+            self.P.values.base[:,:,k] = np.add(np.zeros_like(self.P.values.base[:,:,k]),self.P_init[k])
         return
 
     # this should be done in time intervals and save each time new files,not part of stats 
