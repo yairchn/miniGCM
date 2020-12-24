@@ -49,12 +49,12 @@ cdef class PrognosticVariables:
         self.QT.values         = np.multiply(np.ones((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.float64, order='c'),self.QT_init)
         # initilize spectral values
         for k in range(Gr.n_layers):
-            self.P.spectral.base[:,k]           = Gr.SphericalGrid.grdtospec(self.Divergence.values[:,:,k])
-            self.T.spectral.base[:,k]           = Gr.SphericalGrid.grdtospec(self.P.values[:,:,k])
-            self.QT.spectral.base[:,k]          = Gr.SphericalGrid.grdtospec(self.T.values[:,:,k])
-            self.Vorticity.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(self.QT.values[:,:,k])
-            self.Divergence.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(self.Vorticity.values[:,:,k])
-        self.P.spectral.base[:,Gr.n_layers] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,Gr.n_layers])
+            self.P.spectral.base[:,k]           = Gr.SphericalGrid.grdtospec(self.Divergence.values.base[:,:,k])
+            self.T.spectral.base[:,k]           = Gr.SphericalGrid.grdtospec(self.P.values.base[:,:,k])
+            self.QT.spectral.base[:,k]          = Gr.SphericalGrid.grdtospec(self.T.values.base[:,:,k])
+            self.Vorticity.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(self.QT.values.base[:,:,k])
+            self.Divergence.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(self.Vorticity.values.base[:,:,k])
+        self.P.spectral.base[:,Gr.n_layers] = Gr.SphericalGrid.grdtospec(self.P.values.base[:,:,Gr.n_layers])
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -78,11 +78,11 @@ cdef class PrognosticVariables:
         cdef:
             Py_ssize_t k
         for k in range(Gr.n_layers):
-            self.Vorticity.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.Vorticity.values[:,:,k])
-            self.Divergence.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.Divergence.values[:,:,k])
-            self.T.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.T.values[:,:,k])
-            self.QT.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.QT.values[:,:,k])
-        self.P.spectral.base[:,Gr.n_layers] = Gr.SphericalGrid.grdtospec(self.P.values[:,:,Gr.n_layers])
+            self.Vorticity.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.Vorticity.values.base[:,:,k])
+            self.Divergence.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.Divergence.values.base[:,:,k])
+            self.T.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.T.values.base[:,:,k])
+            self.QT.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.QT.values.base[:,:,k])
+        self.P.spectral.base[:,Gr.n_layers] = Gr.SphericalGrid.grdtospec(self.P.values.base[:,:,Gr.n_layers])
         return
 
     cpdef spectral_to_physical(self, Grid Gr):
@@ -90,11 +90,11 @@ cdef class PrognosticVariables:
             Py_ssize_t k
 
         for k in range(Gr.n_layers):
-            self.Vorticity.values.base[:,:,k]  = Gr.SphericalGrid.spectogrd(self.Vorticity.spectral[:,k])
-            self.Divergence.values.base[:,:,k] = Gr.SphericalGrid.spectogrd(self.Divergence.spectral[:,k])
-            self.T.values.base[:,:,k]          = Gr.SphericalGrid.spectogrd(self.T.spectral[:,k])
-            self.QT.values.base[:,:,k]         = Gr.SphericalGrid.spectogrd(self.QT.spectral[:,k])
-        self.P.values.base[:,:,Gr.n_layers] = Gr.SphericalGrid.spectogrd(np.copy(self.P.spectral[:,Gr.n_layers]))
+            self.Vorticity.values.base[:,:,k]  = Gr.SphericalGrid.spectogrd(self.Vorticity.spectral.base[:,k])
+            self.Divergence.values.base[:,:,k] = Gr.SphericalGrid.spectogrd(self.Divergence.spectral.base[:,k])
+            self.T.values.base[:,:,k]          = Gr.SphericalGrid.spectogrd(self.T.spectral.base[:,k])
+            self.QT.values.base[:,:,k]         = Gr.SphericalGrid.spectogrd(self.QT.spectral.base[:,k])
+        self.P.values.base[:,:,Gr.n_layers] = Gr.SphericalGrid.spectogrd(np.copy(self.P.spectral.base[:,Gr.n_layers]))
         return
 
     # quick utility to set arrays with values in the "new" arrays
@@ -148,8 +148,9 @@ cdef class PrognosticVariables:
             Py_ssize_t k
         nz = Gr.n_layers
         # compute surface pressure tendency
-        Vortical_P_flux, Divergent_P_flux = Gr.SphericalGrid.getvrtdivspec(np.multiply(DV.U.values[:,:,nz-1],np.subtract(PV.P.values[:,:,nz-1],PV.P.values[:,:,nz])),
-                                                            np.multiply(DV.V.values[:,:,nz-1],np.subtract(PV.P.values[:,:,nz-1],PV.P.values[:,:,nz]))) # Vortical_P_flux is not used
+        Vortical_P_flux, Divergent_P_flux = Gr.SphericalGrid.getvrtdivspec(
+                         np.multiply(DV.U.values[:,:,nz-1],np.subtract(PV.P.values[:,:,nz-1],PV.P.values[:,:,nz])),
+                         np.multiply(DV.V.values[:,:,nz-1],np.subtract(PV.P.values[:,:,nz-1],PV.P.values[:,:,nz]))) # Vortical_P_flux is not used
         PV.P.tendency[:,nz] = Divergent_P_flux + DV.Wp.spectral[:,nz-1]
 
         # compute vertical fluxes for vorticity, divergence, temperature and specific humity

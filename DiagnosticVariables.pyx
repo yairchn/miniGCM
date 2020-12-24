@@ -32,11 +32,11 @@ cdef class DiagnosticVariables:
         # self.gZ.values = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.float64, order='c')
         # self.Wp.values = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers+1),  dtype=np.float64, order='c')
         for k in range(Gr.n_layers):
-            self.U.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(self.U.values[:,:,k])
-            self.V.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(self.V.values[:,:,k])
-            self.KE.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.KE.values[:,:,k])
-            self.gZ.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.gZ.values[:,:,k])
-            self.Wp.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.Wp.values[:,:,k])
+            self.U.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(self.U.values.base[:,:,k])
+            self.V.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(self.V.values.base[:,:,k])
+            self.KE.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.KE.values.base[:,:,k])
+            self.gZ.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.gZ.values.base[:,:,k])
+            self.Wp.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.Wp.values.base[:,:,k])
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -56,10 +56,10 @@ cdef class DiagnosticVariables:
         cdef:
             Py_ssize_t k
         for k in range(Gr.n_layers):
-            self.U.spectral.base[:,k]    = Gr.SphericalGrid.grdtospec(self.U.values[:,:,k])
-            self.V.spectral.base[:,k]    = Gr.SphericalGrid.grdtospec(self.V.values[:,:,k])
-            self.Wp.spectral.base[:,k+1] = Gr.SphericalGrid.grdtospec(self.Wp.values[:,:,k+1])
-            self.gZ.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(self.gZ.values[:,:,k])
+            self.U.spectral.base[:,k]    = Gr.SphericalGrid.grdtospec(self.U.values.base[:,:,k])
+            self.V.spectral.base[:,k]    = Gr.SphericalGrid.grdtospec(self.V.values.base[:,:,k])
+            self.Wp.spectral.base[:,k+1] = Gr.SphericalGrid.grdtospec(self.Wp.values.base[:,:,k+1])
+            self.gZ.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(self.gZ.values.base[:,:,k])
         return
 
     # # convert spectral data to spherical
@@ -98,17 +98,16 @@ cdef class DiagnosticVariables:
         cdef:
             Py_ssize_t j, k
 
-        self.Wp.values[:,:,0] = np.zeros_like(self.Wp.values[:,:,0])
-        self.gZ.values[:,:,Gr.n_layers] = np.zeros_like(self.Wp.values[:,:,0])
+        self.Wp.values.base[:,:,0] = np.zeros_like(self.Wp.values[:,:,0])
+        self.gZ.values.base[:,:,Gr.n_layers] = np.zeros_like(self.Wp.values[:,:,0])
         for k in range(Gr.n_layers): # n_layers = 3; k=0,1,2
             j = Gr.n_layers-k-1 # geopotential is computed bottom -> up
-            U, V = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
-            self.U.values[:,:,k] = np.array(U)
-            self.V.values[:,:,k] = np.array(V)
-            self.KE.values[:,:,k]    = 0.5*np.add(np.power(U,2.0),np.power(V,2.0))
-            self.Wp.values[:,:,k+1]  = np.subtract(self.Wp.values[:,:,k],
+            self.U.values.base[:,:,k], self.V.values.base[:,:,k] = Gr.SphericalGrid.getuv(
+                         PV.Vorticity.spectral.base[:,k],PV.Divergence.spectral.base[:,k])
+            self.KE.values.base[:,:,k]    = 0.5*np.add(np.power(self.U.values[:,:,k],2.0),np.power(self.V.values[:,:,k],2.0))
+            self.Wp.values.base[:,:,k+1]  = np.subtract(self.Wp.values[:,:,k],
                                        np.multiply(np.subtract(PV.P.values[:,:,k+1],PV.P.values[:,:,k]),PV.Divergence.values[:,:,k]))
-            self.gZ.values[:,:,j]  = np.add(np.multiply(np.multiply(Gr.Rd,PV.T.values[:,:,j]),np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))),self.gZ.values[:,:,j+1])
+            self.gZ.values.base[:,:,j]  = np.add(np.multiply(np.multiply(Gr.Rd,PV.T.values[:,:,j]),np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))),self.gZ.values[:,:,j+1])
         return
 
     # # yair - need to add here diagnostic functions of stats
