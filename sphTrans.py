@@ -49,26 +49,25 @@ class Spharmt(object):
 
     def grdtospec(self,data):
         """compute spectral coefficients from gridded data"""
-        # return self._shtns.analys(np.asarray(data))
         return self._shtns.analys(data)
 
     def spectogrd(self,dataspec):
         """compute gridded data from spectral coefficients"""
-        return self._shtns.synth(np.asarray(dataspec))
+        return self._shtns.synth(dataspec)
 
     def getuv(self,vrtspec,divspec):
         """compute wind vector from spectral coeffs of vorticity and divergence"""
-        return self._shtns.synth((self.invlap/self.rsphere)*np.asarray(vrtspec),
-                (self.invlap/self.rsphere)*np.asarray(divspec))
+        return self._shtns.synth((self.invlap/self.rsphere)*vrtspec,
+                (self.invlap/self.rsphere)*divspec)
 
     def getvrtdivspec(self,u,v):
         """compute spectral coeffs of vorticity and divergence from wind vector"""
-        vrtspec, divspec = self._shtns.analys(np.asarray(u), np.asarray(v))
+        vrtspec, divspec = self._shtns.analys(u, v)
         return self.lap*self.rsphere*vrtspec, self.lap*self.rsphere*divspec
 
     def getgrad(self,divspec):
         """compute gradient vector from spectral coeffs"""
         vrtspec = np.zeros(divspec.shape, dtype=np.complex)
-        u,v = self._shtns.synth(vrtspec,np.asarray(divspec))
+        u,v = self._shtns.synth(vrtspec,divspec)
         return u/self.rsphere, v/self.rsphere
 
