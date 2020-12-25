@@ -97,22 +97,22 @@ cdef class Forcing_HelzSuarez(ForcingBase):
 			p_ratio_k = np.divide(PV.P.values[:,:,k],PV.P.values[:,:,Gr.n_layers]) # as in josef's code for now
 			sigma_ratio_k = np.clip(np.divide(np.subtract(p_ratio_k,self.sigma_b),(1.0-self.sigma_b)) ,0.0, None)
 			cos4_lat = np.power(np.cos(Gr.lat),4.0)
-			self.k_T[:,:,k] = np.multiply(np.multiply((self.k_s-self.k_a),sigma_ratio_k),cos4_lat)
-			self.k_T[:,:,k] = np.add(self.k_a,self.k_T[:,:,k])
-			self.k_v[:,:,k] = np.multiply(self.k_f,sigma_ratio_k)
+			self.k_T.base[:,:,k] = np.multiply(np.multiply((self.k_s-self.k_a),sigma_ratio_k),cos4_lat)
+			self.k_T.base[:,:,k] = np.add(self.k_a,self.k_T[:,:,k])
+			self.k_v.base[:,:,k] = np.multiply(self.k_f,sigma_ratio_k)
 
-			self.Tbar[:,:,k]  = (315.0-self.DT_y*np.sin(np.radians(Gr.lat))**2-self.Dtheta_z**2*
+			self.Tbar.base[:,:,k]  = (315.0-self.DT_y*np.sin(np.radians(Gr.lat))**2-self.Dtheta_z**2*
 				np.log(np.divide(PV.P.values[:,:,k],Gr.p_ref))*np.cos(np.radians(Gr.lat))**2)*(np.divide(PV.P.values[:,:,k],Gr.p_ref))**self.kappa
 
-			self.Tbar[:,:,k] = np.clip(self.Tbar[:,:,k],200.0,350.0)
-			self.QTbar[:,:,k] = np.multiply(0.0,self.Tbar[:,:,k])
+			self.Tbar.base[:,:,k] = np.clip(self.Tbar[:,:,k],200.0,350.0)
+			self.QTbar.base[:,:,k] = np.multiply(0.0,self.Tbar[:,:,k])
 
 			u_forcing = np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k])
 			v_forcing = np.multiply(self.k_v[:,:,k],DV.V.values[:,:,k])
 			Vorticity_forcing, Divergece_forcing = Gr.SphericalGrid.getvrtdivspec(u_forcing, v_forcing)
-			PV.Divergence.forcing[:,k] = - Divergece_forcing
-			PV.Vorticity.forcing[:,k]  = - Vorticity_forcing
-			PV.T.forcing[:,k]          = - Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(np.subtract(PV.T.values[:,:,k],self.Tbar[:,:,k]))))
+			PV.Divergence.forcing.base[:,k] = - Divergece_forcing
+			PV.Vorticity.forcing.base[:,k]  = - Vorticity_forcing
+			PV.T.forcing.base[:,k]          = - Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(np.subtract(PV.T.values[:,:,k],self.Tbar[:,:,k]))))
 		return
 
 
@@ -180,22 +180,22 @@ cdef class Forcing_HelzSuarez_moist(ForcingBase):
 			p_ratio_k = np.divide(PV.P.values[:,:,k],PV.P.values[:,:,Gr.n_layers]) # as in josef's code for now
 			sigma_ratio_k = np.clip(np.divide(np.subtract(p_ratio_k,self.sigma_b),(1.0-self.sigma_b)) ,0.0, None)
 			cos4_lat = np.power(np.cos(Gr.lat),4.0)
-			self.k_T[:,:,k] = np.multiply(np.multiply((self.k_s-self.k_a),sigma_ratio_k),cos4_lat)
-			self.k_T[:,:,k] = np.add(self.k_a,self.k_T[:,:,k])
-			self.k_v[:,:,k] = np.multiply(self.k_f,sigma_ratio_k)
+			self.k_T.base[:,:,k] = np.multiply(np.multiply((self.k_s-self.k_a),sigma_ratio_k),cos4_lat)
+			self.k_T.base[:,:,k] = np.add(self.k_a,self.k_T[:,:,k])
+			self.k_v.base[:,:,k] = np.multiply(self.k_f,sigma_ratio_k)
 
-			self.Tbar[:,:,k]  = (315.0-self.DT_y*np.sin(np.radians(Gr.lat))**2-self.Dtheta_z**2*
+			self.Tbar.base[:,:,k]  = (315.0-self.DT_y*np.sin(np.radians(Gr.lat))**2-self.Dtheta_z**2*
 				np.log(np.divide(PV.P.values[:,:,k],Gr.p_ref))*np.cos(np.radians(Gr.lat))**2)*(np.divide(PV.P.values[:,:,k],Gr.p_ref))**self.kappa
 
-			self.Tbar[:,:,k] = np.clip(self.Tbar[:,:,k],200.0,350.0)
-			self.QTbar[:,:,k] = np.multiply(0.0,self.Tbar[:,:,k])
+			self.Tbar.base[:,:,k] = np.clip(self.Tbar[:,:,k],200.0,350.0)
+			self.QTbar.base[:,:,k] = np.multiply(0.0,self.Tbar[:,:,k])
 
 			u_forcing = np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k])
 			v_forcing = np.multiply(self.k_v[:,:,k],DV.V.values[:,:,k])
 			Vorticity_forcing, Divergece_forcing = Gr.SphericalGrid.getvrtdivspec(u_forcing, v_forcing)
-			PV.Divergence.forcing[:,k] = - Divergece_forcing
-			PV.Vorticity.forcing[:,k]  = - Vorticity_forcing
-			PV.T.forcing[:,k]          = - Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(np.subtract(PV.T.values[:,:,k],self.Tbar[:,:,k]))))
+			PV.Divergence.forcing.base[:,k] = - Divergece_forcing
+			PV.Vorticity.forcing.base[:,k]  = - Vorticity_forcing
+			PV.T.forcing.base[:,k]          = - Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(np.subtract(PV.T.values[:,:,k],self.Tbar[:,:,k]))))
 		return
 
 

@@ -49,11 +49,11 @@ cdef class TimeStepping:
 		elif self.ncycle==1:
         	#2nd order AB
         	#           new                old               tendency                            tendency now
-			PV.Divergence.spectral = np.add(F_Divergence,np.multiply(dt, np.subtract(np.multiply(1.5,PV.Divergence.tendency, np.multiply(0.5,PV.Divergence.now)))))
-			PV.Vorticity.spectral  = np.add(F_Vorticity ,np.multiply(dt, np.subtract(np.multiply(1.5,PV.Vorticity.tendency , np.multiply(0.5,PV.Vorticity.now)))))
-			PV.T.spectral          = np.add(F_T         ,np.multiply(dt, np.subtract(np.multiply(1.5,PV.T.tendency         , np.multiply(0.5,PV.T.now)))))
-			PV.QT.spectral         = np.add(F_QT        ,np.multiply(dt, np.subtract(np.multiply(1.5,PV.QT.tendency        , np.multiply(0.5,PV.QT.now)))))
-			PV.P.spectral          = np.add(F_P         ,np.multiply(dt, np.subtract(np.multiply(1.5,PV.P.tendency         , np.multiply(0.5,PV.P.now)))))
+			PV.Divergence.spectral = np.add(F_Divergence,np.multiply(dt, np.subtract(np.multiply(1.5,PV.Divergence.tendency), np.multiply(0.5,PV.Divergence.now))))
+			PV.Vorticity.spectral  = np.add(F_Vorticity ,np.multiply(dt, np.subtract(np.multiply(1.5,PV.Vorticity.tendency ), np.multiply(0.5,PV.Vorticity.now))))
+			PV.T.spectral          = np.add(F_T         ,np.multiply(dt, np.subtract(np.multiply(1.5,PV.T.tendency         ), np.multiply(0.5,PV.T.now))))
+			PV.QT.spectral         = np.add(F_QT        ,np.multiply(dt, np.subtract(np.multiply(1.5,PV.QT.tendency        ), np.multiply(0.5,PV.QT.now))))
+			PV.P.spectral          = np.add(F_P         ,np.multiply(dt, np.subtract(np.multiply(1.5,PV.P.tendency         ), np.multiply(0.5,PV.P.now))))
 		else:
         	#3nd order AB
         	#           new                 old                                                                  tendency                                     tendency now                               tendency old

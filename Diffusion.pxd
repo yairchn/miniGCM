@@ -13,7 +13,7 @@ cdef class Diffusion:
 		double complex [:] HyperDiffusionFactor
 		double dissipation_order
 		double truncation_order
-		double truncation_number
+		int truncation_number
 		double complex [:] diffusion_factor
 
 	cpdef initialize(self, Grid Gr, namelist)

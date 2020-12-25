@@ -25,11 +25,11 @@ cdef class Diffusion:
         for i in range (Gr.SphericalGrid.nlm):
             self.diffusion_factor[i] = (1e-5*((Gr.SphericalGrid.lap[i]/Gr.SphericalGrid.lap[-1])**(self.dissipation_order/2)))
             self.HyperDiffusionFactor[i] = np.exp(-dt*self.diffusion_factor[i])
-        self.HyperDiffusionFactor[Gr.SphericalGrid._shtns.l>=Gr.truncation_number] = 0.0
+        self.HyperDiffusionFactor.base[Gr.SphericalGrid._shtns.l>=Gr.truncation_number] = 0.0
         for k in range(Gr.n_layers):
-            PV.P.spectral[:,k]  = np.multiply(self.HyperDiffusionFactor, PV.P.spectral[:,k])
-            PV.Vorticity.spectral[:,k] = np.multiply(self.HyperDiffusionFactor,PV.Vorticity.spectral[:,k])
-            PV.Divergence.spectral[:,k] = np.multiply(self.HyperDiffusionFactor,PV.Divergence.spectral[:,k])
-            PV.T.spectral[:,k] = np.multiply(self.HyperDiffusionFactor,PV.T.spectral[:,k])
-            PV.QT.spectral[:,k] = np.multiply(self.HyperDiffusionFactor,PV.QT.spectral[:,k])
+            PV.P.spectral.base[:,k]  = np.multiply(self.HyperDiffusionFactor, PV.P.spectral[:,k])
+            PV.Vorticity.spectral.base[:,k] = np.multiply(self.HyperDiffusionFactor,PV.Vorticity.spectral[:,k])
+            PV.Divergence.spectral.base[:,k] = np.multiply(self.HyperDiffusionFactor,PV.Divergence.spectral[:,k])
+            PV.T.spectral.base[:,k] = np.multiply(self.HyperDiffusionFactor,PV.T.spectral[:,k])
+            PV.QT.spectral.base[:,k] = np.multiply(self.HyperDiffusionFactor,PV.QT.spectral[:,k])
         return

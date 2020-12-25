@@ -45,7 +45,7 @@ class Simulation:
             self.PV.spectral_to_physical(self.Gr)
             self.DV.update(self.Gr, self.PV)
             self.DV.physical_to_spectral(self.Gr)
-            self.Case.update_surface(self.TS)
+            self.Case.update_surface(self.TS, self.Gr, self.PV, self.DV, namelist)
             self.Case.update_forcing(self.TS, self.Gr, self.PV, self.DV, namelist)
             # move this into timestepping-adams bashford
             self.PV.compute_tendencies(self.Gr, self.PV, self.DV, namelist)
@@ -67,7 +67,7 @@ class Simulation:
     def io(self):
         self.DV.io(self.Gr, self.TS, self.Stats)
         self.PV.io(self.Gr, self.TS, self.Stats)
-        self.Case.io(self.PV, self.Gr, self.TS, self.Stats)
+        self.Case.io(self.Gr, self.TS, self.Stats)
         return
 
     def stats_io(self):
@@ -76,7 +76,7 @@ class Simulation:
         self.Stats.write_simulation_time(self.TS.t)
         self.DV.stats_io(self.TS, self.Stats)
         self.PV.stats_io(self.TS, self.Stats)
-        self.Case.Fo.stats_io(self.TS, self.Stats)
+        self.Case.stats_io(self.TS, self.Stats)
         self.Stats.close_files()
         return
 
