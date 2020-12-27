@@ -14,7 +14,7 @@ import sys
 cdef class ForcingBase:
 	def __init__(self):
 		return
-	cpdef initialize(self, Parameters Pr, namelist):
+	cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
 		self.Tbar = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
 		self.QTbar = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
 		self.Divergence_forcing = np.zeros((Gr.SphericalGrid.nlm, Pr.n_layers), dtype=np.float64, order='c')
@@ -24,7 +24,7 @@ cdef class ForcingBase:
 		return
 	cpdef initialize_io(self, NetCDFIO_Stats Stats):
 		return
-	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+	cpdef update(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
 		return
 	cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
 		return
@@ -35,15 +35,13 @@ cdef class ForcingNone(ForcingBase):
 	def __init__(self):
 		ForcingBase.__init__(self)
 		return
-	cpdef initialize(self, Parameters Pr, namelist):
+	cpdef initialize(self, PrognosticVariables Pr):
 		return
-	cpdef initialize_io(self, NetCDFIO_Stats Stats):
+	cpdef update(self, PrognosticVariables Pr, Grid Gr, TimeStepping TS, PrognosticVariables PV, DiagnosticVariables DV, namelist):
 		return
-	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+	cpdef initialize_io(self, Stats):
 		return
-	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-		return
-	cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats):
+	cpdef io(self, PrognosticVariables Pr, TimeStepping TS, Stats):
 		return
 
 cdef class ForcingHelzSuarez(ForcingBase):
@@ -51,7 +49,7 @@ cdef class ForcingHelzSuarez(ForcingBase):
 		ForcingBase.__init__(self)
 		return
 
-	cpdef initialize(self, Parameters Pr, namelist):
+	cpdef initialize(self, Parameters Pr):
 		# constants from Held & Suarez (1994)
 		self.Tbar  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.double, order='c')
 		self.k_T   = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.double, order='c')
@@ -61,12 +59,12 @@ cdef class ForcingHelzSuarez(ForcingBase):
 		self.k_v = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.double, order='c')
 		return
 
-	cpdef initialize_io(self, NetCDFIO_Stats Stats):
+	cpdef initialize_io(self, Stats):
 		Stats.add_zonal_mean('zonal_mean_T_eq')
 		Stats.add_meridional_mean('meridional_mean_T_eq')
 		return
 
-	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+	cpdef update(self, Parameters Pr, Grid Gr, TimeStepping TS, PV, DV):
 		for k in range(Pr.n_layers):
 			self.pressure_ratio = (PV.P.values[:,:,k]+PV.P.values[:,:,k+1])/(2.0*Pr.p_ref)
 			self.Tbar[:,:,k] = ((Pr.T_equator-Pr.DT_y*np.sin(Gr.lat)**2-Pr.Dtheta_z*np.log(self.pressure_ratio)*np.cos(Gr.lat)**2)*(self.pressure_ratio)**Pr.kappa)
@@ -81,11 +79,11 @@ cdef class ForcingHelzSuarez(ForcingBase):
 			PV.T.forcing[:,k] = -Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(PV.T.values[:,:,k]-self.Tbar[:,:,k])))
 		return
 
-	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+	cpdef io(self, Parameters Pr, TimeStepping TS, Stats):
 		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'T_eq', self.Tbar)
 		return
 
-	cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats):
+	cpdef stats_io(self, TimeStepping TS, Stats):
 		Stats.write_zonal_mean('zonal_mean_T_eq', self.Tbar, TS.t)
 		Stats.write_meridional_mean('meridional_mean_T_eq', self.Tbar, TS.t)
 		return
@@ -95,7 +93,7 @@ cdef class ForcingHelzSuarezMoist(ForcingBase):
 		ForcingBase.__init__(self)
 		return
 
-	cpdef initialize(self, Parameters Pr, namelist):
+	cpdef initialize(self, Parameters Pr):
 		self.Tbar  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.double, order='c')
 		self.k_T   = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.double, order='c')
 		self.k_Q   = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.double, order='c')
@@ -104,12 +102,12 @@ cdef class ForcingHelzSuarezMoist(ForcingBase):
 		self.k_v = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.double, order='c')
 		return
 
-	cpdef initialize_io(self, NetCDFIO_Stats Stats):
+	cpdef initialize_io(self, Stats):
 		Stats.add_zonal_mean('zonal_mean_T_eq')
 		Stats.add_meridional_mean('meridional_mean_T_eq')
 		return
 
-	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+	cpdef update(self, Parameters Pr, Grid Gr, TimeStepping TS, PrognosticVariables PV, DiagnosticVariables DV):
 		for k in range(Pr.n_layers):
 			self.pressure_ratio=(PV.P.values[:,:,k]+PV.P.values[:,:,k+1])/(2.0*Pr.p_ref)
 			self.Tbar[:,:,k]=((Pr.T_equator-Pr.DT_y*np.sin(Gr.lat)**2-Pr.Dtheta_z*np.log(self.pressure_ratio)*np.cos(Gr.lat)**2)*(self.pressure_ratio)**Pr.kappa)
@@ -124,11 +122,11 @@ cdef class ForcingHelzSuarezMoist(ForcingBase):
 			PV.T.forcing[:,k] = -Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],(PV.T.values[:,:,k]-self.Tbar[:,:,k])))
 		return
 
-	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+	cpdef io(self, Parameters Pr, TimeStepping TS, Stats):
 		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'T_eq', self.Tbar)
 		return
 
-	cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats):
+	cpdef stats_io(self, TimeStepping TS, Stats):
 		Stats.write_zonal_mean('zonal_mean_T_eq', self.Tbar, TS.t)
 		Stats.write_meridional_mean('meridional_mean_T_eq', self.Tbar, TS.t)
 		return

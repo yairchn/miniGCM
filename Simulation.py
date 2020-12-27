@@ -1,25 +1,17 @@
-import cython
 import numpy as np
-import Parameters
+import matplotlib.pyplot as plt
 from Cases import CasesFactory
-from Cases import CasesBase
-from DiagnosticVariables cimport DiagnosticVariables, DiagnosticVariable
-from DiagnosticVariables import DiagnosticVariables, DiagnosticVariable
-from Diffusion import Diffusion
-cimport Grid
-import Grid
-from NetCDFIO cimport NetCDFIO_Stats
-from NetCDFIO cimport NetCDFIO_Stats
-from PrognosticVariables cimport PrognosticVariables, PrognosticVariable
-from PrognosticVariables import PrognosticVariables, PrognosticVariable
-import sys
+from Cases import  CasesBase
 import time
-import Thermodynamics
-from TimeStepping import TimeStepping
+from Diffusion import NumericalDiffusion
+import Grid
 from ReferenceState import ReferenceState
 from NetCDFIO import Stats
 from TimeStepping import TimeStepping
+from DiagnosticVariables import DiagnosticVariables, DiagnosticVariable
+from PrognosticVariables import PrognosticVariables, PrognosticVariable
 from Microphysics import MicrophysicsBase
+import Parameters
 
 class Simulation:
 
@@ -30,8 +22,7 @@ class Simulation:
         self.Case = CasesFactory(self.Pr, namelist)
         self.PV = PrognosticVariables(self.Pr, self.Gr)
         self.DV = DiagnosticVariables(self.Pr, self.Gr)
-        self.Case = CasesFactory(namelist, self.Gr)
-        self.DF = Diffusion()
+        self.DF = NumericalDiffusion()
         self.TS = TimeStepping(self.Pr, namelist)
         self.Stats = Stats(self.Pr, self.Gr, namelist)
         return
@@ -73,18 +64,16 @@ class Simulation:
 
         self.DV.initialize_io(self.Stats)
         self.PV.initialize_io(self.Stats)
-        self.Case.initialize_io(self.Stats)
-        return
-
-    def io(self):
-        self.DV.io(self.Gr, self.TS, self.Stats)
-        self.PV.io(self.Gr, self.TS, self.Stats)
-        self.Case.io(self.Gr, self.TS, self.Stats)
+        self.Case.MP.initialize_io(self.Stats)
+        self.Case.Fo.initialize_io(self.Stats)
+        self.Case.Sur.initialize_io(self.Stats)
         return
 
     def io(self):
         self.DV.io(self.Pr, self.TS, self.Stats)
         self.PV.io(self.Pr, self.TS, self.Stats)
+        self.Case.MP.io(self.Pr, self.TS, self.Stats)
+        self.Case.Fo.io(self.Pr, self.TS, self.Stats)
         self.Case.io(self.Pr, self.TS, self.PV, self.Stats)
         return
 
@@ -93,7 +82,8 @@ class Simulation:
         self.Stats.write_simulation_time(self.TS.t)
         self.DV.stats_io(self.TS, self.Stats)
         self.PV.stats_io(self.TS, self.Stats)
-        self.Case.stats_io(self.TS, self.Stats)
+        self.Case.MP.stats_io(self.TS, self.Stats)
+        self.Case.Fo.stats_io(self.TS, self.Stats)
         self.Stats.close_files()
         return
 

@@ -14,16 +14,33 @@ import sys
 
 
 cdef class SurfaceBase:
-    cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+    cdef:
+        double [:,:] U_flux
+        double [:,:] V_flux
+        double [:,:] T_flux
+        double [:,:] QT_flux
+        double [:,:] T_surf
+        double [:,:] U_abs
+        double [:,:] T_surf
+        double [:,:] QT_surf
+
+    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
+    cpdef update(self, Parameters Pr, Grid Gr, TimeStepping TS, PrognosticVariables PV, DiagnosticVariables DV)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
-    cpdef update(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
-    cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
-    cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats)
+    cpdef stats_io(self, NetCDFIO_Stats Stats)
+    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
 
 
 cdef class SurfaceNone(SurfaceBase):
-    cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
+    cpdef update(self, Parameters Pr, Grid Gr, TimeStepping TS, PrognosticVariables PV, DiagnosticVariables DV)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
-    cpdef update(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
-    cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
-    cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats)
+    cpdef stats_io(self, NetCDFIO_Stats Stats)
+    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
+
+cdef class SurfaceBulkFormula(SurfaceBase):
+    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
+    cpdef update(self, Parameters Pr, Grid Gr, TimeStepping TS, PrognosticVariables PV, DiagnosticVariables DV)
+    cpdef initialize_io(self, NetCDFIO_Stats Stats)
+    cpdef stats_io(self, NetCDFIO_Stats Stats)
+    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)

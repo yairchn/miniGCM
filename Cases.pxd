@@ -22,19 +22,37 @@ cdef class CasesBase:
         SurfaceBase Sur
         ForcingBase Fo
 
+    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef initialize_surface(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
     cpdef initialize_forcing(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, namelist)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
     cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats)
     cpdef update_surface(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
     cpdef update_forcing(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+    cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS)
 
 cdef class HeldSuarez(CasesBase):
+    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef initialize_surface(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
     cpdef initialize_forcing(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, namelist)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
     cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats)
     cpdef update_surface(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
     cpdef update_forcing(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+    cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS)
+
+cdef class HeldSuarez_moist(CasesBase):
+    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
+    cpdef initialize_surface(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+    cpdef initialize_forcing(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, namelist)
+    cpdef initialize_io(self, NetCDFIO_Stats Stats)
+    cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
+    cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats)
+    cpdef update_surface(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+    cpdef update_forcing(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+    cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS)

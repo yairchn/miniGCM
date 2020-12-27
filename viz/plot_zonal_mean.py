@@ -2,6 +2,7 @@ import numpy as np
 import netCDF4 as nc
 import pylab as plt
 import argparse
+import os
 
 # command line:
 # python viz/plot_zonal_mean.py zonal_mean_U 1800.0
@@ -13,8 +14,8 @@ def main():
     varname = args.varname
     mytime = args.mytime
 
-    folder = '/Users/yaircohen/Documents/codes/miniGCM/Output.HeldSuarez.67799/stats/'
-    ncfile = folder + 'Stats.HeldSuarez.nc'
+    folder = os.getcwd() + '/Output.HeldSuarez_moist.30day/stats/'
+    ncfile = folder + 'Stats.HeldSuarez_moist.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])

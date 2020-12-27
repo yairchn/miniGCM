@@ -63,7 +63,7 @@ cdef class TimeStepping:
 			PV.QT.spectral         = np.add(F_QT        ,np.multiply(dt,np.add(np.subtract(np.multiply(23.0/12.0,PV.QT.tendency)        ,np.multiply(16.0/12.0,PV.QT.now))        , np.multiply(5.0/12.0,PV.QT.old))))
 			PV.P.spectral          = np.add(F_P         ,np.multiply(dt,np.add(np.subtract(np.multiply(23.0/12.0,PV.P.tendency)         ,np.multiply(16.0/12.0,PV.P.now))         , np.multiply(5.0/12.0,PV.P.old))))
 
-		DF.update(Gr, PV, self.dt)
+		DF.update(Pr, Gr, PV, self.dt, namelist)
 		self.t = self.t+self.dt
 		PV.set_old_with_now()
 		PV.set_now_with_tendencies()
@@ -71,12 +71,18 @@ cdef class TimeStepping:
 		self.ncycle += 1
 		return
 
-	# def CFL_limiter(self, Gr, PV, DV, DF, namelist):
-	# 	# YAIR
-	# 	# (1) - find out how to limit a CFL in a spectral model
-	# 	# (2) - define the pointwise U/DX ratio and find its maximum value for i,j,k
-	# 	# in Grid line 40 self.longitute , self.latitute  are defines. Take diff or gradient of these to get the differneces matrix.
-	# 	return dt
+	cpdef CFL_limiter(self, Parameters Pr, Grid Gr, DiagnosticVariables DV, namelist):
+		# consider calling this every some time to save computation
+		CFL_limit = namelist['timestepping']['CFL_limit']
+		dt = namelist['timestepping']['dt']
+		dx = 2.0*np.divide(np.pi,Pr.nlats)*Pr.rsphere
+		dy = 2.0*np.divide(np.pi,Pr.nlons)*Pr.rsphere
+		dp = np.max([Pr.p_ref-Pr.p3,Pr.p3-Pr.p2,Pr.p2-Pr.p1])
+		zonal_timescale = np.min(dx)/np.max(np.abs(DV.U.values) + 1e-10)
+		meridional_timescale = np.min(dy)/np.max(np.abs(DV.V.values) + 1e-10)
+		vertical_timescale = np.min(dp)/np.max(np.abs(DV.Wp.values) + 1e-10)
+		self.dt = np.minimum(dt, CFL_limit*np.max([zonal_timescale ,meridional_timescale]))
+		return
 
 
 

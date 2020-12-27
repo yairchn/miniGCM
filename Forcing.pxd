@@ -20,10 +20,10 @@ cdef class ForcingBase:
 		double [:,:] QT_forcing
 		double [:,:] Divergence_forcing
 		double [:,:] Vorticity_forcing
-	cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+	cpdef initialize(self, Parameters Pr, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)
-	cpdef update(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
-	cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
+	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
+	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
 	cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats)
 
 cdef class ForcingNone(ForcingBase):
@@ -47,10 +47,10 @@ cdef class Forcing_HelzSuarez(ForcingBase):
 		double cp
 		double Rd
 		double kappa
-	cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+	cpdef initialize(self, Parameters Pr, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)
-	cpdef update(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
-	cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
+	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
+	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
 	cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats)
 
 cdef class Forcing_HelzSuarez_moist(ForcingBase):
@@ -67,8 +67,8 @@ cdef class Forcing_HelzSuarez_moist(ForcingBase):
 		double cp
 		double Rd
 		double kappa
-	cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+	cpdef initialize(self, Parameters Pr, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)
-	cpdef update(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
-	cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
+	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
+	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
 	cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats)

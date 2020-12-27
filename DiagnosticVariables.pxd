@@ -22,10 +22,9 @@ cdef class DiagnosticVariables:
         DiagnosticVariable Wp
         Py_ssize_t k
 
-    cpdef initialize(self, Grid Gr)
+    cpdef initialize(self, Parameters Pr, Grid Gr)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
-    cpdef physical_to_spectral(self, Grid Gr)
-    # cpdef spectral_to_physical(self)
+    cpdef physical_to_spectral(self, Parameters Pr, Grid Gr)
     cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats)
     cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
-    cpdef update(self, Grid Gr, PrognosticVariables PV)
+    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV)

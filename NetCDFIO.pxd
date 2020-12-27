@@ -7,6 +7,7 @@ import os
 import time
 import shutil
 import sys
+import Parameters
 
 cdef class NetCDFIO_Stats:
     cdef:
@@ -15,6 +16,7 @@ cdef class NetCDFIO_Stats:
         object meridional_mean_grp
         object zonal_mean_grp
         object global_mean_grp
+        object surface_mean_grp
 
         str stats_file_name
         str stats_path
@@ -28,12 +30,15 @@ cdef class NetCDFIO_Stats:
 
     cpdef open_files(self)
     cpdef close_files(self)
-    cpdef setup_stats_file(self, Grid Gr)
+    cpdef setup_stats_file(self, Parameters Pr, Grid Gr)
     cpdef add_global_mean(self, var_name)
     cpdef add_meridional_mean(self, var_name)
     cpdef add_zonal_mean(self, var_name)
+    cpdef add_surface_zonal_mean(self, var_name)
     cpdef write_global_mean(self, var_name, data, t)
     cpdef write_meridional_mean(self, var_name, data, t)
     cpdef write_zonal_mean(self, var_name, data, t)
-    cpdef write_3D_variable(self, Grid Gr, t, n_layers, var_name, data)
+    cpdef write_surface_zonal_mean(self, var_name, data, t)
+    cpdef write_3D_variable(self, Parameters Pr, t, n_layers, var_name, data)
+    cpdef write_2D_variable(self, Parameters Pr, t, var_name, data)
     cpdef write_simulation_time(self, t)

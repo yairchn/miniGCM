@@ -16,5 +16,5 @@ cdef class Diffusion:
 		int truncation_number
 		double complex [:] diffusion_factor
 
-	cpdef initialize(self, Grid Gr, namelist)
-	cpdef update(self, Grid Gr, PrognosticVariables PV, double dt)
+	cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
+	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, double dt)

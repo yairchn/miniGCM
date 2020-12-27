@@ -7,9 +7,10 @@ import os
 import time
 import shutil
 import sys
+import Parameters
 
-cdef class NetCDFIO_Stats:
-    def __init__(self, namelist, Grid):
+cdef class Stats:
+    def __init__(self, Parameters Pr, Grid Gr, namelist):
         self.root_grp = None
         self.variable_grp = None
         self.meridional_mean_grp = None
@@ -62,7 +63,7 @@ cdef class NetCDFIO_Stats:
 
         shutil.copyfile(os.path.join( './', namelist['meta']['simname'] + '.in'),
                         os.path.join( outpath, namelist['meta']['simname'] + '.in'))
-        self.setup_stats_file(Grid)
+        self.setup_stats_file(Pr, Gr)
         return
 
     cpdef open_files(self):
@@ -76,69 +77,75 @@ cdef class NetCDFIO_Stats:
         self.root_grp.close()
         return
 
-    cpdef setup_stats_file(self, Grid Gr):
+    cpdef setup_stats_file(self, Parameters Pr, Grid Gr):
         root_grp = nc.Dataset(self.path_plus_file, 'w', format='NETCDF4')
 
         # Set coordinates
         coordinate_grp = root_grp.createGroup('coordinates')
-        coordinate_grp.createDimension('lat', Gr.nlats)
-        coordinate_grp.createDimension('lon', Gr.nlons)
+        coordinate_grp.createDimension('lat', Pr.nlats)
+        coordinate_grp.createDimension('lon', Pr.nlons)
         coordinate_grp.createDimension('lay', 1)
 
-        latitude = coordinate_grp.createVariable('latitude', 'f8',  ('lat', 'lon'), fill_value=0.0)
+        latitude = coordinate_grp.createVariable('latitude', 'f8',  ('lat', 'lon'))
         latitude[:,:] = np.array(Gr.latitude)
-        latitude_list = coordinate_grp.createVariable('latitude_list', 'f8', ('lat'), fill_value=0.0)
+        latitude_list = coordinate_grp.createVariable('latitude_list', 'f8', ('lat'))
         latitude_list[:] = np.array(Gr.latitude_list)
-        longitude = coordinate_grp.createVariable('longitude', 'f8', ('lat', 'lon'), fill_value=0.0)
+        longitude = coordinate_grp.createVariable('longitude', 'f8', ('lat', 'lon'))
         longitude[:,:] = np.array(Gr.longitude)
-        longitude_list = coordinate_grp.createVariable('longitude_list', 'f8', ('lon') ,fill_value=0.0)
+        longitude_list = coordinate_grp.createVariable('longitude_list', 'f8', ('lon'))
         longitude_list[:] = np.array(Gr.longitude_list)
-        layer = coordinate_grp.createVariable('layers', 'f8',('lay'), fill_value=0.0)
-        layer[:] = np.array(Gr.n_layers)
+        layer = coordinate_grp.createVariable('layers', 'f8',('lay'))
+        layer[:] = np.array(Pr.n_layers)
         del latitude, latitude_list, longitude, longitude_list, layer
 
         # Set maridional mean
         meridional_mean_grp = root_grp.createGroup('meridional_mean')
         meridional_mean_grp.createDimension('time', None)
-        meridional_mean_grp.createDimension('lon', Gr.nlons)
-        meridional_mean_grp.createDimension('lay',  Gr.n_layers)
-        t = meridional_mean_grp.createVariable('t', 'f8', ('time'), fill_value=0.0)
+        meridional_mean_grp.createDimension('lon', Pr.nlons)
+        meridional_mean_grp.createDimension('lay',  Pr.n_layers)
+        t = meridional_mean_grp.createVariable('t', 'f8', ('time'))
 
         # Set zonal mean
         zonal_mean_grp = root_grp.createGroup('zonal_mean')
         zonal_mean_grp.createDimension('time', None)
-        zonal_mean_grp.createDimension('lat', Gr.nlats)
-        zonal_mean_grp.createDimension('lay',  Gr.n_layers)
-        t = zonal_mean_grp.createVariable('t', 'f8',  ('time'), fill_value=0.0)
+        zonal_mean_grp.createDimension('lat', Pr.nlats)
+        zonal_mean_grp.createDimension('lay',  Pr.n_layers)
+        t = zonal_mean_grp.createVariable('t', 'f8',  ('time'))
 
         # Set global_mean
         global_mean_grp = root_grp.createGroup('global_mean')
         global_mean_grp.createDimension('time', None)
-        global_mean_grp.createDimension('lay',  Gr.n_layers)
-        t = global_mean_grp.createVariable('t', 'f8', ('time'), fill_value=0.0)
+        global_mean_grp.createDimension('lay',  Pr.n_layers)
+        t = global_mean_grp.createVariable('t', 'f8', ('time'))
         root_grp.close()
         return
 
     cpdef add_global_mean(self, var_name):
         root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
         global_grp = root_grp.groups['global_mean']
-        new_var = global_grp.createVariable(var_name, 'f8',('time', 'lay'), fill_value=0.0)
+        new_var = global_grp.createVariable(var_name, 'f8',('time', 'lay'))
         root_grp.close()
         return
 
     cpdef add_meridional_mean(self, var_name):
         root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
         meridional_mean_grp = root_grp.groups['meridional_mean']
-        new_var = meridional_mean_grp.createVariable(var_name, 'f8', ('time','lon','lay'), fill_value=0.0)
+        new_var = meridional_mean_grp.createVariable(var_name, 'f8', ('time','lon','lay'))
         root_grp.close()
         return
 
     cpdef add_zonal_mean(self, var_name):
         root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
         zonal_mean_grp = root_grp.groups['zonal_mean']
-        new_var = zonal_mean_grp.createVariable(var_name, 'f8', ('time', 'lat','lay'), fill_value=0.0)
+        new_var = zonal_mean_grp.createVariable(var_name, 'f8', ('time', 'lat','lay'))
         root_grp.close()
+        return
 
+    cpdef add_surface_zonal_mean(self, var_name):
+        root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
+        zonal_mean_grp = root_grp.groups['zonal_mean']
+        new_var = zonal_mean_grp.createVariable(var_name, 'f8', ('time', 'lat'))
+        root_grp.close()
         return
 
     cpdef write_global_mean(self, var_name, data, t):
@@ -156,13 +163,27 @@ cdef class NetCDFIO_Stats:
         var[-1, :,:] = np.array(np.mean(data,1))
         return
 
-    cpdef write_3D_variable(self, Grid Gr, t, n_layers, var_name, data):
+    cpdef write_surface_zonal_mean(self, var_name, data, t):
+        var = self.surface_mean_grp.variables[var_name]
+        var[-1, :] = np.array(np.mean(data,1))
+        return
+
+    cpdef write_3D_variable(self, Parameters Pr, t, n_layers, var_name, data):
         root_grp = nc.Dataset(self.path_plus_var+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')
-        root_grp.createDimension('lat', Gr.nlats)
-        root_grp.createDimension('lon', Gr.nlons)
+        root_grp.createDimension('lat', Pr.nlats)
+        root_grp.createDimension('lon', Pr.nlons)
         root_grp.createDimension('lay', n_layers)
-        var = root_grp.createVariable(var_name, 'f8', ('lat', 'lon','lay'),fill_value=0.0)
+        var = root_grp.createVariable(var_name, 'f8', ('lat', 'lon','lay'))
         var[:,:,:] = np.array(data)
+        root_grp.close()
+        return
+
+    cpdef write_2D_variable(self, Parameters Pr, t, var_name, data):
+        root_grp = nc.Dataset(self.path_plus_var+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')
+        root_grp.createDimension('lat', Pr.nlats)
+        root_grp.createDimension('lon', Pr.nlons)
+        var = root_grp.createVariable(var_name, 'f8', ('lat', 'lon'))
+        var[:,:] = np.array(data)
         root_grp.close()
         return
 

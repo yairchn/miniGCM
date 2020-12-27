@@ -16,5 +16,6 @@ _templates/
 *.png
 *.mod
 *.nc
-
-
+*.pyc
+*.out
+__pycache__/
