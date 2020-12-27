@@ -14,7 +14,6 @@ from PrognosticVariables cimport PrognosticVariables, PrognosticVariable
 from PrognosticVariables import PrognosticVariables, PrognosticVariable
 import sys
 import time
-import Thermodynamics
 from TimeStepping import TimeStepping
 from ReferenceState import ReferenceState
 from NetCDFIO import Stats
