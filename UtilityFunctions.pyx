@@ -5,6 +5,7 @@ import scipy as sc
 from math import *
 import sys
 import cython
+import Parameters
 
 # make sure that total moisture content is non-negative
 cpdef set_min_vapour(qp,qbar):

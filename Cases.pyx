@@ -8,6 +8,7 @@ cimport Surface
 import cython
 import sys
 from TimeStepping cimport TimeStepping
+import Parameters
 
 def CasesFactory(namelist, Gr):
     if namelist['meta']['casename'] == 'HeldSuarez':

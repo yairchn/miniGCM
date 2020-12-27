@@ -11,6 +11,7 @@ import sphericalForcing as spf
 import time
 from TimeStepping cimport TimeStepping
 import sys
+import Parameters
 
 cdef class ForcingBase:
 	cdef:

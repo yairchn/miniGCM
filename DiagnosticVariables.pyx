@@ -4,6 +4,7 @@ from Grid import Grid
 from NetCDFIO import NetCDFIO_Stats
 from PrognosticVariables import PrognosticVariables
 from TimeStepping import TimeStepping
+import Parameters
 
 cdef class DiagnosticVariable:
     def __init__(self, nx,ny,nl,n_spec, kind, name, units):

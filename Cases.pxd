@@ -8,6 +8,7 @@ from Surface cimport SurfaceBase
 import cython
 import sys
 from TimeStepping cimport TimeStepping
+import Parameters
 
 
 cdef class CasesBase:

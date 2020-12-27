@@ -3,6 +3,7 @@ import numpy as np
 from math import *
 import PrognosticVariables
 import DiagnosticVariables
+import Parameters
 
 cdef class MicrophysicsBase:
     cdef:

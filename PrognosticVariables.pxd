@@ -9,6 +9,7 @@ import numpy as np
 import scipy as sc
 import sys
 from TimeStepping cimport TimeStepping
+import Parameters
 
 cdef class PrognosticVariable:
     cdef:

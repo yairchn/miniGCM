@@ -4,6 +4,7 @@ from Grid cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
 from PrognosticVariables cimport PrognosticVariables
 from TimeStepping cimport TimeStepping
+import Parameters
 
 cdef class DiagnosticVariable:
     cdef:

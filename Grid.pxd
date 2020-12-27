@@ -7,13 +7,15 @@ import shtns
 import sphTrans as sph
 import time
 import sys
+import Parameters
 
 cdef class Grid:
-        object SphericalGrid
-        double [:] longitude_list
-        double [:] latitude_list
-        double [:,:] lon
-        double [:,:] lat
-        double [:,:] longitude
-        double [:,:] latitude
-        double [:,:] Coriolis
+	cdef:
+		object SphericalGrid
+		double [:] longitude_list
+		double [:] latitude_list
+		double [:,:] lon
+		double [:,:] lat
+		double [:,:] longitude
+		double [:,:] latitude
+		double [:,:] Coriolis

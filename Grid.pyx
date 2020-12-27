@@ -7,6 +7,7 @@ import shtns
 import sphTrans as sph
 import time
 import sys
+import Parameters
 
 cdef class Grid:
     def __init__(self, Pr, namelist):

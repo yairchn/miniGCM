@@ -10,6 +10,7 @@ from NetCDFIO cimport NetCDFIO_Stats
 import scipy as sc
 from TimeStepping cimport TimeStepping
 import sys
+import Parameters
 
 cdef class ForcingBase:
 	def __init__(self):

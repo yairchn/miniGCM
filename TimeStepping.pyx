@@ -5,6 +5,7 @@ from Grid cimport Grid
 from PrognosticVariables cimport PrognosticVariables
 from DiagnosticVariables cimport DiagnosticVariables
 from Diffusion cimport Diffusion
+import Parameters
 
 cdef class TimeStepping:
 	def __init__(self, namelist):
