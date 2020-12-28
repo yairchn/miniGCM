@@ -1,22 +1,18 @@
 import cython
 import numpy as np
-from Parameters cimport Parameters
 from Cases import CasesFactory
 from Cases import CasesBase
 from DiagnosticVariables cimport DiagnosticVariables, DiagnosticVariable
 from DiagnosticVariables import DiagnosticVariables, DiagnosticVariable
 from Diffusion import Diffusion
+cimport Parameters
 cimport Grid
-import Grid
-from NetCDFIO cimport NetCDFIO_Stats
 from NetCDFIO cimport NetCDFIO_Stats
 from PrognosticVariables cimport PrognosticVariables, PrognosticVariable
 from PrognosticVariables import PrognosticVariables, PrognosticVariable
 import sys
 import time
 from TimeStepping import TimeStepping
-from ReferenceState import ReferenceState
-from NetCDFIO import Stats
 from TimeStepping import TimeStepping
 from Microphysics import MicrophysicsBase
 
@@ -25,6 +21,7 @@ class Simulation:
     def __init__(self, namelist):
         # define the member classes
         self.Pr = Parameters.Parameters(namelist)
+        print(dir(self.Pr))
         self.Gr = Grid.Grid(self.Pr, namelist)
         self.Case = CasesFactory(self.Pr, namelist)
         self.PV = PrognosticVariables(self.Pr, self.Gr)
@@ -32,7 +29,7 @@ class Simulation:
         self.Case = CasesFactory(namelist, self.Gr)
         self.DF = Diffusion()
         self.TS = TimeStepping(self.Pr, namelist)
-        self.Stats = Stats(self.Pr, self.Gr, namelist)
+        self.Stats = NetCDFIO_Stats(self.Pr, self.Gr, namelist)
         return
 
     def initialize(self, namelist):

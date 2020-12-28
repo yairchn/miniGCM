@@ -8,9 +8,9 @@ from math import *
 
 cdef class Parameters:
     cdef:
-        Py_ssize_t nlats
-        Py_ssize_t nlons
-        Py_ssize_t n_layers
+        int nlats
+        int nlons
+        int n_layers
         int truncation_number
         double p1
         double p2

@@ -6,10 +6,11 @@
         "type": "hyperdiffusion"
     },
     "forcing": {
-        "1.0": 8.101851851851852e-06,
-        "DT_y": 60.0,
+        "equator_to_pole_dT": 60.0,
+        "equatorial_temperature": 300.0,
         "forcing_type": "HeldSuarez",
         "k_a": 2.8935185185185185e-07,
+        "k_f": 1.1574074074074073e-05,
         "k_s": 2.8935185185185184e-06,
         "lapse_rate": 10.0,
         "relaxation_temperature": 300.0,
@@ -27,14 +28,14 @@
         "p_ref": 100000.0
     },
     "io": {
-        "output_frequency": 600.0,
+        "output_frequency": 604800.0,
         "stats_dir": "stats",
-        "stats_frequency": 60.0
+        "stats_frequency": 86400.0
     },
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "17e30643-5fe6-42f2-bfde-cc38c21d4343"
+        "uuid": "7d8f1237-815e-4d3d-8c0b-1f3f08539bda"
     },
     "microphysics": {
         "rain_model": "None"
@@ -43,18 +44,25 @@
         "output_root": "./"
     },
     "planet": {
+        "Omega_rotation": 7.292e-05,
         "gravity": 9.80616,
-        "omega_rotation": 7.292e-05,
         "planet_radius": 6371220.0
     },
+    "surface": {
+        "surface_model": "None"
+    },
     "thermodynamics": {
+        "dry_air_gas_constant": 287.0,
         "heat_capacity": 1004.0,
-        "ideal_gas_constant": 287.0,
-        "thermodynamics_type": "dry"
+        "latent_heat_evap": 2500800.0,
+        "pv_star_triple_point": 610.78,
+        "thermodynamics_type": "dry",
+        "triple_point_temp": 273.16,
+        "vapor_gas_constant": 461.5
     },
     "timestepping": {
         "CFL_limit": 0.5,
         "dt": 100.0,
-        "t_max": 1728000.0
+        "t_max": 8640000.0
     }
 }
