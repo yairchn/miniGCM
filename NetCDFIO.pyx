@@ -7,9 +7,9 @@ import os
 import time
 import shutil
 import sys
-import Parameters
+from Parameters cimport Parameters
 
-cdef class Stats:
+cdef class NetCDFIO_Stats:
     def __init__(self, Parameters Pr, Grid Gr, namelist):
         self.root_grp = None
         self.variable_grp = None
@@ -148,22 +148,22 @@ cdef class Stats:
         root_grp.close()
         return
 
-    cpdef write_global_mean(self, var_name, data, t):
+    cpdef write_global_mean(self, var_name, data):
         var = self.global_mean_grp.variables[var_name]
         var[-1,:] = np.array(np.mean(np.mean(data,0),0))
         return
 
-    cpdef write_meridional_mean(self, var_name, data, t):
+    cpdef write_meridional_mean(self, var_name, data):
         var = self.meridional_mean_grp.variables[var_name]
         var[-1, :,:] = np.array(np.mean(data,0))
         return
 
-    cpdef write_zonal_mean(self, var_name, data, t):
+    cpdef write_zonal_mean(self, var_name, data):
         var = self.zonal_mean_grp.variables[var_name]
         var[-1, :,:] = np.array(np.mean(data,1))
         return
 
-    cpdef write_surface_zonal_mean(self, var_name, data, t):
+    cpdef write_surface_zonal_mean(self, var_name, data):
         var = self.surface_mean_grp.variables[var_name]
         var[-1, :] = np.array(np.mean(data,1))
         return

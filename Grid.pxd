@@ -7,7 +7,7 @@ import shtns
 import sphTrans as sph
 import time
 import sys
-import Parameters
+from Parameters cimport Parameters
 
 cdef class Grid:
 	cdef:

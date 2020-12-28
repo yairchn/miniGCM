@@ -5,16 +5,17 @@ from Grid cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
 cimport Forcing
 cimport Surface
+cimport Microphysics
 import cython
 import sys
 from TimeStepping cimport TimeStepping
-import Parameters
+from Parameters cimport Parameters
 
-def CasesFactory(namelist, Gr):
+def CasesFactory(namelist, Pr):
     if namelist['meta']['casename'] == 'HeldSuarez':
         return HeldSuarez(namelist)
-    # elif namelist['meta']['casename'] == 'HeldSuarez_moist':
-    #     return HeldSuarez_moist(namelist, Gr)
+    elif namelist['meta']['casename'] == 'HeldSuarezMoist':
+        return HeldSuarezMoist(namelist)
     # anthoer example
     # elif namelist['meta']['casename'] == 'Stochastic_Forcing':
     #     return Stochastic_Frorcing(paramlist)
@@ -31,10 +32,10 @@ cdef class CasesBase:
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         return
 
-    cpdef initialize_surface(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
+    cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         return
 
-    cpdef initialize_forcing(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
+    cpdef initialize_forcing(self, Parameters Pr):
         return
 
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, namelist):
@@ -46,13 +47,13 @@ cdef class CasesBase:
     cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
 
-    cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats):
+    cpdef stats_io(self, NetCDFIO_Stats Stats):
         return
 
-    cpdef update_surface(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
+    cpdef update_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
         return
 
-    cpdef update_forcing(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
+    cpdef update_forcing(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
         return
 
     cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS):
@@ -60,15 +61,15 @@ cdef class CasesBase:
 
 cdef class HeldSuarez(CasesBase):
     def __init__(self, namelist):
-        Pr.casename = namelist['meta']['casename']
-        self.Fo  = Forcing.ForcingHelzSuarez()
+        # Pr.casename = namelist['meta']['casename']
+        self.Fo  = Forcing.HelzSuarez()
         self.Sur = Surface.SurfaceNone()
         self.MP = Microphysics.MicrophysicsNone()
         return
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
-        PV.P_init        = [Pr.p1, Pr.p2, Pr.p3, Pr.p_ref]
-        PV.T_init        = [229.0, 257.0, 295.0]
+        PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
+        PV.T_init        = np.array([229.0, 257.0, 295.0])
 
         Pr.sigma_b = namelist['forcing']['sigma_b']
         Pr.k_a = namelist['forcing']['k_a']
@@ -97,12 +98,12 @@ cdef class HeldSuarez(CasesBase):
         PV.P.spectral[:,Pr.n_layers]     = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,Pr.n_layers])
         return
 
-    cpdef initialize_surface(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
-        self.Sur.initialize(Gr, PV, DV, namelist)
+    cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+        self.Sur.initialize(Pr, Gr, PV, namelist)
         return
 
-    cpdef initialize_forcing(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
-        self.Fo.initialize(Gr, PV, DV, namelist)
+    cpdef initialize_forcing(self, Parameters Pr):
+        self.Fo.initialize(Pr)
         return
 
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, namelist):
@@ -120,27 +121,27 @@ cdef class HeldSuarez(CasesBase):
         self.Sur.io(Gr, TS, Stats)
         return
 
-    cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats):
-        CasesBase.stats_io(self, TS, Stats)
-        self.Fo.stats_io(TS, Stats)
-        self.Sur.stats_io(TS, Stats)
+    cpdef stats_io(self, NetCDFIO_Stats Stats):
+        CasesBase.stats_io(self, Stats)
+        self.Fo.stats_io(Stats)
+        self.Sur.stats_io(Stats)
         return
 
-    cpdef update_surface(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
-        self.Sur.update(TS, Gr, PV, DV, namelist)
+    cpdef update_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+        self.Sur.update(Pr, Gr, PV, DV)
         return
 
-    cpdef update_forcing(self, TimeStepping TS, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
-        self.Fo.update(TS, Gr, PV, DV, namelist)
+    cpdef update_forcing(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+        self.Fo.update(Pr, Gr, PV, DV)
         return
 
     cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS):
         return
 
-cdef class HeldSuarez_moist(CasesBase):
+cdef class HeldSuarezMoist(CasesBase):
     def __init__(self, Pr, namelist):
         Pr.casename = namelist['meta']['casename']
-        self.Fo  = Forcing.ForcingHelzSuarezMoist()
+        self.Fo  = Forcing.HelzSuarezMoist()
         self.Sur = Surface.SurfaceBulkFormula()
         self.MP = Microphysics.MicrophysicsCutoff()
         return
@@ -164,8 +165,8 @@ cdef class HeldSuarez_moist(CasesBase):
         Gamma        = namelist['forcing']['Gamma_init']
         z            = np.linspace(0,20000,200)
 
-        PV.P_init            = [Pr.p1, Pr.p2, Pr.p3, Pr.p_ref]
-        PV.T_init            = [245.0, 282.0, 303.0]
+        PV.P_init            = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
+        PV.T_init            = np.array([245.0, 282.0, 303.0])
         Tv_                  = np.zeros((len(Gr.lat[:,0]), len(z), Pr.n_layers),  dtype=np.double, order='c')
         QT_                  = np.zeros((len(Gr.lat[:,0]), len(z), Pr.n_layers),  dtype=np.double, order='c')
         qv_star_             = np.zeros((len(Gr.lat[:,0]), len(z), Pr.n_layers),  dtype=np.double, order='c')
@@ -245,21 +246,21 @@ cdef class HeldSuarez_moist(CasesBase):
         self.MP.io(Gr, TS, Stats)
         return
 
-    cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats):
-        CasesBase.stats_io(self, TS, Stats)
-        self.Fo.stats_io(TS, Stats)
-        self.Sur.stats_io(TS, Stats)
-        self.MP.stats_io(TS, Stats)
+    cpdef stats_io(self, NetCDFIO_Stats Stats):
+        CasesBase.stats_io(self, Stats)
+        self.Fo.stats_io(Stats)
+        self.Sur.stats_io(Stats)
+        self.MP.stats_io(Stats)
         return
 
-    cpdef update_surface(self, Parameters Pr, Grid Gr, TS, PrognosticVariables PV, DiagnosticVariables DV):
-        self.Sur.update(Pr, Gr, TS, PV, DV)
+    cpdef update_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+        self.Sur.update(Pr, Gr, PV, DV)
         return
 
-    cpdef update_forcing(self, Parameters Pr, Grid Gr, TS, PrognosticVariables PV, DiagnosticVariables DV):
-        self.Fo.update(Pr, Gr, TS, PV, DV)
+    cpdef update_forcing(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+        self.Fo.update(Pr, Gr, PV, DV)
         return
 
     cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS):
-        self.MP.update(Pr, Gr, TS, PV)
+        self.MP.update(Pr, TS, PV)
         return

@@ -11,7 +11,7 @@ import sphericalForcing as spf
 import time
 from TimeStepping cimport TimeStepping
 import sys
-import Parameters
+from Parameters cimport Parameters
 
 cdef class SurfaceBase:
     cdef:
@@ -21,11 +21,10 @@ cdef class SurfaceBase:
         double [:,:] QT_flux
         double [:,:] T_surf
         double [:,:] U_abs
-        double [:,:] T_surf
         double [:,:] QT_surf
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
-    cpdef update(self, Parameters Pr, Grid Gr, TimeStepping TS, PrognosticVariables PV, DiagnosticVariables DV)
+    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef stats_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
@@ -33,14 +32,14 @@ cdef class SurfaceBase:
 
 cdef class SurfaceNone(SurfaceBase):
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
-    cpdef update(self, Parameters Pr, Grid Gr, TimeStepping TS, PrognosticVariables PV, DiagnosticVariables DV)
+    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef stats_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
 
 cdef class SurfaceBulkFormula(SurfaceBase):
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
-    cpdef update(self, Parameters Pr, Grid Gr, TimeStepping TS, PrognosticVariables PV, DiagnosticVariables DV)
+    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef stats_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)

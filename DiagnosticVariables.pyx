@@ -4,7 +4,7 @@ from Grid import Grid
 from NetCDFIO import NetCDFIO_Stats
 from PrognosticVariables import PrognosticVariables
 from TimeStepping import TimeStepping
-import Parameters
+from Parameters cimport Parameters
 
 cdef class DiagnosticVariable:
     def __init__(self, nx,ny,nl,n_spec, kind, name, units):
@@ -24,7 +24,7 @@ cdef class DiagnosticVariables:
         self.Wp = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers+1, Gr.SphericalGrid.nlm, 'Wp', 'w','pasc/s' )
         return
 
-    cpdef initialize(self, Parameters Pr, Grid Gr):
+    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV):
         cdef:
             Py_ssize_t k, j
         for k in range(Pr.n_layers):
@@ -34,7 +34,7 @@ cdef class DiagnosticVariables:
             self.gZ.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.gZ.values.base[:,:,k])
             self.Wp.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.Wp.values.base[:,:,k])
             j = Pr.n_layers-k-1 # geopotential is computed bottom -> up
-            self.gZ.values.base[:,:,j]  = np.multiply(Pr.Rd*PV.T.values[:,:,j],np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))) + self.gZ.values[:,:,j+1]
+            self.gZ.values.base[:,:,j]  = np.multiply(Pr.Rd,np.multiply(PV.T.values[:,:,j],np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j])))) + self.gZ.values[:,:,j+1]
             self.gZ.spectral.base[:,j] = Gr.SphericalGrid.grdtospec(self.gZ.values.base[:,:,j])
         return
 
@@ -61,17 +61,17 @@ cdef class DiagnosticVariables:
             self.gZ.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(self.gZ.values.base[:,:,k])
         return
 
-    cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats):
-        Stats.write_global_mean('global_mean_KE', self.KE.values, TS.t)
-        Stats.write_global_mean('global_mean_gZ', self.gZ.values[:,:,0:3], TS.t)
-        Stats.write_zonal_mean('zonal_mean_U',self.U.values, TS.t)
-        Stats.write_zonal_mean('zonal_mean_V',self.V.values, TS.t)
-        Stats.write_zonal_mean('zonal_mean_Wp',self.Wp.values[:,:,1:4], TS.t)
-        Stats.write_zonal_mean('zonal_mean_gZ',self.gZ.values[:,:,0:3], TS.t)
-        Stats.write_meridional_mean('meridional_mean_U',self.U.values, TS.t)
-        Stats.write_meridional_mean('meridional_mean_V',self.V.values, TS.t)
-        Stats.write_meridional_mean('meridional_mean_Wp',self.Wp.values[:,:,1:4], TS.t)
-        Stats.write_meridional_mean('meridional_mean_gZ',self.gZ.values[:,:,0:3], TS.t)
+    cpdef stats_io(self, NetCDFIO_Stats Stats):
+        Stats.write_global_mean('global_mean_KE', self.KE.values)
+        Stats.write_global_mean('global_mean_gZ', self.gZ.values[:,:,0:3])
+        Stats.write_zonal_mean('zonal_mean_U',self.U.values)
+        Stats.write_zonal_mean('zonal_mean_V',self.V.values)
+        Stats.write_zonal_mean('zonal_mean_Wp',self.Wp.values[:,:,1:4])
+        Stats.write_zonal_mean('zonal_mean_gZ',self.gZ.values[:,:,0:3])
+        Stats.write_meridional_mean('meridional_mean_U',self.U.values)
+        Stats.write_meridional_mean('meridional_mean_V',self.V.values)
+        Stats.write_meridional_mean('meridional_mean_Wp',self.Wp.values[:,:,1:4])
+        Stats.write_meridional_mean('meridional_mean_gZ',self.gZ.values[:,:,0:3])
         return
 
     cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):

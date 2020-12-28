@@ -1,20 +1,23 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from math import *
-import PrognosticVariables
-import DiagnosticVariables
-import Parameters
+from Parameters cimport Parameters
+from TimeStepping cimport TimeStepping
+from PrognosticVariables cimport PrognosticVariables
+from PrognosticVariables cimport PrognosticVariables
+from Grid cimport Grid
+from NetCDFIO cimport NetCDFIO_Stats
 
 cdef class MicrophysicsBase:
     def __init__(self):
         return
-    cpdef initialize(self, Parameters Pr, namelist):
+    cpdef initialize(self, Parameters Pr, PrognosticVariables PV, namelist):
         return
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TS):
+    cpdef update(self, Parameters Pr, TimeStepping TS, PrognosticVariables PV):
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         return
-    cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats):
+    cpdef stats_io(self, NetCDFIO_Stats Stats):
         return
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
@@ -23,16 +26,16 @@ cdef class MicrophysicsNone(MicrophysicsBase):
     def __init__(self):
         MicrophysicsBase.__init__(self)
         return
-    cpdef initialize(self, Parameters Pr, namelist):
+    cpdef initialize(self, Parameters Pr, PrognosticVariables PV, namelist):
         self.dQTdt = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         self.dTdt  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         self.RainRate = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
         return
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TS):
+    cpdef update(self, Parameters Pr, TimeStepping TS, PrognosticVariables PV):
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         return
-    cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats):
+    cpdef stats_io(self, NetCDFIO_Stats Stats):
         return
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
@@ -43,6 +46,8 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
         return
 
     cpdef initialize(self, Parameters Pr, PrognosticVariables PV, namelist):
+        cdef:
+            double [:,:] P_half
         self.QL        = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
         self.QV        = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
         self.QR        = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
@@ -55,16 +60,17 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
         Pr.MagFormC  =  namelist['microphysics']['Magnus_formula_C']
         Pr.rho_w     =  namelist['microphysics']['water_density']
         for k in range(Pr.n_layers):
+            P_half = np.multiply(np.add(PV.P.values[:,:,k],PV.P.values[:,:,k+1]),0.5)
             # Clausius–Clapeyron equation based saturation
-            qv_star = (Pr.qv_star0* Pr.eps_v / (PV.P.values[:,:,k] + PV.P.values[:,:,k+1])
-                * np.exp(-(Pr.Lv/Pr.Rv)*(1/PV.T.values[:,:,k] - 1/Pr.T_0)))
+            qv_star = np.multiply(np.divide(np.multiply(Pr.qv_star0,Pr.eps_v),P_half),
+                np.exp(-np.multiply(np.divide(Pr.Lv,Pr.Rv),np.subtract(np.divide(1.0,PV.T.values[:,:,k]),np.divide(1.0,Pr.T_0)))))
 
             self.QL[:,:,k] = np.clip(PV.QT.values[:,:,k] - qv_star,0.0, None)
             if np.max(self.QL[:,:,k])>0.0:
                 print('============| WARNING |===============')
                 print('ql is non zero in initial state of layer ', k)
-        self.RainRate = np.divide(np.sum(-self.dQTdt,2),
-                 Pr.rho_w*Pr.g*(PV.P.values[:,:,Pr.n_layers]-PV.P.values[:,:,0]))
+        self.RainRate = -np.divide(np.sum(self.dQTdt,2),
+                 Pr.rho_w*Pr.g*(np.subtract(PV.P.values[:,:,Pr.n_layers],PV.P.values[:,:,0])))
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -77,7 +83,7 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
         Stats.add_surface_zonal_mean('zonal_mean_RainRate')
         return
 
-    cpdef update(self, Parameters Pr, Grid Grid Gr, TimeStepping TS, PrognosticVariables PV):
+    cpdef update(self, Parameters Pr, TimeStepping TS, PrognosticVariables PV):
         for k in range(Pr.n_layers):
 
             # magnus formula alternative
@@ -86,25 +92,25 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
             # qv_star = Pr.eps_v * (1.0 - PV.QT.values[:,:,k]) * pv_star / (PV.P.values[:,:,k] - pv_star)
 
             # Clausius–Clapeyron equation based saturation
-            qv_star = (Pr.qv_star0* Pr.eps_v / (PV.P.values[:,:,k] + PV.P.values[:,:,k+1])
-                * np.exp(-(Pr.Lv/Pr.Rv)*(1/PV.T.values[:,:,k] - 1/Pr.T_0)))
+            qv_star = np.multiply(np.divide(np.multiply(Pr.qv_star0,Pr.eps_v),P_half),
+                np.exp(-np.multiply(np.divide(Pr.Lv,Pr.Rv),np.subtract(np.divide(1.0,PV.T.values[:,:,k]),np.divide(1.0,Pr.T_0)))))
             self.QL[:,:,k] = np.clip(PV.QT.values[:,:,k] - qv_star,0.0, None)
             denom = 1.0+(Pr.Lv**2.0/Pr.cp/Pr.Rv)*np.divide(qv_star,np.power(PV.T.values[:,:,k],2.0))
             self.dQTdt[:,:,k] = -np.clip(((PV.QT.values[:,:,k] - (1.0+Pr.max_ss)*qv_star) /denom)/TS.dt, 0.0, None)
             self.dTdt[:,:,k]  =  np.clip((Pr.Lv/Pr.cp)*((PV.QT.values[:,:,k] -  qv_star)/denom)/TS.dt, 0.0, None)
 
-        self.RainRate = np.divide(np.sum(-self.dQTdt,2),
-                 Pr.rho_w*Pr.g*(PV.P.values[:,:,Pr.n_layers]-PV.P.values[:,:,0]))
+        self.RainRate = -np.divide(np.sum(self.dQTdt,2),
+                 Pr.rho_w*Pr.g*(np.subtract(PV.P.values[:,:,Pr.n_layers],PV.P.values[:,:,0])))
         return
 
-    cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats):
-        Stats.write_global_mean('global_mean_QL', self.QL, TS.t)
-        Stats.write_zonal_mean('zonal_mean_QL',self.QL, TS.t)
-        Stats.write_meridional_mean('meridional_mean_QL',self.QL, TS.t)
-        Stats.write_global_mean('global_mean_dQTdt', self.dQTdt, TS.t)
-        Stats.write_zonal_mean('zonal_mean_dQTdt',self.dQTdt, TS.t)
-        Stats.write_meridional_mean('meridional_mean_dQTdt',self.dQTdt, TS.t)
-        Stats.write_surface_zonal_mean('zonal_mean_RainRate',self.RainRate, TS.t)
+    cpdef stats_io(self, NetCDFIO_Stats Stats):
+        Stats.write_global_mean('global_mean_QL', self.QL)
+        Stats.write_zonal_mean('zonal_mean_QL',self.QL)
+        Stats.write_meridional_mean('meridional_mean_QL',self.QL)
+        Stats.write_global_mean('global_mean_dQTdt', self.dQTdt)
+        Stats.write_zonal_mean('zonal_mean_dQTdt',self.dQTdt)
+        Stats.write_meridional_mean('meridional_mean_dQTdt',self.dQTdt)
+        Stats.write_surface_zonal_mean('zonal_mean_RainRate',self.RainRate)
         return
 
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):

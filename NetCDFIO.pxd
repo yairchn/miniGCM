@@ -7,7 +7,7 @@ import os
 import time
 import shutil
 import sys
-import Parameters
+from Parameters cimport Parameters
 
 cdef class NetCDFIO_Stats:
     cdef:
@@ -35,10 +35,10 @@ cdef class NetCDFIO_Stats:
     cpdef add_meridional_mean(self, var_name)
     cpdef add_zonal_mean(self, var_name)
     cpdef add_surface_zonal_mean(self, var_name)
-    cpdef write_global_mean(self, var_name, data, t)
-    cpdef write_meridional_mean(self, var_name, data, t)
-    cpdef write_zonal_mean(self, var_name, data, t)
-    cpdef write_surface_zonal_mean(self, var_name, data, t)
+    cpdef write_global_mean(self, var_name, data)
+    cpdef write_meridional_mean(self, var_name, data)
+    cpdef write_zonal_mean(self, var_name, data)
+    cpdef write_surface_zonal_mean(self, var_name, data)
     cpdef write_3D_variable(self, Parameters Pr, t, n_layers, var_name, data)
     cpdef write_2D_variable(self, Parameters Pr, t, var_name, data)
     cpdef write_simulation_time(self, t)

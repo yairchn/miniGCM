@@ -5,7 +5,7 @@ from Grid cimport Grid
 from PrognosticVariables cimport PrognosticVariables
 from DiagnosticVariables cimport DiagnosticVariables
 from Diffusion cimport Diffusion
-import Parameters
+from Parameters cimport Parameters
 
 cdef class TimeStepping:
 	def __init__(self, namelist):
@@ -18,7 +18,7 @@ cdef class TimeStepping:
 		self.ncycle = 0
 		return
 
-	cpdef update(self, Grid Gr,  PrognosticVariables PV, DiagnosticVariables DV, Diffusion DF, namelist):
+	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, Diffusion DF, namelist):
 		# self.dt = CFL_limiter(self, Gr, PV, DV, DF, namelist)
 		CFL_limit = namelist['timestepping']['CFL_limit']
 		dt = namelist['timestepping']['dt']
@@ -64,7 +64,7 @@ cdef class TimeStepping:
 			PV.QT.spectral         = np.add(F_QT        ,np.multiply(dt,np.add(np.subtract(np.multiply(23.0/12.0,PV.QT.tendency)        ,np.multiply(16.0/12.0,PV.QT.now))        , np.multiply(5.0/12.0,PV.QT.old))))
 			PV.P.spectral          = np.add(F_P         ,np.multiply(dt,np.add(np.subtract(np.multiply(23.0/12.0,PV.P.tendency)         ,np.multiply(16.0/12.0,PV.P.now))         , np.multiply(5.0/12.0,PV.P.old))))
 
-		DF.update(Pr, Gr, PV, self.dt, namelist)
+		DF.update(Pr, Gr, PV, self.dt)
 		self.t = self.t+self.dt
 		PV.set_old_with_now()
 		PV.set_now_with_tendencies()

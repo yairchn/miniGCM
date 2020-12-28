@@ -1,6 +1,6 @@
 import cython
 import numpy as np
-import Parameters
+from Parameters cimport Parameters
 from Cases import CasesFactory
 from Cases import CasesBase
 from DiagnosticVariables cimport DiagnosticVariables, DiagnosticVariable

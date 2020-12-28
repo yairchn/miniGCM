@@ -7,6 +7,7 @@ from PrognosticVariables cimport PrognosticVariables
 import scipy as sc
 from scipy.signal import savgol_filter
 import sys
+from Parameters cimport Parameters
 
 cdef class Diffusion:
 	cdef:

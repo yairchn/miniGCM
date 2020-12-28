@@ -5,7 +5,7 @@ from Grid cimport Grid
 from PrognosticVariables cimport PrognosticVariables
 from DiagnosticVariables cimport DiagnosticVariables
 from Diffusion cimport Diffusion
-import Parameters
+from Parameters cimport Parameters
 
 cdef class TimeStepping:
 	cdef:
@@ -17,7 +17,7 @@ cdef class TimeStepping:
 		double dy
 		double dp
 	cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, Diffusion DF, namelist)
-	cpdef update(self, Grid Gr,  PrognosticVariables PV, DiagnosticVariables DV, Diffusion DF, namelist)
+	cpdef update(self, Parameters Pr, Grid Gr,  PrognosticVariables PV, DiagnosticVariables DV, Diffusion DF, namelist)
 	cpdef CFL_limiter(self, Parameters Pr, Grid Gr, DiagnosticVariables DV, namelist)
 
 

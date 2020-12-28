@@ -4,7 +4,7 @@ from Grid cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
 from PrognosticVariables cimport PrognosticVariables
 from TimeStepping cimport TimeStepping
-import Parameters
+from Parameters cimport Parameters
 
 cdef class DiagnosticVariable:
     cdef:
@@ -23,9 +23,9 @@ cdef class DiagnosticVariables:
         DiagnosticVariable Wp
         Py_ssize_t k
 
-    cpdef initialize(self, Parameters Pr, Grid Gr)
+    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef physical_to_spectral(self, Parameters Pr, Grid Gr)
-    cpdef stats_io(self, TimeStepping TS, NetCDFIO_Stats Stats)
+    cpdef stats_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV)
