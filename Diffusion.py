@@ -14,7 +14,7 @@ class NumericalDiffusion:
 
     def initialize(self, Gr, TS, namelist):
         self.diffusion_factor = (1./Gr.efold*((Gr.SphericalGrid.lap/Gr.SphericalGrid.lap[-1])**(Gr.dissipation_order/2)))
-        self.HyperDiffusionFactor = np.exp(-TS.dt*diffusion_factor)
+        self.HyperDiffusionFactor = np.exp(-TS.dt*self.diffusion_factor)
         # all wave numbers above this value are removed
         self.HyperDiffusionFactor[Gr.SphericalGrid._shtns.l>=Gr.truncation_number] = 0.0
         return
