@@ -8,6 +8,15 @@ from PrognosticVariables cimport PrognosticVariables
 from Grid cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
 
+# def MicrophysicsFactory(namelist):
+#     if namelist['meta']['casename'] == 'HeldSuarez':
+#         return MicrophysicsNone()
+#     elif namelist['meta']['casename'] == 'HeldSuarezMoist':
+#         return MicrophysicsCutoff()
+#     else:
+#         print('Microphysics sceme not recognized')
+#     return
+
 cdef class MicrophysicsBase:
     def __init__(self):
         return
@@ -27,11 +36,13 @@ cdef class MicrophysicsNone(MicrophysicsBase):
         MicrophysicsBase.__init__(self)
         return
     cpdef initialize(self, Parameters Pr, PrognosticVariables PV, namelist):
-        self.dQTdt = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
-        self.dTdt  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
+        PV.QT.mp_tendency = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
+        PV.T.mp_tendency  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         self.RainRate = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
         return
     cpdef update(self, Parameters Pr, TimeStepping TS, PrognosticVariables PV):
+        PV.QT.mp_tendency[:,:,k] = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
+        PV.T.mp_tendency[:,:,k]  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         return
@@ -51,8 +62,6 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
         self.QL        = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
         self.QV        = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
         self.QR        = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
-        self.dQTdt     = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
-        self.dTdt      = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
         self.RainRate = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
         Pr.max_ss    =  namelist['microphysics']['max_supersaturation']
         Pr.MagFormA  =  namelist['microphysics']['Magnus_formula_A']
@@ -96,10 +105,10 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
                 np.exp(-np.multiply(np.divide(Pr.Lv,Pr.Rv),np.subtract(np.divide(1.0,PV.T.values[:,:,k]),np.divide(1.0,Pr.T_0)))))
             self.QL[:,:,k] = np.clip(PV.QT.values[:,:,k] - qv_star,0.0, None)
             denom = 1.0+(Pr.Lv**2.0/Pr.cp/Pr.Rv)*np.divide(qv_star,np.power(PV.T.values[:,:,k],2.0))
-            self.dQTdt[:,:,k] = -np.clip(((PV.QT.values[:,:,k] - (1.0+Pr.max_ss)*qv_star) /denom)/TS.dt, 0.0, None)
-            self.dTdt[:,:,k]  =  np.clip((Pr.Lv/Pr.cp)*((PV.QT.values[:,:,k] -  qv_star)/denom)/TS.dt, 0.0, None)
+            PV.QT.mp_tendency[:,:,k] = -np.clip(((PV.QT.values[:,:,k] - (1.0+Pr.max_ss)*qv_star) /denom)/TS.dt, 0.0, None)
+            PV.T.mp_tendency[:,:,k]  =  np.clip((Pr.Lv/Pr.cp)*((PV.QT.values[:,:,k] -  qv_star)/denom)/TS.dt, 0.0, None)
 
-        self.RainRate = -np.divide(np.sum(self.dQTdt,2),
+        self.RainRate = -np.divide(np.sum(PV.QT.mp_tendency,2),
                  Pr.rho_w*Pr.g*(np.subtract(PV.P.values[:,:,Pr.n_layers],PV.P.values[:,:,0])))
         return
 
@@ -115,6 +124,6 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
 
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Liquid_Water',self.QL[:,:,0:Pr.n_layers])
-        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'dQTdt',self.dQTdt[:,:,0:Pr.n_layers])
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'dQTdt',PV.QT.mp_tendency[:,:,0:Pr.n_layers])
         Stats.write_2D_variable(Pr, int(TS.t)             , 'Rain_Rate',self.RainRate)
         return

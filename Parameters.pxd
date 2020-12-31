@@ -8,10 +8,12 @@ from math import *
 
 cdef class Parameters:
     cdef:
-        int nlats
-        int nlons
-        int n_layers
+        Py_ssize_t nlats
+        Py_ssize_t nlons
+        Py_ssize_t n_layers
+        int truncation_order
         int truncation_number
+        double dissipation_order
         double p1
         double p2
         double p3
@@ -26,7 +28,21 @@ cdef class Parameters:
         double Lv
         double qv_star0
         double T_0
+        double QT_0
         double eps_v
         double kappa
+        double sigma_b
+        double k_a
+        double k_s
+        double k_f
+        double DT_y
+        double T_equator
+        double Dtheta_z
+        double Tbar0
+        double P_hw
+        double phi_hw
+        double T_pole
+        double init_k
+
         str case
         str surface_model

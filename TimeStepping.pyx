@@ -13,7 +13,7 @@ cdef class TimeStepping:
 		self.t_max = namelist['timestepping']['t_max']
 		return
 
-	cpdef initialize(self, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, Diffusion DF, namelist):
+	cpdef initialize(self):
 		self.t = 0.0
 		self.ncycle = 0
 		return
@@ -22,9 +22,9 @@ cdef class TimeStepping:
 		# self.dt = CFL_limiter(self, Gr, PV, DV, DF, namelist)
 		CFL_limit = namelist['timestepping']['CFL_limit']
 		dt = namelist['timestepping']['dt']
-		self.dx = 2.0*np.pi/Gr.nlats*Gr.rsphere
-		self.dy = 2.0*np.pi/Gr.nlons*Gr.rsphere
-		self.dp = np.max([Gr.p_ref-Gr.p3,Gr.p3-Gr.p2,Gr.p2-Gr.p1])
+		self.dx = 2.0*np.pi/Pr.nlats*Pr.rsphere
+		self.dy = 2.0*np.pi/Pr.nlons*Pr.rsphere
+		self.dp = np.max([Pr.p_ref-Pr.p3,Pr.p3-Pr.p2,Pr.p2-Pr.p1])
 		zonal_timescale = np.min(self.dx)/np.max(np.abs(DV.U.values) + 1e-10)
 		meridional_timescale = np.min(self.dy)/np.max(np.abs(DV.V.values) + 1e-10)
 		vertical_timescale = np.min(self.dp)/np.max(np.abs(DV.Wp.values) + 1e-10)

@@ -74,12 +74,12 @@ cdef class DiagnosticVariables:
         Stats.write_meridional_mean('meridional_mean_gZ',self.gZ.values[:,:,0:3])
         return
 
-    cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
-        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'Geopotential',  self.gZ.values[:,:,0:Gr.n_layers])
-        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'Wp',            self.Wp.values[:,:,1:Gr.n_layers+1])
-        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'U',             self.V.values)
-        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'V',             self.V.values)
-        Stats.write_3D_variable(Gr, int(TS.t), Gr.n_layers, 'Kinetic_enegry',self.KE.values)
+    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Geopotential',  self.gZ.values[:,:,0:Pr.n_layers])
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Wp',            self.Wp.values[:,:,1:Pr.n_layers+1])
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'U',             self.V.values)
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'V',             self.V.values)
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Kinetic_enegry',self.KE.values)
         return
 
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV):

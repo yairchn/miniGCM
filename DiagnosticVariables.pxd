@@ -27,5 +27,5 @@ cdef class DiagnosticVariables:
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef physical_to_spectral(self, Parameters Pr, Grid Gr)
     cpdef stats_io(self, NetCDFIO_Stats Stats)
-    cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
+    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV)

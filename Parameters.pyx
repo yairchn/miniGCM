@@ -13,7 +13,6 @@ cdef class Parameters:
 
         self.nlats             = namelist['grid']['number_of_latitute_points']
         self.nlons             = namelist['grid']['number_of_longitude_points']
-        self.truncation_number = int(self.nlons/3)
         self.rsphere           = namelist['planet']['planet_radius']
         self.n_layers          = namelist['grid']['number_of_layers']
         self.p1                = namelist['grid']['p1']
@@ -32,6 +31,10 @@ cdef class Parameters:
         self.T_0               = namelist['thermodynamics']['triple_point_temp']
         self.eps_v             = self.Rd/self.Rv
         self.kappa             = self.Rd/self.cp
+
+        self.dissipation_order = namelist['diffusion']['dissipation_order']
+        self.truncation_order = namelist['diffusion']['truncation_order']
+        self.truncation_number = int(self.nlons/self.truncation_order)
 
         self.surface_model    = namelist['surface']['surface_model']
 

@@ -69,23 +69,30 @@ cdef class HelzSuarez(ForcingBase):
 
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
 		cdef:
-			double [:,:] P_half
 			Py_ssize_t k
+			double [:,:] P_half
+			double [:,:] pressure_ratio
+			double [:,:] Ty
+			double [:,:] Tp
+			double [:,:] exner
+
 		for k in range(Pr.n_layers):
 			P_half = np.divide(np.add(PV.P.values[:,:,k],PV.P.values[:,:,k+1]),2.0)
-			self.pressure_ratio = np.divide(P_half,Pr.p_ref)
-			self.Tbar[:,:,k] = np.clip((Pr.T_equator-Pr.DT_y*np.sin(Gr.lat)**2-Pr.Dtheta_z*np.log(self.pressure_ratio)
-				               *np.cos(Gr.lat)**2)*(self.pressure_ratio)**Pr.kappa, 200.0, None)
+			pressure_ratio = np.divide(P_half,Pr.p_ref)
+			exner  = np.power(pressure_ratio,Pr.kappa)
+			Ty = np.multiply(Pr.DT_y,np.power(np.sin(Gr.lat),2))
+			Tp = np.multiply(Pr.Dtheta_z,np.log(pressure_ratio)*np.power(np.cos(Gr.lat),2))
+			self.Tbar.base[:,:,k] = np.clip(np.multiply(np.subtract(np.subtract(Pr.T_equator,Ty),Tp),exner), 200.0, None)
 
 			sigma = np.divide(P_half,PV.P.values[:,:,Pr.n_layers])
 			sigma_ratio = np.clip(np.divide(sigma-Pr.sigma_b,1-Pr.sigma_b),0,None)
-			self.k_T[:,:,k] = Pr.k_a+(Pr.k_s-Pr.k_a)*np.multiply(sigma_ratio,np.power(np.cos(Gr.lat),4))
-			self.k_v[:,:,k] = Pr.k_a+Pr.k_f*sigma_ratio
+			self.k_T.base[:,:,k] = np.add(Pr.k_a, np.multiply((Pr.k_s-Pr.k_a),np.multiply(sigma_ratio,np.power(np.cos(Gr.lat),4))))
+			self.k_v.base[:,:,k] = np.add(Pr.k_a, Pr.k_f*sigma_ratio)
 
 			PV.Vorticity.forcing.base[:,k] ,PV.Divergence.forcing.base[:,k] = (
               	Gr.SphericalGrid.getvrtdivspec(-np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k]),
 											   -np.multiply(self.k_v[:,:,k],DV.V.values[:,:,k])))
-			PV.T.forcing[:,k] = -Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],np.subtract(PV.T.values[:,:,k],self.Tbar[:,:,k])))
+			PV.T.forcing.base[:,k] = -Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],np.subtract(PV.T.values[:,:,k],self.Tbar[:,:,k])))
 		return
 
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
@@ -118,13 +125,14 @@ cdef class HelzSuarezMoist(ForcingBase):
 
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
 		cdef:
-			double [:,:] P_half
 			Py_ssize_t k
+			double [:,:] P_half
+			double [:,:] pressure_ratio
 		for k in range(Pr.n_layers):
 			P_half = np.divide(np.add(PV.P.values[:,:,k],PV.P.values[:,:,k+1]),2.0)
-			self.pressure_ratio = np.divide(P_half,Pr.p_ref)
-			self.Tbar[:,:,k] = np.clip((Pr.T_equator-Pr.DT_y*np.sin(Gr.lat)**2-Pr.Dtheta_z*np.log(self.pressure_ratio)
-				               *np.cos(Gr.lat)**2)*(self.pressure_ratio)**Pr.kappa, 200.0, None)
+			pressure_ratio = np.divide(P_half,Pr.p_ref)
+			self.Tbar[:,:,k] = np.clip((Pr.T_equator-Pr.DT_y*np.power(np.sin(Gr.lat),2)-Pr.Dtheta_z*np.log(pressure_ratio)
+				               *np.power(np.cos(Gr.lat),2))*np.power(pressure_ratio,Pr.kappa), 200.0, None)
 			sigma=np.divide(P_half,PV.P.values[:,:,Pr.n_layers])
 			sigma_ratio=np.clip(np.divide(sigma-Pr.sigma_b,1-Pr.sigma_b),0,None)
 			self.k_T[:,:,k] = Pr.k_a+(Pr.k_s-Pr.k_a)*np.multiply(sigma_ratio,np.power(np.cos(Gr.lat),4))

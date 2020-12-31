@@ -11,7 +11,7 @@ import sys
 from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
 
-def CasesFactory(namelist, Pr):
+def CasesFactory(namelist):
     if namelist['meta']['casename'] == 'HeldSuarez':
         return HeldSuarez(namelist)
     elif namelist['meta']['casename'] == 'HeldSuarezMoist':
@@ -25,7 +25,7 @@ def CasesFactory(namelist, Pr):
 
 
 
-cdef class CasesBase:
+cdef class CaseBase:
     def __init__(self, namelist):
         return
 
@@ -44,7 +44,7 @@ cdef class CasesBase:
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         return
 
-    cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
+    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
 
     cpdef stats_io(self, NetCDFIO_Stats Stats):
@@ -59,7 +59,7 @@ cdef class CasesBase:
     cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS):
         return
 
-cdef class HeldSuarez(CasesBase):
+cdef class HeldSuarez(CaseBase):
     def __init__(self, namelist):
         # Pr.casename = namelist['meta']['casename']
         self.Fo  = Forcing.HelzSuarez()
@@ -88,14 +88,15 @@ cdef class HeldSuarez(CasesBase):
         PV.QT.values         = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c')
         PV.P.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),PV.P_init)
         PV.T.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),PV.T_init)
-        # initilize spectral values
-        for k in range(Pr.n_layers):
-            PV.P.spectral[:,k]           = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,k])
-            PV.T.spectral[:,k]           = Gr.SphericalGrid.grdtospec(PV.T.values[:,:,k])
-            PV.QT.spectral[:,k]          = Gr.SphericalGrid.grdtospec(PV.QT.values[:,:,k])
-            PV.Vorticity.spectral[:,k]   = Gr.SphericalGrid.grdtospec(PV.Vorticity.values[:,:,k])
-            PV.Divergence.spectral[:,k]  = Gr.SphericalGrid.grdtospec(PV.Divergence.values[:,:,k])
-        PV.P.spectral[:,Pr.n_layers]     = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,Pr.n_layers])
+        PV.physical_to_spectral(Pr, Gr)
+        # # initilize spectral values
+        # for k in range(Pr.n_layers):
+        #     PV.P.spectral.base[:,k]           = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,k])
+        #     PV.T.spectral.base[:,k]           = Gr.SphericalGrid.grdtospec(PV.T.values[:,:,k])
+        #     PV.QT.spectral.base[:,k]          = Gr.SphericalGrid.grdtospec(PV.QT.values[:,:,k])
+        #     PV.Vorticity.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(PV.Vorticity.values[:,:,k])
+        #     PV.Divergence.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(PV.Divergence.values[:,:,k])
+        # PV.P.spectral[:,Pr.n_layers]     = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,Pr.n_layers])
         return
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
@@ -107,22 +108,23 @@ cdef class HeldSuarez(CasesBase):
         return
 
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, namelist):
+        self.MP.initialize(Pr, PV, namelist)
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
-        CasesBase.initialize_io(self, Stats)
+        CaseBase.initialize_io(self, Stats)
         self.Fo.initialize_io(Stats)
         self.Sur.initialize_io(Stats)
         return
 
-    cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
-        CasesBase.io(self, Gr, TS, Stats)
-        self.Fo.io(Gr, TS, Stats)
-        self.Sur.io(Gr, TS, Stats)
+    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+        CaseBase.io(self, Pr, TS, Stats)
+        self.Fo.io(Pr, TS, Stats)
+        self.Sur.io(Pr, TS, Stats)
         return
 
     cpdef stats_io(self, NetCDFIO_Stats Stats):
-        CasesBase.stats_io(self, Stats)
+        CaseBase.stats_io(self, Stats)
         self.Fo.stats_io(Stats)
         self.Sur.stats_io(Stats)
         return
@@ -138,7 +140,7 @@ cdef class HeldSuarez(CasesBase):
     cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS):
         return
 
-cdef class HeldSuarezMoist(CasesBase):
+cdef class HeldSuarezMoist(CaseBase):
     def __init__(self, Pr, namelist):
         Pr.casename = namelist['meta']['casename']
         self.Fo  = Forcing.HelzSuarezMoist()
@@ -148,7 +150,7 @@ cdef class HeldSuarezMoist(CasesBase):
 
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
-        PV.QT_0      = namelist['forcing']['initial_surface_qt']
+        Pr.QT_0      = namelist['forcing']['initial_surface_qt']
         Pr.T_0       = namelist['thermodynamics']['triple_point_temp']
         Pr.P_hw      = namelist['thermodynamics']['verical_half_width_of_the_q']
         Pr.phi_hw    = namelist['thermodynamics']['horizontal_half_width_of_the_q']
@@ -195,14 +197,14 @@ cdef class HeldSuarezMoist(CasesBase):
                 for k in range(Pr.n_layers):
                     if (p[i,j]>PV.P_init[k] and p[i,j]<PV.P_init[k+1]):
                         Tv_[i,j,k] = np.power(tau_1[j] - tau_2[j] * I_T[i],-1.0)
-                        QT_[i,j,k] = (PV.QT_0 * np.exp(-(Gr.lat[i,0] / Pr.phi_hw)**4.0)
+                        QT_[i,j,k] = (Pr.QT_0 * np.exp(-(Gr.lat[i,0] / Pr.phi_hw)**4.0)
                                     * np.exp(-((p[i,j]/Pr.p_ref - 1.0) * Pr.p_ref / Pr.P_hw)**2.0))
                     else:
                         Tv_[i,j,k] = np.nan
                         QT_[i,j,k] = np.nan
 
         for k in range(Pr.n_layers):
-            QT_meridional = (PV.QT_0 * np.exp(-(Gr.lat[:,0] / Pr.phi_hw)**4.0)
+            QT_meridional = (Pr.QT_0 * np.exp(-np.power(np.divide(Gr.lat[:,0] , Pr.phi_hw)),4.0)
                 * np.exp(-((PV.P_init[k]/Pr.p_ref - 1.0) * Pr.p_ref / Pr.P_hw)**2.0))
             # QT_meridional = np.nanmean(QT_[:,:,k], axis=1)
             eps = 1.0/Pr.eps_v-1.0
@@ -211,13 +213,14 @@ cdef class HeldSuarezMoist(CasesBase):
             PV.T.values[:,:,k]  = np.repeat(T_meridional[:, np.newaxis], Pr.nlons, axis=1)
 
         # # initilize spectral values
-        for k in range(Pr.n_layers):
-            PV.P.spectral[:,k]           = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,k])
-            PV.T.spectral[:,k]           = Gr.SphericalGrid.grdtospec(PV.T.values[:,:,k])
-            PV.QT.spectral[:,k]          = Gr.SphericalGrid.grdtospec(PV.QT.values[:,:,k])
-            PV.Vorticity.spectral[:,k]   = Gr.SphericalGrid.grdtospec(PV.Vorticity.values[:,:,k])
-            PV.Divergence.spectral[:,k]  = Gr.SphericalGrid.grdtospec(PV.Divergence.values[:,:,k])
-        PV.P.spectral[:,Pr.n_layers]     = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,Pr.n_layers])
+        PV.physical_to_spectral(Pr, Gr)
+        # for k in range(Pr.n_layers):
+        #     PV.P.spectral[:,k]           = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,k])
+        #     PV.T.spectral[:,k]           = Gr.SphericalGrid.grdtospec(PV.T.values[:,:,k])
+        #     PV.QT.spectral[:,k]          = Gr.SphericalGrid.grdtospec(PV.QT.values[:,:,k])
+        #     PV.Vorticity.spectral[:,k]   = Gr.SphericalGrid.grdtospec(PV.Vorticity.values[:,:,k])
+        #     PV.Divergence.spectral[:,k]  = Gr.SphericalGrid.grdtospec(PV.Divergence.values[:,:,k])
+        # PV.P.spectral[:,Pr.n_layers]     = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,Pr.n_layers])
 
         return
 
@@ -234,20 +237,20 @@ cdef class HeldSuarezMoist(CasesBase):
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
-        CasesBase.initialize_io(self, Stats)
+        CaseBase.initialize_io(self, Stats)
         self.Fo.initialize_io(Stats)
         self.Sur.initialize_io(Stats)
         return
 
-    cpdef io(self, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
-        CasesBase.io(self, Gr, TS, Stats)
-        self.Fo.io(Gr, TS, Stats)
-        self.Sur.io(Gr, TS, Stats)
-        self.MP.io(Gr, TS, Stats)
+    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+        CaseBase.io(self, Pr, TS, Stats)
+        self.Fo.io(Pr, TS, Stats)
+        self.Sur.io(Pr, TS, Stats)
+        self.MP.io(Pr, TS, Stats)
         return
 
     cpdef stats_io(self, NetCDFIO_Stats Stats):
-        CasesBase.stats_io(self, Stats)
+        CaseBase.stats_io(self, Stats)
         self.Fo.stats_io(Stats)
         self.Sur.stats_io(Stats)
         self.MP.stats_io(Stats)

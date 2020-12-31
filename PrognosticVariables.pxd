@@ -10,11 +10,14 @@ import scipy as sc
 import sys
 from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
+cimport Microphysics
+import Microphysics
 
 cdef class PrognosticVariable:
     cdef:
         double [:,:,:] values
         double [:,:,:] VerticalFlux
+        double [:,:,:] mp_tendency
         double complex [:,:] spectral
         double complex [:,:] old
         double complex [:,:] now
@@ -27,6 +30,7 @@ cdef class PrognosticVariable:
 
 cdef class PrognosticVariables:
     cdef:
+        Py_ssize_t k
         PrognosticVariable Vorticity
         PrognosticVariable Divergence
         PrognosticVariable T
@@ -35,7 +39,8 @@ cdef class PrognosticVariables:
         double [:] T_init
         double [:] P_init
         double [:] QT_init
-        Py_ssize_t k
+        object MP
+
 
     # cpdef initialize(self, Parameters Pr)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
@@ -46,5 +51,4 @@ cdef class PrognosticVariables:
     cpdef reset_pressures(self, Parameters Pr)
     cpdef stats_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
-    cpdef compute_tendencies(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
-    cpdef compute_tendencies(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+    cpdef compute_tendencies(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
