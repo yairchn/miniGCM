@@ -150,6 +150,26 @@ cdef class HeldSuarezMoist(CaseBase):
 
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+        cdef:
+            Py_ssize_t i, j, k
+            double Gamma, T_0, B, C
+            double [:] z
+            double [:] tau_z_1
+            double [:] tau_z_2
+            double [:] tau_z_3
+            double [:] tau_1
+            double [:] tau_2
+            double [:] tau_int_1
+            double [:] tau_int_2
+            double [:] I_T
+            double [:] QT_meridional
+            double [:] T_meridional
+            double [:,:] p
+            double [:,:,:] qv_star_
+            double [:,:,:] Tv_
+            double [:,:,:] QT_
+
+
         Pr.QT_0      = namelist['forcing']['initial_surface_qt']
         Pr.T_0       = namelist['thermodynamics']['triple_point_temp']
         Pr.P_hw      = namelist['thermodynamics']['verical_half_width_of_the_q']
@@ -181,15 +201,15 @@ cdef class HeldSuarezMoist(CaseBase):
         B   = (T_0 - Pr.T_pole) / T_0 / Pr.T_pole
         C   = 0.5 * (Pr.init_k + 2.0)*(Pr.T_equator-Pr.T_pole)/Pr.T_equator/Pr.T_pole
 
-        tau_z_1   = np.exp(Gamma * z / T_0)
-        tau_z_2   = 1.0 - np.multiply(2.0, np.power(np.divide(z / 2.0, Pr.Rd * T_0 / Pr.g),2.0))
-        tau_z_3   = np.exp(-np.power(np.divide(z / 2.0 , Pr.Rd * T_0 / Pr.g),2.0))
+        tau_z_1   = np.exp(np.divide(np.multiply(Gamma,z), T_0))
+        tau_z_2   = 1.0 - np.multiply(2.0, np.power(np.divide(np.divide(z,T_0),Pr.Rd *2.0/Pr.g),2.0))
+        tau_z_3   = np.exp(-np.power(np.divide(np.divide(z,T_0), Pr.Rd * 2.0 / Pr.g),2.0))
         tau_1     = np.multiply(np.divide(1.0 , T_0) , tau_z_1) + np.multiply(np.multiply(B , tau_z_2) , tau_z_3)
         tau_2     = np.multiply(np.multiply(C , tau_z_2) , tau_z_3)
-        tau_int_1 = np.multiply(1.0 / Gamma , (tau_z_1 - 1.0)) + np.multiply(np.multiply(B , z ), tau_z_3)
-        tau_int_2 = np.multiply(np.multiply(C , z) ,tau_z_3);
-        I_T       = (np.power(np.cos(Gr.lat[:,0]),Pr.init_k)
-                   - Pr.init_k/(Pr.init_k + 2.0) * np.power(np.cos(Gr.lat[:,0]),Pr.init_k+2.0))
+        tau_int_1 = np.multiply(1.0 / Gamma , np.subtract(tau_z_1, 1.0)) + np.multiply(np.multiply(B , z ), tau_z_3)
+        tau_int_2 = np.multiply(np.multiply(C , z) ,tau_z_3)
+        I_T       = np.subtract(np.power(np.cos(Gr.lat[:,0]),Pr.init_k),
+                    np.multiply(Pr.init_k/(Pr.init_k + 2.0), np.power(np.cos(Gr.lat[:,0]),Pr.init_k+2.0)))
 
         for i in range(len(Gr.lat[:,0])):
             for j in range(len(z)):
@@ -208,20 +228,12 @@ cdef class HeldSuarezMoist(CaseBase):
                 * np.exp(-((PV.P_init[k]/Pr.p_ref - 1.0) * Pr.p_ref / Pr.P_hw)**2.0))
             # QT_meridional = np.nanmean(QT_[:,:,k], axis=1)
             eps = 1.0/Pr.eps_v-1.0
-            T_meridional = np.nanmean(Tv_[:,:,k]/(1+0.608*QT_[:,:,k]), axis=1)
-            PV.QT.values.base[:,:,k] = np.repeat(QT_meridional[:, np.newaxis], Pr.nlons, axis=1)
-            PV.T.values.base[:,:,k]  = np.repeat(T_meridional[:, np.newaxis], Pr.nlons, axis=1)
+            T_meridional = np.nanmean(np.divide(Tv_[:,:,k],np.add(1,np.multiply(0.608,QT_[:,:,k]))), axis=1)
+            for i in range(Pr.nlons):
+                PV.QT.values.base[i,:,k] = QT_meridional
+                PV.T.values.base[i,:,k]  = T_meridional
 
-        # # initilize spectral values
         PV.physical_to_spectral(Pr, Gr)
-        # for k in range(Pr.n_layers):
-        #     PV.P.spectral[:,k]           = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,k])
-        #     PV.T.spectral[:,k]           = Gr.SphericalGrid.grdtospec(PV.T.values[:,:,k])
-        #     PV.QT.spectral[:,k]          = Gr.SphericalGrid.grdtospec(PV.QT.values[:,:,k])
-        #     PV.Vorticity.spectral[:,k]   = Gr.SphericalGrid.grdtospec(PV.Vorticity.values[:,:,k])
-        #     PV.Divergence.spectral[:,k]  = Gr.SphericalGrid.grdtospec(PV.Divergence.values[:,:,k])
-        # PV.P.spectral[:,Pr.n_layers]     = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,Pr.n_layers])
-
         return
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):

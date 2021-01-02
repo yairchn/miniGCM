@@ -111,16 +111,16 @@ cdef class HelzSuarezMoist(ForcingBase):
 
 	cpdef initialize(self, Parameters Pr):
 		PV.P_init        = [Pr.p1, Pr.p2, Pr.p3, Pr.p_ref]
-        PV.T_init        = [229.0, 257.0, 295.0]
+		PV.T_init        = [229.0, 257.0, 295.0]
 
-        Pr.sigma_b = namelist['forcing']['sigma_b']
-        Pr.k_a = namelist['forcing']['k_a']
-        Pr.k_s = namelist['forcing']['k_s']
-        Pr.k_f = namelist['forcing']['k_f']
-        Pr.DT_y = namelist['forcing']['equator_to_pole_dT']
-        Pr.T_equator = namelist['forcing']['equatorial_temperature']
-        Pr.Dtheta_z = namelist['forcing']['lapse_rate']
-        Pr.Tbar0 = namelist['forcing']['relaxation_temperature']
+		Pr.sigma_b = namelist['forcing']['sigma_b']
+		Pr.k_a = namelist['forcing']['k_a']
+		Pr.k_s = namelist['forcing']['k_s']
+		Pr.k_f = namelist['forcing']['k_f']
+		Pr.DT_y = namelist['forcing']['equator_to_pole_dT']
+		Pr.T_equator = namelist['forcing']['equatorial_temperature']
+		Pr.Dtheta_z = namelist['forcing']['lapse_rate']
+		Pr.Tbar0 = namelist['forcing']['relaxation_temperature']
 
 		self.Tbar  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.double, order='c')
 		self.k_T   = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.double, order='c')
