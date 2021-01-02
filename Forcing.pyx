@@ -131,16 +131,16 @@ cdef class HelzSuarezMoist(ForcingBase):
 		for k in range(Pr.n_layers):
 			P_half = np.divide(np.add(PV.P.values[:,:,k],PV.P.values[:,:,k+1]),2.0)
 			pressure_ratio = np.divide(P_half,Pr.p_ref)
-			self.Tbar[:,:,k] = np.clip((Pr.T_equator-Pr.DT_y*np.power(np.sin(Gr.lat),2)-Pr.Dtheta_z*np.log(pressure_ratio)
+			self.Tbar.base[:,:,k] = np.clip((Pr.T_equator-Pr.DT_y*np.power(np.sin(Gr.lat),2)-Pr.Dtheta_z*np.log(pressure_ratio)
 				               *np.power(np.cos(Gr.lat),2))*np.power(pressure_ratio,Pr.kappa), 200.0, None)
 			sigma=np.divide(P_half,PV.P.values[:,:,Pr.n_layers])
 			sigma_ratio=np.clip(np.divide(sigma-Pr.sigma_b,1-Pr.sigma_b),0,None)
-			self.k_T[:,:,k] = Pr.k_a+(Pr.k_s-Pr.k_a)*np.multiply(sigma_ratio,np.power(np.cos(Gr.lat),4))
-			self.k_v[:,:,k] = Pr.k_a+Pr.k_f*sigma_ratio
+			self.k_T.base[:,:,k] = Pr.k_a+(Pr.k_s-Pr.k_a)*np.multiply(sigma_ratio,np.power(np.cos(Gr.lat),4))
+			self.k_v.base[:,:,k] = Pr.k_a+Pr.k_f*sigma_ratio
 			PV.Vorticity.forcing.base[:,k] ,PV.Divergence.forcing.base[:,k] = (
               	Gr.SphericalGrid.getvrtdivspec(-np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k]),
 											   -np.multiply(self.k_v[:,:,k],DV.V.values[:,:,k])))
-			PV.T.forcing[:,k] = -Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],np.subtract(PV.T.values[:,:,k],self.Tbar[:,:,k])))
+			PV.T.forcing.base[:,k] = -Gr.SphericalGrid.grdtospec(np.multiply(self.k_T[:,:,k],np.subtract(PV.T.values[:,:,k],self.Tbar[:,:,k])))
 		return
 
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):

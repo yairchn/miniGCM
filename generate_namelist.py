@@ -61,8 +61,8 @@ def main():
 
     if case_name == 'HeldSuarez':
         namelist = HeldSuarez(namelist_defaults)
-    elif case_name == 'HeldSuarez_moist':
-        namelist = HeldSuarez_moist(namelist_defaults)
+    elif case_name == 'HeldSuarezMoist':
+        namelist = HeldSuarezMoist(namelist_defaults)
     else:
         print('Not a valid case name')
         exit()
@@ -105,7 +105,7 @@ def HeldSuarez(namelist_defaults):
 
     return namelist
 
-def HeldSuarez_moist(namelist_defaults):
+def HeldSuarezMoist(namelist_defaults):
 
     namelist = copy.deepcopy(namelist_defaults)
 
@@ -116,10 +116,10 @@ def HeldSuarez_moist(namelist_defaults):
     namelist['timestepping']['dt'] = 20.0
     namelist['timestepping']['t_max'] = 21600.0
 
-    namelist['meta']['simname'] = 'HeldSuarez_moist'
-    namelist['meta']['casename'] = 'HeldSuarez_moist'
+    namelist['meta']['simname'] = 'HeldSuarezMoist'
+    namelist['meta']['casename'] = 'HeldSuarezMoist'
 
-    namelist['forcing']['forcing_type'] = 'HeldSuarez_moist'
+    namelist['forcing']['forcing_type'] = 'HeldSuarezMoist'
     namelist['forcing']['sigma_b']      = 0.7                    # sigma coordiantes as sigma=p/ps
     namelist['forcing']['k_a']          = 1./40.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_s']          =  1./4.0/(24.0*3600.0)  # [1/sec]

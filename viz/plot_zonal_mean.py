@@ -14,8 +14,8 @@ def main():
     varname = args.varname
     mytime = args.mytime
 
-    folder = os.getcwd() + '/Output.HeldSuarez_moist.30day/stats/'
-    ncfile = folder + 'Stats.HeldSuarez_moist.nc'
+    folder = os.getcwd() + '/Output.HeldSuarezMoist.30day/stats/'
+    ncfile = folder + 'Stats.HeldSuarezMoist.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])

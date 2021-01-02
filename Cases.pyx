@@ -141,8 +141,8 @@ cdef class HeldSuarez(CaseBase):
         return
 
 cdef class HeldSuarezMoist(CaseBase):
-    def __init__(self, Pr, namelist):
-        Pr.casename = namelist['meta']['casename']
+    def __init__(self, namelist):
+        # Pr.casename = namelist['meta']['casename']
         self.Fo  = Forcing.HelzSuarezMoist()
         self.Sur = Surface.SurfaceBulkFormula()
         self.MP = Microphysics.MicrophysicsCutoff()
@@ -204,13 +204,13 @@ cdef class HeldSuarezMoist(CaseBase):
                         QT_[i,j,k] = np.nan
 
         for k in range(Pr.n_layers):
-            QT_meridional = (Pr.QT_0 * np.exp(-np.power(np.divide(Gr.lat[:,0] , Pr.phi_hw)),4.0)
+            QT_meridional = (Pr.QT_0 * np.exp(-np.power(np.divide(Gr.lat[:,0] , Pr.phi_hw),4.0))
                 * np.exp(-((PV.P_init[k]/Pr.p_ref - 1.0) * Pr.p_ref / Pr.P_hw)**2.0))
             # QT_meridional = np.nanmean(QT_[:,:,k], axis=1)
             eps = 1.0/Pr.eps_v-1.0
             T_meridional = np.nanmean(Tv_[:,:,k]/(1+0.608*QT_[:,:,k]), axis=1)
-            PV.QT.values[:,:,k] = np.repeat(QT_meridional[:, np.newaxis], Pr.nlons, axis=1)
-            PV.T.values[:,:,k]  = np.repeat(T_meridional[:, np.newaxis], Pr.nlons, axis=1)
+            PV.QT.values.base[:,:,k] = np.repeat(QT_meridional[:, np.newaxis], Pr.nlons, axis=1)
+            PV.T.values.base[:,:,k]  = np.repeat(T_meridional[:, np.newaxis], Pr.nlons, axis=1)
 
         # # initilize spectral values
         PV.physical_to_spectral(Pr, Gr)

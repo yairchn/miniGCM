@@ -48,7 +48,7 @@ cdef class HeldSuarez(CaseBase):
     cpdef update_forcing(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
     cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS)
 
-cdef class HeldSuarez_moist(CaseBase):
+cdef class HeldSuarezMoist(CaseBase):
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef initialize_forcing(self, Parameters Pr)

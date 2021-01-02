@@ -59,7 +59,7 @@ class Simulation:
                 self.stats_io()
             if np.mod(self.TS.t, self.Stats.output_frequency) == 0:
                 print('elapsed time [days] about', np.floor_divide(self.TS.t,(24.0*3600.0)))
-                print('minimum surface pressure is', np.min(self.PV.P.values[:,:,self.Pr.n_layers]))
+                # print('minimum surface pressure is', np.min(self.PV.P.values[:,:,self.Pr.n_layers]))
                 self.io()
         return
 

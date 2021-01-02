@@ -43,6 +43,14 @@ cdef class Parameters:
         double phi_hw
         double T_pole
         double init_k
+        double max_ss
+        double rho_w
+        double Cd
+        double Ch
+        double Cq
+        double dT_s
+        double T_min
+        double dphi_s
 
         str case
         str surface_model
