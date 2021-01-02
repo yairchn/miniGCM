@@ -131,7 +131,7 @@ cdef class PrognosticVariables:
         Stats.write_3D_variable(Pr, int(TS.t),Pr.n_layers, 'Divergence',        self.Divergence.values)
         Stats.write_3D_variable(Pr, int(TS.t),Pr.n_layers, 'Temperature',       self.T.values)
         Stats.write_3D_variable(Pr, int(TS.t),Pr.n_layers, 'Specific_humidity', self.QT.values)
-        Stats.write_3D_variable(Pr, int(TS.t),1,           'Pressure',          self.P.values[:,:,Pr.n_layers])
+        Stats.write_2D_variable(Pr, int(TS.t),             'Pressure',          self.P.values[:,:,Pr.n_layers])
         return
 
     cpdef compute_tendencies(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
