@@ -21,14 +21,14 @@ cdef class ForcingBase:
 		double [:,:] QT_forcing
 		double [:,:] Divergence_forcing
 		double [:,:] Vorticity_forcing
-	cpdef initialize(self, Parameters Pr)
+	cpdef initialize(self, Parameters Pr, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
 	cpdef stats_io(self, NetCDFIO_Stats Stats)
 
 cdef class ForcingNone(ForcingBase):
-	cpdef initialize(self, Parameters Pr)
+	cpdef initialize(self, Parameters Pr, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
@@ -48,7 +48,7 @@ cdef class HelzSuarez(ForcingBase):
 		double cp
 		double Rd
 		double kappa
-	cpdef initialize(self, Parameters Pr)
+	cpdef initialize(self, Parameters Pr, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
@@ -68,7 +68,7 @@ cdef class HelzSuarezMoist(ForcingBase):
 		double cp
 		double Rd
 		double kappa
-	cpdef initialize(self, Parameters Pr)
+	cpdef initialize(self, Parameters Pr, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)

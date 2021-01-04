@@ -27,7 +27,7 @@ cdef class CaseBase:
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
-    cpdef initialize_forcing(self, Parameters Pr)
+    cpdef initialize_forcing(self, Parameters Pr, namelist)
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, namelist)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
@@ -39,7 +39,7 @@ cdef class CaseBase:
 cdef class HeldSuarez(CaseBase):
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
-    cpdef initialize_forcing(self, Parameters Pr)
+    cpdef initialize_forcing(self, Parameters Pr, namelist)
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, namelist)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
@@ -51,7 +51,7 @@ cdef class HeldSuarez(CaseBase):
 cdef class HeldSuarezMoist(CaseBase):
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
-    cpdef initialize_forcing(self, Parameters Pr)
+    cpdef initialize_forcing(self, Parameters Pr, namelist)
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, namelist)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)

@@ -35,7 +35,7 @@ cdef class CaseBase:
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         return
 
-    cpdef initialize_forcing(self, Parameters Pr):
+    cpdef initialize_forcing(self, Parameters Pr, namelist):
         return
 
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, namelist):
@@ -103,8 +103,8 @@ cdef class HeldSuarez(CaseBase):
         self.Sur.initialize(Pr, Gr, PV, namelist)
         return
 
-    cpdef initialize_forcing(self, Parameters Pr):
-        self.Fo.initialize(Pr)
+    cpdef initialize_forcing(self, Parameters Pr, namelist):
+        self.Fo.initialize(Pr, namelist)
         return
 
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, namelist):
@@ -138,6 +138,7 @@ cdef class HeldSuarez(CaseBase):
         return
 
     cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS):
+        self.MP.update(Pr, TS, PV)
         return
 
 cdef class HeldSuarezMoist(CaseBase):
@@ -152,7 +153,7 @@ cdef class HeldSuarezMoist(CaseBase):
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         cdef:
             Py_ssize_t i, j, k
-            double Gamma, T_0, B, C
+            double Gamma, T_0, B, C, H
             double [:] z
             double [:] tau_z_1
             double [:] tau_z_2
@@ -201,12 +202,13 @@ cdef class HeldSuarezMoist(CaseBase):
         B   = (T_0 - Pr.T_pole) / T_0 / Pr.T_pole
         C   = 0.5 * (Pr.init_k + 2.0)*(Pr.T_equator-Pr.T_pole)/Pr.T_equator/Pr.T_pole
 
+        H = Pr.Rd*T_0/Pr.g
         tau_z_1   = np.exp(np.divide(np.multiply(Gamma,z), T_0))
-        tau_z_2   = 1.0 - np.multiply(2.0, np.power(np.divide(np.divide(z,T_0),Pr.Rd *2.0/Pr.g),2.0))
-        tau_z_3   = np.exp(-np.power(np.divide(np.divide(z,T_0), Pr.Rd * 2.0 / Pr.g),2.0))
-        tau_1     = np.multiply(np.divide(1.0 , T_0) , tau_z_1) + np.multiply(np.multiply(B , tau_z_2) , tau_z_3)
+        tau_z_2   = 1.0 - np.multiply(2.0, np.power(np.divide(z,2.0*H),2.0))
+        tau_z_3   = np.exp(-np.power(np.divide(z, 2.0*H),2.0))
+        tau_1     = np.add(np.multiply(np.divide(1.0 , T_0) , tau_z_1), np.multiply(np.multiply(B , tau_z_2) , tau_z_3))
         tau_2     = np.multiply(np.multiply(C , tau_z_2) , tau_z_3)
-        tau_int_1 = np.multiply(1.0 / Gamma , np.subtract(tau_z_1, 1.0)) + np.multiply(np.multiply(B , z ), tau_z_3)
+        tau_int_1 = np.add(np.multiply(1.0 / Gamma , np.subtract(tau_z_1, 1.0)), np.multiply(np.multiply(B , z ), tau_z_3))
         tau_int_2 = np.multiply(np.multiply(C , z) ,tau_z_3)
         I_T       = np.subtract(np.power(np.cos(Gr.lat[:,0]),Pr.init_k),
                     np.multiply(Pr.init_k/(Pr.init_k + 2.0), np.power(np.cos(Gr.lat[:,0]),Pr.init_k+2.0)))
@@ -230,8 +232,8 @@ cdef class HeldSuarezMoist(CaseBase):
             eps = 1.0/Pr.eps_v-1.0
             T_meridional = np.nanmean(np.divide(Tv_[:,:,k],np.add(1,np.multiply(0.608,QT_[:,:,k]))), axis=1)
             for i in range(Pr.nlons):
-                PV.QT.values.base[i,:,k] = QT_meridional
-                PV.T.values.base[i,:,k]  = T_meridional
+                PV.QT.values.base[:,i,k] = QT_meridional
+                PV.T.values.base[:,i,k]  = T_meridional
 
         PV.physical_to_spectral(Pr, Gr)
         return
@@ -240,8 +242,8 @@ cdef class HeldSuarezMoist(CaseBase):
         self.Sur.initialize(Pr, Gr, PV, namelist)
         return
 
-    cpdef initialize_forcing(self, Parameters Pr):
-        self.Fo.initialize(Pr)
+    cpdef initialize_forcing(self, Parameters Pr, namelist):
+        self.Fo.initialize(Pr, namelist)
         return
 
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, namelist):

@@ -15,7 +15,7 @@ from Parameters cimport Parameters
 cdef class ForcingBase:
 	def __init__(self):
 		return
-	cpdef initialize(self, Parameters Pr):
+	cpdef initialize(self, Parameters Pr, namelist):
 		self.Tbar = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
 		self.QTbar = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
 		self.Divergence_forcing = np.zeros((Gr.SphericalGrid.nlm, Pr.n_layers), dtype=np.float64, order='c')
@@ -36,7 +36,7 @@ cdef class ForcingNone(ForcingBase):
 	def __init__(self):
 		ForcingBase.__init__(self)
 		return
-	cpdef initialize(self, Parameters Pr):
+	cpdef initialize(self, Parameters Pr, namelist):
 		return
 	cpdef initialize_io(self, NetCDFIO_Stats Stats):
 		return
@@ -52,7 +52,7 @@ cdef class HelzSuarez(ForcingBase):
 		ForcingBase.__init__(self)
 		return
 
-	cpdef initialize(self, Parameters Pr):
+	cpdef initialize(self, Parameters Pr, namelist):
 		# constants from Held & Suarez (1994)
 		self.Tbar  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.double, order='c')
 		self.k_T   = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.double, order='c')
@@ -109,10 +109,7 @@ cdef class HelzSuarezMoist(ForcingBase):
 		ForcingBase.__init__(self)
 		return
 
-	cpdef initialize(self, Parameters Pr):
-		PV.P_init        = [Pr.p1, Pr.p2, Pr.p3, Pr.p_ref]
-		PV.T_init        = [229.0, 257.0, 295.0]
-
+	cpdef initialize(self, Parameters Pr, namelist):
 		Pr.sigma_b = namelist['forcing']['sigma_b']
 		Pr.k_a = namelist['forcing']['k_a']
 		Pr.k_s = namelist['forcing']['k_s']
