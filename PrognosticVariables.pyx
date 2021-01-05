@@ -108,6 +108,7 @@ cdef class PrognosticVariables:
     cpdef reset_pressures(self, Parameters Pr):
         for k in range(Pr.n_layers):
             self.P.values.base[:,:,k] = np.add(np.zeros_like(self.P.values.base[:,:,k]),self.P_init[k])
+            self.P.spectral.base[:,k] = np.add(np.zeros_like(self.P.spectral.base[:,k]),self.P_init[k])
         return
     # this should be done in time intervals and save each time new files,not part of stats 
 
