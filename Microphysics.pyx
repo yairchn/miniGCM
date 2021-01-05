@@ -103,14 +103,17 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
 
             qv_star = np.multiply(np.divide(np.multiply(Pr.qv_star0,Pr.eps_v),P_half),
                 np.exp(-np.multiply(np.divide(Pr.Lv,Pr.Rv),np.subtract(np.divide(1.0,PV.T.values[:,:,k]),np.divide(1.0,Pr.T_0)))))
-            print('temps',k,  np.max(PV.T.values[:,:,k]), Pr.T_0)
 
             self.QL.base[:,:,k] = np.clip(PV.QT.values[:,:,k] - qv_star,0.0, None)
             denom = np.add(1.0,np.multiply((Pr.Lv**2.0/Pr.cp/Pr.Rv),np.divide(qv_star,np.power(PV.T.values[:,:,k],2.0))))
             PV.QT.mp_tendency.base[:,:,k] = -np.clip(np.divide(np.divide(np.subtract(PV.QT.values[:,:,k], np.multiply(1.0+Pr.max_ss,qv_star)),denom),TS.dt), 0.0, None)
             PV.T.mp_tendency.base[:,:,k]  =  np.clip(np.multiply(Pr.Lv/Pr.cp,np.divide(np.divide(np.subtract(PV.QT.values[:,:,k], qv_star),denom),TS.dt)), 0.0, None)
-            # print(k, np.max(qv_star), np.max(PV.QT.values[:,:,k]))
-            # print(k, np.max(PV.T.mp_tendency[:,:,k]))
+
+            print(k, 'temps',  np.max(PV.T.values[:,:,k]), Pr.T_0)
+            print(k, 'denom', np.max(denom))
+            print(k, 'qs', np.max(qv_star), np.max(PV.QT.values[:,:,k]))
+            print(k, 'T tend', np.max(PV.T.mp_tendency[:,:,k]))
+            print('==============================')
 
         self.RainRate = -np.divide(np.sum(PV.QT.mp_tendency,2),
                  Pr.rho_w*Pr.g*(np.subtract(PV.P.values[:,:,Pr.n_layers],PV.P.values[:,:,0])))
