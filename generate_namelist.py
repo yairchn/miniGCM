@@ -43,7 +43,7 @@ def main():
 
     namelist_defaults['thermodynamics'] = {}
     namelist_defaults['thermodynamics']['heat_capacity']        = 1004.0    # [J / (kg K)]
-    namelist_defaults['thermodynamics']['dry_air_gas_constant'] = 287.0     # [J / (kg K)]
+    namelist_defaults['thermodynamics']['dry_air_gas_constant'] = 287.04     # [J / (kg K)]
     namelist_defaults['thermodynamics']['vapor_gas_constant']   = 461.5     # [J / (kg K)]
     namelist_defaults['thermodynamics']['latent_heat_evap']     = 2.5008e6  # [J / (kg K)]
     namelist_defaults['thermodynamics']['pv_star_triple_point'] = 610.78

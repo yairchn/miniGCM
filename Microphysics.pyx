@@ -99,7 +99,7 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
             # qv_star = Pr.eps_v * (1.0 - PV.QT.values[:,:,k]) * pv_star / (PV.P.values[:,:,k] - pv_star)
 
             # Clausius–Clapeyron equation based saturation
-            P_half = np.divide(np.add(PV.P.values[:,:,k],PV.P.values[:,:,k+1]),2.0)
+            P_half = np.multiply(np.add(PV.P.values[:,:,k],PV.P.values[:,:,k+1]),0.5)
 
             qv_star = np.multiply(np.divide(np.multiply(Pr.qv_star0,Pr.eps_v),P_half),
                 np.exp(-np.multiply(np.divide(Pr.Lv,Pr.Rv),np.subtract(np.divide(1.0,PV.T.values[:,:,k]),np.divide(1.0,Pr.T_0)))))

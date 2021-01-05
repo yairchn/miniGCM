@@ -229,8 +229,8 @@ cdef class HeldSuarezMoist(CaseBase):
             QT_meridional = (Pr.QT_0 * np.exp(-np.power(np.divide(Gr.lat[:,0] , Pr.phi_hw),4.0))
                 * np.exp(-((PV.P_init[k]/Pr.p_ref - 1.0) * Pr.p_ref / Pr.P_hw)**2.0))
             # QT_meridional = np.nanmean(QT_[:,:,k], axis=1)
-            eps = 1.0/Pr.eps_v-1.0
-            T_meridional = np.nanmean(np.divide(Tv_[:,:,k],np.add(1,np.multiply(0.608,QT_[:,:,k]))), axis=1)
+            eps_ = Pr.Rv/Pr.Rv-1.0
+            T_meridional = np.nanmean(np.divide(Tv_[:,:,k],np.add(1,np.multiply(eps_,QT_[:,:,k]))), axis=1)
             for i in range(Pr.nlons):
                 PV.QT.values.base[:,i,k] = QT_meridional
                 PV.T.values.base[:,i,k]  = T_meridional
