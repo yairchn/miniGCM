@@ -92,7 +92,7 @@ cdef class DiagnosticVariables:
             j = Pr.n_layers-k-1 # geopotential is computed bottom -> up
             self.U.values.base[:,:,k], self.V.values.base[:,:,k] = Gr.SphericalGrid.getuv(
                          PV.Vorticity.spectral.base[:,k],PV.Divergence.spectral.base[:,k])
-            self.KE.values.base[:,:,k]    = 0.5*np.add(np.power(self.U.values[:,:,k],2.0),np.power(self.V.values[:,:,k],2.0))
+            self.KE.values.base[:,:,k]    = np.multiply(0.5,np.add(np.power(self.U.values[:,:,k],2.0),np.power(self.V.values[:,:,k],2.0)))
             self.Wp.values.base[:,:,k+1]  = np.subtract(self.Wp.values[:,:,k],
                                        np.multiply(np.subtract(PV.P.values[:,:,k+1],PV.P.values[:,:,k]),PV.Divergence.values[:,:,k]))
             self.gZ.values.base[:,:,j]  = np.add(np.multiply(np.multiply(Pr.Rd,PV.T.values[:,:,j]),np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))),self.gZ.values[:,:,j+1])
