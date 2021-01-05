@@ -171,8 +171,10 @@ cdef class PrognosticVariables:
         PV.P.tendency.base[:,3] = np.add(Divergent_P_flux, DV.Wp.spectral[:,2])
         dp_ratio32sp = np.divide(np.subtract(PV.P.spectral[:,2],PV.P.spectral[:,1]), np.subtract(PV.P.spectral[:,3],PV.P.spectral[:,2]))
 
-        for k in range(Pr.n_layers-1):
+        for k in range(Pr.n_layers):
             dp.base[:,:,k] = np.subtract(PV.P.values[:,:,k+1],PV.P.values[:,:,k])
+
+        for k in range(Pr.n_layers-1):
             u_vertical_flux = 0.5*np.multiply(DV.Wp.values[:,:,k+1],
                        np.divide(np.subtract(DV.U.values[:,:,k+1],DV.U.values[:,:,k]),dp[:,:,k]))
             v_vertical_flux = 0.5*np.multiply(DV.Wp.values[:,:,k+1],
@@ -182,7 +184,6 @@ cdef class PrognosticVariables:
             PV.Divergence.sp_VerticalFlux.base[:,k] = Divergent_momentum_flux # proportional to Wp[k+1] at the bottom of the k'th layer
 
         for k in range(Pr.n_layers):
-            dp.base[:,:,k] = np.subtract(PV.P.values[:,:,k+1],PV.P.values[:,:,k])
             T_high = PV.T.values[:,:,k]
             QT_high = PV.QT.values[:,:,k]
             if k ==Pr.n_layers-1:
