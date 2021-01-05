@@ -183,6 +183,7 @@ cdef class PrognosticVariables:
             PV.Vorticity.sp_VerticalFlux.base[:,k]  = Vortical_momentum_flux  # proportional to Wp[k+1] at the bottom of the k'th layer
             PV.Divergence.sp_VerticalFlux.base[:,k] = Divergent_momentum_flux # proportional to Wp[k+1] at the bottom of the k'th layer
 
+
         for k in range(Pr.n_layers):
             T_high = PV.T.values[:,:,k]
             QT_high = PV.QT.values[:,:,k]
@@ -192,8 +193,12 @@ cdef class PrognosticVariables:
             else:
                 T_low = PV.T.values[:,:,k+1]
                 QT_low = PV.QT.values[:,:,k+1]
-            PV.T.VerticalFlux.base[:,:,k] = np.multiply(0.5,np.multiply(DV.Wp.values[:,:,k+1],np.divide(np.add(T_low,T_high),dp[:,:,k])))
-            PV.QT.VerticalFlux.base[:,:,k] = np.multiply(0.5,np.multiply(DV.Wp.values[:,:,k+1],np.divide(np.add(QT_low,QT_high),dp[:,:,k])))
+            PV.T.VerticalFlux.base[:,:,k] = np.multiply(0.5,np.multiply(DV.Wp.values[:,:,k+1],
+                                                            np.divide(np.add(T_low,T_high),dp[:,:,k])))
+            PV.QT.VerticalFlux.base[:,:,k] = np.multiply(0.5,np.multiply(DV.Wp.values[:,:,k+1],
+                                                             np.divide(np.add(QT_low,QT_high),dp[:,:,k])))
+
+
 
         for k in range(Pr.n_layers):
             Dry_Energy_laplacian = Gr.SphericalGrid.lap*Gr.SphericalGrid.grdtospec(
