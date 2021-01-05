@@ -239,9 +239,13 @@ cdef class PrognosticVariables:
             PV.Divergence.tendency.base[:,k] =  np.add(np.subtract(np.subtract(np.subtract(Vortical_momentum_flux, Dry_Energy_laplacian),
                 div_flux_up),div_flux_dn), PV.Divergence.forcing[:,k])
             PV.T.tendency.base[:,k] = np.subtract(np.add(Gr.SphericalGrid.grdtospec(np.subtract(np.subtract(np.add(T_flux_up,PV.T.mp_tendency[:,:,k]),Thermal_expension),PV.T.VerticalFlux[:,:,k])), PV.T.forcing[:,k]), Divergent_T_flux)
-            print(k, 'T_flux_up', np.max(np.abs(Gr.SphericalGrid.grdtospec(T_flux_up.base))))
-            print(k, 'T.mp_tendency', np.max(np.abs(Gr.SphericalGrid.grdtospec(PV.T.mp_tendency.base[:,:,k]))))
-            print(k, 'Thermal_expension', np.max(np.abs(Gr.SphericalGrid.grdtospec(Thermal_expension.base))))
-            print(k, 'T.VerticalFlux', np.max(np.abs(Gr.SphericalGrid.grdtospec(PV.T.VerticalFlux.base[:,:,k]))))
+            print(k, 'T', np.max(np.abs(PV.T.values.base[:,:,k])))
+            print(k, 'T_flux_up', np.max(np.abs(T_flux_up.base)))
+            print(k, 'T.mp_tendency', np.max(np.abs(PV.T.mp_tendency.base[:,:,k])))
+            print(k, 'Thermal_expension', np.max(np.abs(Thermal_expension.base)))
+            print(k, 'T.VerticalFlux', np.max(np.abs(PV.T.VerticalFlux.base[:,:,k])))
+            print(k, 'T.Forcing', np.max(np.abs(Gr.SphericalGrid.spectogrd(PV.T.forcing.base[:,k]))))
+            print(k, 'Divergent_T_flux', np.max(np.abs(Divergent_T_flux.base)))
+            print('==============================================================================')
             PV.QT.tendency.base[:,k] = np.subtract(np.add(Gr.SphericalGrid.grdtospec(np.subtract(np.subtract(np.add(QT_flux_up,PV.QT.mp_tendency[:,:,k]),Thermal_expension),PV.QT.VerticalFlux[:,:,k])),PV.QT.forcing[:,k]),Divergent_QT_flux)
         return
