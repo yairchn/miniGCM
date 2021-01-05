@@ -235,7 +235,12 @@ cdef class HeldSuarezMoist(CaseBase):
                 PV.QT.values.base[:,i,k] = QT_meridional
                 PV.T.values.base[:,i,k]  = T_meridional
 
-        PV.physical_to_spectral(Pr, Gr)
+        for k in range(Pr.n_layers):
+            PV.T.spectral.base[:,k]           = Gr.SphericalGrid.grdtospec(PV.T.values.base[:,:,k])
+            PV.QT.spectral.base[:,k]          = Gr.SphericalGrid.grdtospec(PV.QT.values.base[:,:,k])
+            PV.Vorticity.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(PV.Vorticity.values.base[:,:,k])
+            PV.Divergence.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(PV.Divergence.values.base[:,:,k])
+        PV.P.spectral.base[:,Pr.n_layers]     = Gr.SphericalGrid.grdtospec(PV.P.values.base[:,:,Pr.n_layers])
         return
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
