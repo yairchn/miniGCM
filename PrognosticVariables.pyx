@@ -169,8 +169,7 @@ cdef class PrognosticVariables:
             np.multiply(DV.V.values[:,:,2],np.subtract(PV.P.values[:,:,2],PV.P.values[:,:,3])))
 
         PV.P.tendency.base[:,3] = np.add(Divergent_P_flux, DV.Wp.spectral[:,2])
-        dp_ratio32sp = Gr.SphericalGrid.grdtospec(np.divide(np.subtract(PV.P.values[:,:,2],PV.P.values[:,:,1]),
-                                 np.subtract(PV.P.values[:,:,3],PV.P.values[:,:,2])))
+        dp_ratio32sp = np.divide(np.subtract(PV.P.spectral[:,2],PV.P.spectral[:,1]), np.subtract(PV.P.spectral[:,3],PV.P.spectral[:,2]))
 
         for k in range(Pr.n_layers-1):
             dp.base[:,:,k] = np.subtract(PV.P.values[:,:,k+1],PV.P.values[:,:,k])
