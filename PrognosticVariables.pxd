@@ -42,7 +42,7 @@ cdef class PrognosticVariables:
         object MP
 
 
-    # cpdef initialize(self, Parameters Pr)
+    cpdef initialize(self, Parameters Pr)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef physical_to_spectral(self, Parameters Pr, Grid Gr)
     cpdef spectral_to_physical(self, Parameters Pr, Grid Gr)

@@ -42,11 +42,9 @@ cdef class PrognosticVariables:
         self.P           = PrognosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers+1,Gr.SphericalGrid.nlm,'Pressure'          ,'p'    ,'pasc')
         return
 
-    # cpdef initialize(self, Parameters Pr):
-    #     self.Base_pressure = 100000.0
-    #     self.P_init        = [Pr.p1, Pr.p2, Pr.p3, Pr.p_ref]
-    #     self.T_init        = [229.0, 257.0, 295.0]
-    #     return
+    cpdef initialize(self, Parameters Pr):
+        self.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
+        return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         Stats.add_global_mean('global_mean_T')
@@ -132,7 +130,7 @@ cdef class PrognosticVariables:
         Stats.write_3D_variable(Pr, int(TS.t),Pr.n_layers, 'Divergence',        self.Divergence.values)
         Stats.write_3D_variable(Pr, int(TS.t),Pr.n_layers, 'Temperature',       self.T.values)
         Stats.write_3D_variable(Pr, int(TS.t),Pr.n_layers, 'Specific_humidity', self.QT.values)
-        Stats.write_3D_variable(Pr, int(TS.t),1,           'Pressure',          self.P.values[:,:,Pr.n_layers])
+        Stats.write_2D_variable(Pr, int(TS.t),              'Pressure',          self.P.values[:,:,Pr.n_layers])
         return
 
     cpdef compute_tendencies(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
