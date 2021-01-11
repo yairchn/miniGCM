@@ -66,12 +66,13 @@ path='../Output.HeldSuarez.410k2/Fields/'
 
 
 
-for it in np.arange(100,1001,100):
+for it in np.arange(10,101,20):
 
     for Layer in np.arange(0,3):
         print("day ", it," Layer ",Layer)
         u=netCDF4.Dataset(path+'u_'+str(it*3600*24)+'.nc').variables['u'][:,:,Layer]
         v=netCDF4.Dataset(path+'v_'+str(it*3600*24)+'.nc').variables['v'][:,:,Layer]
+        T=netCDF4.Dataset(path+'T_'+str(it*3600*24)+'.nc').variables['T'][:,:,Layer]
 
         #print('u', u.shape)
 
@@ -115,7 +116,7 @@ for it in np.arange(100,1001,100):
            plt.savefig('ekin_zonalmean_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
            #
 
-        iplot_ctr=0
+        iplot_ctr=1
         if (iplot_ctr==1):
            #
            # c o n t o u r s
@@ -148,8 +149,23 @@ for it in np.arange(100,1001,100):
            plt.tight_layout()
            plt.savefig('u_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
 
+           plt.figure(7,figsize=(6,3))
+           plt.clf()
+           maxAnomaly = np.amax(abs(T))
+           minAnomaly = np.amin(abs(T))
+           #print("maxT: ",maxAnomaly)
+           levels = np.linspace(minAnomaly, maxAnomaly, 40)
+           plt.ylim([-65, 65])
+           plt.title("Temperature [K] at day "+str(it))
+           plt.xlabel("Longitude")
+           plt.ylabel("Latitude")
+           plt.contourf(lonDeg,latDeg,T,levels,extend='both',cmap='coolwarm')
+           plt.colorbar(orientation='horizontal',extend="both")
+           plt.tight_layout()
+           plt.savefig('T_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
 
-        iplot_spctr=1
+
+        iplot_spctr=0
         if (iplot_spctr==1):
            #
            # Energy Spectra

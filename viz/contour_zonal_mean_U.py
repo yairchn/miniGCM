@@ -14,9 +14,10 @@ def main():
     varname = 'zonal_mean_U'
     runname='410k2'
     runname='4e5k0'
+    runname='310k2'
 
     folder = os.getcwd() + '/Output.HeldSuarez.'+runname+'/stats/'
-    ncfile = folder + 'Stats.HeldSuarez.Restart_1.nc'
+    ncfile = folder + 'Stats.HeldSuarez.Restart_2.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])

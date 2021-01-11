@@ -12,9 +12,10 @@ def main():
     args = parser.parse_args()
     varname = args.varname
     varname = 'zonal_mean_V'
-    restart= ''#'.Restart_2'
+    restart= '.Restart_2'
 
     run = 'ef5k0'
+    run = '310k2'
     folder = os.getcwd() + '/Output.HeldSuarez.'+run+'/stats/'
     ncfile = folder + 'Stats.HeldSuarez'+restart+'.nc'
     data = nc.Dataset(ncfile, 'r')

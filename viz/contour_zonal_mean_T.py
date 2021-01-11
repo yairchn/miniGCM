@@ -13,8 +13,8 @@ def main():
     varname = args.varname
     varname = 'zonal_mean_T'
 
-    folder = os.getcwd() + '/Output.HeldSuarez.e10ka/stats/'
-    ncfile = folder + 'Stats.HeldSuarez.nc'
+    folder = os.getcwd() + '/Output.HeldSuarez.310k2/stats/'
+    ncfile = folder + 'Stats.HeldSuarez.Restart_2.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])

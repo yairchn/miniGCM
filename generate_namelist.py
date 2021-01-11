@@ -26,7 +26,7 @@ def main():
     namelist_defaults['diffusion'] = {}
     namelist_defaults['diffusion']['dissipation_order'] = 8.0
     namelist_defaults['diffusion']['efold'] = 600.
-    namelist_defaults['diffusion']['truncation_order'] = 4
+    namelist_defaults['diffusion']['truncation_order'] = 3
 
     namelist_defaults['microphysics'] = {}
 
@@ -89,7 +89,7 @@ def HeldSuarez(namelist_defaults):
     namelist['forcing']['forcing_type'] = 'HeldSuarez'
     namelist['forcing']['sigma_b'] = 0.7      # sigma coordiantes as sigma=p/ps
     namelist['forcing']['k_a'] = 1./40.0/(24.0*3600.0)      # [1/sec]
-    namelist['forcing']['k_b'] = 1./80.0/(24.0*3600.0)      # [1/sec]
+    namelist['forcing']['k_b'] = 1./160.0/(24.0*3600.0)      # [1/sec]
     namelist['forcing']['k_s'] =  1./4.0/(24.0*3600.0)      # [1/sec]
     namelist['forcing']['k_f'] = 1.0/(24.0*3600.0)          # [1/sec]
     namelist['forcing']['DT_y'] = 60.        # Characteristic temperature change in meridional direction [K]
