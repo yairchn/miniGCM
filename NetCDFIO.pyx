@@ -211,5 +211,5 @@ cdef class NetCDFIO_Stats:
         meridional_mean_t[meridional_mean_t.shape[0]] = t
 
         surface_zonal_mean_grp_t = self.surface_zonal_mean_grp.variables['t']
-        surface_zonal_mean_grp_t[surface_mean_grp_t.shape[0]] = t
+        surface_zonal_mean_grp_t[surface_zonal_mean_grp_t.shape[0]] = t
         return
