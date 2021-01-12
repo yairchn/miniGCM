@@ -79,10 +79,10 @@ cdef class SurfaceBulkFormula(SurfaceBase):
         return
 
     cpdef stats_io(self, NetCDFIO_Stats Stats):
-        Stats.write_surface_zonal_mean('zonal_mean_U_flux', self.U_flux)
-        Stats.write_surface_zonal_mean('zonal_mean_V_flux', self.V_flux)
-        Stats.write_surface_zonal_mean('zonal_mean_T_flux', self.T_flux)
-        Stats.write_surface_zonal_mean('zonal_mean_QT_flux', self.QT_flux)
+        Stats.write_surface_zonal_mean('zonal_mean_U_flux', np.mean(self.U_flux, axis=1))
+        Stats.write_surface_zonal_mean('zonal_mean_V_flux', np.mean(self.V_flux, axis=1))
+        Stats.write_surface_zonal_mean('zonal_mean_T_flux', np.mean(self.T_flux, axis=1))
+        Stats.write_surface_zonal_mean('zonal_mean_QT_flux', np.mean(self.QT_flux, axis=1))
         return
 
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):

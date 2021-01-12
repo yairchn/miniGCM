@@ -36,6 +36,7 @@ cdef class ForcingNone(ForcingBase):
 
 cdef class HelzSuarez(ForcingBase):
 	cdef:
+		Py_ssize_t k
 		double [:,:,:] k_T
 		double [:,:,:] k_Q
 		double [:,:,:] k_v
@@ -56,6 +57,7 @@ cdef class HelzSuarez(ForcingBase):
 
 cdef class HelzSuarezMoist(ForcingBase):
 	cdef:
+		Py_ssize_t k
 		double [:,:,:] k_T
 		double [:,:,:] k_Q
 		double [:,:,:] k_v

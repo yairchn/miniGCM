@@ -21,7 +21,7 @@ cdef class DiagnosticVariables:
         DiagnosticVariable KE
         DiagnosticVariable gZ
         DiagnosticVariable Wp
-        Py_ssize_t k
+        Py_ssize_t j, k
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)

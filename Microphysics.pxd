@@ -1,3 +1,4 @@
+import cython
 import matplotlib.pyplot as plt
 import numpy as np
 from math import *
@@ -27,6 +28,7 @@ cdef class MicrophysicsNone(MicrophysicsBase):
 
 cdef class MicrophysicsCutoff(MicrophysicsBase):
     cdef:
+        Py_ssize_t k
         double [:,:,:] QL
         double [:,:,:] QV
         double [:,:,:] QR

@@ -44,9 +44,13 @@ class Simulation:
 
     def run(self, namelist):
         print('run')
+        t0 = time.clock()
         while self.TS.t <= self.TS.t_max:
             self.PV.reset_pressures(self.Pr)
+            # print('PV.reset_pressures',time.clock() - t0)
+            # t0 = time.clock()
             self.PV.spectral_to_physical(self.Pr, self.Gr)
+            # print('PV.spectral_to_physical',time.clock() - t0)
             self.DV.update(self.Pr, self.Gr, self.PV)
             self.DV.physical_to_spectral(self.Pr, self.Gr)
             self.Case.update_microphysics(self.Pr, self.Gr, self.PV, self.TS)
@@ -57,9 +61,10 @@ class Simulation:
 
             if np.mod(self.TS.t, self.Stats.stats_frequency) == 0:
                 self.stats_io()
+                print('simulation time [days] about', self.TS.t)
+                print('wall-clock time [days] about', time.clock() - t0)
+                # print('minimum surface pressure [mb] is', np.min(self.PV.P.values[:,:,self.Pr.n_layers])/100.0)
             if np.mod(self.TS.t, self.Stats.output_frequency) == 0:
-                print('elapsed time [days] about', np.floor_divide(self.TS.t,(24.0*3600.0)))
-                # print('minimum surface pressure is', np.min(self.PV.P.values[:,:,self.Pr.n_layers]))
                 self.io()
         return
 

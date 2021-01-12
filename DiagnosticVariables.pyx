@@ -51,6 +51,8 @@ cdef class DiagnosticVariables:
         Stats.add_meridional_mean('meridional_mean_Wp')
         return
 
+    @cython.wraparound(False)
+    @cython.boundscheck(False)
     cpdef physical_to_spectral(self, Parameters Pr, Grid Gr):
         cdef:
             Py_ssize_t k
@@ -82,6 +84,8 @@ cdef class DiagnosticVariables:
         Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Kinetic_enegry',self.KE.values)
         return
 
+    @cython.wraparound(False)
+    @cython.boundscheck(False)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV):
         cdef:
             Py_ssize_t j, k

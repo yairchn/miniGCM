@@ -63,6 +63,8 @@ cdef class PrognosticVariables:
 
     # convert spherical data to spectral
     # I needto define this function to ast on a general variable
+    @cython.wraparound(False)
+    @cython.boundscheck(False)
     cpdef physical_to_spectral(self, Parameters Pr, Grid Gr):
         cdef:
             Py_ssize_t k
@@ -74,6 +76,8 @@ cdef class PrognosticVariables:
         self.P.spectral.base[:,Pr.n_layers] = Gr.SphericalGrid.grdtospec(self.P.values.base[:,:,Pr.n_layers])
         return
 
+    @cython.wraparound(False)
+    @cython.boundscheck(False)
     cpdef spectral_to_physical(self, Parameters Pr, Grid Gr):
         cdef:
             Py_ssize_t k
@@ -133,6 +137,8 @@ cdef class PrognosticVariables:
         Stats.write_2D_variable(Pr, int(TS.t),              'Pressure',          self.P.values[:,:,Pr.n_layers])
         return
 
+    @cython.wraparound(False)
+    @cython.boundscheck(False)
     cpdef compute_tendencies(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
         cdef:
             Py_ssize_t k

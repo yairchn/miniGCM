@@ -67,6 +67,8 @@ cdef class HelzSuarez(ForcingBase):
 		Stats.add_meridional_mean('meridional_mean_T_eq')
 		return
 
+	@cython.wraparound(False)
+	@cython.boundscheck(False)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
 		cdef:
 			Py_ssize_t k
@@ -132,6 +134,8 @@ cdef class HelzSuarezMoist(ForcingBase):
 		Stats.add_meridional_mean('meridional_mean_T_eq')
 		return
 
+	@cython.wraparound(False)
+	@cython.boundscheck(False)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
 		cdef:
 			Py_ssize_t k

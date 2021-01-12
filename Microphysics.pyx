@@ -1,3 +1,4 @@
+import cython
 import matplotlib.pyplot as plt
 import numpy as np
 from math import *
@@ -90,7 +91,11 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
         Stats.add_surface_zonal_mean('zonal_mean_RainRate')
         return
 
+    @cython.wraparound(False)
+    @cython.boundscheck(False)
     cpdef update(self, Parameters Pr, TimeStepping TS, PrognosticVariables PV):
+        cdef:
+            Py_ssize_t k
         for k in range(Pr.n_layers):
 
             # magnus formula alternative
@@ -120,7 +125,7 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
         Stats.write_global_mean('global_mean_dQTdt', PV.QT.mp_tendency)
         Stats.write_zonal_mean('zonal_mean_dQTdt',PV.QT.mp_tendency)
         Stats.write_meridional_mean('meridional_mean_dQTdt',PV.QT.mp_tendency)
-        Stats.write_surface_zonal_mean('zonal_mean_RainRate',self.RainRate)
+        Stats.write_surface_zonal_mean('zonal_mean_RainRate',np.mean(self.RainRate,axis=1))
         return
 
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
