@@ -134,7 +134,8 @@ cdef class PrognosticVariables:
         Stats.write_3D_variable(Pr, int(TS.t),Pr.n_layers, 'Divergence',        self.Divergence.values)
         Stats.write_3D_variable(Pr, int(TS.t),Pr.n_layers, 'Temperature',       self.T.values)
         Stats.write_3D_variable(Pr, int(TS.t),Pr.n_layers, 'Specific_humidity', self.QT.values)
-        Stats.write_2D_variable(Pr, int(TS.t),              'Pressure',          self.P.values[:,:,Pr.n_layers])
+        Stats.write_3D_variable(Pr, int(TS.t),Pr.n_layers, 'dQTdt',             self.QT.mp_tendency[:,:,0:Pr.n_layers])
+        Stats.write_2D_variable(Pr, int(TS.t),             'Pressure',          self.P.values[:,:,Pr.n_layers])
         return
 
     @cython.wraparound(False)
@@ -201,8 +202,6 @@ cdef class PrognosticVariables:
                                                             np.divide(np.add(T_low,T_high),dp[:,:,k])))
             PV.QT.VerticalFlux.base[:,:,k] = np.multiply(0.5,np.multiply(DV.Wp.values[:,:,k+1],
                                                              np.divide(np.add(QT_low,QT_high),dp[:,:,k])))
-
-
 
         for k in range(Pr.n_layers):
             Dry_Energy_laplacian = Gr.SphericalGrid.lap*Gr.SphericalGrid.grdtospec(

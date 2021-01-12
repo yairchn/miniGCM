@@ -1,6 +1,6 @@
 import numpy as np
 from PrognosticVariables cimport PrognosticVariables
-from PrognosticVariables cimport PrognosticVariables
+from DiagnosticVariables cimport DiagnosticVariables
 from Grid cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
 cimport Forcing
@@ -38,7 +38,7 @@ cdef class CaseBase:
     cpdef initialize_forcing(self, Parameters Pr, namelist):
         return
 
-    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, namelist):
+    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist):
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -56,7 +56,7 @@ cdef class CaseBase:
     cpdef update_forcing(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
         return
 
-    cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS):
+    cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         return
 
 cdef class HeldSuarez(CaseBase):
@@ -107,8 +107,8 @@ cdef class HeldSuarez(CaseBase):
         self.Fo.initialize(Pr, namelist)
         return
 
-    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, namelist):
-        self.MP.initialize(Pr, PV, namelist)
+    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist):
+        self.MP.initialize(Pr, PV, DV, namelist)
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -137,8 +137,8 @@ cdef class HeldSuarez(CaseBase):
         self.Fo.update(Pr, Gr, PV, DV)
         return
 
-    cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS):
-        self.MP.update(Pr, TS, PV)
+    cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
+        self.MP.update(Pr, PV, DV, TS)
         return
 
 cdef class HeldSuarezMoist(CaseBase):
@@ -251,8 +251,8 @@ cdef class HeldSuarezMoist(CaseBase):
         self.Fo.initialize(Pr, namelist)
         return
 
-    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, namelist):
-        self.MP.initialize(Pr, PV, namelist)
+    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist):
+        self.MP.initialize(Pr, PV, DV, namelist)
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -284,6 +284,6 @@ cdef class HeldSuarezMoist(CaseBase):
         self.Fo.update(Pr, Gr, PV, DV)
         return
 
-    cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS):
-        self.MP.update(Pr, TS, PV)
+    cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
+        self.MP.update(Pr, PV, DV, TS)
         return

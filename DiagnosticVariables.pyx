@@ -20,6 +20,7 @@ cdef class DiagnosticVariables:
         self.U  = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'zonal_velocity'     , 'u','m/s' )
         self.V  = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'meridional_velocity', 'v','m/s' )
         self.KE = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'kinetic_enetry',      'Ek','m^2/s^2' )
+        self.QL = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'liquid water specific humidity', 'ql','kg/kg' )
         self.gZ = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers+1, Gr.SphericalGrid.nlm, 'Geopotential', 'z','m^/s^2' )
         self.Wp = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers+1, Gr.SphericalGrid.nlm, 'Wp', 'w','pasc/s' )
         return
@@ -31,7 +32,7 @@ cdef class DiagnosticVariables:
             self.U.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(self.U.values.base[:,:,k])
             self.V.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(self.V.values.base[:,:,k])
             self.KE.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.KE.values.base[:,:,k])
-            self.gZ.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.gZ.values.base[:,:,k])
+            self.QL.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.gZ.values.base[:,:,k])
             self.Wp.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.Wp.values.base[:,:,k])
             j = Pr.n_layers-k-1 # geopotential is computed bottom -> up
             self.gZ.values.base[:,:,j]  = np.add(np.multiply(np.multiply(Pr.Rd,PV.T.values[:,:,j]),np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))),self.gZ.values[:,:,j+1])
@@ -39,6 +40,9 @@ cdef class DiagnosticVariables:
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
+        Stats.add_global_mean('global_mean_QL')
+        Stats.add_zonal_mean('zonal_mean_QL')
+        Stats.add_meridional_mean('meridional_mean_QL')
         Stats.add_global_mean('global_mean_KE')
         Stats.add_global_mean('global_mean_gZ')
         Stats.add_zonal_mean('zonal_mean_U')
@@ -64,6 +68,9 @@ cdef class DiagnosticVariables:
         return
 
     cpdef stats_io(self, NetCDFIO_Stats Stats):
+        Stats.write_global_mean('global_mean_QL', self.QL.values)
+        Stats.write_zonal_mean('zonal_mean_QL',self.QL.values)
+        Stats.write_meridional_mean('meridional_mean_QL',self.QL.values)
         Stats.write_global_mean('global_mean_KE', self.KE.values)
         Stats.write_global_mean('global_mean_gZ', self.gZ.values[:,:,0:3])
         Stats.write_zonal_mean('zonal_mean_U',self.U.values)
@@ -79,7 +86,8 @@ cdef class DiagnosticVariables:
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Geopotential',  self.gZ.values[:,:,0:Pr.n_layers])
         Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Wp',            self.Wp.values[:,:,1:Pr.n_layers+1])
-        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'U',             self.V.values)
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'QL',            self.QL.values)
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'U',             self.U.values)
         Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'V',             self.V.values)
         Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Kinetic_enegry',self.KE.values)
         return
@@ -99,6 +107,7 @@ cdef class DiagnosticVariables:
             self.KE.values.base[:,:,k]    = np.multiply(0.5,np.add(np.power(self.U.values[:,:,k],2.0),np.power(self.V.values[:,:,k],2.0)))
             self.Wp.values.base[:,:,k+1]  = np.subtract(self.Wp.values[:,:,k],
                                        np.multiply(np.subtract(PV.P.values[:,:,k+1],PV.P.values[:,:,k]),PV.Divergence.values[:,:,k]))
+            Rm = np.add(np.multiply(Pr.Rd,np.subtract(1.0,PV.QT.values[:,:,j])),np.multiply(Pr.Rv,np.subtract(PV.QT.values[:,:,j],self.QL.values[:,:,j])))
             self.gZ.values.base[:,:,j]  = np.add(np.multiply(np.multiply(Pr.Rd,PV.T.values[:,:,j]),np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))),self.gZ.values[:,:,j+1])
         return
 
