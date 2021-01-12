@@ -47,7 +47,7 @@ cdef class CaseBase:
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
 
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
+    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
         return
 
     cpdef update_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
@@ -123,8 +123,8 @@ cdef class HeldSuarez(CaseBase):
         self.Sur.io(Pr, TS, Stats)
         return
 
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
-        CaseBase.stats_io(self, Stats)
+    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
+        CaseBase.stats_io(self, PV, Stats)
         self.Fo.stats_io(Stats)
         self.Sur.stats_io(Stats)
         return
@@ -259,6 +259,7 @@ cdef class HeldSuarezMoist(CaseBase):
         CaseBase.initialize_io(self, Stats)
         self.Fo.initialize_io(Stats)
         self.Sur.initialize_io(Stats)
+        self.MP.initialize_io(Stats)
         return
 
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
@@ -268,11 +269,11 @@ cdef class HeldSuarezMoist(CaseBase):
         self.MP.io(Pr, TS, Stats)
         return
 
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
-        CaseBase.stats_io(self, Stats)
+    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
+        CaseBase.stats_io(self, PV, Stats)
         self.Fo.stats_io(Stats)
         self.Sur.stats_io(Stats)
-        self.MP.stats_io(Stats)
+        self.MP.stats_io(PV, Stats)
         return
 
     cpdef update_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):

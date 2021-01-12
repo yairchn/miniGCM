@@ -26,7 +26,7 @@ cdef class MicrophysicsBase:
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         return
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
+    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
         return
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
@@ -46,7 +46,7 @@ cdef class MicrophysicsNone(MicrophysicsBase):
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         return
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
+    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
         return
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
@@ -109,17 +109,11 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
             PV.QT.mp_tendency.base[:,:,k] = -np.clip(np.divide(np.divide(np.subtract(PV.QT.values[:,:,k], np.multiply(1.0+Pr.max_ss,qv_star)),denom),TS.dt), 0.0, None)
             PV.T.mp_tendency.base[:,:,k]  =  np.clip(np.multiply(Pr.Lv/Pr.cp,np.divide(np.divide(np.subtract(PV.QT.values[:,:,k], qv_star),denom),TS.dt)), 0.0, None)
 
-            print(k, 'temps',  np.max(PV.T.values[:,:,k]), Pr.T_0)
-            print(k, 'denom', np.max(denom))
-            print(k, 'qs', np.max(qv_star), np.max(PV.QT.values[:,:,k]))
-            print(k, 'T tend', np.max(PV.T.mp_tendency[:,:,k]))
-            print('==============================')
-
         self.RainRate = -np.divide(np.sum(PV.QT.mp_tendency,2),
                  Pr.rho_w*Pr.g*(np.subtract(PV.P.values[:,:,Pr.n_layers],PV.P.values[:,:,0])))
         return
 
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
+    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
         Stats.write_global_mean('global_mean_QL', self.QL)
         Stats.write_zonal_mean('zonal_mean_QL',self.QL)
         Stats.write_meridional_mean('meridional_mean_QL',self.QL)

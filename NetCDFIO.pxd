@@ -16,7 +16,7 @@ cdef class NetCDFIO_Stats:
         object meridional_mean_grp
         object zonal_mean_grp
         object global_mean_grp
-        object surface_mean_grp
+        object surface_zonal_mean_grp
 
         str stats_file_name
         str stats_path

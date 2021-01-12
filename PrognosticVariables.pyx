@@ -243,12 +243,5 @@ cdef class PrognosticVariables:
             PV.Divergence.tendency.base[:,k] =  np.add(np.subtract(np.subtract(np.subtract(Vortical_momentum_flux, Dry_Energy_laplacian),
                 div_flux_up),div_flux_dn), PV.Divergence.forcing[:,k])
             PV.T.tendency.base[:,k] = np.subtract(np.add(Gr.SphericalGrid.grdtospec(np.subtract(np.subtract(np.add(T_flux_up,PV.T.mp_tendency[:,:,k]),Thermal_expension),PV.T.VerticalFlux[:,:,k])), PV.T.forcing[:,k]), Divergent_T_flux)
-            print(k, 'QT', np.max(np.abs(PV.QT.values.base[:,:,k])))
-            print(k, 'QT_flux_up', np.max(np.abs(QT_flux_up.base)))
-            print(k, 'QT.mp_tendency', np.max(np.abs(PV.QT.mp_tendency.base[:,:,k])))
-            print(k, 'QT.VerticalFlux', np.max(np.abs(PV.QT.VerticalFlux.base[:,:,k])))
-            print(k, 'QT.Forcing', np.max(np.abs(Gr.SphericalGrid.spectogrd(PV.QT.forcing.base[:,k]))))
-            print(k, 'Divergent_QT_flux', np.max(np.abs(Divergent_QT_flux.base)))
-            print('==============================================================================')
-            PV.QT.tendency.base[:,k] = np.subtract(np.add(Gr.SphericalGrid.grdtospec(np.subtract(np.subtract(np.add(QT_flux_up,PV.QT.mp_tendency[:,:,k]),Thermal_expension),PV.QT.VerticalFlux[:,:,k])),PV.QT.forcing[:,k]),Divergent_QT_flux)
+            PV.QT.tendency.base[:,k] = np.subtract(np.add(Gr.SphericalGrid.grdtospec(np.subtract(np.add(QT_flux_up,PV.QT.mp_tendency[:,:,k]),PV.QT.VerticalFlux[:,:,k])),PV.QT.forcing[:,k]),Divergent_QT_flux)
         return

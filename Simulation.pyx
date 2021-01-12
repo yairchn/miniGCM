@@ -71,12 +71,6 @@ class Simulation:
         return
 
     def io(self):
-        self.DV.io(self.Gr, self.TS, self.Stats)
-        self.PV.io(self.Gr, self.TS, self.Stats)
-        self.Case.io(self.Gr, self.TS, self.Stats)
-        return
-
-    def io(self):
         self.DV.io(self.Pr, self.TS, self.Stats)
         self.PV.io(self.Pr, self.TS, self.Stats)
         self.Case.io(self.Pr, self.TS, self.Stats)
@@ -87,7 +81,7 @@ class Simulation:
         self.Stats.write_simulation_time(self.TS.t)
         self.DV.stats_io(self.Stats)
         self.PV.stats_io(self.Stats)
-        self.Case.stats_io(self.Stats)
+        self.Case.stats_io(self.PV, self.Stats)
         self.Stats.close_files()
         return
 
