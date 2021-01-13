@@ -44,7 +44,8 @@ class Simulation:
 
     def run(self, namelist):
         print('run')
-        t0 = time.clock()
+        start_time = time.clock()
+        # t0 = time.clock()
         while self.TS.t <= self.TS.t_max:
             self.PV.reset_pressures(self.Pr)
             # print('PV.reset_pressures',time.clock() - t0)
@@ -61,10 +62,10 @@ class Simulation:
 
             if np.mod(self.TS.t, self.Stats.stats_frequency) == 0:
                 self.stats_io()
-                print('simulation time [days] about', self.TS.t)
-                print('wall-clock time [days] about', time.clock() - t0)
-                # print('minimum surface pressure [mb] is', np.min(self.PV.P.values[:,:,self.Pr.n_layers])/100.0)
             if np.mod(self.TS.t, self.Stats.output_frequency) == 0:
+                print('simulation time [days]  about', np.floor_divide(self.TS.t,(24.0*3600.0)))
+                print('wall-clock time [hours] about', np.floor_divide(time.clock() - start_time,(3600.0)))
+                # print('minimum surface pressure [mb] is', np.min(self.PV.P.values[:,:,self.Pr.n_layers])/100.0)
                 self.io()
         return
 

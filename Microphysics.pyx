@@ -91,6 +91,7 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
     cpdef update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         cdef:
             Py_ssize_t k
+
         for k in range(Pr.n_layers):
 
             # magnus formula alternative
@@ -102,7 +103,7 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
             P_half = np.multiply(np.add(PV.P.values[:,:,k],PV.P.values[:,:,k+1]),0.5)
 
             qv_star = np.multiply(np.divide(np.multiply(Pr.qv_star0,Pr.eps_v),P_half),
-                np.exp(-np.multiply(np.divide(Pr.Lv,Pr.Rv),np.subtract(np.divide(1.0,PV.T.values[:,:,k]),np.divide(1.0,Pr.T_0)))))
+                np.exp(-np.multiply(Pr.Lv/Pr.Rv,np.subtract(np.divide(1.0,PV.T.values[:,:,k]),np.divide(1.0,Pr.T_0)))))
 
             DV.QL.values.base[:,:,k] = np.clip(PV.QT.values[:,:,k] - qv_star,0.0, None)
             denom = np.add(1.0,np.multiply((Pr.Lv**2.0/Pr.cp/Pr.Rv),np.divide(qv_star,np.power(PV.T.values[:,:,k],2.0))))
