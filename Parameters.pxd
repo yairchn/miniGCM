@@ -51,6 +51,8 @@ cdef class Parameters:
         double dT_s
         double T_min
         double dphi_s
+        double efold
+        double inoise
 
         str case
         str surface_model

@@ -91,8 +91,9 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
     cpdef update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         cdef:
             Py_ssize_t k
+            Py_ssize_t nl = Pr.n_layers
 
-        for k in range(Pr.n_layers):
+        for k in range(nl):
 
             # magnus formula alternative
             # T_cel = PV.T.values[:,:,k] - 273.15
@@ -111,7 +112,7 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
             PV.T.mp_tendency.base[:,:,k]  =  np.clip(np.multiply(Pr.Lv/Pr.cp,np.divide(np.divide(np.subtract(PV.QT.values[:,:,k], qv_star),denom),TS.dt)), 0.0, None)
 
         self.RainRate = -np.divide(np.sum(PV.QT.mp_tendency,2),
-                 Pr.rho_w*Pr.g*(np.subtract(PV.P.values[:,:,Pr.n_layers],PV.P.values[:,:,0])))
+                 Pr.rho_w*Pr.g*(np.subtract(PV.P.values[:,:,nl],PV.P.values[:,:,0])))
         return
 
     cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):

@@ -71,32 +71,18 @@ cdef class HeldSuarez(CaseBase):
         PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
         PV.T_init        = np.array([229.0, 257.0, 295.0])
 
-        Pr.sigma_b = namelist['forcing']['sigma_b']
-        Pr.k_a = namelist['forcing']['k_a']
-        Pr.k_s = namelist['forcing']['k_s']
-        Pr.k_f = namelist['forcing']['k_f']
-        Pr.DT_y = namelist['forcing']['equator_to_pole_dT']
-        Pr.T_equator = namelist['forcing']['equatorial_temperature']
-        Pr.Dtheta_z = namelist['forcing']['lapse_rate']
-        Pr.Tbar0 = namelist['forcing']['relaxation_temperature']
-        Pr.cp = namelist['thermodynamics']['heat_capacity']
-        Pr.Rd = namelist['thermodynamics']['dry_air_gas_constant']
-
 
         PV.Vorticity.values  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         PV.Divergence.values = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         PV.QT.values         = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c')
         PV.P.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),PV.P_init)
         PV.T.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),PV.T_init)
+        if Pr.inoise==1: # load the random noise to grid space
+             noise=np.load('../norm_rand_grid_noise_white.npy')/10.0
+             self.T.spectral[:,Pr.n_layers-1] += np.add(self.T.spectral[:,Pr.n_layers-1],
+                                                        Gr.SphericalGrid.grdtospec(noise))
+
         PV.physical_to_spectral(Pr, Gr)
-        # # initilize spectral values
-        # for k in range(Pr.n_layers):
-        #     PV.P.spectral.base[:,k]           = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,k])
-        #     PV.T.spectral.base[:,k]           = Gr.SphericalGrid.grdtospec(PV.T.values[:,:,k])
-        #     PV.QT.spectral.base[:,k]          = Gr.SphericalGrid.grdtospec(PV.QT.values[:,:,k])
-        #     PV.Vorticity.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(PV.Vorticity.values[:,:,k])
-        #     PV.Divergence.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(PV.Divergence.values[:,:,k])
-        # PV.P.spectral[:,Pr.n_layers]     = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,Pr.n_layers])
         return
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
@@ -175,16 +161,6 @@ cdef class HeldSuarezMoist(CaseBase):
         Pr.T_0       = namelist['thermodynamics']['triple_point_temp']
         Pr.P_hw      = namelist['thermodynamics']['verical_half_width_of_the_q']
         Pr.phi_hw    = namelist['thermodynamics']['horizontal_half_width_of_the_q']
-        Pr.sigma_b   = namelist['forcing']['sigma_b']
-        Pr.k_a       = namelist['forcing']['k_a']
-        Pr.k_s       = namelist['forcing']['k_s']
-        Pr.k_f       = namelist['forcing']['k_f']
-        Pr.T_equator = namelist['forcing']['equatorial_temperature']
-        Pr.T_pole    = namelist['forcing']['polar_temperature']
-        Pr.init_k    = namelist['forcing']['initial_profile_power']
-        Pr.DT_y      = namelist['forcing']['equator_to_pole_dT']
-        Pr.Dtheta_z  = namelist['forcing']['lapse_rate']
-        Pr.Tbar0     = namelist['forcing']['relaxation_temperature']
         Gamma        = namelist['forcing']['Gamma_init']
         z            = np.linspace(0,20000,200)
 
@@ -235,6 +211,10 @@ cdef class HeldSuarezMoist(CaseBase):
                 PV.QT.values.base[:,i,k] = QT_meridional
                 PV.T.values.base[:,i,k]  = T_meridional
 
+        if Pr.inoise==1: # load the random noise to grid space
+             noise=np.load('../norm_rand_grid_noise_white.npy')/10.0
+             self.T.spectral[:,Pr.n_layers-1] += np.add(self.T.spectral[:,Pr.n_layers-1],
+                                                        Gr.SphericalGrid.grdtospec(noise))
         for k in range(Pr.n_layers):
             PV.T.spectral.base[:,k]           = Gr.SphericalGrid.grdtospec(PV.T.values.base[:,:,k])
             PV.QT.spectral.base[:,k]          = Gr.SphericalGrid.grdtospec(PV.QT.values.base[:,:,k])

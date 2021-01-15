@@ -21,7 +21,7 @@ cdef class Diffusion:
 
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, double dt):
         for i in range (Gr.SphericalGrid.nlm):
-            self.diffusion_factor[i] = (1e-5*((Gr.SphericalGrid.lap[i]/Gr.SphericalGrid.lap[-1])**(Pr.dissipation_order/2)))
+            self.diffusion_factor[i] = (1.0/Pr.efold*((Gr.SphericalGrid.lap[i]/Gr.SphericalGrid.lap[-1])**(Pr.dissipation_order/2)))
             self.HyperDiffusionFactor[i] = np.exp(-dt*self.diffusion_factor[i])
         self.HyperDiffusionFactor.base[Gr.SphericalGrid._shtns.l>=Pr.truncation_number] = 0.0
         for k in range(Pr.n_layers):

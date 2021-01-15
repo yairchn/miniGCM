@@ -35,8 +35,10 @@ cdef class Parameters:
         self.dissipation_order = namelist['diffusion']['dissipation_order']
         self.truncation_order = namelist['diffusion']['truncation_order']
         self.truncation_number = int(self.nlons/self.truncation_order)
+        self.efold             = namelist['diffusion']['e_folding_timescale']
 
         self.surface_model    = namelist['surface']['surface_model']
+        self.inoise           = namelist['initialize']['inoise']
 
         return
 
