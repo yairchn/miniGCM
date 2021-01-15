@@ -78,7 +78,7 @@ cdef class HeldSuarez(CaseBase):
         PV.P.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),PV.P_init)
         PV.T.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),PV.T_init)
         if Pr.inoise==1: # load the random noise to grid space
-             noise=np.load('../norm_rand_grid_noise_white.npy')/10.0
+             noise=np.load('../Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
              self.T.spectral[:,Pr.n_layers-1] += np.add(self.T.spectral[:,Pr.n_layers-1],
                                                         Gr.SphericalGrid.grdtospec(noise))
 
@@ -212,7 +212,7 @@ cdef class HeldSuarezMoist(CaseBase):
                 PV.T.values.base[:,i,k]  = T_meridional
 
         if Pr.inoise==1: # load the random noise to grid space
-             noise=np.load('../norm_rand_grid_noise_white.npy')/10.0
+             noise=np.load('../Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
              self.T.spectral[:,Pr.n_layers-1] += np.add(self.T.spectral[:,Pr.n_layers-1],
                                                         Gr.SphericalGrid.grdtospec(noise))
         for k in range(Pr.n_layers):
