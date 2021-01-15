@@ -68,9 +68,11 @@ cdef class HeldSuarez(CaseBase):
         return
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+        cdef:
+            double [:,:] noise
+
         PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
         PV.T_init        = np.array([229.0, 257.0, 295.0])
-
 
         PV.Vorticity.values  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         PV.Divergence.values = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
@@ -152,6 +154,7 @@ cdef class HeldSuarezMoist(CaseBase):
             double [:] QT_meridional
             double [:] T_meridional
             double [:,:] p
+            double [:,:] noise
             double [:,:,:] qv_star_
             double [:,:,:] Tv_
             double [:,:,:] QT_
