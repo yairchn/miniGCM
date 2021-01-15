@@ -97,7 +97,7 @@ cdef class HelzSuarez(ForcingBase):
 		return
 
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-		Stats.write_3D_variable(Pr, int(TS.t), nl, 'T_eq', self.Tbar)
+		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'T_eq', self.Tbar)
 		return
 
 	cpdef stats_io(self, NetCDFIO_Stats Stats):
