@@ -23,7 +23,7 @@ def main():
 
     namelist_defaults['diffusion'] = {}
     namelist_defaults['diffusion']['dissipation_order'] = 8.0
-    namelist_defaults['diffusion']['truncation_order'] = 4
+    namelist_defaults['diffusion']['truncation_order'] = 3
     namelist_defaults['diffusion']['e_folding_timescale'] = 600.0
 
     namelist_defaults['grid'] = {}
@@ -106,7 +106,6 @@ def HeldSuarez(namelist_defaults):
     namelist['surface']['surface_model'] = 'None'
 
     namelist['diffusion']['type'] = 'hyperdiffusion'
-    namelist['diffusion']['order'] = 8.0
 
     return namelist
 
