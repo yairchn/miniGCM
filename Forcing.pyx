@@ -58,15 +58,6 @@ cdef class HelzSuarez(ForcingBase):
 		self.k_T   = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.double, order='c')
 		self.k_Q   = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.double, order='c')
 		self.k_v   = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.double, order='c')
-		Pr.sigma_b = namelist['forcing']['sigma_b']
-		Pr.k_a = namelist['forcing']['k_a']
-		Pr.k_b = namelist['forcing']['k_b']
-		Pr.k_s = namelist['forcing']['k_s']
-		Pr.k_f = namelist['forcing']['k_f']
-		Pr.DT_y = namelist['forcing']['equator_to_pole_dT']
-		Pr.Dtheta_z = namelist['forcing']['lapse_rate']
-		Pr.T_equator = namelist['forcing']['equatorial_temperature']
-		Pr.Tbar0 = namelist['forcing']['relaxation_temperature']
 		return
 
 	cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -120,17 +111,6 @@ cdef class HelzSuarezMoist(ForcingBase):
 		return
 
 	cpdef initialize(self, Parameters Pr, namelist):
-		Pr.sigma_b   = namelist['forcing']['sigma_b']
-		Pr.k_a       = namelist['forcing']['k_a']
-		Pr.k_b       = namelist['forcing']['k_b']
-		Pr.k_s       = namelist['forcing']['k_s']
-		Pr.k_f       = namelist['forcing']['k_f']
-		Pr.DT_y      = namelist['forcing']['equator_to_pole_dT']
-		Pr.T_equator = namelist['forcing']['equatorial_temperature']
-		Pr.Dtheta_z  = namelist['forcing']['lapse_rate']
-		Pr.Tbar0     = namelist['forcing']['relaxation_temperature']
-		Pr.T_pole    = namelist['forcing']['polar_temperature']
-		Pr.init_k    = namelist['forcing']['initial_profile_power']
 
 		self.Tbar  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.double, order='c')
 		self.k_T   = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.double, order='c')

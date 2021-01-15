@@ -74,15 +74,25 @@ cdef class HeldSuarez(CaseBase):
         PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
         PV.T_init        = np.array([229.0, 257.0, 295.0])
 
+        Pr.sigma_b = namelist['forcing']['sigma_b']
+        Pr.k_a = namelist['forcing']['k_a']
+        Pr.k_b = namelist['forcing']['k_b']
+        Pr.k_s = namelist['forcing']['k_s']
+        Pr.k_f = namelist['forcing']['k_f']
+        Pr.DT_y = namelist['forcing']['equator_to_pole_dT']
+        Pr.Dtheta_z = namelist['forcing']['lapse_rate']
+        Pr.T_equator = namelist['forcing']['equatorial_temperature']
+        Pr.Tbar0 = namelist['forcing']['relaxation_temperature']
+
         PV.Vorticity.values  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         PV.Divergence.values = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         PV.QT.values         = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c')
         PV.P.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),PV.P_init)
         PV.T.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),PV.T_init)
         if Pr.inoise==1: # load the random noise to grid space
-             noise=np.load('../Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
-             self.T.spectral[:,Pr.n_layers-1] += np.add(self.T.spectral[:,Pr.n_layers-1],
-                                                        Gr.SphericalGrid.grdtospec(noise))
+             noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
+             PV.T.spectral.base[:,Pr.n_layers-1] += np.add(PV.T.spectral.base[:,Pr.n_layers-1],
+                                                        Gr.SphericalGrid.grdtospec(noise.base))
 
         PV.physical_to_spectral(Pr, Gr)
         return
@@ -164,7 +174,19 @@ cdef class HeldSuarezMoist(CaseBase):
         Pr.T_0       = namelist['thermodynamics']['triple_point_temp']
         Pr.P_hw      = namelist['thermodynamics']['verical_half_width_of_the_q']
         Pr.phi_hw    = namelist['thermodynamics']['horizontal_half_width_of_the_q']
+
         Gamma        = namelist['forcing']['Gamma_init']
+        Pr.sigma_b   = namelist['forcing']['sigma_b']
+        Pr.k_a       = namelist['forcing']['k_a']
+        Pr.k_b       = namelist['forcing']['k_b']
+        Pr.k_s       = namelist['forcing']['k_s']
+        Pr.k_f       = namelist['forcing']['k_f']
+        Pr.DT_y      = namelist['forcing']['equator_to_pole_dT']
+        Pr.T_equator = namelist['forcing']['equatorial_temperature']
+        Pr.Dtheta_z  = namelist['forcing']['lapse_rate']
+        Pr.Tbar0     = namelist['forcing']['relaxation_temperature']
+        Pr.T_pole    = namelist['forcing']['polar_temperature']
+        Pr.init_k    = namelist['forcing']['initial_profile_power']
         z            = np.linspace(0,20000,200)
 
         PV.P_init            = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
@@ -215,9 +237,9 @@ cdef class HeldSuarezMoist(CaseBase):
                 PV.T.values.base[:,i,k]  = T_meridional
 
         if Pr.inoise==1: # load the random noise to grid space
-             noise=np.load('../Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
-             self.T.spectral[:,Pr.n_layers-1] += np.add(self.T.spectral[:,Pr.n_layers-1],
-                                                        Gr.SphericalGrid.grdtospec(noise))
+             noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
+             PV.T.spectral.base[:,Pr.n_layers-1] += np.add(PV.T.spectral.base[:,Pr.n_layers-1],
+                                                        Gr.SphericalGrid.grdtospec(noise.base))
         for k in range(Pr.n_layers):
             PV.T.spectral.base[:,k]           = Gr.SphericalGrid.grdtospec(PV.T.values.base[:,:,k])
             PV.QT.spectral.base[:,k]          = Gr.SphericalGrid.grdtospec(PV.QT.values.base[:,:,k])

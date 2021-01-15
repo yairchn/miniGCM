@@ -49,6 +49,8 @@ def main():
     namelist_defaults['thermodynamics']['latent_heat_evap']     = 2.5008e6  # [J / (kg K)]
     namelist_defaults['thermodynamics']['pv_star_triple_point'] = 610.78
     namelist_defaults['thermodynamics']['triple_point_temp']    = 273.16    # [K]
+
+    namelist_defaults['initialize'] = {}
     namelist_defaults['initialize']['inoise']                   = 1 # flag for noise in initial condition
 
     namelist_defaults['output'] = {}

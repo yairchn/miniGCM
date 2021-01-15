@@ -13,15 +13,14 @@ from PrognosticVariables import PrognosticVariables, PrognosticVariable
 import sys
 import time
 from TimeStepping import TimeStepping
-from TimeStepping import TimeStepping
 from Microphysics import MicrophysicsBase
 from LogFile import LogFile
 
 class Simulation:
 
     def __init__(self, namelist):
-        self.LF = LogFile(namelist)
         self.Pr = Parameters.Parameters(namelist)
+        self.LF = LogFile(namelist)
         self.Gr = Grid.Grid(self.Pr, namelist)
         self.Case = CasesFactory(namelist)
         self.PV = PrognosticVariables(self.Pr, self.Gr, namelist)
@@ -32,7 +31,7 @@ class Simulation:
         return
 
     def initialize(self, namelist):
-        self.LF.initialize(namelist)
+        self.LF.initialize(self.Pr, namelist)
         self.Case.initialize(self.Pr, self.Gr, self.PV, namelist)
         self.DV.initialize(self.Pr, self.Gr,self.PV)
         # self.PV.initialize(self.Pr)
@@ -81,7 +80,7 @@ class Simulation:
                 self.stats_io()
             if np.mod(self.TS.t, self.Stats.output_frequency) == 0:
                 wallclocktime = time.clock() - start_time
-                self.LF.update(self.TS, self.DV, wallclocktime, namelist)
+                self.LF.update(self.Pr, self.TS, self.DV, self.PV, wallclocktime, namelist)
                 self.io()
         return
 
