@@ -136,7 +136,7 @@ def HeldSuarezMoist(namelist_defaults):
     namelist['forcing']['lapse_rate']             = 10.0 # Characteristic potential temperature change in vertical [K]
     namelist['forcing']['relaxation_temperature'] = 300.         # mean temp (some typical range) [K]
     namelist['forcing']['initial_profile_power'] = 3.0
-    namelist['forcing']['initial_surface_qt'] = 0.01
+    namelist['forcing']['initial_surface_qt'] = 0.018
     namelist['forcing']['Gamma_init'] = 0.005
 
 
