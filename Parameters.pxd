@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import time
 import scipy as sc
 from math import *
+import os
 
 cdef class Parameters:
     cdef:
@@ -35,6 +36,7 @@ cdef class Parameters:
         double k_a
         double k_s
         double k_f
+        double k_b
         double DT_y
         double T_equator
         double Dtheta_z
@@ -51,6 +53,12 @@ cdef class Parameters:
         double dT_s
         double T_min
         double dphi_s
+        double efold
+        double inoise
 
         str case
         str surface_model
+        str uuid
+        str casename
+        str outpath
+        str logfilename

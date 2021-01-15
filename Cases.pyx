@@ -1,6 +1,6 @@
 import numpy as np
 from PrognosticVariables cimport PrognosticVariables
-from PrognosticVariables cimport PrognosticVariables
+from DiagnosticVariables cimport DiagnosticVariables
 from Grid cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
 cimport Forcing
@@ -35,10 +35,10 @@ cdef class CaseBase:
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         return
 
-    cpdef initialize_forcing(self, Parameters Pr):
+    cpdef initialize_forcing(self, Parameters Pr, namelist):
         return
 
-    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, namelist):
+    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist):
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -47,7 +47,7 @@ cdef class CaseBase:
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
 
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
+    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
         return
 
     cpdef update_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
@@ -56,7 +56,7 @@ cdef class CaseBase:
     cpdef update_forcing(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
         return
 
-    cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS):
+    cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         return
 
 cdef class HeldSuarez(CaseBase):
@@ -68,47 +68,45 @@ cdef class HeldSuarez(CaseBase):
         return
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+        cdef:
+            double [:,:] noise
+
         PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
         PV.T_init        = np.array([229.0, 257.0, 295.0])
 
         Pr.sigma_b = namelist['forcing']['sigma_b']
         Pr.k_a = namelist['forcing']['k_a']
+        Pr.k_b = namelist['forcing']['k_b']
         Pr.k_s = namelist['forcing']['k_s']
         Pr.k_f = namelist['forcing']['k_f']
         Pr.DT_y = namelist['forcing']['equator_to_pole_dT']
-        Pr.T_equator = namelist['forcing']['equatorial_temperature']
         Pr.Dtheta_z = namelist['forcing']['lapse_rate']
+        Pr.T_equator = namelist['forcing']['equatorial_temperature']
         Pr.Tbar0 = namelist['forcing']['relaxation_temperature']
-        Pr.cp = namelist['thermodynamics']['heat_capacity']
-        Pr.Rd = namelist['thermodynamics']['dry_air_gas_constant']
-
 
         PV.Vorticity.values  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         PV.Divergence.values = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         PV.QT.values         = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c')
         PV.P.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),PV.P_init)
         PV.T.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),PV.T_init)
+        if Pr.inoise==1: # load the random noise to grid space
+             noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
+             PV.T.spectral.base[:,Pr.n_layers-1] += np.add(PV.T.spectral.base[:,Pr.n_layers-1],
+                                                        Gr.SphericalGrid.grdtospec(noise.base))
+
         PV.physical_to_spectral(Pr, Gr)
-        # # initilize spectral values
-        # for k in range(Pr.n_layers):
-        #     PV.P.spectral.base[:,k]           = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,k])
-        #     PV.T.spectral.base[:,k]           = Gr.SphericalGrid.grdtospec(PV.T.values[:,:,k])
-        #     PV.QT.spectral.base[:,k]          = Gr.SphericalGrid.grdtospec(PV.QT.values[:,:,k])
-        #     PV.Vorticity.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(PV.Vorticity.values[:,:,k])
-        #     PV.Divergence.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(PV.Divergence.values[:,:,k])
-        # PV.P.spectral[:,Pr.n_layers]     = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,Pr.n_layers])
         return
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Sur.initialize(Pr, Gr, PV, namelist)
         return
 
-    cpdef initialize_forcing(self, Parameters Pr):
-        self.Fo.initialize(Pr)
+    cpdef initialize_forcing(self, Parameters Pr, namelist):
+        self.Fo.initialize(Pr, namelist)
         return
 
-    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, namelist):
-        self.MP.initialize(Pr, PV, namelist)
+    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist):
+        self.MP.initialize(Pr, PV, DV, namelist)
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -123,8 +121,8 @@ cdef class HeldSuarez(CaseBase):
         self.Sur.io(Pr, TS, Stats)
         return
 
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
-        CaseBase.stats_io(self, Stats)
+    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
+        CaseBase.stats_io(self, PV, Stats)
         self.Fo.stats_io(Stats)
         self.Sur.stats_io(Stats)
         return
@@ -137,7 +135,8 @@ cdef class HeldSuarez(CaseBase):
         self.Fo.update(Pr, Gr, PV, DV)
         return
 
-    cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS):
+    cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
+        self.MP.update(Pr, PV, DV, TS)
         return
 
 cdef class HeldSuarezMoist(CaseBase):
@@ -150,21 +149,44 @@ cdef class HeldSuarezMoist(CaseBase):
 
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+        cdef:
+            Py_ssize_t i, j, k
+            double Gamma, T_0, B, C, H
+            double [:] z
+            double [:] tau_z_1
+            double [:] tau_z_2
+            double [:] tau_z_3
+            double [:] tau_1
+            double [:] tau_2
+            double [:] tau_int_1
+            double [:] tau_int_2
+            double [:] I_T
+            double [:] QT_meridional
+            double [:] T_meridional
+            double [:,:] p
+            double [:,:] noise
+            double [:,:,:] qv_star_
+            double [:,:,:] Tv_
+            double [:,:,:] QT_
+
+
         Pr.QT_0      = namelist['forcing']['initial_surface_qt']
         Pr.T_0       = namelist['thermodynamics']['triple_point_temp']
         Pr.P_hw      = namelist['thermodynamics']['verical_half_width_of_the_q']
         Pr.phi_hw    = namelist['thermodynamics']['horizontal_half_width_of_the_q']
+
+        Gamma        = namelist['forcing']['Gamma_init']
         Pr.sigma_b   = namelist['forcing']['sigma_b']
         Pr.k_a       = namelist['forcing']['k_a']
+        Pr.k_b       = namelist['forcing']['k_b']
         Pr.k_s       = namelist['forcing']['k_s']
         Pr.k_f       = namelist['forcing']['k_f']
-        Pr.T_equator = namelist['forcing']['equatorial_temperature']
-        Pr.T_pole    = namelist['forcing']['polar_temperature']
-        Pr.init_k    = namelist['forcing']['initial_profile_power']
         Pr.DT_y      = namelist['forcing']['equator_to_pole_dT']
+        Pr.T_equator = namelist['forcing']['equatorial_temperature']
         Pr.Dtheta_z  = namelist['forcing']['lapse_rate']
         Pr.Tbar0     = namelist['forcing']['relaxation_temperature']
-        Gamma        = namelist['forcing']['Gamma_init']
+        Pr.T_pole    = namelist['forcing']['polar_temperature']
+        Pr.init_k    = namelist['forcing']['initial_profile_power']
         z            = np.linspace(0,20000,200)
 
         PV.P_init            = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
@@ -181,15 +203,16 @@ cdef class HeldSuarezMoist(CaseBase):
         B   = (T_0 - Pr.T_pole) / T_0 / Pr.T_pole
         C   = 0.5 * (Pr.init_k + 2.0)*(Pr.T_equator-Pr.T_pole)/Pr.T_equator/Pr.T_pole
 
-        tau_z_1   = np.exp(Gamma * z / T_0)
-        tau_z_2   = 1.0 - np.multiply(2.0, np.power(np.divide(z / 2.0, Pr.Rd * T_0 / Pr.g),2.0))
-        tau_z_3   = np.exp(-np.power(np.divide(z / 2.0 , Pr.Rd * T_0 / Pr.g),2.0))
-        tau_1     = np.multiply(np.divide(1.0 , T_0) , tau_z_1) + np.multiply(np.multiply(B , tau_z_2) , tau_z_3)
+        H = Pr.Rd*T_0/Pr.g
+        tau_z_1   = np.exp(np.divide(np.multiply(Gamma,z), T_0))
+        tau_z_2   = 1.0 - np.multiply(2.0, np.power(np.divide(z,2.0*H),2.0))
+        tau_z_3   = np.exp(-np.power(np.divide(z, 2.0*H),2.0))
+        tau_1     = np.add(np.multiply(np.divide(1.0 , T_0) , tau_z_1), np.multiply(np.multiply(B , tau_z_2) , tau_z_3))
         tau_2     = np.multiply(np.multiply(C , tau_z_2) , tau_z_3)
-        tau_int_1 = np.multiply(1.0 / Gamma , (tau_z_1 - 1.0)) + np.multiply(np.multiply(B , z ), tau_z_3)
-        tau_int_2 = np.multiply(np.multiply(C , z) ,tau_z_3);
-        I_T       = (np.power(np.cos(Gr.lat[:,0]),Pr.init_k)
-                   - Pr.init_k/(Pr.init_k + 2.0) * np.power(np.cos(Gr.lat[:,0]),Pr.init_k+2.0))
+        tau_int_1 = np.add(np.multiply(1.0 / Gamma , np.subtract(tau_z_1, 1.0)), np.multiply(np.multiply(B , z ), tau_z_3))
+        tau_int_2 = np.multiply(np.multiply(C , z) ,tau_z_3)
+        I_T       = np.subtract(np.power(np.cos(Gr.lat[:,0]),Pr.init_k),
+                    np.multiply(Pr.init_k/(Pr.init_k + 2.0), np.power(np.cos(Gr.lat[:,0]),Pr.init_k+2.0)))
 
         for i in range(len(Gr.lat[:,0])):
             for j in range(len(z)):
@@ -207,39 +230,41 @@ cdef class HeldSuarezMoist(CaseBase):
             QT_meridional = (Pr.QT_0 * np.exp(-np.power(np.divide(Gr.lat[:,0] , Pr.phi_hw),4.0))
                 * np.exp(-((PV.P_init[k]/Pr.p_ref - 1.0) * Pr.p_ref / Pr.P_hw)**2.0))
             # QT_meridional = np.nanmean(QT_[:,:,k], axis=1)
-            eps = 1.0/Pr.eps_v-1.0
-            T_meridional = np.nanmean(Tv_[:,:,k]/(1+0.608*QT_[:,:,k]), axis=1)
-            PV.QT.values.base[:,:,k] = np.repeat(QT_meridional[:, np.newaxis], Pr.nlons, axis=1)
-            PV.T.values.base[:,:,k]  = np.repeat(T_meridional[:, np.newaxis], Pr.nlons, axis=1)
+            eps_ = Pr.Rv/Pr.Rv-1.0
+            T_meridional = np.nanmean(np.divide(Tv_[:,:,k],np.add(1,np.multiply(eps_,QT_[:,:,k]))), axis=1)
+            for i in range(Pr.nlons):
+                PV.QT.values.base[:,i,k] = QT_meridional
+                PV.T.values.base[:,i,k]  = T_meridional
 
-        # # initilize spectral values
-        PV.physical_to_spectral(Pr, Gr)
-        # for k in range(Pr.n_layers):
-        #     PV.P.spectral[:,k]           = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,k])
-        #     PV.T.spectral[:,k]           = Gr.SphericalGrid.grdtospec(PV.T.values[:,:,k])
-        #     PV.QT.spectral[:,k]          = Gr.SphericalGrid.grdtospec(PV.QT.values[:,:,k])
-        #     PV.Vorticity.spectral[:,k]   = Gr.SphericalGrid.grdtospec(PV.Vorticity.values[:,:,k])
-        #     PV.Divergence.spectral[:,k]  = Gr.SphericalGrid.grdtospec(PV.Divergence.values[:,:,k])
-        # PV.P.spectral[:,Pr.n_layers]     = Gr.SphericalGrid.grdtospec(PV.P.values[:,:,Pr.n_layers])
-
+        if Pr.inoise==1: # load the random noise to grid space
+             noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
+             PV.T.spectral.base[:,Pr.n_layers-1] += np.add(PV.T.spectral.base[:,Pr.n_layers-1],
+                                                        Gr.SphericalGrid.grdtospec(noise.base))
+        for k in range(Pr.n_layers):
+            PV.T.spectral.base[:,k]           = Gr.SphericalGrid.grdtospec(PV.T.values.base[:,:,k])
+            PV.QT.spectral.base[:,k]          = Gr.SphericalGrid.grdtospec(PV.QT.values.base[:,:,k])
+            PV.Vorticity.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(PV.Vorticity.values.base[:,:,k])
+            PV.Divergence.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(PV.Divergence.values.base[:,:,k])
+        PV.P.spectral.base[:,Pr.n_layers]     = Gr.SphericalGrid.grdtospec(PV.P.values.base[:,:,Pr.n_layers])
         return
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Sur.initialize(Pr, Gr, PV, namelist)
         return
 
-    cpdef initialize_forcing(self, Parameters Pr):
-        self.Fo.initialize(Pr)
+    cpdef initialize_forcing(self, Parameters Pr, namelist):
+        self.Fo.initialize(Pr, namelist)
         return
 
-    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, namelist):
-        self.MP.initialize(Pr, PV, namelist)
+    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist):
+        self.MP.initialize(Pr, PV, DV, namelist)
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         CaseBase.initialize_io(self, Stats)
         self.Fo.initialize_io(Stats)
         self.Sur.initialize_io(Stats)
+        self.MP.initialize_io(Stats)
         return
 
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
@@ -249,11 +274,11 @@ cdef class HeldSuarezMoist(CaseBase):
         self.MP.io(Pr, TS, Stats)
         return
 
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
-        CaseBase.stats_io(self, Stats)
+    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
+        CaseBase.stats_io(self, PV, Stats)
         self.Fo.stats_io(Stats)
         self.Sur.stats_io(Stats)
-        self.MP.stats_io(Stats)
+        self.MP.stats_io(PV, Stats)
         return
 
     cpdef update_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
@@ -264,6 +289,6 @@ cdef class HeldSuarezMoist(CaseBase):
         self.Fo.update(Pr, Gr, PV, DV)
         return
 
-    cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS):
-        self.MP.update(Pr, TS, PV)
+    cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
+        self.MP.update(Pr, PV, DV, TS)
         return

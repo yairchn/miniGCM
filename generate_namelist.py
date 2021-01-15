@@ -24,6 +24,7 @@ def main():
     namelist_defaults['diffusion'] = {}
     namelist_defaults['diffusion']['dissipation_order'] = 8.0
     namelist_defaults['diffusion']['truncation_order'] = 4
+    namelist_defaults['diffusion']['e_folding_timescale'] = 600.0
 
     namelist_defaults['grid'] = {}
     namelist_defaults['grid']['dims'] = 1
@@ -43,11 +44,14 @@ def main():
 
     namelist_defaults['thermodynamics'] = {}
     namelist_defaults['thermodynamics']['heat_capacity']        = 1004.0    # [J / (kg K)]
-    namelist_defaults['thermodynamics']['dry_air_gas_constant'] = 287.0     # [J / (kg K)]
+    namelist_defaults['thermodynamics']['dry_air_gas_constant'] = 287.04     # [J / (kg K)]
     namelist_defaults['thermodynamics']['vapor_gas_constant']   = 461.5     # [J / (kg K)]
     namelist_defaults['thermodynamics']['latent_heat_evap']     = 2.5008e6  # [J / (kg K)]
     namelist_defaults['thermodynamics']['pv_star_triple_point'] = 610.78
     namelist_defaults['thermodynamics']['triple_point_temp']    = 273.16    # [K]
+
+    namelist_defaults['initialize'] = {}
+    namelist_defaults['initialize']['inoise']                   = 1 # flag for noise in initial condition
 
     namelist_defaults['output'] = {}
     namelist_defaults['output']['output_root'] = './'
@@ -90,6 +94,7 @@ def HeldSuarez(namelist_defaults):
     namelist['forcing']['k_a']          = 1./40.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_s']          =  1./4.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_f']          = 1.0/(24.0*3600.0)      # [1/sec]
+    namelist['forcing']['k_b']          = 1./40.0/(24.0*3600.0)/2.0  # [1/sec]
     namelist['forcing']['equator_to_pole_dT']         = 60.                    # Characteristic temperature change in meridional direction [K]
     namelist['forcing']['equatorial_temperature']    = 300.                   # Characteristic temperature at the equator [K]
     namelist['forcing']['lapse_rate']   = 10.0                   # Characteristic potential temperature change in vertical [K]
@@ -122,8 +127,9 @@ def HeldSuarezMoist(namelist_defaults):
     namelist['forcing']['forcing_type'] = 'HeldSuarezMoist'
     namelist['forcing']['sigma_b']      = 0.7                    # sigma coordiantes as sigma=p/ps
     namelist['forcing']['k_a']          = 1./40.0/(24.0*3600.0)  # [1/sec]
-    namelist['forcing']['k_s']          =  1./4.0/(24.0*3600.0)  # [1/sec]
+    namelist['forcing']['k_s']          = 1./4.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_f']          = 1.0/(24.0*3600.0)      # [1/sec]
+    namelist['forcing']['k_b']          = 1./40.0/(24.0*3600.0)/2.0  # [1/sec]
     namelist['forcing']['equatorial_temperature'] = 310.0 # Surface temperature at the equator [K]
     namelist['forcing']['polar_temperature']      = 240.0 # Surface temperature at the pole [K]
     namelist['forcing']['equator_to_pole_dT']     = 65.0  # Characteristic temperature change in meridional direction [K]
