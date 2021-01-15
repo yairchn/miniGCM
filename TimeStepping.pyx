@@ -10,7 +10,7 @@ from Parameters cimport Parameters
 cdef class TimeStepping:
 	def __init__(self, namelist):
 		self.dt = namelist['timestepping']['dt']
-		self.t_max = namelist['timestepping']['t_max']
+		self.t_max = namelist['timestepping']['t_max']*24.0*3600.0 # sec/day
 		return
 
 	cpdef initialize(self):
