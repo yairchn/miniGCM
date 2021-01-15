@@ -18,4 +18,5 @@ _templates/
 *.nc
 *.pyc
 *.out
+*.log
 __pycache__/
