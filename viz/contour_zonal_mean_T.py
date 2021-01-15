@@ -11,8 +11,9 @@ def main():
     parser.add_argument("varname")
     args = parser.parse_args()
     varname = args.varname
+    varname = 'zonal_mean_T'
 
-    folder = os.getcwd() + '/Output.HeldSuarez.e10k2/stats/'
+    folder = os.getcwd() + '/Output.HeldSuarez.310k2/stats/'
     ncfile = folder + 'Stats.HeldSuarez.Restart_2.nc'
     data = nc.Dataset(ncfile, 'r')
 
@@ -29,7 +30,7 @@ def main():
         ax1 = fig.add_subplot(n, 1, i+1)
         im1 = ax1.contourf(X,Y,np.fliplr(np.rot90(np.squeeze(var[:,:,i]), k=3)),cmap='coolwarm')
         ax1.set_ylabel('latitude / $\circ$')
-        if i==0: plt.title('Hovmoeller Diagram of $\overline{u}$ / m s$^{-1}$')
+        if i==0: plt.title('Hovmoeller Diagram of $\overline{T}$ / K')
         if i<n-1:
             xlabels = [item.get_text() for item in ax1.get_xticklabels()]
             xempty_string_labels = [''] * len(xlabels)

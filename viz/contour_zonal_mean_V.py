@@ -11,9 +11,13 @@ def main():
     parser.add_argument("varname")
     args = parser.parse_args()
     varname = args.varname
+    varname = 'zonal_mean_V'
+    restart= '.Restart_2'
 
-    folder = os.getcwd() + '/Output.HeldSuarez.e10k2/stats/'
-    ncfile = folder + 'Stats.HeldSuarez.Restart_2.nc'
+    run = 'ef5k0'
+    run = '310k2'
+    folder = os.getcwd() + '/Output.HeldSuarez.'+run+'/stats/'
+    ncfile = folder + 'Stats.HeldSuarez'+restart+'.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
@@ -27,9 +31,9 @@ def main():
     fig = plt.figure(varname)
     for i in range(n):
         ax1 = fig.add_subplot(n, 1, i+1)
-        im1 = ax1.contourf(X,Y,np.fliplr(np.rot90(np.squeeze(var[:,:,i]), k=3)),cmap='coolwarm')
+        im1 = ax1.contourf(X,Y,np.fliplr(np.rot90(np.squeeze(var[:,:,i]), k=3)),levels=np.linspace(-1,1,50),extend='both',cmap='coolwarm')
         ax1.set_ylabel('latitude / $\circ$')
-        if i==0: plt.title('Hovmoeller Diagram of $\overline{u}$ / m s$^{-1}$')
+        if i==0: plt.title('Hovmoeller Diagram of $\overline{v}$ / m s$^{-1}$')
         if i<n-1:
             xlabels = [item.get_text() for item in ax1.get_xticklabels()]
             xempty_string_labels = [''] * len(xlabels)
@@ -37,6 +41,6 @@ def main():
         else:
             ax1.set_xlabel('time / days')
         fig.colorbar(im1)
-    plt.savefig('zonal_mean.png')
+    plt.savefig(varname+'_'+run+'.png')
 if __name__ == '__main__':
     main()

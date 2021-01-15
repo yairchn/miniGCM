@@ -19,11 +19,14 @@ def main():
     namelist_defaults['timestepping']['CFL_limit'] = 0.5
     namelist_defaults['timestepping']['dt'] = 1000.0
 
+    namelist_defaults['initialize'] = {}
+
     namelist_defaults['forcing'] = {}
 
     namelist_defaults['diffusion'] = {}
     namelist_defaults['diffusion']['dissipation_order'] = 8.0
-    namelist_defaults['diffusion']['truncation_order'] = 4
+    namelist_defaults['diffusion']['efold'] = 600.
+    namelist_defaults['diffusion']['truncation_order'] = 3
 
     namelist_defaults['microphysics'] = {}
 
@@ -54,7 +57,7 @@ def main():
     namelist_defaults['io'] = {}
     namelist_defaults['io']['stats_dir'] = 'stats'
     namelist_defaults['io']['stats_frequency'] = 24.0*3600.0
-    namelist_defaults['io']['output_frequency'] = 24.0*3600.0*7.0
+    namelist_defaults['io']['output_frequency'] = 24.0*3600.0
 
     namelist_defaults['meta'] = {}
 
@@ -81,9 +84,12 @@ def HeldSuarez(namelist_defaults):
 
     namelist['thermodynamics']['thermodynamics_type'] = 'dry'
 
+    namelist['initialize']['inoise'] = 1 # switch between 0/1 for initial noise
+
     namelist['forcing']['forcing_type'] = 'HeldSuarez'
     namelist['forcing']['sigma_b'] = 0.7      # sigma coordiantes as sigma=p/ps
     namelist['forcing']['k_a'] = 1./40.0/(24.0*3600.0)      # [1/sec]
+    namelist['forcing']['k_b'] = 1./160.0/(24.0*3600.0)      # [1/sec]
     namelist['forcing']['k_s'] =  1./4.0/(24.0*3600.0)      # [1/sec]
     namelist['forcing']['k_f'] = 1.0/(24.0*3600.0)          # [1/sec]
     namelist['forcing']['DT_y'] = 60.        # Characteristic temperature change in meridional direction [K]
@@ -93,7 +99,6 @@ def HeldSuarez(namelist_defaults):
     namelist['microphysics']['rain_model'] = 'None'
 
     namelist['diffusion']['type'] = 'hyperdiffusion'
-    namelist['diffusion']['order'] = 8.0
 
     return namelist
 

@@ -11,8 +11,12 @@ def main():
     parser.add_argument("varname")
     args = parser.parse_args()
     varname = args.varname
+    varname = 'zonal_mean_U'
+    runname='410k2'
+    runname='4e5k0'
+    runname='310k2'
 
-    folder = os.getcwd() + '/Output.HeldSuarez.e10k2/stats/'
+    folder = os.getcwd() + '/Output.HeldSuarez.'+runname+'/stats/'
     ncfile = folder + 'Stats.HeldSuarez.Restart_2.nc'
     data = nc.Dataset(ncfile, 'r')
 
@@ -27,7 +31,7 @@ def main():
     fig = plt.figure(varname)
     for i in range(n):
         ax1 = fig.add_subplot(n, 1, i+1)
-        im1 = ax1.contourf(X,Y,np.fliplr(np.rot90(np.squeeze(var[:,:,i]), k=3)),cmap='coolwarm')
+        im1 = ax1.contourf(X,Y,np.fliplr(np.rot90(np.squeeze(var[:,:,i]), k=3)),cmap='coolwarm',levels=np.linspace(-25,25,100),extend='both')
         ax1.set_ylabel('latitude / $\circ$')
         if i==0: plt.title('Hovmoeller Diagram of $\overline{u}$ / m s$^{-1}$')
         if i<n-1:
@@ -37,6 +41,6 @@ def main():
         else:
             ax1.set_xlabel('time / days')
         fig.colorbar(im1)
-    plt.savefig('zonal_mean.png')
+    plt.savefig('zonal_mean_'+runname+'.png')
 if __name__ == '__main__':
     main()

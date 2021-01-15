@@ -30,10 +30,10 @@ class PrognosticVariables:
         self.P           = PrognosticVariable(Gr.nlats, Gr.nlons, Gr.n_layers+1,Gr.SphericalGrid.nlm,'Pressure'          ,  'p','pasc' )
         return
 
-    def initialize(self, Gr):
-        self.Base_pressure = 100000.0
+    def initialize(self, Gr, namelist):
         self.T_init  = [229.0, 257.0, 295.0]
         self.P_init  = [Gr.p1, Gr.p2, Gr.p3, Gr.p_ref]
+        self.inoise  = namelist['initialize']['inoise']
 
         self.Vorticity.values  = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
         self.Divergence.values = np.zeros((Gr.nlats, Gr.nlons, Gr.n_layers),  dtype=np.double, order='c')
@@ -46,6 +46,12 @@ class PrognosticVariables:
             self.Vorticity.spectral[:,k]   = Gr.SphericalGrid.grdtospec(self.Vorticity.values[:,:,k])
             self.Divergence.spectral[:,k]  = Gr.SphericalGrid.grdtospec(self.Divergence.values[:,:,k])
         self.P.spectral[:,Gr.n_layers]     = Gr.SphericalGrid.grdtospec(self.P.values[:,:,Gr.n_layers])
+
+        if self.inoise==1:
+            # load the random noise to grid space
+            noise=np.load('../norm_rand_grid_noise_white.npy')/10.
+            self.T.spectral[:,Gr.n_layers-1]          += Gr.SphericalGrid.grdtospec(noise)
+
 
         return
 

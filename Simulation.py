@@ -11,11 +11,14 @@ from NetCDFIO import Stats
 from TimeStepping import TimeStepping
 from DiagnosticVariables import DiagnosticVariables, DiagnosticVariable
 from PrognosticVariables import PrognosticVariables, PrognosticVariable
+import os
+from LogFile import LogFile
 
 class Simulation:
 
     def __init__(self, namelist):
         # define the member classes
+        self.LF = LogFile(namelist)
         self.Gr = Grid.Grid(namelist)
         # self.TH = Thermodynamics(namelist)
         self.PV = PrognosticVariables(self.Gr)
@@ -28,7 +31,8 @@ class Simulation:
 
     def initialize(self, namelist):
         #initialize via Case
-        self.PV.initialize(self.Gr)
+        self.LF.initialize(namelist)
+        self.PV.initialize(self.Gr,namelist)
         self.DV.initialize(self.Gr,self.PV)
         self.Case.initialize_forcing(self.Gr, self.PV, self.DV, namelist)
         self.Case.initialize_surface(self.Gr, namelist)
@@ -53,7 +57,7 @@ class Simulation:
             if np.mod(self.TS.t, self.Stats.stats_frequency) == 0:
                 self.stats_io()
             if np.mod(self.TS.t, self.Stats.output_frequency) == 0:
-                print('elapsed time [days] about', np.floor_divide(self.TS.t,(24.0*3600.0)))
+                self.LF.update(self.TS, self.DV, namelist)
                 self.io()
         return
 
@@ -83,33 +87,4 @@ class Simulation:
         return
 
     def force_io(self):
-        return
-
-    def get_parameters(self, namelist):
-        # move all parameters to namelist default
-        # parameters = OrderedDict()
-
-        ##################################################################
-        # may be run for even longer time
-
-        # what are all of these ?
-        self.t    = 0.0 # initial time = 0
-        self.t3   = 0.0 # initial time = 0
-        self.t2   = 0.0 # initial time = 0
-        self.t1   = 0.0 # initial time = 0
-        self.dt   = 50.0 # timestep = 50 or 100sec (make sure it satisfies CFL)
-        self.dt   = 100.0 # timestep = 50 or 100sec (make sure it satisfies CFL)
-        self.ii   = 0.0  # counter for plotting
-        self.jj   = 0.0  # counter for profile loop
-        self.t_next = 0.0
-        # setting up the integration
-        self.tmax =   10.01*24.0*3600.0  #(time to integrate, here 1000 days)
-        self.tmax =   90.01*24.0*3600.0  #(time to integrate, here 1000 days)
-        self.tmax = 1000.01*24.0*3600.0  #(time to integrate, here 1000 days)
-        ################################################################
-        # Logging the data
-        #time_step = 5*24*3600.
-        #time_step =   24*3600.
-        self.time_step  =    2*3600.0
-        self.ndiss = namelist['diffusion']['order']
         return

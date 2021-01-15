@@ -13,7 +13,10 @@ class Grid:
         self.nlats             = namelist['grid']['number_of_latitute_points']
         self.nlons             = namelist['grid']['number_of_longitude_points']
         self.n_layers          = namelist['grid']['number_of_layers']
-        self.truncation_number = int(self.nlons/3)
+        self.truncation_order  = namelist['diffusion']['truncation_order']
+        self.dissipation_order = namelist['diffusion']['dissipation_order']
+        self.efold             = namelist['diffusion']['efold']
+        self.truncation_number = int(self.nlons/self.truncation_order)
         self.p1                = namelist['grid']['p1']
         self.p2                = namelist['grid']['p2']
         self.p3                = namelist['grid']['p3']

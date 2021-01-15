@@ -18,4 +18,7 @@ _templates/
 *.nc
 *.pyc
 *.out
+*.csr
+*.key
 __pycache__/
+Output.*
