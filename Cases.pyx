@@ -90,12 +90,14 @@ cdef class HeldSuarez(CaseBase):
         PV.P.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),PV.P_init)
         PV.T.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),PV.T_init)
         print("Pr.inoise ",Pr.inoise)
-        print("PV.T.spectral.base[:,Pr.n_layers-1].min() ",Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
+        print("PV.T.values[::,Pr.n_layers-1].min() ",PV.T.values[:,:,Pr.n_layers-1].min())
         if Pr.inoise==1: # load the random noise to grid space
             print("add noise Pr.inoise ",Pr.inoise)
-            noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
-            PV.T.spectral.base[:,Pr.n_layers-1] += np.add(PV.T.spectral.base[:,Pr.n_layers-1],Gr.SphericalGrid.grdtospec(noise.base))
-        print("after noise PV.T.spectral.base[:,Pr.n_layers-1].min() ",Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
+            noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.
+            print("noise.shape",noise.shape)
+            print("PV.T.values[:,:,Pr.n_layers-1].shape",PV.T.values[:,:,Pr.n_layers-1].shape)
+            #PV.T.values[:,:,Pr.n_layers-1] += noise
+        print("after noise PV.T.values[:,Pr.n_layers-1].min() ",PV.T.values[:,:,Pr.n_layers-1].min())
 
         PV.physical_to_spectral(Pr, Gr)
         return
