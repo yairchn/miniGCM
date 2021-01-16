@@ -17,22 +17,18 @@ cdef class ForcingBase:
 	cdef:
 		double [:,:,:] Tbar
 		double [:,:,:] QTbar
-		double [:,:] T_forcing
-		double [:,:] QT_forcing
-		double [:,:] Divergence_forcing
-		double [:,:] Vorticity_forcing
 	cpdef initialize(self, Parameters Pr, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
-	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
-	cpdef stats_io(self, NetCDFIO_Stats Stats)
+	cpdef io(self, Parameters Pr, TimeStepping TS,  DiagnosticVariables DV, PrognosticVariables PV, NetCDFIO_Stats Stats)
+	cpdef stats_io(self, DiagnosticVariables DV, PrognosticVariables PV, NetCDFIO_Stats Stats)
 
 cdef class ForcingNone(ForcingBase):
 	cpdef initialize(self, Parameters Pr, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
-	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
-	cpdef stats_io(self, NetCDFIO_Stats Stats)
+	cpdef io(self, Parameters Pr, TimeStepping TS,  DiagnosticVariables DV, PrognosticVariables PV, NetCDFIO_Stats Stats)
+	cpdef stats_io(self, DiagnosticVariables DV, PrognosticVariables PV, NetCDFIO_Stats Stats)
 
 cdef class HelzSuarez(ForcingBase):
 	cdef:
@@ -52,8 +48,8 @@ cdef class HelzSuarez(ForcingBase):
 	cpdef initialize(self, Parameters Pr, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
-	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
-	cpdef stats_io(self, NetCDFIO_Stats Stats)
+	cpdef io(self, Parameters Pr, TimeStepping TS,  DiagnosticVariables DV, PrognosticVariables PV, NetCDFIO_Stats Stats)
+	cpdef stats_io(self, DiagnosticVariables DV, PrognosticVariables PV, NetCDFIO_Stats Stats)
 
 cdef class HelzSuarezMoist(ForcingBase):
 	cdef:
@@ -73,5 +69,5 @@ cdef class HelzSuarezMoist(ForcingBase):
 	cpdef initialize(self, Parameters Pr, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
-	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
-	cpdef stats_io(self, NetCDFIO_Stats Stats)
+	cpdef io(self, Parameters Pr, TimeStepping TS,  DiagnosticVariables DV, PrognosticVariables PV, NetCDFIO_Stats Stats)
+	cpdef stats_io(self, DiagnosticVariables DV, PrognosticVariables PV, NetCDFIO_Stats Stats)

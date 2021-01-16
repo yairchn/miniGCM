@@ -76,8 +76,8 @@ class Simulation:
             # print('TS.update',time.clock() - t0) # 0.07199999999999918)
             # t0 = time.clock()
 
-            if np.mod(self.TS.t, self.Stats.stats_frequency) == 0:
-                self.stats_io()
+            self.stats_io()
+            # if np.mod(self.TS.t, self.Stats.stats_frequency) == 0:
             if np.mod(self.TS.t, self.Stats.output_frequency) == 0:
                 wallclocktime = time.clock() - start_time
                 self.LF.update(self.Pr, self.TS, self.DV, self.PV, wallclocktime, namelist)
@@ -94,7 +94,7 @@ class Simulation:
     def io(self):
         self.DV.io(self.Pr, self.TS, self.Stats)
         self.PV.io(self.Pr, self.TS, self.Stats)
-        self.Case.io(self.Pr, self.TS, self.Stats)
+        self.Case.io(self.Pr, self.TS, self.DV, self.PV, self.Stats)
         return
 
     def stats_io(self):
@@ -102,7 +102,7 @@ class Simulation:
         self.Stats.write_simulation_time(self.TS.t)
         self.DV.stats_io(self.Stats)
         self.PV.stats_io(self.Stats)
-        self.Case.stats_io(self.PV, self.Stats)
+        self.Case.stats_io(self.DV, self.PV, self.Stats)
         self.Stats.close_files()
         return
 

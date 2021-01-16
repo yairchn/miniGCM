@@ -16,6 +16,7 @@ import Microphysics
 cdef class PrognosticVariable:
     cdef:
         double [:,:,:] values
+        double [:,:] SurfaceFlux
         double [:,:,:] VerticalFlux
         double [:,:,:] mp_tendency
         double complex [:,:] spectral
@@ -23,7 +24,7 @@ cdef class PrognosticVariable:
         double complex [:,:] now
         double complex [:,:] tendency
         double complex [:,:] sp_VerticalFlux
-        double complex [:,:] forcing
+        double  [:,:,:] forcing
         str kind
         str name
         str units

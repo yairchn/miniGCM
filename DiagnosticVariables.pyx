@@ -9,11 +9,14 @@ import time
 
 cdef class DiagnosticVariable:
     def __init__(self, nx,ny,nl,n_spec, kind, name, units):
-        self.values = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
-        self.spectral = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         self.kind = kind
         self.name = name
         self.units = units
+        self.values = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
+        self.spectral = np.zeros((n_spec,nl),dtype = np.complex, order='c')
+        if name=='u' or name=='v':
+            self.SurfaceFlux =  np.zeros((nx,ny),dtype=np.float64, order='c')
+            self.forcing =  np.zeros((nx,ny,nl),dtype=np.float64, order='c')
         return
 
 cdef class DiagnosticVariables:

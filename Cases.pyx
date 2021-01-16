@@ -44,10 +44,10 @@ cdef class CaseBase:
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         return
 
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    cpdef io(self, Parameters Pr, TimeStepping TS, DiagnosticVariables DV, PrognosticVariables PV, NetCDFIO_Stats Stats):
         return
 
-    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
+    cpdef stats_io(self, DiagnosticVariables DV, PrognosticVariables PV, NetCDFIO_Stats Stats):
         return
 
     cpdef update_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
@@ -115,20 +115,17 @@ cdef class HeldSuarez(CaseBase):
         self.Sur.initialize_io(Stats)
         return
 
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-        CaseBase.io(self, Pr, TS, Stats)
-        self.Fo.io(Pr, TS, Stats)
-        self.Sur.io(Pr, TS, Stats)
+    cpdef io(self, Parameters Pr, TimeStepping TS, DiagnosticVariables DV, PrognosticVariables PV, NetCDFIO_Stats Stats):
+        CaseBase.io(self, Pr, TS, DV, PV, Stats)
+        self.Fo.io(Pr, TS, DV, PV, Stats)
         return
 
-    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
-        CaseBase.stats_io(self, PV, Stats)
-        self.Fo.stats_io(Stats)
-        self.Sur.stats_io(Stats)
+    cpdef stats_io(self, DiagnosticVariables DV, PrognosticVariables PV, NetCDFIO_Stats Stats):
+        CaseBase.stats_io(self, DV, PV, Stats)
+        self.Fo.stats_io(DV, PV, Stats)
         return
 
     cpdef update_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
-        self.Sur.update(Pr, Gr, PV, DV)
         return
 
     cpdef update_forcing(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
@@ -267,17 +264,17 @@ cdef class HeldSuarezMoist(CaseBase):
         self.MP.initialize_io(Stats)
         return
 
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-        CaseBase.io(self, Pr, TS, Stats)
-        self.Fo.io(Pr, TS, Stats)
-        self.Sur.io(Pr, TS, Stats)
+    cpdef io(self, Parameters Pr, TimeStepping TS, DiagnosticVariables DV, PrognosticVariables PV, NetCDFIO_Stats Stats):
+        CaseBase.io(self, Pr, TS, DV, PV, Stats)
+        self.Fo.io(Pr, TS, DV, PV, Stats)
+        self.Sur.io(Pr, TS, DV, PV, Stats)
         self.MP.io(Pr, TS, Stats)
         return
 
-    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
-        CaseBase.stats_io(self, PV, Stats)
-        self.Fo.stats_io(Stats)
-        self.Sur.stats_io(Stats)
+    cpdef stats_io(self, DiagnosticVariables DV, PrognosticVariables PV, NetCDFIO_Stats Stats):
+        CaseBase.stats_io(self, DV, PV, Stats)
+        self.Fo.stats_io(DV, PV, Stats)
+        self.Sur.stats_io(DV, PV, Stats)
         self.MP.stats_io(PV, Stats)
         return
 

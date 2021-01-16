@@ -15,10 +15,6 @@ from Parameters cimport Parameters
 
 cdef class SurfaceBase:
     cdef:
-        double [:,:] U_flux
-        double [:,:] V_flux
-        double [:,:] T_flux
-        double [:,:] QT_flux
         double [:,:] T_surf
         double [:,:] U_abs
         double [:,:] QT_surf
@@ -26,20 +22,20 @@ cdef class SurfaceBase:
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
-    cpdef stats_io(self, NetCDFIO_Stats Stats)
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
+    cpdef stats_io(self, DiagnosticVariables DV, PrognosticVariables PV, NetCDFIO_Stats Stats)
+    cpdef io(self, Parameters Pr, TimeStepping TS, DiagnosticVariables DV, PrognosticVariables PV, NetCDFIO_Stats Stats)
 
 
 cdef class SurfaceNone(SurfaceBase):
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
-    cpdef stats_io(self, NetCDFIO_Stats Stats)
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
+    cpdef stats_io(self, DiagnosticVariables DV, PrognosticVariables PV, NetCDFIO_Stats Stats)
+    cpdef io(self, Parameters Pr, TimeStepping TS, DiagnosticVariables DV, PrognosticVariables PV, NetCDFIO_Stats Stats)
 
 cdef class SurfaceBulkFormula(SurfaceBase):
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
-    cpdef stats_io(self, NetCDFIO_Stats Stats)
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
+    cpdef stats_io(self, DiagnosticVariables DV, PrognosticVariables PV, NetCDFIO_Stats Stats)
+    cpdef io(self, Parameters Pr, TimeStepping TS, DiagnosticVariables DV, PrognosticVariables PV, NetCDFIO_Stats Stats)
