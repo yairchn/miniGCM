@@ -89,17 +89,15 @@ cdef class HeldSuarez(CaseBase):
         PV.QT.values         = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c')
         PV.P.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),PV.P_init)
         PV.T.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),PV.T_init)
-        print("Pr.inoise ",Pr.inoise)
-        print("PV.T.values[::,Pr.n_layers-1].min() ",PV.T.values[:,:,Pr.n_layers-1].min())
-        if Pr.inoise==1: # load the random noise to grid space
-            print("add noise Pr.inoise ",Pr.inoise)
-            noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.
-            print("noise.shape",noise.shape)
-            print("PV.T.values[:,:,Pr.n_layers-1].shape",PV.T.values[:,:,Pr.n_layers-1].shape)
-            #PV.T.values[:,:,Pr.n_layers-1] += noise
-        print("after noise PV.T.values[:,Pr.n_layers-1].min() ",PV.T.values[:,:,Pr.n_layers-1].min())
 
         PV.physical_to_spectral(Pr, Gr)
+
+        print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
+        if Pr.inoise==1: # load the random noise to grid space
+             noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
+             PV.T.spectral.base[:,Pr.n_layers-1] = np.add(PV.T.spectral.base[:,Pr.n_layers-1],
+                                                        Gr.SphericalGrid.grdtospec(noise.base))
+        print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
         return
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
@@ -241,16 +239,17 @@ cdef class HeldSuarezMoist(CaseBase):
                 PV.QT.values.base[:,i,k] = QT_meridional
                 PV.T.values.base[:,i,k]  = T_meridional
 
-        if Pr.inoise==1: # load the random noise to grid space
-             noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
-             PV.T.spectral.base[:,Pr.n_layers-1] += np.add(PV.T.spectral.base[:,Pr.n_layers-1],
-                                                        Gr.SphericalGrid.grdtospec(noise.base))
         for k in range(Pr.n_layers):
             PV.T.spectral.base[:,k]           = Gr.SphericalGrid.grdtospec(PV.T.values.base[:,:,k])
             PV.QT.spectral.base[:,k]          = Gr.SphericalGrid.grdtospec(PV.QT.values.base[:,:,k])
             PV.Vorticity.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(PV.Vorticity.values.base[:,:,k])
             PV.Divergence.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(PV.Divergence.values.base[:,:,k])
         PV.P.spectral.base[:,Pr.n_layers]     = Gr.SphericalGrid.grdtospec(PV.P.values.base[:,:,Pr.n_layers])
+
+        if Pr.inoise==1: # load the random noise to grid space
+             noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
+             PV.T.spectral.base[:,Pr.n_layers-1] = np.add(PV.T.spectral.base[:,Pr.n_layers-1],
+                                                        Gr.SphericalGrid.grdtospec(noise.base))
         return
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
