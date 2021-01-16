@@ -32,7 +32,7 @@
         "inoise": 1
     },
     "io": {
-        "output_frequency": 7.0,
+        "output_frequency": 1.0,
         "stats_dir": "stats",
         "stats_frequency": 1.0
     },
