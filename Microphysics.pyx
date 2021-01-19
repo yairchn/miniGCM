@@ -76,7 +76,7 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
             DV.QL.values.base[:,:,k] = np.clip(PV.QT.values[:,:,k] - qv_star,0.0, None)
             if np.max(DV.QL.values.base[:,:,k])>0.0:
                 print('============| WARNING |===============')
-                print('ql is non zero in initial state of layer ', k)
+                print('ql is non zero in the initial state of layer ', k)
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
