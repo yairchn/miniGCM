@@ -141,7 +141,7 @@ cdef class HelzSuarezMoist(ForcingBase):
 			sigma_ratio=np.clip(np.divide(sigma-Pr.sigma_b,1-Pr.sigma_b),0,None)
 			self.k_T.base[:,:,k] = Pr.k_a+(Pr.k_s-Pr.k_a)*np.multiply(sigma_ratio,np.power(np.cos(Gr.lat),4))
 			self.k_v.base[:,:,k] = Pr.k_b+Pr.k_f*sigma_ratio
-			# DV.U.forcing.base[:,:,k] = -np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k])
+			DV.U.forcing.base[:,:,k] = -np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k])
 			DV.V.forcing.base[:,:,k] = -np.multiply(self.k_v[:,:,k],DV.V.values[:,:,k])
 			PV.T.forcing.base[:,:,k] = -np.multiply(self.k_T[:,:,k],np.subtract(PV.T.values[:,:,k],self.Tbar[:,:,k]))
 		return
