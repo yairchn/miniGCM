@@ -96,9 +96,8 @@ def HeldSuarez(namelist_defaults):
     namelist['forcing']['k_f']          = 1.0/(24.0*3600.0)      # [1/sec]
     namelist['forcing']['k_b']          = 1./40.0/(24.0*3600.0)/2.0  # [1/sec]
     namelist['forcing']['equator_to_pole_dT']         = 60.                    # Characteristic temperature change in meridional direction [K]
-    namelist['forcing']['equatorial_temperature']    = 300.                   # Characteristic temperature at the equator [K]
+    namelist['forcing']['equatorial_temperature']    = 315.                   # Characteristic temperature at the equator [K]
     namelist['forcing']['lapse_rate']   = 10.0                   # Characteristic potential temperature change in vertical [K]
-    namelist['forcing']['relaxation_temperature'] = 300.         # mean temp (some typical range) [K]
 
     namelist['microphysics']['rain_model'] = 'None'
 
@@ -130,11 +129,10 @@ def HeldSuarezMoist(namelist_defaults):
     namelist['forcing']['k_s']          = 1.0/4.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_f']          = 1.0/(24.0*3600.0)      # [1/sec]
     namelist['forcing']['k_b']          = 1.0/40.0/(24.0*3600.0)/2.0  # [1/sec]
-    namelist['forcing']['equatorial_temperature'] = 310.0 # Surface temperature at the equator [K]
+    namelist['forcing']['equatorial_temperature'] = 294.0 # Surface temperature at the equator [K]
     namelist['forcing']['polar_temperature']      = 240.0 # Surface temperature at the pole [K]
     namelist['forcing']['equator_to_pole_dT']     = 65.0  # Characteristic temperature change in meridional direction [K]
     namelist['forcing']['lapse_rate']             = 10.0 # Characteristic potential temperature change in vertical [K]
-    namelist['forcing']['relaxation_temperature'] = 300.         # mean temp (some typical range) [K]
     namelist['forcing']['initial_profile_power'] = 3.0
     namelist['forcing']['initial_surface_qt'] = 0.018
     namelist['forcing']['Gamma_init'] = 0.005

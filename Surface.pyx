@@ -63,13 +63,22 @@ cdef class SurfaceBulkFormula(SurfaceBase):
                        np.exp(-np.multiply(Pr.Lv/Pr.Rv,np.subtract(np.divide(1,self.T_surf) , np.divide(1,Pr.T_0) ))))
         return
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
-        U2 = np.multiply(DV.U.values[:,:,Pr.n_layers-1],DV.U.values[:,:,Pr.n_layers-1])
-        V2 = np.multiply(DV.V.values[:,:,Pr.n_layers-1],DV.V.values[:,:,Pr.n_layers-1])
+        cdef:
+            Py_ssize_t nl = Pr.n_layers
+            double [:,:] z_a
+        U2 = np.multiply(DV.U.values[:,:,nl-1],DV.U.values[:,:,nl-1])
+        V2 = np.multiply(DV.V.values[:,:,nl-1],DV.V.values[:,:,nl-1])
         self.U_abs = np.sqrt(np.add(U2,V2))
-        # DV.U.SurfaceFlux  = -np.multiply(np.multiply(Pr.Cd,self.U_abs),DV.U.values[:,:,Pr.n_layers-1])
-        # DV.V.SurfaceFlux  = -np.multiply(np.multiply(Pr.Cd,self.U_abs),DV.V.values[:,:,Pr.n_layers-1])
-        # PV.T.SurfaceFlux  = -np.multiply(np.multiply(Pr.Ch,self.U_abs),np.subtract(PV.T.values[:,:,Pr.n_layers-1] , self.T_surf))
-        # PV.QT.SurfaceFlux = -np.multiply(np.multiply(Pr.Cq,self.U_abs),np.subtract(PV.QT.values[:,:,Pr.n_layers-1], self.QT_surf))
+        self.QT_surf = np.multiply(np.divide(Pr.qv_star0*Pr.eps_v, PV.P.values[:,:,Pr.n_layers]),
+                       np.exp(-np.multiply(Pr.Lv/Pr.Rv,np.subtract(np.divide(1,self.T_surf) , np.divide(1,Pr.T_0) ))))
+        # T_va = np.multiply(self.T_surf,np.add(1.0,np.multiply(0.608,PV.QT.values[:,:,nl-1])))
+        # z_a = np.multiply(np.multiply(Pr.Rd/Pr.g,self.T_surf),np.divide(np.subtract(
+        #                   np.log(PV.P.values[:,:,Pr.n_layers])-np.log(PV.P.values[:,:,nl-1])),2.0))
+        z_a = np.divide(DV.gZ.values[:,:,nl-1],Pr.g)
+        DV.U.SurfaceFlux  = -np.multiply(np.multiply(np.divide(Pr.Cd,z_a),self.U_abs),DV.U.values[:,:,Pr.n_layers-1])
+        DV.V.SurfaceFlux  = -np.multiply(np.multiply(np.divide(Pr.Cd,z_a),self.U_abs),DV.V.values[:,:,Pr.n_layers-1])
+        PV.T.SurfaceFlux  = -np.multiply(np.multiply(np.divide(Pr.Ch,z_a),self.U_abs),np.subtract(PV.T.values[:,:,Pr.n_layers-1] , self.T_surf))
+        PV.QT.SurfaceFlux = -np.multiply(np.multiply(np.divide(Pr.Cq,z_a),self.U_abs),np.subtract(PV.QT.values[:,:,Pr.n_layers-1], self.QT_surf))
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         Stats.add_surface_zonal_mean('zonal_mean_U_flux')
