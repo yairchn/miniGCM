@@ -7,7 +7,7 @@
     },
     "forcing": {
         "equator_to_pole_dT": 60.0,
-        "equatorial_temperature": 300.0,
+        "equatorial_temperature": 315.0,
         "forcing_type": "HeldSuarez",
         "k_a": 2.8935185185185185e-07,
         "k_b": 1.4467592592592592e-07,
@@ -32,14 +32,14 @@
         "inoise": 1
     },
     "io": {
-        "output_frequency": 1.0,
+        "output_frequency": 7.0,
         "stats_dir": "stats",
         "stats_frequency": 1.0
     },
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "1a174e57-33a2-4623-9133-bc5cac81f3ca"
+        "uuid": "ae3a1a7a-a249-4aa9-b3ea-0d7e3517d49c"
     },
     "microphysics": {
         "rain_model": "None"
