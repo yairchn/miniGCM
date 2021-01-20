@@ -27,6 +27,11 @@ def main():
     ncfile = folder + 'Stats.HeldSuarez.Restart_2.nc'
     print('ncfile: ',ncfile)
     data = nc.Dataset(ncfile, 'r')
+    runname2='1f3ca'
+    folder2= '/home/scoty/miniGCM/Output.HeldSuarez.'+runname2+'/stats/'
+    ncfile2= folder2+ 'Stats.HeldSuarez.nc'
+    print('ncfile2: ',ncfile2)
+    data2= nc.Dataset(ncfile2,'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
     n = int(np.multiply(data.groups['coordinates'].variables['layers'],1.0))
@@ -35,14 +40,24 @@ def main():
     var = np.array(data.groups['zonal_mean'].variables[varname])
     t = np.divide(data.groups['zonal_mean'].variables['t'],3600.0*24.0)
 
+    var2= np.array(data2.groups['zonal_mean'].variables[varname])
+    t2= np.divide(data2.groups['zonal_mean'].variables['t'],3600.0*24.0)
+
+    nt2=t2.shape[0]
+    print('nt2',nt2)
+
     ps=var[:,:,2]/100.
+    ps2=var2[:,:,2]/100.
     ps_time=np.zeros(1000)
+    ps_time2=np.zeros(nt2)
     for it in range(0,1000): ps_time[it]=np.sum(ps[it,:]*weights)
+    for it in range(0,nt2): ps_time2[it]=np.sum(ps2[it,:]*weights)
 
     eps=.1
 
     plt.figure(figsize=(5,2))
     plt.plot(t,ps_time,'-k')
+    plt.plot(t2,ps_time2,'-g')
     plt.xlabel('time / days')
     plt.ylabel('$p_s$ / hPa')
     plt.ylim(1000.-eps,1000.+eps)
