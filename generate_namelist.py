@@ -16,8 +16,9 @@ def main():
 
     namelist_defaults = {}
     namelist_defaults['timestepping'] = {}
-    namelist_defaults['timestepping']['CFL_limit'] = 0.5
-    namelist_defaults['timestepping']['dt'] = 1000.0
+    namelist_defaults['timestepping']['CFL_limit'] = 0.8
+    namelist_defaults['timestepping']['dt'] = 100.0
+    namelist_defaults['timestepping']['t_max'] = 100.0 # days
 
     namelist_defaults['forcing'] = {}
 
@@ -78,9 +79,6 @@ def HeldSuarez(namelist_defaults):
 
     namelist = copy.deepcopy(namelist_defaults)
 
-    namelist['timestepping']['dt'] = 100.0 # sec
-    namelist['timestepping']['t_max'] = 100.0 # days
-
     namelist['meta']['simname'] = 'HeldSuarez'
     namelist['meta']['casename'] = 'HeldSuarez'
 
@@ -117,7 +115,7 @@ def HeldSuarezMoist(namelist_defaults):
     namelist['grid']['nx'] = 3
     namelist['grid']['ny'] = 3
 
-    namelist['timestepping']['dt'] = 500.0 # sec
+    namelist['timestepping']['dt'] = 100.0 # sec
     namelist['timestepping']['t_max'] = 100.0 # days
 
     namelist['meta']['simname'] = 'HeldSuarezMoist'

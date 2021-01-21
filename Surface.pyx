@@ -73,8 +73,8 @@ cdef class SurfaceBulkFormula(SurfaceBase):
                        np.exp(-np.multiply(Pr.Lv/Pr.Rv,np.subtract(np.divide(1,self.T_surf) , np.divide(1,Pr.T_0) ))))
 
         z_a = np.divide(DV.gZ.values[:,:,nl-1],Pr.g)
-        DV.U.SurfaceFlux  = -np.multiply(np.multiply(np.divide(Pr.Cd,z_a),self.U_abs),DV.U.values[:,:,Pr.n_layers-1])
-        DV.V.SurfaceFlux  = -np.multiply(np.multiply(np.divide(Pr.Cd,z_a),self.U_abs),DV.V.values[:,:,Pr.n_layers-1])
+        # DV.U.SurfaceFlux  = -np.multiply(np.multiply(np.divide(Pr.Cd,z_a),self.U_abs),DV.U.values[:,:,Pr.n_layers-1])
+        # DV.V.SurfaceFlux  = -np.multiply(np.multiply(np.divide(Pr.Cd,z_a),self.U_abs),DV.V.values[:,:,Pr.n_layers-1])
         PV.T.SurfaceFlux  = -np.multiply(np.multiply(np.divide(Pr.Ch,z_a),self.U_abs),np.subtract(PV.T.values[:,:,Pr.n_layers-1] , self.T_surf))
         PV.QT.SurfaceFlux = -np.multiply(np.multiply(np.divide(Pr.Cq,z_a),self.U_abs),np.subtract(PV.QT.values[:,:,Pr.n_layers-1], self.QT_surf))
         return

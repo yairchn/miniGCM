@@ -19,3 +19,5 @@ cdef class Grid:
 		double [:,:] longitude
 		double [:,:] latitude
 		double [:,:] Coriolis
+		double [:,:] dx
+		double [:,:] dy

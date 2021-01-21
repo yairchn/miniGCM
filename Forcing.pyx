@@ -90,14 +90,13 @@ cdef class HelzSuarez(ForcingBase):
 			self.k_T.base[:,:,k] = np.add(Pr.k_a, np.multiply((Pr.k_s-Pr.k_a),np.multiply(sigma_ratio,np.power(np.cos(Gr.lat),4))))
 			self.k_v.base[:,:,k] = np.add(Pr.k_b, Pr.k_f*sigma_ratio)
 
-			PV.Vorticity.forcing.base[:,k] ,PV.Divergence.forcing.base[:,k] = (
-              	Gr.SphericalGrid.getvrtdivspec(-np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k]),
-											   -np.multiply(self.k_v[:,:,k],DV.V.values[:,:,k])))
+			DV.U.forcing.base[:,:,k] = -np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k])
+			DV.V.forcing.base[:,:,k] = -np.multiply(self.k_v[:,:,k],DV.V.values[:,:,k])
 			PV.T.forcing.base[:,:,k] = -np.multiply(self.k_T[:,:,k],np.subtract(PV.T.values[:,:,k],self.Tbar[:,:,k]))
 		return
 
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-		Stats.write_3D_variable(Pr, int(TS.t), nl, 'T_eq', self.Tbar)
+		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'T_eq', self.Tbar)
 		return
 
 	cpdef stats_io(self, NetCDFIO_Stats Stats):

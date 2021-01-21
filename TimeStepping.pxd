@@ -13,9 +13,9 @@ cdef class TimeStepping:
 		public double t_max
 		public double t
 		double ncycle
-		double dx
-		double dy
-		double dp
+		double [:,:] dx
+		double [:,:] dy
+
 	cpdef initialize(self)
 	cpdef update(self, Parameters Pr, Grid Gr,  PrognosticVariables PV, DiagnosticVariables DV, Diffusion DF, namelist)
 	cpdef CFL_limiter(self, Parameters Pr, Grid Gr, DiagnosticVariables DV, namelist)
