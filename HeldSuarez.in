@@ -1,7 +1,7 @@
 {
     "diffusion": {
         "dissipation_order": 8.0,
-        "e_folding_timescale": 600.0,
+        "e_folding_timescale": 300.0,
         "truncation_order": 3,
         "type": "hyperdiffusion"
     },
@@ -39,7 +39,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "ae3a1a7a-a249-4aa9-b3ea-0d7e3517d49c"
+        "uuid": "aee706a2-5641-4c31-ac01-518e6c2007e8"
     },
     "microphysics": {
         "rain_model": "None"
@@ -67,6 +67,6 @@
     "timestepping": {
         "CFL_limit": 0.5,
         "dt": 100.0,
-        "t_max": 1000.0
+        "t_max": 100.0
     }
 }

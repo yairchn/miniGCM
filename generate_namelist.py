@@ -24,7 +24,7 @@ def main():
     namelist_defaults['diffusion'] = {}
     namelist_defaults['diffusion']['dissipation_order'] = 8.0
     namelist_defaults['diffusion']['truncation_order'] = 3
-    namelist_defaults['diffusion']['e_folding_timescale'] = 600.0
+    namelist_defaults['diffusion']['e_folding_timescale'] = 300.0
 
     namelist_defaults['grid'] = {}
     namelist_defaults['grid']['dims'] = 1
@@ -94,7 +94,7 @@ def HeldSuarez(namelist_defaults):
     namelist['forcing']['k_a']          = 1./40.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_s']          =  1./4.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_f']          = 1.0/(24.0*3600.0)      # [1/sec]
-    namelist['forcing']['k_b']          = 1./40.0/(24.0*3600.0)/2.0  # [1/sec]
+    namelist['forcing']['k_b']          = 1./80.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['equator_to_pole_dT']         = 60.                    # Characteristic temperature change in meridional direction [K]
     namelist['forcing']['equatorial_temperature']    = 315.                   # Characteristic temperature at the equator [K]
     namelist['forcing']['lapse_rate']   = 10.0                   # Characteristic potential temperature change in vertical [K]
