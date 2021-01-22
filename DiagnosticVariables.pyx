@@ -6,6 +6,7 @@ from PrognosticVariables import PrognosticVariables
 from TimeStepping import TimeStepping
 from Parameters cimport Parameters
 import time
+from libc.math cimport pow, log
 
 cdef class DiagnosticVariable:
     def __init__(self, nx,ny,nl,n_spec, kind, name, units):
@@ -122,27 +123,31 @@ cdef class DiagnosticVariables:
 
     @cython.wraparound(False)
     @cython.boundscheck(False)
+
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV):
         cdef:
-            Py_ssize_t j, k
+            Py_ssize_t k, k1
             Py_ssize_t ii = 1
+            Py_ssize_t nx = Pr.nlats
+            Py_ssize_t ny = Pr.nlons
             Py_ssize_t nl = Pr.n_layers
+            double Rm
 
         self.Wp.values.base[:,:,0] = np.zeros_like(self.Wp.values[:,:,0])
         self.gZ.values.base[:,:,nl] = np.zeros_like(self.Wp.values[:,:,0])
         for k in range(nl):
-            j = nl-k-ii # geopotential is computed bottom -> up
-            t0 = time.clock()
+            k1 = nl-k-ii # geopotential is computed bottom -> up
             self.U.values.base[:,:,k], self.V.values.base[:,:,k] = Gr.SphericalGrid.getuv(
                          PV.Vorticity.spectral.base[:,k],PV.Divergence.spectral.base[:,k])
-            self.KE.values.base[:,:,k]    = np.multiply(0.5,np.add(np.power(self.U.values[:,:,k],2.0),
-                                                                   np.power(self.V.values[:,:,k],2.0)))
-            self.Wp.values.base[:,:,k+1]  = np.subtract(self.Wp.values[:,:,k],
-                                       np.multiply(np.subtract(PV.P.values[:,:,k+1],PV.P.values[:,:,k]),PV.Divergence.values[:,:,k]))
-            Rm = np.add(np.multiply(Pr.Rd,np.subtract(1.0,PV.QT.values[:,:,j])),np.multiply(Pr.Rv,np.subtract(PV.QT.values[:,:,j],self.QL.values[:,:,j])))
-            self.gZ.values.base[:,:,j]  = np.add(np.multiply(np.multiply(Pr.Rd,PV.T.values[:,:,j]),np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))),self.gZ.values[:,:,j+1])
+            with nogil:
+                for i in range(nx):
+                    for j in range(ny):
+                        self.KE.values[i,j,k]    = 0.5*(pow(self.U.values[i,j,k],2.0) + pow(self.V.values[i,j,k],2.0))
+                        self.Wp.values[i,j,k+1]  = self.Wp.values[i,j,k] - (PV.P.values[i,j,k+1]-PV.P.values[i,j,k])*PV.Divergence.values[i,j,k]
+                        Rm = Pr.Rd*(1.0-PV.QT.values[i,j,k1]) + Pr.Rv*(PV.QT.values[i,j,k1]-self.QL.values[i,j,k1])
+                        self.gZ.values[i,j,k1] = Pr.Rd*PV.T.values[i,j,k1]*log(PV.P.values[i,j,k1+1]/PV.P.values[i,j,k1]) + self.gZ.values[i,j,k1+1]
+                        self.VT.values[i,j,k] = self.V.values[i,j,k] * PV.T.values[i,j,k]
+                        self.TT.values[i,j,k] = PV.T.values[i,j,k]   * PV.T.values[i,j,k]
+                        self.UV.values[i,j,k] = self.V.values[i,j,k] * self.U.values[i,j,k]
 
-            self.VT.values.base[:,:,k] = np.multiply(self.V.values[:,:,k],PV.T.values[:,:,k])
-            self.TT.values.base[:,:,k] = np.multiply(PV.T.values[:,:,k],PV.T.values[:,:,k])
-            self.UV.values.base[:,:,k] = np.multiply(self.V.values[:,:,k],self.U.values[:,:,k])
         return

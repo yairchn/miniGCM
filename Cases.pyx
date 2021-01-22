@@ -10,6 +10,7 @@ import cython
 import sys
 from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
+import time
 
 def CasesFactory(namelist):
     if namelist['meta']['casename'] == 'HeldSuarez':
@@ -120,9 +121,11 @@ cdef class HeldSuarez(CaseBase):
         return
 
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
+        t0 = time.clock()
         self.Sur.update(Pr, Gr, PV, DV)
         self.Fo.update(Pr, Gr, PV, DV)
         self.MP.update(Pr, PV, DV, TS)
+        print('Case.update',time.clock() - t0) # 0.11864800000000031)
         return
 
 cdef class HeldSuarezMoist(CaseBase):

@@ -11,6 +11,7 @@ import scipy as sc
 from TimeStepping cimport TimeStepping
 import sys
 from Parameters cimport Parameters
+from libc.math cimport pow, log, sin, cos, fmax
 
 cdef class ForcingBase:
 	def __init__(self):
@@ -54,10 +55,10 @@ cdef class HelzSuarez(ForcingBase):
 
 	cpdef initialize(self, Parameters Pr, namelist):
 		# constants from Held & Suarez (1994)
-		self.Tbar  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.double, order='c')
-		self.k_T   = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.double, order='c')
-		self.k_Q   = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.double, order='c')
-		self.k_v   = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.double, order='c')
+		self.Tbar  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
+		self.k_T   = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
+		self.k_Q   = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
+		self.k_v   = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
 		return
 
 	cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -69,30 +70,34 @@ cdef class HelzSuarez(ForcingBase):
 	@cython.boundscheck(False)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
 		cdef:
-			Py_ssize_t k
+			Py_ssize_t i,j,k
+			Py_ssize_t nx = Pr.nlats
+			Py_ssize_t ny = Pr.nlons
 			Py_ssize_t nl = Pr.n_layers
-			double [:,:] P_half
-			double [:,:] pressure_ratio
-			double [:,:] Ty
-			double [:,:] Tp
-			double [:,:] exner
+			Py_ssize_t nlm = Gr.SphericalGrid.nlm
+			double P_half, pressure_ratio, exner, sigma_ratio,sigma, Ty, Tp
+			# double [:,:] Ty = np.zeros((nx, ny),dtype=np.float64, order='c')
+			# double [:,:] Tp = np.zeros((nx, ny),dtype=np.float64, order='c')
 
-		for k in range(nl):
-			P_half = np.divide(np.add(PV.P.values[:,:,k],PV.P.values[:,:,k+1]),2.0)
-			pressure_ratio = np.divide(P_half,Pr.p_ref)
-			exner  = np.power(pressure_ratio,Pr.kappa)
-			Ty = np.multiply(Pr.DT_y,np.power(np.sin(Gr.lat),2))
-			Tp = np.multiply(Pr.Dtheta_z,np.log(pressure_ratio)*np.power(np.cos(Gr.lat),2))
-			self.Tbar.base[:,:,k] = np.clip(np.multiply(np.subtract(np.subtract(Pr.T_equator,Ty),Tp),exner), 200.0, None)
+		with nogil:
+			for i in range(nx):
+				for j in range(ny):
+					for k in range(nl):
+						P_half = (PV.P.values[i,j,k]+PV.P.values[i,j,k+1])/2.0
+						pressure_ratio = (P_half/Pr.p_ref)
+						exner = pow(pressure_ratio,Pr.kappa)
+						Ty = Pr.DT_y*pow(sin(Gr.lat[i,j]),2.0)
+						Tp = Pr.Dtheta_z*log(pressure_ratio)*pow(cos(Gr.lat[i,j]),2.0)
+						self.Tbar[i,j,k] = fmax((Pr.T_equator-Ty-Tp)*exner, 200.0)
 
-			sigma = np.divide(P_half,PV.P.values[:,:,nl])
-			sigma_ratio = np.clip(np.divide(sigma-Pr.sigma_b,1-Pr.sigma_b),0,None)
-			self.k_T.base[:,:,k] = np.add(Pr.k_a, np.multiply((Pr.k_s-Pr.k_a),np.multiply(sigma_ratio,np.power(np.cos(Gr.lat),4))))
-			self.k_v.base[:,:,k] = np.add(Pr.k_b, Pr.k_f*sigma_ratio)
+						sigma = (P_half/PV.P.values[i,j,nl])
+						sigma_ratio = fmax((sigma-Pr.sigma_b)/(1-Pr.sigma_b),0.0)
+						self.k_T[i,j,k] = Pr.k_a + (Pr.k_s-Pr.k_a)*sigma_ratio*pow(cos(Gr.lat[i,j]),4.0)
+						self.k_v[i,j,k] = Pr.k_b + Pr.k_f*sigma_ratio
 
-			DV.U.forcing.base[:,:,k] = -np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k])
-			DV.V.forcing.base[:,:,k] = -np.multiply(self.k_v[:,:,k],DV.V.values[:,:,k])
-			PV.T.forcing.base[:,:,k] = -np.multiply(self.k_T[:,:,k],np.subtract(PV.T.values[:,:,k],self.Tbar[:,:,k]))
+						DV.U.forcing[i,j,k] = -self.k_v[i,j,k]*DV.U.values[i,j,k]
+						DV.V.forcing[i,j,k] = -self.k_v[i,j,k]*DV.V.values[i,j,k]
+						PV.T.forcing[i,j,k] = -self.k_T[i,j,k]*(PV.T.values[i,j,k]-self.Tbar[i,j,k])
 		return
 
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
@@ -126,23 +131,34 @@ cdef class HelzSuarezMoist(ForcingBase):
 	@cython.boundscheck(False)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
 		cdef:
-			Py_ssize_t k
+			Py_ssize_t i,j,k
+			Py_ssize_t nx = Pr.nlats
+			Py_ssize_t ny = Pr.nlons
 			Py_ssize_t nl = Pr.n_layers
-			double [:,:] P_half
-			double [:,:] pressure_ratio
+			Py_ssize_t nlm = Gr.SphericalGrid.nlm
+			double P_half, pressure_ratio, exner, sigma_ratio,sigma, Ty, Tp
+			# double [:,:] Ty = np.zeros((nx, ny),dtype=np.float64, order='c')
+			# double [:,:] Tp = np.zeros((nx, ny),dtype=np.float64, order='c')
 
-		for k in range(nl):
-			P_half = np.divide(np.add(PV.P.values[:,:,k],PV.P.values[:,:,k+1]),2.0)
-			pressure_ratio = np.divide(P_half,Pr.p_ref)
-			self.Tbar.base[:,:,k] = np.clip((Pr.T_equator-Pr.DT_y*np.power(np.sin(Gr.lat),2)-Pr.Dtheta_z*np.log(pressure_ratio)
-				               *np.power(np.cos(Gr.lat),2))*np.power(pressure_ratio,Pr.kappa), 200.0, None)
-			sigma=np.divide(P_half,PV.P.values[:,:,nl])
-			sigma_ratio=np.clip(np.divide(sigma-Pr.sigma_b,1-Pr.sigma_b),0,None)
-			self.k_T.base[:,:,k] = Pr.k_a+(Pr.k_s-Pr.k_a)*np.multiply(sigma_ratio,np.power(np.cos(Gr.lat),4))
-			self.k_v.base[:,:,k] = Pr.k_b+Pr.k_f*sigma_ratio
-			DV.U.forcing.base[:,:,k] = -np.multiply(self.k_v[:,:,k],DV.U.values[:,:,k])
-			DV.V.forcing.base[:,:,k] = -np.multiply(self.k_v[:,:,k],DV.V.values[:,:,k])
-			PV.T.forcing.base[:,:,k] = -np.multiply(self.k_T[:,:,k],np.subtract(PV.T.values[:,:,k],self.Tbar[:,:,k]))
+		with nogil:
+			for i in range(nx):
+				for j in range(ny):
+					for k in range(nl):
+						P_half = (PV.P.values[i,j,k]+PV.P.values[i,j,k+1])/2.0
+						pressure_ratio = (P_half/Pr.p_ref)
+						exner = pow(pressure_ratio,Pr.kappa)
+						Ty = Pr.DT_y*pow(sin(Gr.lat[i,j]),2.0)
+						Tp = Pr.Dtheta_z*log(pressure_ratio)*pow(cos(Gr.lat[i,j]),2.0)
+						self.Tbar[i,j,k] = fmax((Pr.T_equator-Ty-Tp)*exner, 200.0)
+
+						sigma = (P_half/PV.P.values[i,j,nl])
+						sigma_ratio = fmax((sigma-Pr.sigma_b)/(1-Pr.sigma_b),0.0)
+						self.k_T[i,j,k] = Pr.k_a + (Pr.k_s-Pr.k_a)*sigma_ratio*pow(cos(Gr.lat[i,j]),4.0)
+						self.k_v[i,j,k] = Pr.k_b + Pr.k_f*sigma_ratio
+
+						DV.U.forcing[i,j,k] = -self.k_v[i,j,k]*DV.U.values[i,j,k]
+						DV.V.forcing[i,j,k] = -self.k_v[i,j,k]*DV.V.values[i,j,k]
+						PV.T.forcing[i,j,k] = -self.k_T[i,j,k]*(PV.T.values[i,j,k]-self.Tbar[i,j,k])
 		return
 
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
