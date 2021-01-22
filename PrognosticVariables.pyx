@@ -289,12 +289,12 @@ cdef class PrognosticVariables:
                             QT_flux_up[i,j] = PV.QT.VerticalFlux[i,j,k-1]*dp[i,j,k-1]/dp[i,j,k]
                             Thermal_expension[i,j] = DV.Wp.values[i,j,k+1]*(DV.gZ.values[i,j,k+1]-DV.gZ.values[i,j,k])/(dp[i,j,k]*Pr.cp)
 
-            if k<nl-1:
-                Vort_sur_flux = np.zeros((nlm),dtype = np.complex, order='c')
-                Div_sur_flux  = np.zeros((nlm),dtype = np.complex, order='c')
-                T_sur_flux    = np.zeros((nx, ny),dtype=np.float64, order='c')
-                QT_sur_flux   = np.zeros((nx, ny),dtype=np.float64, order='c')
-            else:
+            if k<nl==1: # <
+            #     Vort_sur_flux = np.zeros((nlm),   dtype = np.complex, order='c')
+            #     Div_sur_flux  = np.zeros((nlm),   dtype = np.complex, order='c')
+            #     T_sur_flux    = np.zeros((nx, ny),dtype = np.float64, order='c')
+            #     QT_sur_flux   = np.zeros((nx, ny),dtype = np.float64, order='c')
+            # else:
                 Vort_sur_flux ,Div_sur_flux = Gr.SphericalGrid.getvrtdivspec(DV.U.SurfaceFlux.base, DV.V.SurfaceFlux.base)
                 T_sur_flux = PV.T.SurfaceFlux
                 QT_sur_flux = PV.QT.SurfaceFlux
@@ -314,7 +314,7 @@ cdef class PrognosticVariables:
                         RHS_grid_QT[i,j] = (QT_flux_up[i,j] + PV.QT.mp_tendency[i,j,k]
                                           - PV.QT.VerticalFlux[i,j,k] + QT_sur_flux[i,j])
 
-            PV.T.tendency.base[:,k]  = np.subtract(Gr.SphericalGrid.grdtospec(RHS_grid_T.base), Divergent_T_flux)
-            PV.QT.tendency.base[:,k] = np.subtract(Gr.SphericalGrid.grdtospec(RHS_grid_QT.base),Divergent_QT_flux)
+            PV.T.tendency.base[:,k]  = np.subtract(Gr.SphericalGrid.grdtospec(RHS_grid_T.base) , Divergent_T_flux)
+            PV.QT.tendency.base[:,k] = np.subtract(Gr.SphericalGrid.grdtospec(RHS_grid_QT.base), Divergent_QT_flux)
 
         return

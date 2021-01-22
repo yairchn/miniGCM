@@ -121,11 +121,11 @@ cdef class HeldSuarez(CaseBase):
         return
 
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
-        t0 = time.clock()
         self.Sur.update(Pr, Gr, PV, DV)
+        t0 = time.clock()
         self.Fo.update(Pr, Gr, PV, DV)
-        self.MP.update(Pr, PV, DV, TS)
         print('Case.update',time.clock() - t0) # 0.11864800000000031)
+        self.MP.update(Pr, PV, DV, TS)
         return
 
 cdef class HeldSuarezMoist(CaseBase):

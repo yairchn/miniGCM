@@ -13,6 +13,7 @@ import time
 from TimeStepping cimport TimeStepping
 import sys
 from Parameters cimport Parameters
+from libc.math cimport exp, pow, sqrt
 
 cdef class SurfaceBase:
     def __init__(self):
@@ -63,21 +64,28 @@ cdef class SurfaceBulkFormula(SurfaceBase):
         self.QT_surf = np.multiply(np.divide(Pr.qv_star0*Pr.eps_v, PV.P.values[:,:,Pr.n_layers]),
                        np.exp(-np.multiply(Pr.Lv/Pr.Rv,np.subtract(np.divide(1,self.T_surf) , np.divide(1,Pr.T_0) ))))
         return
+
+    @cython.wraparound(False)
+    @cython.boundscheck(False)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
         cdef:
+            Py_ssize_t i,j,k
+            Py_ssize_t nx = Pr.nlats
+            Py_ssize_t ny = Pr.nlons
             Py_ssize_t nl = Pr.n_layers
-            double [:,:] z_a
-        U2 = np.multiply(DV.U.values[:,:,nl-1],DV.U.values[:,:,nl-1])
-        V2 = np.multiply(DV.V.values[:,:,nl-1],DV.V.values[:,:,nl-1])
-        self.U_abs = np.sqrt(np.add(U2,V2))
-        self.QT_surf = np.multiply(np.divide(Pr.qv_star0*Pr.eps_v, PV.P.values[:,:,Pr.n_layers]),
-                       np.exp(-np.multiply(Pr.Lv/Pr.Rv,np.subtract(np.divide(1,self.T_surf) , np.divide(1,Pr.T_0) ))))
+            double U_abs, z_a
 
-        z_a = np.divide(DV.gZ.values[:,:,nl-1],Pr.g)
-        # DV.U.SurfaceFlux  = -np.multiply(np.multiply(np.divide(Pr.Cd,z_a),self.U_abs),DV.U.values[:,:,Pr.n_layers-1])
-        # DV.V.SurfaceFlux  = -np.multiply(np.multiply(np.divide(Pr.Cd,z_a),self.U_abs),DV.V.values[:,:,Pr.n_layers-1])
-        PV.T.SurfaceFlux  = -np.multiply(np.multiply(np.divide(Pr.Ch,z_a),self.U_abs),np.subtract(PV.T.values[:,:,Pr.n_layers-1] , self.T_surf))
-        PV.QT.SurfaceFlux = -np.multiply(np.multiply(np.divide(Pr.Cq,z_a),self.U_abs),np.subtract(PV.QT.values[:,:,Pr.n_layers-1], self.QT_surf))
+        with nogil:
+            for i in range(nx):
+                for j in range(ny):
+                    U_abs = sqrt(pow(DV.U.values[i,j,nl-1],2.0) + pow(DV.V.values[i,j,nl-1],2.0))
+                    self.QT_surf[i,j] = Pr.qv_star0*Pr.eps_v/PV.P.values[i,j,nl]*exp(-Pr.Lv/Pr.Rv*(1.0/self.T_surf[i,j] - 1.0/Pr.T_0))
+                    z_a = DV.gZ.values[i,j,nl-1]/Pr.g
+                    DV.U.SurfaceFlux[i,j]  = -Pr.Cd/z_a*U_abs*DV.U.values[i,j,nl-1]
+                    DV.V.SurfaceFlux[i,j]  = -Pr.Cd/z_a*U_abs*DV.V.values[i,j,nl-1]
+                    PV.T.SurfaceFlux[i,j]  = -Pr.Ch/z_a*U_abs*(PV.T.values[i,j,nl-1] - self.T_surf[i,j])
+                    PV.QT.SurfaceFlux[i,j] = -Pr.Cq/z_a*U_abs*(PV.QT.values[i,j,nl-1]- self.QT_surf[i,j])
+
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         Stats.add_surface_zonal_mean('zonal_mean_U_flux')
