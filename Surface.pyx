@@ -48,12 +48,6 @@ cdef class SurfaceBulkFormula(SurfaceBase):
         SurfaceBase.__init__(self)
         return
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
-        self.U_flux  =  np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
-        self.V_flux  =  np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
-        self.T_flux  =  np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
-        self.QT_flux = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
-        self.T_surf  = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
-        self.U_abs   = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
         Pr.Cd = namelist['surface']['momentum_transfer_coeff']
         Pr.Ch = namelist['surface']['sensible_heat_transfer_coeff']
         Pr.Cq = namelist['surface']['latent_heat_transfer_coeff']
@@ -84,26 +78,20 @@ cdef class SurfaceBulkFormula(SurfaceBase):
                     DV.U.SurfaceFlux[i,j]  = -Pr.Cd/z_a*U_abs*DV.U.values[i,j,nl-1]
                     DV.V.SurfaceFlux[i,j]  = -Pr.Cd/z_a*U_abs*DV.V.values[i,j,nl-1]
                     PV.T.SurfaceFlux[i,j]  = -Pr.Ch/z_a*U_abs*(PV.T.values[i,j,nl-1] - self.T_surf[i,j])
-                    PV.QT.SurfaceFlux[i,j] = -Pr.Cq/z_a*U_abs*(PV.QT.values[i,j,nl-1]- self.QT_surf[i,j])
+                    PV.QT.SurfaceFlux[i,j] = -Pr.Cq/z_a*U_abs*(PV.QT.values[i,j,nl-1] - self.QT_surf[i,j])
 
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
-        Stats.add_surface_zonal_mean('zonal_mean_U_flux')
-        Stats.add_surface_zonal_mean('zonal_mean_V_flux')
-        Stats.add_surface_zonal_mean('zonal_mean_T_flux')
-        Stats.add_surface_zonal_mean('zonal_mean_QT_flux')
+        Stats.add_surface_zonal_mean('zonal_mean_T_surf')
+        Stats.add_surface_zonal_mean('zonal_mean_QT_surf')
         return
 
     cpdef stats_io(self, NetCDFIO_Stats Stats):
-        Stats.write_surface_zonal_mean('zonal_mean_U_flux', np.mean(self.U_flux, axis=1))
-        Stats.write_surface_zonal_mean('zonal_mean_V_flux', np.mean(self.V_flux, axis=1))
-        Stats.write_surface_zonal_mean('zonal_mean_T_flux', np.mean(self.T_flux, axis=1))
-        Stats.write_surface_zonal_mean('zonal_mean_QT_flux', np.mean(self.QT_flux, axis=1))
+        Stats.write_surface_zonal_mean('zonal_mean_QT_surf', np.mean(self.T_surf, axis=1))
+        Stats.write_surface_zonal_mean('zonal_mean_QT_surf', np.mean(self.QT_surf, axis=1))
         return
 
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-        Stats.write_2D_variable(Pr, TS.t,  'U_flux',  self.U_flux)
-        Stats.write_2D_variable(Pr, TS.t,  'V_flux',  self.V_flux)
-        Stats.write_2D_variable(Pr, TS.t,  'T_flux',  self.T_flux)
-        Stats.write_2D_variable(Pr, TS.t,  'QT_flux', self.QT_flux)
+        Stats.write_2D_variable(Pr, TS.t,  'T_surf', self.T_surf)
+        Stats.write_2D_variable(Pr, TS.t,  'QT_surf', self.QT_surf)
         return

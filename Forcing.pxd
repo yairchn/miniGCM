@@ -16,19 +16,18 @@ from Parameters cimport Parameters
 cdef class ForcingBase:
 	cdef:
 		double [:,:,:] Tbar
-		double [:,:,:] QTbar
-		double [:,:] T_forcing
-		double [:,:] QT_forcing
-		double [:,:] Divergence_forcing
-		double [:,:] Vorticity_forcing
-	cpdef initialize(self, Parameters Pr, namelist)
+		double [:,:,:] k_T
+		double [:,:,:] k_v
+		double [:,:] sin_lat
+		double [:,:] cos_lat
+	cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
 	cpdef stats_io(self, NetCDFIO_Stats Stats)
 
 cdef class ForcingNone(ForcingBase):
-	cpdef initialize(self, Parameters Pr, namelist)
+	cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
@@ -36,20 +35,17 @@ cdef class ForcingNone(ForcingBase):
 
 cdef class HelzSuarez(ForcingBase):
 	cdef:
+		Py_ssize_t i
+		Py_ssize_t j
 		Py_ssize_t k
-		double [:,:,:] k_T
-		double [:,:,:] k_Q
-		double [:,:,:] k_v
-		double sigma_b
-		double k_a
-		double k_s
-		double k_f
-		double DT_y
-		double Dtheta_z
-		double cp
-		double Rd
-		double kappa
-	cpdef initialize(self, Parameters Pr, namelist)
+		Py_ssize_t nx
+		Py_ssize_t ny
+		Py_ssize_t nl
+		Py_ssize_t nlm
+		double P_half
+		double sigma_ratio
+
+	cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
@@ -58,9 +54,6 @@ cdef class HelzSuarez(ForcingBase):
 cdef class HelzSuarezMoist(ForcingBase):
 	cdef:
 		Py_ssize_t k
-		double [:,:,:] k_T
-		double [:,:,:] k_Q
-		double [:,:,:] k_v
 		double sigma_b
 		double k_a
 		double k_s
@@ -70,7 +63,7 @@ cdef class HelzSuarezMoist(ForcingBase):
 		double cp
 		double Rd
 		double kappa
-	cpdef initialize(self, Parameters Pr, namelist)
+	cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)

@@ -36,7 +36,7 @@ cdef class CaseBase:
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         return
 
-    cpdef initialize_forcing(self, Parameters Pr, namelist):
+    cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
         return
 
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist):
@@ -94,8 +94,8 @@ cdef class HeldSuarez(CaseBase):
         self.Sur.initialize(Pr, Gr, PV, namelist)
         return
 
-    cpdef initialize_forcing(self, Parameters Pr, namelist):
-        self.Fo.initialize(Pr, namelist)
+    cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
+        self.Fo.initialize(Pr, Gr, namelist)
         return
 
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist):
@@ -122,9 +122,7 @@ cdef class HeldSuarez(CaseBase):
 
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         self.Sur.update(Pr, Gr, PV, DV)
-        t0 = time.clock()
         self.Fo.update(Pr, Gr, PV, DV)
-        print('Case.update',time.clock() - t0) # 0.11864800000000031)
         self.MP.update(Pr, PV, DV, TS)
         return
 
@@ -234,8 +232,8 @@ cdef class HeldSuarezMoist(CaseBase):
         self.Sur.initialize(Pr, Gr, PV, namelist)
         return
 
-    cpdef initialize_forcing(self, Parameters Pr, namelist):
-        self.Fo.initialize(Pr, namelist)
+    cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
+        self.Fo.initialize(Pr, Gr, namelist)
         return
 
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist):

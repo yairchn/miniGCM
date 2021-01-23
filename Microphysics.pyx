@@ -10,15 +10,6 @@ from Grid cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
 from libc.math cimport pow, fmax, exp
 
-# def MicrophysicsFactory(namelist):
-#     if namelist['meta']['casename'] == 'HeldSuarez':
-#         return MicrophysicsNone()
-#     elif namelist['meta']['casename'] == 'HeldSuarezMoist':
-#         return MicrophysicsCutoff()
-#     else:
-#         print('Microphysics sceme not recognized')
-#     return
-
 cdef class MicrophysicsBase:
     def __init__(self):
         return
@@ -43,8 +34,8 @@ cdef class MicrophysicsNone(MicrophysicsBase):
         self.RainRate = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
         return
     cpdef update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
-        PV.QT.mp_tendency = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
-        PV.T.mp_tendency  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
+        # PV.QT.mp_tendency = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
+        # PV.T.mp_tendency  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         return
@@ -104,10 +95,10 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
                     for k in range(nl):
                         P_half = 0.5*(PV.P.values[i,j,k]+PV.P.values[i,j,k+1])
                         qv_star = (Pr.qv_star0*Pr.eps_v/P_half)*exp(-Pr.Lv/Pr.Rv*(1.0/PV.T.values[i,j,k]-1.0/Pr.T_0))
-                        DV.QL.values[i,j,k] = fmax(PV.QT.values[i,j,k] - qv_star,0.0)
                         denom = (1.0+Pr.Lv**2.0/Pr.cp/Pr.Rv*qv_star/pow(PV.T.values[i,j,k],2.0))
                         PV.QT.mp_tendency[i,j,k] = -fmax((PV.QT.values[i,j,k] - (1.0+Pr.max_ss)*qv_star)/(denom*TS.dt), 0.0)
                         PV.T.mp_tendency[i,j,k]  =  fmax(Pr.Lv/Pr.cp*((PV.QT.values[i,j,k] - qv_star)/(denom*TS.dt)), 0.0)
+                        DV.QL.values[i,j,k] = fmax(PV.QT.values[i,j,k] - qv_star,0.0)
                         self.RainRate[i,j] -= (PV.QT.mp_tendency[i,j,k]/Pr.rho_w*Pr.g*(PV.P.values[i,j,nl]-PV.P.values[i,j,0]))/(nl+1)
         return
 

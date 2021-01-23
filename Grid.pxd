@@ -21,3 +21,4 @@ cdef class Grid:
 		double [:,:] Coriolis
 		double [:,:] dx
 		double [:,:] dy
+		double complex [:] laplacian

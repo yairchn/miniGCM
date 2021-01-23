@@ -50,7 +50,7 @@ cdef class PrognosticVariables:
     cpdef spectral_to_physical(self, Parameters Pr, Grid Gr)
     cpdef set_old_with_now(self)
     cpdef set_now_with_tendencies(self)
-    cpdef reset_pressures(self, Parameters Pr)
+    cpdef reset_pressures_and_bcs(self, Parameters Pr, DiagnosticVariables DV)
     cpdef stats_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
     cpdef compute_tendencies(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)

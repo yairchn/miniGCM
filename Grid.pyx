@@ -20,5 +20,6 @@ cdef class Grid:
 		self.Coriolis = 2.0*Pr.Omega*np.sin(self.lat)
 		self.dx = np.abs(np.multiply(np.multiply(np.gradient(self.lon,axis=1),Pr.rsphere),np.cos(self.lat)))
 		self.dy = np.abs(np.multiply(np.gradient(self.lat,axis=0),Pr.rsphere))
+		self.laplacian = self.SphericalGrid.lap
 		return
 
