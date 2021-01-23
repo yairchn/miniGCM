@@ -49,7 +49,7 @@ class Simulation:
         while self.TS.t <= self.TS.t_max:
             # t0 = time.clock()
             self.PV.reset_pressures_and_bcs(self.Pr, self.DV)
-            # print('PV.reset_pressures',time.clock() - t0) # 0.002265999999998769)
+            # print('PV.reset_pressures',time.clock() - t0)
             self.PV.spectral_to_physical(self.Pr, self.Gr)
             self.DV.update(self.Pr, self.Gr, self.PV)
             self.DV.physical_to_spectral(self.Pr, self.Gr)

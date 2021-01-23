@@ -113,10 +113,11 @@ cdef class HelzSuarezMoist(ForcingBase):
 		return
 
 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
-
 		self.Tbar = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
 		self.k_v = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
 		self.k_T = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
+		self.sin_lat = np.sin(Gr.lat)
+		self.cos_lat = np.cos(Gr.lat)
 		return
 
 	cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -145,7 +146,6 @@ cdef class HelzSuarezMoist(ForcingBase):
 							                Pr.Dtheta_z*log(P_half/Pr.p_ref)*self.cos_lat[i,j]*self.cos_lat[i,j])*
 						                    pow(P_half/Pr.p_ref , Pr.kappa)
 						                    ,200.0)
-
 						sigma_ratio = fmax((P_half/PV.P.values[i,j,nl]-Pr.sigma_b)/(1-Pr.sigma_b),0.0)
 						self.k_T[i,j,k] = Pr.k_a + (Pr.k_s-Pr.k_a)*sigma_ratio*pow(self.cos_lat[i,j],4.0)
 						self.k_v[i,j,k] = Pr.k_b + Pr.k_f*sigma_ratio
@@ -153,6 +153,7 @@ cdef class HelzSuarezMoist(ForcingBase):
 						DV.U.forcing[i,j,k] = -self.k_v[i,j,k]*DV.U.values[i,j,k]
 						DV.V.forcing[i,j,k] = -self.k_v[i,j,k]*DV.V.values[i,j,k]
 						PV.T.forcing[i,j,k] = -self.k_T[i,j,k]*(PV.T.values[i,j,k]-self.Tbar[i,j,k])
+
 		return
 
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):

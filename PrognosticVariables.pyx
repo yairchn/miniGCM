@@ -219,13 +219,13 @@ cdef class PrognosticVariables:
                 for i in range(nx):
                     for j in range(ny):
                         dpi = 1.0/(PV.P.values[i,j,k+1] - PV.P.values[i,j,k])
-                        Dry_Energy[i,j] = DV.gZ.values[i,j,k] + DV.KE.values[i,j,k]
+                        Dry_Energy[i,j]  = DV.gZ.values[i,j,k] + DV.KE.values[i,j,k]
                         u_vorticity[i,j] = DV.U.values[i,j,k] * (PV.Vorticity.values[i,j,k]+Gr.Coriolis[i,j])
                         v_vorticity[i,j] = DV.V.values[i,j,k] * (PV.Vorticity.values[i,j,k]+Gr.Coriolis[i,j])
-                        uT[i,j]         = DV.U.values[i,j,k] * PV.T.values[i,j,k]
-                        vT[i,j]         = DV.V.values[i,j,k] * PV.T.values[i,j,k]
-                        uQT[i,j]        = DV.U.values[i,j,k] * PV.QT.values[i,j,k]
-                        vQT[i,j]        = DV.V.values[i,j,k] * PV.QT.values[i,j,k]
+                        uT[i,j]          = DV.U.values[i,j,k] * PV.T.values[i,j,k]
+                        vT[i,j]          = DV.V.values[i,j,k] * PV.T.values[i,j,k]
+                        uQT[i,j]         = DV.U.values[i,j,k] * PV.QT.values[i,j,k]
+                        vQT[i,j]         = DV.V.values[i,j,k] * PV.QT.values[i,j,k]
 
                         if k==0:
                             wu_dn[i,j] = DV.Wp.values[i,j,k+1]*(DV.U.values[i,j,k+1] - DV.U.values[i,j,k])*dpi
@@ -233,7 +233,7 @@ cdef class PrognosticVariables:
                             wu_up[i,j] = 0.0
                             wv_up[i,j] = 0.0
 
-                            wT_dn  = 0.5*DV.Wp.values[i,j,k+1]*(PV.T.values[i,j,k]+PV.T.values[i,j,k])*dpi
+                            wT_dn  = 0.5*DV.Wp.values[i,j,k+1]*(PV.T.values[i,j,k+1] + PV.T.values[i,j,k])*dpi
                             wQT_dn = 0.5*DV.Wp.values[i,j,k+1]*(PV.QT.values[i,j,k+1]+ PV.QT.values[i,j,k])*dpi
                             wT_up  = 0.0
                             wQT_up = 0.0
@@ -244,21 +244,21 @@ cdef class PrognosticVariables:
                             wu_up[i,j] = DV.Wp.values[i,j,k]*(DV.U.values[i,j,k] - DV.U.values[i,j,k-1])*dpi
                             wv_up[i,j] = DV.Wp.values[i,j,k]*(DV.V.values[i,j,k] - DV.V.values[i,j,k-1])*dpi
 
-                            wT_dn  = 0.5*DV.Wp.values[i,j,k+1]*(PV.T.values[i,j,k]+PV.T.values[i,j,k])*dpi
-                            wQT_dn = 0.5*DV.Wp.values[i,j,k+1]*(PV.QT.values[i,j,k]+ PV.QT.values[i,j,k])*dpi
-                            wT_up  = 0.5*DV.Wp.values[i,j,k]*(PV.T.values[i,j,k]   + PV.T.values[i,j,k-1])*dpi
-                            wQT_up = 0.5*DV.Wp.values[i,j,k]*(PV.QT.values[i,j,k]  + PV.QT.values[i,j,k-1])*dpi
+                            wT_dn  = 0.5*DV.Wp.values[i,j,k+1]*(PV.T.values[i,j,k]  +PV.T.values[i,j,k])*dpi
+                            wQT_dn = 0.5*DV.Wp.values[i,j,k+1]*(PV.QT.values[i,j,k] + PV.QT.values[i,j,k])*dpi
+                            wT_up  = 0.5*DV.Wp.values[i,j,k]  *(PV.T.values[i,j,k]  + PV.T.values[i,j,k-1])*dpi
+                            wQT_up = 0.5*DV.Wp.values[i,j,k]  *(PV.QT.values[i,j,k] + PV.QT.values[i,j,k-1])*dpi
 
                         else:
                             wu_dn[i,j] = DV.Wp.values[i,j,k+1]*(DV.U.values[i,j,k+1] - DV.U.values[i,j,k])*dpi
                             wv_dn[i,j] = DV.Wp.values[i,j,k+1]*(DV.V.values[i,j,k+1] - DV.V.values[i,j,k])*dpi
-                            wu_up[i,j] = DV.Wp.values[i,j,k]*(DV.U.values[i,j,k] - DV.U.values[i,j,k-1])*dpi
-                            wv_up[i,j] = DV.Wp.values[i,j,k]*(DV.V.values[i,j,k] - DV.V.values[i,j,k-1])*dpi
+                            wu_up[i,j] = DV.Wp.values[i,j,k]  *(DV.U.values[i,j,k]   - DV.U.values[i,j,k-1])*dpi
+                            wv_up[i,j] = DV.Wp.values[i,j,k]  *(DV.V.values[i,j,k]   - DV.V.values[i,j,k-1])*dpi
 
-                            wT_dn  = 0.5*DV.Wp.values[i,j,k+1]*(PV.T.values[i,j,k+1] + PV.T.values[i,j,k])*dpi
+                            wT_dn  = 0.5*DV.Wp.values[i,j,k+1]*(PV.T.values[i,j,k+1]  + PV.T.values[i,j,k])*dpi
                             wQT_dn = 0.5*DV.Wp.values[i,j,k+1]*(PV.QT.values[i,j,k+1] + PV.QT.values[i,j,k])*dpi
-                            wT_up  = 0.5*DV.Wp.values[i,j,k]*(PV.T.values[i,j,k] + PV.T.values[i,j,k-1])*dpi
-                            wQT_up = 0.5*DV.Wp.values[i,j,k]*(PV.QT.values[i,j,k] + PV.QT.values[i,j,k-1])*dpi
+                            wT_up  = 0.5*DV.Wp.values[i,j,k]  *(PV.T.values[i,j,k]    + PV.T.values[i,j,k-1])*dpi
+                            wQT_up = 0.5*DV.Wp.values[i,j,k]  *(PV.QT.values[i,j,k]   + PV.QT.values[i,j,k-1])*dpi
 
                         if k==nl-1:
                             Thermal_expension[i,j] = -DV.Wp.values[i,j,k+1]*DV.gZ.values[i,j,k]*dpi/Pr.cp
