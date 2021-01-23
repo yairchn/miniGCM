@@ -210,11 +210,11 @@ cdef class PrognosticVariables:
                 Vort_sur_flux ,Div_sur_flux = Gr.SphericalGrid.getvrtdivspec(DV.U.SurfaceFlux.base, DV.V.SurfaceFlux.base)
                 T_sur_flux  = PV.T.SurfaceFlux
                 QT_sur_flux = PV.QT.SurfaceFlux
-            else:
-                Vort_sur_flux = np.zeros((nlm), dtype = np.complex, order='c')
-                Div_sur_flux = np.zeros((nlm), dtype = np.complex, order='c')
-                T_sur_flux  = np.zeros((nx, ny),dtype=np.float64, order='c')
-                QT_sur_flux = np.zeros((nx, ny),dtype=np.float64, order='c')
+            # else:
+            #     Vort_sur_flux = np.zeros((nlm), dtype = np.complex, order='c')
+            #     Div_sur_flux = np.zeros((nlm), dtype = np.complex, order='c')
+            #     T_sur_flux  = np.zeros((nx, ny),dtype=np.float64, order='c')
+            #     QT_sur_flux = np.zeros((nx, ny),dtype=np.float64, order='c')
             with nogil:
                 for i in range(nx):
                     for j in range(ny):
