@@ -11,6 +11,7 @@ import sys
 from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
 import time
+import pylab as plt
 
 def CasesFactory(namelist):
     if namelist['meta']['casename'] == 'HeldSuarez':

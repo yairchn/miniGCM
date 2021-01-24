@@ -1,7 +1,6 @@
 import cython
 from Grid cimport Grid
 from math import *
-import matplotlib.pyplot as plt
 import netCDF4
 from NetCDFIO cimport NetCDFIO_Stats
 import numpy as np

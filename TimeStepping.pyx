@@ -35,12 +35,7 @@ cdef class TimeStepping:
 			double complex [:,:] F_QT         = np.zeros((nlm, nl), dtype = np.complex, order='c')
 			double complex [:]   F_P          = np.zeros((nlm),     dtype = np.complex, order='c')
 
-		# Override
-		# self.dt = namelist['timestepping']['dt']
-		self.dt = floor(self.CFL_limiter(Pr, Gr, DV, namelist))
-		if self.dt<500.0:
-			print('CFL_limiter TimeStep', self.dt)
-		# self.dt = namelist['timestepping']['dt']
+		self.dt = self.CFL_limiter(Pr, Gr, DV, namelist)
 
 		F_Divergence = PV.Divergence.spectral
 		F_Vorticity  = PV.Vorticity.spectral
@@ -104,5 +99,5 @@ cdef class TimeStepping:
 				for j in range(Pr.nlons):
 					for k in range(Pr.n_layers):
 						dt = fmin(dt,
-						CFL_limit*fmin(Gr.dx[i,j]/(fabs(DV.U.values[i,j,k])+ 1.0) ,Gr.dy[i,j]/(fabs(DV.V.values[i,j,k])+ 1.0)))
+						CFL_limit*fmin(Gr.dx[i,j]/(fabs(DV.U.values[i,j,k])+ 0.1) ,Gr.dy[i,j]/(fabs(DV.V.values[i,j,k])+ 0.1)))
 		return dt

@@ -1,7 +1,6 @@
 import cython
 from Grid cimport Grid
 import numpy as np
-import matplotlib.pyplot as plt
 import sphericalForcing as spf
 import time
 import scipy as sc

@@ -13,4 +13,4 @@ cdef class LogFile:
         str filename
 
     cpdef initialize(self,  Parameters Pr, namelist)
-    cpdef update(self, Parameters Pr, TimeStepping TS, DiagnosticVariables DV, PrognosticVariables PV, wallclocktime, namelist)
+    cpdef update(self, Parameters Pr, TimeStepping TS, DiagnosticVariables DV, PrognosticVariables PV, wallclocktime)
