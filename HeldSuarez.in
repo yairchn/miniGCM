@@ -67,6 +67,6 @@
     "timestepping": {
         "CFL_limit": 0.5,
         "dt": 100.0,
-        "t_max": 100.0
+        "t_max": 1000.0
     }
 }
