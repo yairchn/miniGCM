@@ -35,7 +35,8 @@ cdef class TimeStepping:
 			double complex [:,:] F_QT         = np.zeros((nlm, nl), dtype = np.complex, order='c')
 			double complex [:]   F_P          = np.zeros((nlm),     dtype = np.complex, order='c')
 
-		self.dt = self.CFL_limiter(Pr, Gr, DV, namelist)
+		# self.CFL_limiter(Pr, Gr, DV, namelist)
+		dt = namelist['timestepping']['dt']
 
 		F_Divergence = PV.Divergence.spectral
 		F_Vorticity  = PV.Vorticity.spectral
