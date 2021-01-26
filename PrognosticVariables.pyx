@@ -175,6 +175,8 @@ cdef class PrognosticVariables:
             double [:,:] QT_flux_up
             double [:,:] Thermal_expension
             double [:,:,:] dp = np.zeros_like(PV.P.values)
+            double [:,:] gZ_half 
+            double [:,:] Wp_half 
 
 
         Vortical_P_flux, Divergent_P_flux = Gr.SphericalGrid.getvrtdivspec(
@@ -212,8 +214,10 @@ cdef class PrognosticVariables:
                                                              np.divide(np.add(QT_low,QT_high),dp[:,:,k])))
 
         for k in range(nl):
+            gZ_half = np.divide(np.add(DV.gZ.values.base[:,:,k],DV.gZ.values.base[:,:,k+1]),2.0)
+            Wp_half = np.divide(np.add(DV.Wp.values.base[:,:,k],DV.Wp.values.base[:,:,k+1]),2.0)
             Dry_Energy_laplacian = Gr.SphericalGrid.lap*Gr.SphericalGrid.grdtospec(
-                               np.add(DV.gZ.values.base[:,:,k],DV.KE.values.base[:,:,k]))
+                    np.add(gZ_half,DV.KE.values.base[:,:,k]))
             Vortical_momentum_flux, Divergent_momentum_flux = Gr.SphericalGrid.getvrtdivspec(
                 np.multiply(DV.U.values[:,:,k], np.add(PV.Vorticity.values[:,:,k],Gr.Coriolis)),
                 np.multiply(DV.V.values[:,:,k], np.add(PV.Vorticity.values[:,:,k],Gr.Coriolis)))
@@ -230,7 +234,7 @@ cdef class PrognosticVariables:
                 div_flux_up = np.zeros_like(PV.Divergence.sp_VerticalFlux[:,k])
                 T_flux_up   = np.zeros_like(PV.T.VerticalFlux[:,:,k])
                 QT_flux_up   = np.zeros_like(PV.QT.VerticalFlux[:,:,k])
-                Thermal_expension = np.multiply(DV.Wp.values[:,:,k+1],np.divide(np.subtract(DV.gZ.values[:,:,k+1],
+                Thermal_expension = np.multiply(Wp_half,np.divide(np.subtract(DV.gZ.values[:,:,k+1],
                     DV.gZ.values[:,:,k]),dp[:,:,k]))/Pr.cp
             elif k==nl-1:
                 vrt_flux_dn = np.zeros_like(PV.Vorticity.sp_VerticalFlux[:,k])

@@ -22,9 +22,9 @@ def main():
     data = nc.Dataset(ncfile, 'r')
 
 
-    runname2='1f3ca'
+    runname2='007e8'
     folder2= '/home/scoty/miniGCM/Output.HeldSuarez.'+runname2+'/stats/'
-    ncfile2= folder2+ 'Stats.HeldSuarez.nc'
+    ncfile2= folder2+ 'Stats.HeldSuarez.Restart_1.nc'
     print('ncfile2: ',ncfile2)
     data2= nc.Dataset(ncfile2,'r')
 
