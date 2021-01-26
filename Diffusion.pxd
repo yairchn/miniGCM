@@ -12,10 +12,10 @@ from Parameters cimport Parameters
 cdef class Diffusion:
 	cdef:
 		double complex [:] HyperDiffusionFactor
+		double complex [:] diffusion_factor
 		double dissipation_order
 		double truncation_order
 		int truncation_number
-		double complex [:] diffusion_factor
 
 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, double dt)

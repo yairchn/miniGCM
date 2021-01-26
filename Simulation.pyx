@@ -45,11 +45,11 @@ class Simulation:
 
     def run(self, namelist):
         print('run')
-        start_time = time.clock()
+        start_time = time.time()
         while self.TS.t <= self.TS.t_max:
-            # t0 = time.clock()
+            # t0 = time.time()
             self.PV.reset_pressures_and_bcs(self.Pr, self.DV)
-            # print('PV.reset_pressures',time.clock() - t0)
+            # print('PV.reset_pressures',time.time() - t0)
             self.PV.spectral_to_physical(self.Pr, self.Gr)
             self.DV.update(self.Pr, self.Gr, self.PV)
             self.DV.physical_to_spectral(self.Pr, self.Gr)
@@ -57,10 +57,10 @@ class Simulation:
             self.PV.compute_tendencies(self.Pr, self.Gr, self.PV, self.DV)
             self.TS.update(self.Pr, self.Gr, self.PV, self.DV, self.DF, namelist)
 
+            wallclocktime = time.time() - start_time
             if self.TS.t%self.Stats.stats_frequency < self.TS.dt:
                 self.stats_io()
             if self.TS.t%self.Stats.output_frequency < self.TS.dt:
-                wallclocktime = time.clock() - start_time
                 self.LF.update(self.Pr, self.TS, self.DV, self.PV, wallclocktime)
                 self.io()
         return
