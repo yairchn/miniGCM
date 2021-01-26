@@ -215,7 +215,11 @@ cdef class PrognosticVariables:
 
         for k in range(nl):
             gZ_half = np.divide(np.add(DV.gZ.values.base[:,:,k],DV.gZ.values.base[:,:,k+1]),2.0)
-            Wp_half = np.divide(np.add(DV.Wp.values.base[:,:,k],DV.Wp.values.base[:,:,k+1]),2.0)
+            if k <nl-1:
+                Wp_half = np.divide(np.add(DV.Wp.values.base[:,:,k],DV.Wp.values.base[:,:,k+1]),2.0)
+            else:
+                Wp_half = np.divide(DV.Wp.values.base[:,:,k],2.0)
+            #print("k ",k , "min gZ_half", np.min(gZ_half), "min Wp_half", np.min(Wp_half))
             Dry_Energy_laplacian = Gr.SphericalGrid.lap*Gr.SphericalGrid.grdtospec(
                     np.add(gZ_half,DV.KE.values.base[:,:,k]))
             Vortical_momentum_flux, Divergent_momentum_flux = Gr.SphericalGrid.getvrtdivspec(
@@ -244,7 +248,7 @@ cdef class PrognosticVariables:
                 # check if you can use the dpratio here
                 T_flux_up   = np.multiply(PV.T.VerticalFlux[:,:,k-1],np.divide(np.subtract(PV.P.values[:,:,k],PV.P.values[:,:,k-1]),dp[:,:,k]))
                 QT_flux_up  = np.multiply(PV.QT.VerticalFlux[:,:,k-1],np.divide(np.subtract(PV.P.values[:,:,k],PV.P.values[:,:,k-1]),dp[:,:,k]))
-                Thermal_expension = -np.divide(np.divide(np.multiply(DV.Wp.values[:,:,k+1],DV.gZ.values[:,:,k]),dp[:,:,k]),Pr.cp)
+                Thermal_expension = -np.divide(np.divide(np.multiply(Wp_half,DV.gZ.values[:,:,k]),dp[:,:,k]),Pr.cp)
 
             else:
                 vrt_flux_dn = PV.Vorticity.sp_VerticalFlux[:,k]
@@ -253,7 +257,7 @@ cdef class PrognosticVariables:
                 div_flux_up = np.multiply(PV.Divergence.sp_VerticalFlux[:,k-1],dp_ratio32sp)
                 T_flux_up   = np.multiply(PV.T.VerticalFlux[:,:,k-1],np.divide(dp[:,:,k-1],dp[:,:,k]))
                 QT_flux_up  = np.multiply(PV.QT.VerticalFlux[:,:,k-1],np.divide(dp[:,:,k-1],dp[:,:,k]))
-                Thermal_expension = np.divide(np.multiply(DV.Wp.values[:,:,k+1],np.divide(
+                Thermal_expension = np.divide(np.multiply(Wp_half,np.divide(
                                     np.subtract(DV.gZ.values[:,:,k+1],DV.gZ.values[:,:,k]),dp[:,:,k])),Pr.cp)
 
             PV.Vorticity.tendency.base[:,k]  = np.subtract(PV.Vorticity.forcing[:,k], np.add(np.add(Divergent_momentum_flux, vrt_flux_up), vrt_flux_dn))
