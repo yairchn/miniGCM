@@ -209,11 +209,6 @@ cdef class PrognosticVariables:
                 Vort_sur_flux ,Div_sur_flux = Gr.SphericalGrid.getvrtdivspec(DV.U.SurfaceFlux.base, DV.V.SurfaceFlux.base)
                 T_sur_flux  = PV.T.SurfaceFlux
                 QT_sur_flux = PV.QT.SurfaceFlux
-            # else:
-            #     Vort_sur_flux = np.zeros((nlm), dtype = np.complex, order='c')
-            #     Div_sur_flux = np.zeros((nlm), dtype = np.complex, order='c')
-            #     T_sur_flux  = np.zeros((nx, ny),dtype=np.float64, order='c')
-            #     QT_sur_flux = np.zeros((nx, ny),dtype=np.float64, order='c')
             with nogil:
                 for i in range(nx):
                     for j in range(ny):
@@ -225,6 +220,8 @@ cdef class PrognosticVariables:
                         vT[i,j]          = DV.V.values[i,j,k] * PV.T.values[i,j,k]
                         uQT[i,j]         = DV.U.values[i,j,k] * PV.QT.values[i,j,k]
                         vQT[i,j]         = DV.V.values[i,j,k] * PV.QT.values[i,j,k]
+
+                        Thermal_expension[i,j] = DV.Wp.values[i,j,k+1]*(DV.gZ.values[i,j,k+1]-DV.gZ.values[i,j,k])*dpi/Pr.cp
 
                         if k==0:
                             wu_dn[i,j] = DV.Wp.values[i,j,k+1]*(DV.U.values[i,j,k+1] - DV.U.values[i,j,k])*dpi
@@ -258,11 +255,6 @@ cdef class PrognosticVariables:
                             wQT_dn = 0.5*DV.Wp.values[i,j,k+1]*(PV.QT.values[i,j,k+1] + PV.QT.values[i,j,k])*dpi
                             wT_up  = 0.5*DV.Wp.values[i,j,k]  *(PV.T.values[i,j,k]    + PV.T.values[i,j,k-1])*dpi
                             wQT_up = 0.5*DV.Wp.values[i,j,k]  *(PV.QT.values[i,j,k]   + PV.QT.values[i,j,k-1])*dpi
-
-                        if k==nl-1:
-                            Thermal_expension[i,j] = -DV.Wp.values[i,j,k+1]*DV.gZ.values[i,j,k]*dpi/Pr.cp
-                        else:
-                            Thermal_expension[i,j] = DV.Wp.values[i,j,k+1]*(DV.gZ.values[i,j,k+1]-DV.gZ.values[i,j,k])*dpi/Pr.cp
 
                         RHS_grid_T[i,j] = (wT_up - wT_dn - Thermal_expension[i,j]
                                             + PV.T.mp_tendency[i,j,k] + PV.T.forcing[i,j,k] + T_sur_flux[i,j])

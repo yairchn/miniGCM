@@ -149,5 +149,4 @@ cdef class DiagnosticVariables:
                         self.VT.values[i,j,k] = self.V.values[i,j,k] * PV.T.values[i,j,k]
                         self.TT.values[i,j,k] = PV.T.values[i,j,k]   * PV.T.values[i,j,k]
                         self.UV.values[i,j,k] = self.V.values[i,j,k] * self.U.values[i,j,k]
-
         return
