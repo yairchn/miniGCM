@@ -12,6 +12,16 @@ from Parameters cimport Parameters
 cimport Microphysics
 import Microphysics
 
+cdef extern from "tendency_functions.h":
+    void rhs_qt(double* p, double* qt, double* wp,
+                double* qt_mp, double* qt_sur, double* rhs_qt,
+                int* imax, int* jmax, int* kmax, Py_ssize_t* k) nogil
+
+    void rhs_T(double* cp, double* p, double* T, double* gz,
+               double* wp, double* T_mp, double* T_sur, double* T_forc, double* rhs_T,
+               int* imax, int* jmax, int* kmax, Py_ssize_t* k) nogil
+
+
 cdef class PrognosticVariable:
     def __init__(self, nx, ny, nl, n_spec, kind, name, units):
         self.kind = kind
@@ -156,6 +166,9 @@ cdef class PrognosticVariables:
             Py_ssize_t nx = Pr.nlats
             Py_ssize_t ny = Pr.nlons
             Py_ssize_t nl = Pr.n_layers
+            int imax = Pr.nlats
+            int jmax = Pr.nlons
+            int kmax = Pr.n_layers
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
             double dpi, wQT_dn, wQT_up, wT_dn, wT_up
 
@@ -256,10 +269,20 @@ cdef class PrognosticVariables:
                             wT_up  = 0.5*DV.Wp.values[i,j,k]  *(PV.T.values[i,j,k]    + PV.T.values[i,j,k-1])*dpi
                             wQT_up = 0.5*DV.Wp.values[i,j,k]  *(PV.QT.values[i,j,k]   + PV.QT.values[i,j,k-1])*dpi
 
+
                         RHS_grid_T[i,j] = (wT_up - wT_dn - Thermal_expension[i,j]
                                             + PV.T.mp_tendency[i,j,k] + PV.T.forcing[i,j,k] + T_sur_flux[i,j])
                         RHS_grid_QT[i,j] = (wQT_up - wQT_dn
                                             + PV.QT.mp_tendency[i,j,k] + QT_sur_flux[i,j])
+
+                rhs_qt(&PV.P.values[0,0,k], &PV.QT.values[0,0,k], &DV.Wp.values[0,0,k],
+                            &PV.T.mp_tendency[0,0,k],  &QT_sur_flux[0,0], &RHS_grid_QT[0,0],
+                            &imax, &jmax, &kmax, &k)
+
+                rhs_T(&Pr.cp, &PV.P.values[0,0,k], &PV.T.values[0,0,k], &DV.gZ.values[0,0,k],
+                           &DV.Wp.values[0,0,k], &PV.T.mp_tendency[0,0,k], &T_sur_flux[0,0],
+                           & PV.T.forcing[0,0,k], &RHS_grid_T[0,0],
+                           &imax, &jmax, &kmax, &k)
 
             Dry_Energy_laplacian = Gr.laplacian*Gr.SphericalGrid.grdtospec(Dry_Energy.base)
             Vortical_momentum_flux, Divergent_momentum_flux = Gr.SphericalGrid.getvrtdivspec(u_vorticity.base, v_vorticity.base)
