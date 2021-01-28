@@ -15,11 +15,11 @@ import Microphysics
 cdef extern from "tendency_functions.h":
     void rhs_qt(double* p, double* qt, double* wp,
                 double* qt_mp, double* qt_sur, double* rhs_qt,
-                int* imax, int* jmax, int* kmax, Py_ssize_t* k) nogil
+                Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax, Py_ssize_t k) nogil
 
-    void rhs_T(double* cp, double* p, double* T, double* gz,
+    void rhs_T(double cp, double* p, double* T, double* gz,
                double* wp, double* T_mp, double* T_sur, double* T_forc, double* rhs_T,
-               int* imax, int* jmax, int* kmax, Py_ssize_t* k) nogil
+               Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax, Py_ssize_t k) nogil
 
 
 cdef class PrognosticVariable:
@@ -166,9 +166,9 @@ cdef class PrognosticVariables:
             Py_ssize_t nx = Pr.nlats
             Py_ssize_t ny = Pr.nlons
             Py_ssize_t nl = Pr.n_layers
-            int imax = Pr.nlats
-            int jmax = Pr.nlons
-            int kmax = Pr.n_layers
+            Py_ssize_t imax = Pr.nlats
+            Py_ssize_t jmax = Pr.nlons
+            Py_ssize_t kmax = Pr.n_layers
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
             double dpi, wQT_dn, wQT_up, wT_dn, wT_up
 
@@ -275,14 +275,20 @@ cdef class PrognosticVariables:
                         RHS_grid_QT[i,j] = (wQT_up - wQT_dn
                                             + PV.QT.mp_tendency[i,j,k] + QT_sur_flux[i,j])
 
+                with gil:
+                    print('before',np.max(RHS_grid_T), np.min(RHS_grid_T))
+                    print('before',np.max(RHS_grid_QT), np.min(RHS_grid_QT))
                 rhs_qt(&PV.P.values[0,0,k], &PV.QT.values[0,0,k], &DV.Wp.values[0,0,k],
                             &PV.T.mp_tendency[0,0,k],  &QT_sur_flux[0,0], &RHS_grid_QT[0,0],
-                            &imax, &jmax, &kmax, &k)
+                            imax, jmax, kmax, k)
 
-                rhs_T(&Pr.cp, &PV.P.values[0,0,k], &PV.T.values[0,0,k], &DV.gZ.values[0,0,k],
+                rhs_T(Pr.cp, &PV.P.values[0,0,k], &PV.T.values[0,0,k], &DV.gZ.values[0,0,k],
                            &DV.Wp.values[0,0,k], &PV.T.mp_tendency[0,0,k], &T_sur_flux[0,0],
                            & PV.T.forcing[0,0,k], &RHS_grid_T[0,0],
-                           &imax, &jmax, &kmax, &k)
+                           imax, jmax, kmax, k)
+                with gil:
+                    print('after',np.max(RHS_grid_T), np.min(RHS_grid_T))
+                    print('after',np.max(RHS_grid_QT), np.min(RHS_grid_QT))
 
             Dry_Energy_laplacian = Gr.laplacian*Gr.SphericalGrid.grdtospec(Dry_Energy.base)
             Vortical_momentum_flux, Divergent_momentum_flux = Gr.SphericalGrid.getvrtdivspec(u_vorticity.base, v_vorticity.base)

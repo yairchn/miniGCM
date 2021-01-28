@@ -11,10 +11,10 @@ void rhs_T(double cp,
            double* restrict T_sur,
            double* restrict T_forc,
            double* restrict rhs_T,
-           int imax,
-           int jmax,
-           int kmax,
-           Py_ssize_t k)
+           ssize_t imax,
+           ssize_t jmax,
+           ssize_t kmax,
+           ssize_t k)
            {
 
     const ssize_t imin = 0;
@@ -53,10 +53,10 @@ void rhs_qt(double* restrict p,
             double* restrict qt_mp,
             double* restrict qt_sur,
             double* restrict rhs_qt,
-            int imax,
-            int jmax,
-            int kmax,
-            Py_ssize_t k)
+            ssize_t imax,
+            ssize_t jmax,
+            ssize_t kmax,
+            ssize_t k)
             {
 
     const ssize_t imin = 0;
