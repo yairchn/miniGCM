@@ -91,14 +91,18 @@ cdef class TimeStepping:
 	@cython.boundscheck(False)
 	cpdef CFL_limiter(self, Parameters Pr, Grid Gr, DiagnosticVariables DV, namelist):
 		cdef:
+			Py_ssize_t i, j, k
+			Py_ssize_t nx = Pr.nlats
+			Py_ssize_t ny = Pr.nlons
+			Py_ssize_t nl = Pr.n_layers
 			double CFL_limit, dt
 
 		dt = namelist['timestepping']['dt']
 		CFL_limit = namelist['timestepping']['CFL_limit']
 		with nogil:
-			for i in range(Pr.nlats):
-				for j in range(Pr.nlons):
-					for k in range(Pr.n_layers):
+			for i in range(nx):
+				for j in range(ny):
+					for k in range(nl):
 						dt = fmin(dt,
 						CFL_limit*fmin(Gr.dx[i,j]/(fabs(DV.U.values[i,j,k])+ 0.1) ,Gr.dy[i,j]/(fabs(DV.V.values[i,j,k])+ 0.1)))
 		return dt

@@ -9,10 +9,7 @@ import os.path
 import string
 
 # Now get include paths from relevant python modules
-# include_path = [mpi4py.get_include()]
-
 include_path = [np.get_include()]
-# include_path += ['./Csrc']
 
 if sys.platform == 'darwin':
     #Compile flags for MacOSX
@@ -21,7 +18,6 @@ if sys.platform == 'darwin':
     extensions = []
     extra_compile_args = []
     extra_compile_args += ['-O3', '-march=native', '-Wno-unused', '-Wno-#warnings','-fPIC']
-    # extra_objects=['./RRTMG/rrtmg_build/rrtmg_combined.o']
     extra_objects = []
     netcdf_include = '/opt/local/include'
     netcdf_lib = '/opt/local/lib'
@@ -116,20 +112,10 @@ _ext = Extension('Cases', ['Cases.pyx'], include_dirs=include_path,
                  runtime_library_dirs=library_dirs)
 extensions.append(_ext)
 
-# _ext = Extension('sphTrans', ['sphTrans.pyx'], include_dirs=include_path,
-#                  extra_compile_args=extra_compile_args, libraries=libraries, library_dirs=library_dirs,
-#                  runtime_library_dirs=library_dirs)
-# extensions.append(_ext)
-
 _ext = Extension('TimeStepping', ['TimeStepping.pyx'], include_dirs=include_path,
                  extra_compile_args=extra_compile_args, libraries=libraries, library_dirs=library_dirs,
                  runtime_library_dirs=library_dirs)
 extensions.append(_ext)
-
-# _ext = Extension('pytest_wrapper', ['pytest_wrapper.pyx'], include_dirs=include_path,
-#                  extra_compile_args=extra_compile_args, libraries=libraries, library_dirs=library_dirs,
-#                  runtime_library_dirs=library_dirs)
-# extensions.append(_ext)
 
 setup(
     ext_modules=cythonize(extensions, verbose=1, include_path=include_path)
