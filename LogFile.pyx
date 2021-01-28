@@ -37,4 +37,11 @@ cdef class LogFile:
                   + ' ' + str(PV.T.values.base[:,:,1].max()) + '>> '+Pr.logfilename)
         os.system('echo T layer 3 min max ' + str(PV.T.values.base[:,:,2].min())
                   + ' ' + str(PV.T.values.base[:,:,2].max()) + '>> '+Pr.logfilename)
+
+        os.system('echo dTdt_mp layer 1 min max ' + str(PV.T.mp_tendency.base[:,:,0].min())
+                  + ' ' + str(PV.T.mp_tendency.base[:,:,0].max()) + '>> '+Pr.logfilename)
+        os.system('echo dTdt_mp layer 2 min max ' + str(PV.T.mp_tendency.base[:,:,1].min())
+                  + ' ' + str(PV.T.mp_tendency.base[:,:,1].max()) + '>> '+Pr.logfilename)
+        os.system('echo dTdt_mp layer 3 min max ' + str(PV.T.mp_tendency.base[:,:,2].min())
+                  + ' ' + str(PV.T.mp_tendency.base[:,:,2].max()) + '>> '+Pr.logfilename)
         return

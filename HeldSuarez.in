@@ -32,14 +32,14 @@
         "inoise": 1
     },
     "io": {
-        "output_frequency": 1.0,
+        "output_frequency": 7.0,
         "stats_dir": "stats",
         "stats_frequency": 1.0
     },
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "fdbd8fb5-3235-4462-a0f7-b9d21803diff"
+        "uuid": "a5234b40-d91f-432e-b6e7-12189d12f21b"
     },
     "microphysics": {
         "rain_model": "None"
@@ -67,6 +67,6 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 50.0
+        "t_max": 100.0
     }
 }
