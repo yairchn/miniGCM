@@ -10,6 +10,12 @@ from Grid cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
 from libc.math cimport pow, fmax, exp
 
+cdef extern from "microphysics_functions.h":
+    void picrophysics_cutoff(double cp, double dt, double Rv, double Lv, double T_0, double rho_w,
+           double g, double max_ss, double qv_star0, double eps_v, double* p, double* T,
+           double* qt, double* ql, double* T_mp, double* qt_mp, double* rain_rate,
+           Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
+
 cdef class MicrophysicsBase:
     def __init__(self):
         return

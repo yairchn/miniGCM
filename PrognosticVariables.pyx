@@ -228,20 +228,72 @@ cdef class PrognosticVariables:
                 Vort_sur_flux ,Div_sur_flux = Gr.SphericalGrid.getvrtdivspec(DV.U.SurfaceFlux.base, DV.V.SurfaceFlux.base)
                 T_sur_flux  = PV.T.SurfaceFlux
                 QT_sur_flux = PV.QT.SurfaceFlux
+            with nogil:
+                for i in range(nx):
+                    for j in range(ny):
+                        dpi = 1.0/(PV.P.values[i,j,k+1] - PV.P.values[i,j,k])
+                        Dry_Energy[i,j]  = DV.gZ.values[i,j,k] + DV.KE.values[i,j,k]
+                        u_vorticity[i,j] = DV.U.values[i,j,k] * (PV.Vorticity.values[i,j,k]+Gr.Coriolis[i,j])
+                        v_vorticity[i,j] = DV.V.values[i,j,k] * (PV.Vorticity.values[i,j,k]+Gr.Coriolis[i,j])
+                        uT[i,j]          = DV.U.values[i,j,k] * PV.T.values[i,j,k]
+                        vT[i,j]          = DV.V.values[i,j,k] * PV.T.values[i,j,k]
+                        uQT[i,j]         = DV.U.values[i,j,k] * PV.QT.values[i,j,k]
+                        vQT[i,j]         = DV.V.values[i,j,k] * PV.QT.values[i,j,k]
 
-                rhs_qt(&PV.P.values[0,0,0], &PV.QT.values[0,0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
-                            &DV.Wp.values[0,0,0], &PV.QT.mp_tendency[0,0,0], &QT_sur_flux[0,0],
-                            &RHS_grid_QT[0,0], &uQT[0,0], &vQT[0,0], imax, jmax, kmax, k)
+                        Thermal_expension[i,j] = DV.Wp.values[i,j,k+1]*(DV.gZ.values[i,j,k+1]-DV.gZ.values[i,j,k])*dpi/Pr.cp
 
-                rhs_T(1.0/Pr.cp, &PV.P.values[0,0,0], &DV.gZ.values[0,0,0], &PV.T.values[0,0,0], &DV.U.values[0,0,0],
-                           &DV.V.values[0,0,0], &DV.Wp.values[0,0,0], &PV.T.mp_tendency[0,0,0], &T_sur_flux[0,0],
-                           &PV.T.forcing[0,0,0], &RHS_grid_T[0,0], &uT[0,0], &vT[0,0],  imax, jmax, kmax, k)
+                        if k==0:
+                            wu_dn[i,j] = DV.Wp.values[i,j,k+1]*(DV.U.values[i,j,k+1] - DV.U.values[i,j,k])*dpi
+                            wv_dn[i,j] = DV.Wp.values[i,j,k+1]*(DV.V.values[i,j,k+1] - DV.V.values[i,j,k])*dpi
+                            wu_up[i,j] = 0.0
+                            wv_up[i,j] = 0.0
 
-                vertical_uv_fluxes(&PV.P.values[0,0,0], &DV.gZ.values[0,0,0], &PV.Vorticity.values[0,0,0],
-                            &PV.Divergence.values[0,0,0], &Gr.Coriolis[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
-                            &DV.Wp.values[0,0,0], &DV.KE.values[0,0,0], &wu_up[0,0], &wv_up[0,0], &wu_dn[0,0], &wv_dn[0,0],
-                            &Dry_Energy[0,0], &u_vorticity[0,0], &v_vorticity[0,0],
-                            imax, jmax, kmax, k)
+                            wT_dn  = 0.5*DV.Wp.values[i,j,k+1]*(PV.T.values[i,j,k+1] + PV.T.values[i,j,k])*dpi
+                            wQT_dn = 0.5*DV.Wp.values[i,j,k+1]*(PV.QT.values[i,j,k+1]+ PV.QT.values[i,j,k])*dpi
+                            wT_up  = 0.0
+                            wQT_up = 0.0
+
+                        elif k==nl-1:
+                            wu_dn[i,j] = 0.0
+                            wv_dn[i,j] = 0.0
+                            wu_up[i,j] = DV.Wp.values[i,j,k]*(DV.U.values[i,j,k] - DV.U.values[i,j,k-1])*dpi
+                            wv_up[i,j] = DV.Wp.values[i,j,k]*(DV.V.values[i,j,k] - DV.V.values[i,j,k-1])*dpi
+
+                            wT_dn  = 0.5*DV.Wp.values[i,j,k+1]*(PV.T.values[i,j,k]  +PV.T.values[i,j,k])*dpi
+                            wQT_dn = 0.5*DV.Wp.values[i,j,k+1]*(PV.QT.values[i,j,k] + PV.QT.values[i,j,k])*dpi
+                            wT_up  = 0.5*DV.Wp.values[i,j,k]  *(PV.T.values[i,j,k]  + PV.T.values[i,j,k-1])*dpi
+                            wQT_up = 0.5*DV.Wp.values[i,j,k]  *(PV.QT.values[i,j,k] + PV.QT.values[i,j,k-1])*dpi
+
+                        else:
+                            wu_dn[i,j] = DV.Wp.values[i,j,k+1]*(DV.U.values[i,j,k+1] - DV.U.values[i,j,k])*dpi
+                            wv_dn[i,j] = DV.Wp.values[i,j,k+1]*(DV.V.values[i,j,k+1] - DV.V.values[i,j,k])*dpi
+                            wu_up[i,j] = DV.Wp.values[i,j,k]  *(DV.U.values[i,j,k]   - DV.U.values[i,j,k-1])*dpi
+                            wv_up[i,j] = DV.Wp.values[i,j,k]  *(DV.V.values[i,j,k]   - DV.V.values[i,j,k-1])*dpi
+
+                            wT_dn  = 0.5*DV.Wp.values[i,j,k+1]*(PV.T.values[i,j,k+1]  + PV.T.values[i,j,k])*dpi
+                            wQT_dn = 0.5*DV.Wp.values[i,j,k+1]*(PV.QT.values[i,j,k+1] + PV.QT.values[i,j,k])*dpi
+                            wT_up  = 0.5*DV.Wp.values[i,j,k]  *(PV.T.values[i,j,k]    + PV.T.values[i,j,k-1])*dpi
+                            wQT_up = 0.5*DV.Wp.values[i,j,k]  *(PV.QT.values[i,j,k]   + PV.QT.values[i,j,k-1])*dpi
+
+
+                        RHS_grid_T[i,j] = (wT_up - wT_dn - Thermal_expension[i,j]
+                                            + PV.T.mp_tendency[i,j,k] + PV.T.forcing[i,j,k] + T_sur_flux[i,j])
+                        RHS_grid_QT[i,j] = (wQT_up - wQT_dn
+                                            + PV.QT.mp_tendency[i,j,k] + QT_sur_flux[i,j])
+
+                # rhs_qt(&PV.P.values[0,0,0], &PV.QT.values[0,0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
+                #             &DV.Wp.values[0,0,0], &PV.QT.mp_tendency[0,0,0], &QT_sur_flux[0,0],
+                #             &RHS_grid_QT[0,0], &uQT[0,0], &vQT[0,0], imax, jmax, kmax, k)
+
+                # rhs_T(1.0/Pr.cp, &PV.P.values[0,0,0], &DV.gZ.values[0,0,0], &PV.T.values[0,0,0], &DV.U.values[0,0,0],
+                #            &DV.V.values[0,0,0], &DV.Wp.values[0,0,0], &PV.T.mp_tendency[0,0,0], &T_sur_flux[0,0],
+                #            &PV.T.forcing[0,0,0], &RHS_grid_T[0,0], &uT[0,0], &vT[0,0],  imax, jmax, kmax, k)
+
+                # vertical_uv_fluxes(&PV.P.values[0,0,0], &DV.gZ.values[0,0,0], &PV.Vorticity.values[0,0,0],
+                #             &PV.Divergence.values[0,0,0], &Gr.Coriolis[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
+                #             &DV.Wp.values[0,0,0], &DV.KE.values[0,0,0], &wu_up[0,0], &wv_up[0,0], &wu_dn[0,0], &wv_dn[0,0],
+                #             &Dry_Energy[0,0], &u_vorticity[0,0], &v_vorticity[0,0],
+                #             imax, jmax, kmax, k)
 
 
             Dry_Energy_laplacian = Gr.laplacian*Gr.SphericalGrid.grdtospec(Dry_Energy.base)

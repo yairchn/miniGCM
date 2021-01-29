@@ -12,6 +12,14 @@ import sys
 from Parameters cimport Parameters
 from libc.math cimport pow, log, sin, cos, fmax
 
+cdef extern from "forcing_functions.h":
+	void focring_hs(double kappa, double p_ref, double sigma_b, double k_a, double k_b,
+			double k_f, double k_s, double d_theta_z, double T_equator, double DT_y,
+			double* p, double* T, double* T_bar, double* lat, double* u,
+			double* v, double* u_forc, double* v_forc, double* T_forc,
+			Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
+
+
 cdef class ForcingBase:
 	def __init__(self):
 		return
@@ -78,23 +86,28 @@ cdef class HelzSuarez(ForcingBase):
 			double P_half, sigma_ratio
 
 		with nogil:
-			for i in range(nx):
-				for j in range(ny):
-					for k in range(nl):
-						P_half = (PV.P.values[i,j,k]+PV.P.values[i,j,k+1])/2.0
-						self.Tbar[i,j,k] = fmax(
-										   (Pr.T_equator - Pr.DT_y*self.sin_lat[i,j]*self.sin_lat[i,j] -
-							                Pr.Dtheta_z*log(P_half/Pr.p_ref)*self.cos_lat[i,j]*self.cos_lat[i,j])*
-						                    pow(P_half/Pr.p_ref , Pr.kappa)
-						                    ,200.0)
+			focring_hs(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
+						Pr.Dtheta_z, Pr.T_equator, Pr.DT_y, &PV.P.values[0,0,0], &PV.T.values[0,0,0],
+						&self.Tbar[0,0,0], &Gr.lat[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
+						&DV.U.forcing[0,0,0], &DV.V.forcing[0,0,0], &PV.T.forcing[0,0,0], nx, ny, nl)
 
-						sigma_ratio = fmax((P_half/PV.P.values[i,j,nl]-Pr.sigma_b)/(1-Pr.sigma_b),0.0)
-						self.k_T[i,j,k] = Pr.k_a + (Pr.k_s-Pr.k_a)*sigma_ratio*pow(self.cos_lat[i,j],4.0)
-						self.k_v[i,j,k] = Pr.k_b + Pr.k_f*sigma_ratio
+			# for i in range(nx):
+			# 	for j in range(ny):
+			# 		for k in range(nl):
+			# 			P_half = (PV.P.values[i,j,k]+PV.P.values[i,j,k+1])/2.0
+			# 			self.Tbar[i,j,k] = fmax(
+			# 							   (Pr.T_equator - Pr.DT_y*self.sin_lat[i,j]*self.sin_lat[i,j] -
+			# 				                Pr.Dtheta_z*log(P_half/Pr.p_ref)*self.cos_lat[i,j]*self.cos_lat[i,j])*
+			# 			                    pow(P_half/Pr.p_ref , Pr.kappa)
+			# 			                    ,200.0)
 
-						DV.U.forcing[i,j,k] = -self.k_v[i,j,k]*DV.U.values[i,j,k]
-						DV.V.forcing[i,j,k] = -self.k_v[i,j,k]*DV.V.values[i,j,k]
-						PV.T.forcing[i,j,k] = -self.k_T[i,j,k]*(PV.T.values[i,j,k]-self.Tbar[i,j,k])
+			# 			sigma_ratio = fmax((P_half/PV.P.values[i,j,nl]-Pr.sigma_b)/(1-Pr.sigma_b),0.0)
+			# 			self.k_T[i,j,k] = Pr.k_a + (Pr.k_s-Pr.k_a)*sigma_ratio*pow(self.cos_lat[i,j],4.0)
+			# 			self.k_v[i,j,k] = Pr.k_b + Pr.k_f*sigma_ratio
+
+			# 			DV.U.forcing[i,j,k] = -self.k_v[i,j,k]*DV.U.values[i,j,k]
+			# 			DV.V.forcing[i,j,k] = -self.k_v[i,j,k]*DV.V.values[i,j,k]
+			# 			PV.T.forcing[i,j,k] = -self.k_T[i,j,k]*(PV.T.values[i,j,k]-self.Tbar[i,j,k])
 		return
 
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
@@ -136,22 +149,27 @@ cdef class HelzSuarezMoist(ForcingBase):
 			double P_half, sigma_ratio
 
 		with nogil:
-			for i in range(nx):
-				for j in range(ny):
-					for k in range(nl):
-						P_half = (PV.P.values[i,j,k]+PV.P.values[i,j,k+1])/2.0
-						self.Tbar[i,j,k] = fmax(
-										   (Pr.T_equator - Pr.DT_y*self.sin_lat[i,j]*self.sin_lat[i,j] -
-							                Pr.Dtheta_z*log(P_half/Pr.p_ref)*self.cos_lat[i,j]*self.cos_lat[i,j])*
-						                    pow(P_half/Pr.p_ref , Pr.kappa)
-						                    ,200.0)
-						sigma_ratio = fmax((P_half/PV.P.values[i,j,nl]-Pr.sigma_b)/(1-Pr.sigma_b),0.0)
-						self.k_T[i,j,k] = Pr.k_a + (Pr.k_s-Pr.k_a)*sigma_ratio*pow(self.cos_lat[i,j],4.0)
-						self.k_v[i,j,k] = Pr.k_b + Pr.k_f*sigma_ratio
+			focring_hs(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
+						Pr.Dtheta_z, Pr.T_equator, Pr.DT_y, &PV.P.values[0,0,0], &PV.T.values[0,0,0],
+						&self.Tbar[0,0,0], &Gr.lat[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
+						&DV.U.forcing[0,0,0], &DV.V.forcing[0,0,0], &PV.T.forcing[0,0,0], nx, ny, nl)
 
-						DV.U.forcing[i,j,k] = -self.k_v[i,j,k]*DV.U.values[i,j,k]
-						DV.V.forcing[i,j,k] = -self.k_v[i,j,k]*DV.V.values[i,j,k]
-						PV.T.forcing[i,j,k] = -self.k_T[i,j,k]*(PV.T.values[i,j,k]-self.Tbar[i,j,k])
+			# for i in range(nx):
+			# 	for j in range(ny):
+			# 		for k in range(nl):
+			# 			P_half = (PV.P.values[i,j,k]+PV.P.values[i,j,k+1])/2.0
+			# 			self.Tbar[i,j,k] = fmax(
+			# 							   (Pr.T_equator - Pr.DT_y*self.sin_lat[i,j]*self.sin_lat[i,j] -
+			# 				                Pr.Dtheta_z*log(P_half/Pr.p_ref)*self.cos_lat[i,j]*self.cos_lat[i,j])*
+			# 			                    pow(P_half/Pr.p_ref , Pr.kappa)
+			# 			                    ,200.0)
+			# 			sigma_ratio = fmax((P_half/PV.P.values[i,j,nl]-Pr.sigma_b)/(1-Pr.sigma_b),0.0)
+			# 			self.k_T[i,j,k] = Pr.k_a + (Pr.k_s-Pr.k_a)*sigma_ratio*pow(self.cos_lat[i,j],4.0)
+			# 			self.k_v[i,j,k] = Pr.k_b + Pr.k_f*sigma_ratio
+
+			# 			DV.U.forcing[i,j,k] = -self.k_v[i,j,k]*DV.U.values[i,j,k]
+			# 			DV.V.forcing[i,j,k] = -self.k_v[i,j,k]*DV.V.values[i,j,k]
+			# 			PV.T.forcing[i,j,k] = -self.k_T[i,j,k]*(PV.T.values[i,j,k]-self.Tbar[i,j,k])
 
 		return
 

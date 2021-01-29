@@ -15,6 +15,14 @@ import sys
 from Parameters cimport Parameters
 from libc.math cimport exp, pow, sqrt
 
+cdef extern from "surface_functions.h":
+    void surface_bulk_formula(double g, double Rv, double Lv, double T_0, double Ch, double Cq,
+                              double Cd, double qv_star0, double eps_v, double* p, double* gz, double* T,
+                              double* qt, double* T_surf, double* u, double* v, double* u_surf_flux,
+                              double* v_surf_flux, double* T_surf_flux, double* qt_surf_flux,
+                              Py_ssize_t imax, Py_ssize_t jmax) nogil
+
+
 cdef class SurfaceBase:
     def __init__(self):
         return
@@ -70,6 +78,15 @@ cdef class SurfaceBulkFormula(SurfaceBase):
             double U_abs, z_a
 
         with nogil:
+            surface_bulk_formula(Pr.g, Pr.Rv, Pr.Lv, Pr.T_0, Pr.Ch, Pr.Cq,
+                              Pr.Cd, Pr.qv_star0, Pr.eps_v, &PV.P.values[0,0,nl],
+                              &DV.gZ.values[0,0,nl-1], &PV.T.values[0,0,nl-1],
+                              &PV.QT.values[0,0,nl-1], &self.T_surf[0,0],
+                              &DV.U.values[0,0,nl-1], &DV.V.values[0,0,nl-1],
+                              &DV.U.SurfaceFlux[0,0], &DV.V.SurfaceFlux[0,0],
+                              &PV.T.SurfaceFlux[0,0], &PV.QT.SurfaceFlux[0,0],
+                              nx, ny)
+
             for i in range(nx):
                 for j in range(ny):
                     U_abs = sqrt(pow(DV.U.values[i,j,nl-1],2.0) + pow(DV.V.values[i,j,nl-1],2.0))

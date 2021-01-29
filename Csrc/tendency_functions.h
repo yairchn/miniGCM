@@ -1,5 +1,4 @@
 #pragma once
-// #include "grid.h"
 
 
 void rhs_T(double cpi,
@@ -36,8 +35,8 @@ void rhs_T(double cpi,
                 wT_up  = 0.0;
             } // end if
             else if (k==kmax){
-                wT_dn  = 0.5*wp[i,j,k+1]*(T[i,j,k]  +T[i,j,k])*dpi;
-                wT_up  = 0.5*wp[i,j,k]  *(T[i,j,k]  +T[i,j,k-1])*dpi;
+                wT_dn  = 0.5*wp[i,j,k+1] * (T[i,j,k]  + T[i,j,k])*dpi;
+                wT_up  = 0.5*wp[i,j,k] * (T[i,j,k]  + T[i,j,k-1])*dpi;
             } // end else if
             else{
                 wT_dn  = 0.5*wp[i,j,k+1]*(T[i,j,k+1]  + T[i,j,k])*dpi;
@@ -47,8 +46,8 @@ void rhs_T(double cpi,
         rhs_T[i,j] = (wT_up - wT_dn - w_gz_dpi + T_mp[i,j,k] + T_forc[i,j,k] + T_sur[i,j]);
         u_T[i,j] = u[i,j,k] * T[i,j,k];
         v_T[i,j] = v[i,j,k] * T[i,j,k];
-        } // End i loop
-    } // end j loop
+        } // End j loop
+    } // end i loop
     return;
 }
 
@@ -93,8 +92,8 @@ void rhs_qt(double* restrict p,
         rhs_qt[i,j] = (wQT_up - wQT_dn + qt_mp[i,j,k] + qt_sur[i,j]);
         u_qt[i,j] = u[i,j,k] * qt[i,j,k];
         v_qt[i,j] = v[i,j,k] * qt[i,j,k];
-        } // End i loop
-    } // end j loop
+        } // End j loop
+    } // end i loop
     return;
 }
 
@@ -149,7 +148,7 @@ void vertical_uv_fluxes(double* restrict p,
             e_dry[i,j]  = gz[i,j,k] + ke[i,j,k];
             u_vort[i,j] = u[i,j,k] * (vort[i,j,k]+f[i,j]);
             v_vort[i,j] = v[i,j,k] * (vort[i,j,k]+f[i,j]);
-        } // End i loop
-    } // end j loop
+        } // end j loop
+    } // end i loop
     return;
 }
