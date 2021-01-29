@@ -11,7 +11,7 @@ from NetCDFIO cimport NetCDFIO_Stats
 from libc.math cimport pow, fmax, exp
 
 cdef extern from "microphysics_functions.h":
-    void picrophysics_cutoff(double cp, double dt, double Rv, double Lv, double T_0, double rho_w,
+    void microphysics_cutoff(double cp, double dt, double Rv, double Lv, double T_0, double rho_w,
            double g, double max_ss, double qv_star0, double eps_v, double* p, double* T,
            double* qt, double* ql, double* T_mp, double* qt_mp, double* rain_rate,
            Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
@@ -91,6 +91,12 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
             double P_half, qv_star, denom
 
         with nogil:
+            microphysics_cutoff(Pr.cp, TS.dt, Pr.Rv, Pr.Lv, Pr.T_0, Pr.rho_w,
+                                Pr.g, Pr.max_ss, Pr.qv_star0, Pr.eps_v, &PV.P.values[0,0,0],
+                                &PV.T.values[0,0,0], &PV.QT.values[0,0,0], &DV.QL.values[0,0,0],
+                                &PV.T.mp_tendency[0,0,0], &PV.QT.mp_tendency[0,0,0], &self.RainRate[0,0],
+                                nx, ny, nl)
+
             for i in range(nx):
                 for j in range(ny):
                     self.RainRate[i,j] = 0.0
