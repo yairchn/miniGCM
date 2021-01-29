@@ -176,7 +176,7 @@ cdef class PrognosticVariables:
             Py_ssize_t jmax = Pr.nlons
             Py_ssize_t kmax = Pr.n_layers
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
-            double dpi, wQT_dn, wQT_up, wT_dn, wT_up
+            double dpi, wQT_dn, wQT_up, wT_dn, wT_up, cpi
 
             double complex [:] w_vort_up = np.zeros((nlm), dtype = np.complex, order='c')
             double complex [:] w_vort_dn = np.zeros((nlm), dtype = np.complex, order='c')
@@ -217,6 +217,8 @@ cdef class PrognosticVariables:
             double [:,:] v_vertical_flux = np.zeros((nx, ny),dtype=np.float64, order='c')
             double [:,:] Thermal_expension = np.zeros((nx, ny),dtype=np.float64, order='c')
 
+        cpi = 1.0/Pr.cp
+
         Vortical_P_flux, Divergent_P_flux = Gr.SphericalGrid.getvrtdivspec(
             np.multiply(DV.U.values[:,:,nl-1],np.subtract(PV.P.values[:,:,nl-1],PV.P.values[:,:,nl])),
             np.multiply(DV.V.values[:,:,nl-1],np.subtract(PV.P.values[:,:,nl-1],PV.P.values[:,:,nl])))
@@ -229,6 +231,8 @@ cdef class PrognosticVariables:
                 T_sur_flux  = PV.T.SurfaceFlux
                 QT_sur_flux = PV.QT.SurfaceFlux
             with nogil:
+
+
                 for i in range(nx):
                     for j in range(ny):
                         dpi = 1.0/(PV.P.values[i,j,k+1] - PV.P.values[i,j,k])
@@ -285,7 +289,7 @@ cdef class PrognosticVariables:
                 #             &DV.Wp.values[0,0,0], &PV.QT.mp_tendency[0,0,0], &QT_sur_flux[0,0],
                 #             &RHS_grid_QT[0,0], &uQT[0,0], &vQT[0,0], imax, jmax, kmax, k)
 
-                # rhs_T(1.0/Pr.cp, &PV.P.values[0,0,0], &DV.gZ.values[0,0,0], &PV.T.values[0,0,0], &DV.U.values[0,0,0],
+                # rhs_T(cpi, &PV.P.values[0,0,0], &DV.gZ.values[0,0,0], &PV.T.values[0,0,0], &DV.U.values[0,0,0],
                 #            &DV.V.values[0,0,0], &DV.Wp.values[0,0,0], &PV.T.mp_tendency[0,0,0], &T_sur_flux[0,0],
                 #            &PV.T.forcing[0,0,0], &RHS_grid_T[0,0], &uT[0,0], &vT[0,0],  imax, jmax, kmax, k)
 
@@ -294,7 +298,6 @@ cdef class PrognosticVariables:
                 #             &DV.Wp.values[0,0,0], &DV.KE.values[0,0,0], &wu_up[0,0], &wv_up[0,0], &wu_dn[0,0], &wv_dn[0,0],
                 #             &Dry_Energy[0,0], &u_vorticity[0,0], &v_vorticity[0,0],
                 #             imax, jmax, kmax, k)
-
 
             Dry_Energy_laplacian = Gr.laplacian*Gr.SphericalGrid.grdtospec(Dry_Energy.base)
             Vortical_momentum_flux, Divergent_momentum_flux = Gr.SphericalGrid.getvrtdivspec(u_vorticity.base, v_vorticity.base)

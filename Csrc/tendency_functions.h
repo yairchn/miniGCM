@@ -1,5 +1,5 @@
 #pragma once
-
+#include <math.h>
 
 void rhs_T(double cpi,
            double* restrict p,
@@ -31,16 +31,16 @@ void rhs_T(double cpi,
         for(ssize_t j=jmin;j<jmax;j++){
             dpi = 1.0/(p[i,j,k+1] - p[i,j,k]);
         	if (k==0){
-                wT_dn  = 0.5*wp[i,j,k+1]*(T[i,j,k+1] + T[i,j,k])*dpi;
                 wT_up  = 0.0;
+                wT_dn  = 0.5*wp[i,j,k+1]*(T[i,j,k+1] + T[i,j,k])*dpi;
             } // end if
-            else if (k==kmax){
-                wT_dn  = 0.5*wp[i,j,k+1] * (T[i,j,k]  + T[i,j,k])*dpi;
+            else if (k==kmax-1){
                 wT_up  = 0.5*wp[i,j,k] * (T[i,j,k]  + T[i,j,k-1])*dpi;
+                wT_dn  = 0.5*wp[i,j,k+1] * (T[i,j,k]  + T[i,j,k])*dpi;
             } // end else if
             else{
-                wT_dn  = 0.5*wp[i,j,k+1]*(T[i,j,k+1]  + T[i,j,k])*dpi;
                 wT_up  = 0.5*wp[i,j,k]  *(T[i,j,k]    + T[i,j,k-1])*dpi;
+                wT_dn  = 0.5*wp[i,j,k+1]*(T[i,j,k+1]  + T[i,j,k])*dpi;
             } // end else
         w_gz_dpi = wp[i,j,k+1]*(gz[i,j,k+1]-gz[i,j,k])*dpi*cpi;
         rhs_T[i,j] = (wT_up - wT_dn - w_gz_dpi + T_mp[i,j,k] + T_forc[i,j,k] + T_sur[i,j]);
@@ -78,16 +78,16 @@ void rhs_qt(double* restrict p,
         for(ssize_t j=jmin;j<jmax;j++){
             dpi = 1.0/(p[i,j,k+1] - p[i,j,k]);
         	if (k==0){
-                wQT_dn = 0.5*wp[i,j,k+1]*(qt[i,j,k+1]+ qt[i,j,k])*dpi;
                 wQT_up = 0.0;
+                wQT_dn = 0.5*wp[i,j,k+1]*(qt[i,j,k+1]+ qt[i,j,k])*dpi;
             } // end if
-            else if (k==kmax){
-                wQT_dn = 0.5*wp[i,j,k+1]*(qt[i,j,k] +qt[i,j,k])*dpi;
+            else if (k==kmax-1){
                 wQT_up = 0.5*wp[i,j,k]  *(qt[i,j,k] +qt[i,j,k-1])*dpi;
+                wQT_dn = 0.5*wp[i,j,k+1]*(qt[i,j,k] +qt[i,j,k])*dpi;
             } // end else if
             else{
-                wQT_dn = 0.5*wp[i,j,k+1]*(qt[i,j,k+1] + qt[i,j,k])*dpi;
                 wQT_up = 0.5*wp[i,j,k]  *(qt[i,j,k]   + qt[i,j,k-1])*dpi;
+                wQT_dn = 0.5*wp[i,j,k+1]*(qt[i,j,k+1] + qt[i,j,k])*dpi;
             } // end else
         rhs_qt[i,j] = (wQT_up - wQT_dn + qt_mp[i,j,k] + qt_sur[i,j]);
         u_qt[i,j] = u[i,j,k] * qt[i,j,k];
@@ -133,7 +133,7 @@ void vertical_uv_fluxes(double* restrict p,
                 wdudp_dn[i,j,k] = 0.0;
                 wdvdp_dn[i,j,k] = 0.0;
             } // end if
-            else if (k==kmax){
+            else if (k==kmax-1){
                 wdudp_up[i,j,k] = 0.0;
                 wdvdp_up[i,j,k] = 0.0;
                 wdudp_dn[i,j,k] = wp[i,j,k]*(u[i,j,k] - u[i,j,k-1])*dpi;

@@ -59,9 +59,9 @@ class Simulation:
 
             wallclocktime = time.time() - start_time
             if self.TS.t%self.Stats.stats_frequency < self.TS.dt:
+                self.LF.update(self.Pr, self.TS, self.DV, self.PV, wallclocktime)
                 self.stats_io()
             if self.TS.t%self.Stats.output_frequency < self.TS.dt:
-                self.LF.update(self.Pr, self.TS, self.DV, self.PV, wallclocktime)
                 self.io()
         return
 

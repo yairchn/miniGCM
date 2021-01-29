@@ -91,12 +91,6 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
             double P_half, qv_star, denom
 
         with nogil:
-            microphysics_cutoff(Pr.cp, TS.dt, Pr.Rv, Pr.Lv, Pr.T_0, Pr.rho_w,
-                                Pr.g, Pr.max_ss, Pr.qv_star0, Pr.eps_v, &PV.P.values[0,0,0],
-                                &PV.T.values[0,0,0], &PV.QT.values[0,0,0], &DV.QL.values[0,0,0],
-                                &PV.T.mp_tendency[0,0,0], &PV.QT.mp_tendency[0,0,0], &self.RainRate[0,0],
-                                nx, ny, nl)
-
             for i in range(nx):
                 for j in range(ny):
                     self.RainRate[i,j] = 0.0
@@ -108,6 +102,12 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
                         PV.T.mp_tendency[i,j,k]  =  Pr.Lv/Pr.cp*DV.QL.values[i,j,k]/denom
                         PV.QT.mp_tendency[i,j,k] = -fmax(PV.QT.values[i,j,k] - (1.0+Pr.max_ss)*qv_star, 0.0)/denom
                         self.RainRate[i,j] -= (PV.QT.mp_tendency[i,j,k]/Pr.rho_w*Pr.g*(PV.P.values[i,j,nl]-PV.P.values[i,j,0]))/(nl+1)
+        # with nogil:
+        #     microphysics_cutoff(Pr.cp, TS.dt, Pr.Rv, Pr.Lv, Pr.T_0, Pr.rho_w,
+        #                         Pr.g, Pr.max_ss, Pr.qv_star0, Pr.eps_v, &PV.P.values[0,0,0],
+        #                         &PV.T.values[0,0,0], &PV.QT.values[0,0,0], &DV.QL.values[0,0,0],
+        #                         &PV.T.mp_tendency[0,0,0], &PV.QT.mp_tendency[0,0,0], &self.RainRate[0,0],
+        #                         nx, ny, nl)
 
         return
 
