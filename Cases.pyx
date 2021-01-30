@@ -72,7 +72,7 @@ cdef class HeldSuarez(CaseBase):
             double [:,:] noise
 
         PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
-        PV.T_init        = np.array([229.0, 257.0, 295.0])
+        PV.T_init        = np.array([224.0, 250.0, 290.0])
 
         Pr.sigma_b = namelist['forcing']['sigma_b']
         Pr.k_a = namelist['forcing']['k_a']
@@ -94,7 +94,7 @@ cdef class HeldSuarez(CaseBase):
 
         print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
         if Pr.inoise==1: # load the random noise to grid space
-             noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
+             noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')*Pr.noise_amp
              PV.T.spectral.base[:,Pr.n_layers-1] = np.add(PV.T.spectral.base[:,Pr.n_layers-1],
                                                         Gr.SphericalGrid.grdtospec(noise.base))
         print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
@@ -247,7 +247,7 @@ cdef class HeldSuarezMoist(CaseBase):
         PV.P.spectral.base[:,Pr.n_layers]     = Gr.SphericalGrid.grdtospec(PV.P.values.base[:,:,Pr.n_layers])
 
         if Pr.inoise==1: # load the random noise to grid space
-             noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
+             noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')*Pr.inoise
              PV.T.spectral.base[:,Pr.n_layers-1] = np.add(PV.T.spectral.base[:,Pr.n_layers-1],
                                                         Gr.SphericalGrid.grdtospec(noise.base))
         return

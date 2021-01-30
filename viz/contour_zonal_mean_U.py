@@ -15,9 +15,10 @@ def main():
     runname='410k2'
     runname='4e5k0'
     runname='310k2'
+    runname='009mi'
 
     folder = os.getcwd() + '/Output.HeldSuarez.'+runname+'/stats/'
-    ncfile = folder + 'Stats.HeldSuarez.Restart_2.nc'
+    ncfile = folder + 'Stats.HeldSuarez.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
@@ -31,7 +32,8 @@ def main():
     fig = plt.figure(varname)
     for i in range(n):
         ax1 = fig.add_subplot(n, 1, i+1)
-        im1 = ax1.contourf(X,Y,np.fliplr(np.rot90(np.squeeze(var[:,:,i]), k=3)),cmap='coolwarm',levels=np.linspace(-25,25,100),extend='both')
+        #im1 = ax1.contourf(X,Y,np.fliplr(np.rot90(np.squeeze(var[:,:,i]), k=3)),cmap='coolwarm',levels=np.linspace(-25,25,100),extend='both')
+        im1 = ax1.contourf(X,Y,np.fliplr(np.rot90(np.squeeze(var[:,:,i]), k=3)),cmap='coolwarm',levels=np.linspace(var[:,:,i].min(),var[:,:,i].max(),40),extend='both')
         ax1.set_ylabel('latitude / $\circ$')
         if i==0: plt.title('Hovmoeller Diagram of $\overline{u}$ / m s$^{-1}$')
         if i<n-1:

@@ -1,7 +1,7 @@
 {
     "diffusion": {
         "dissipation_order": 8.0,
-        "e_folding_timescale": 300.0,
+        "e_folding_timescale": 0.01,
         "truncation_order": 3,
         "type": "hyperdiffusion"
     },
@@ -10,7 +10,7 @@
         "equatorial_temperature": 315.0,
         "forcing_type": "HeldSuarez",
         "k_a": 2.8935185185185185e-07,
-        "k_b": 1.4467592592592592e-07,
+        "k_b": 0.0,
         "k_f": 1.1574074074074073e-05,
         "k_s": 2.8935185185185184e-06,
         "lapse_rate": 10.0,
@@ -29,17 +29,18 @@
         "p_ref": 100000.0
     },
     "initialize": {
-        "inoise": 1
+        "inoise": 1,
+        "noise_amp": 0.001
     },
     "io": {
-        "output_frequency": 7.0,
+        "output_frequency": 1.0,
         "stats_dir": "stats",
         "stats_frequency": 1.0
     },
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "aee706a2-5641-4c31-ac01-518e6c2008mi"
+        "uuid": "b5fd2e39-4e10-4afd-ac5c-565affb010mi"
     },
     "microphysics": {
         "rain_model": "None"
@@ -67,6 +68,6 @@
     "timestepping": {
         "CFL_limit": 0.5,
         "dt": 100.0,
-        "t_max": 600.0
+        "t_max": 100.0
     }
 }

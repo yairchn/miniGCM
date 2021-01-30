@@ -215,11 +215,7 @@ cdef class PrognosticVariables:
 
         for k in range(nl):
             gZ_half = np.divide(np.add(DV.gZ.values.base[:,:,k],DV.gZ.values.base[:,:,k+1]),2.0)
-            if k <nl-1:
-                Wp_half = np.divide(np.add(DV.Wp.values.base[:,:,k],DV.Wp.values.base[:,:,k+1]),2.0)
-            else:
-                Wp_half = np.divide(DV.Wp.values.base[:,:,k],2.0)
-            #print("k ",k , "min gZ_half", np.min(gZ_half), "min Wp_half", np.min(Wp_half))
+            Wp_half = np.divide(np.add(DV.Wp.values.base[:,:,k],DV.Wp.values.base[:,:,k+1]),2.0)
             Dry_Energy_laplacian = Gr.SphericalGrid.lap*Gr.SphericalGrid.grdtospec(
                     np.add(gZ_half,DV.KE.values.base[:,:,k]))
             Vortical_momentum_flux, Divergent_momentum_flux = Gr.SphericalGrid.getvrtdivspec(

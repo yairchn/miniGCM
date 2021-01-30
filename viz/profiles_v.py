@@ -14,10 +14,10 @@ def main():
     varname = 'zonal_mean_V'
     runname='410k2'
     #runname='4e5k0'
-    runname='310k2'
+    runname='009mi'
 
     folder = '/home/scoty/miniGCM/Output.HeldSuarez.'+runname+'/stats/'
-    ncfile = folder + 'Stats.HeldSuarez.Restart_2.nc'
+    ncfile = folder + 'Stats.HeldSuarez.nc'
     data = nc.Dataset(ncfile, 'r')
 
     runname2='007e8'
@@ -39,11 +39,11 @@ def main():
     fig = plt.figure(varname,figsize=(3,6))
     for i in range(n):
         print('i',i)
-        print('min max np.mean(var[200:1000,:,i],axis=0) ', np.amin(np.mean(var[200:1000,:,i],axis=0)), np.amax(np.mean(var[200:1000,:,i],axis=0)))
+        print('min max np.mean(var[50:100,:,i],axis=0) ', np.amin(np.mean(var[50:100,:,i],axis=0)), np.amax(np.mean(var[50:100,:,i],axis=0)))
         print('lat_list.shape',lat_list.shape)
         print('var.shape',var.shape)
         ax1 = fig.add_subplot(n, 1, i+1)
-        im1 = ax1.plot(np.mean(var[200:1000,:,i],axis=0),np.array(lat_list),'-k')
+        im1 = ax1.plot(np.mean(var[50:100,:,i],axis=0),np.array(lat_list),'-k')
         im2 = ax1.plot(np.mean(var2[200:800,:,i],axis=0),np.array(lat_list),'-g')
         ax1.set_ylabel('latitude / $\circ$')
         ax1.set_xlim(-2,2)

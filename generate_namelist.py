@@ -51,7 +51,8 @@ def main():
     namelist_defaults['thermodynamics']['triple_point_temp']    = 273.16    # [K]
 
     namelist_defaults['initialize'] = {}
-    namelist_defaults['initialize']['inoise']                   = 1 # flag for noise in initial condition
+    namelist_defaults['initialize']['inoise']              = 1 # flag for noise in initial condition
+    namelist_defaults['initialize']['noise_amp']           = 0.1 # tunable parameter 
 
     namelist_defaults['output'] = {}
     namelist_defaults['output']['output_root'] = './'
