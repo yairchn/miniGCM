@@ -3,6 +3,7 @@ from PrognosticVariables cimport PrognosticVariables
 from DiagnosticVariables cimport DiagnosticVariables
 from Grid cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
+import sphericalForcing as spf
 cimport Forcing
 cimport Surface
 cimport Microphysics
@@ -72,7 +73,7 @@ cdef class HeldSuarez(CaseBase):
             double [:,:] noise
 
         PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
-        PV.T_init        = np.array([224.0, 250.0, 290.0])
+        PV.T_init        = np.array([Pr.T1, Pr.T2, Pr.T3])
 
         Pr.sigma_b = namelist['forcing']['sigma_b']
         Pr.k_a = namelist['forcing']['k_a']
@@ -93,8 +94,14 @@ cdef class HeldSuarez(CaseBase):
         PV.physical_to_spectral(Pr, Gr)
 
         print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
-        if Pr.inoise==1: # load the random noise to grid space
-             noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')*Pr.noise_amp
+        if Pr.inoise==1:
+             # load the random noise to grid space
+             #noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')*Pr.noise_amp
+             # calculate noise
+             F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
+             fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 5, correlation = 0.)
+             noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(F0))*Pr.noise_amp
+             # add noise
              PV.T.spectral.base[:,Pr.n_layers-1] = np.add(PV.T.spectral.base[:,Pr.n_layers-1],
                                                         Gr.SphericalGrid.grdtospec(noise.base))
         print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())

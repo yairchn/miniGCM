@@ -10,7 +10,7 @@
         "equatorial_temperature": 315.0,
         "forcing_type": "HeldSuarez",
         "k_a": 2.8935185185185185e-07,
-        "k_b": 0.0,
+        "k_b": 1.4467592592592592e-07,
         "k_f": 1.1574074074074073e-05,
         "k_s": 2.8935185185185184e-06,
         "lapse_rate": 10.0,
@@ -29,18 +29,22 @@
         "p_ref": 100000.0
     },
     "initialize": {
+        "T1": 229.0,
+        "T2": 257.0,
+        "T3": 300.0,
         "inoise": 1,
-        "noise_amp": 0.001
+        "noise_amp": 0.1,
+        "noise_type": "white"
     },
     "io": {
-        "output_frequency": 1.0,
+        "output_frequency": 7.0,
         "stats_dir": "stats",
         "stats_frequency": 1.0
     },
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "b5fd2e39-4e10-4afd-ac5c-565affb010mi"
+        "uuid": "eb1539e4-07bd-410e-96e6-b2a8cd8d526f"
     },
     "microphysics": {
         "rain_model": "None"

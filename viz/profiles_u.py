@@ -34,6 +34,12 @@ def main():
     print('ncfile3: ',ncfile3)
     data3= nc.Dataset(ncfile3,'r')
 
+  
+    runname4='012mi'
+    folder4= '/home/scoty/miniGCM/Output.HeldSuarez.'+runname4+'/stats/'
+    ncfile4= folder4+ 'Stats.HeldSuarez.nc'
+    print('ncfile4: ',ncfile4)
+    data4= nc.Dataset(ncfile4,'r')
 
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
@@ -46,6 +52,8 @@ def main():
     t2= np.divide(data2.groups['zonal_mean'].variables['t'],3600.0*24.0)
     var3= np.array(data3.groups['zonal_mean'].variables[varname])
     t3= np.divide(data3.groups['zonal_mean'].variables['t'],3600.0*24.0)
+    var4= np.array(data4.groups['zonal_mean'].variables[varname])
+    t4= np.divide(data4.groups['zonal_mean'].variables['t'],3600.0*24.0)
 
     fig = plt.figure(varname,figsize=(3,6))
     for i in range(n):
@@ -57,6 +65,7 @@ def main():
         im1 = ax1.plot(np.mean(var[50:100,:,i],axis=0),np.array(lat_list),'-k',label='run1')
         im2 = ax1.plot(np.mean(var2[200:800,:,i],axis=0),np.array(lat_list),'-g',label='cython')
         im1 = ax1.plot(np.mean(var3[50:100,:,i],axis=0),np.array(lat_list),'-b',label='run2')
+        im1 = ax1.plot(np.mean(var4[50:100,:,i],axis=0),np.array(lat_list),color='orange',label='run3')
         ax1.set_ylabel('latitude / $\circ$')
         ax1.set_xlim(-8,25)
         plt.grid(linestyle=':',alpha=0.6,linewidth=1)

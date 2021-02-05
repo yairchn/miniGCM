@@ -18,6 +18,9 @@ cdef class Parameters:
         double p1
         double p2
         double p3
+        double T1
+        double T2
+        double T3
         double p_ref
         double rsphere
         double omega
@@ -55,6 +58,7 @@ cdef class Parameters:
         double dphi_s
         double efold
         int inoise
+        str noise_type
         double noise_amp
 
         str case

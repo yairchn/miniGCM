@@ -24,7 +24,7 @@ def main():
     namelist_defaults['diffusion'] = {}
     namelist_defaults['diffusion']['dissipation_order'] = 8.0
     namelist_defaults['diffusion']['truncation_order'] = 3
-    namelist_defaults['diffusion']['e_folding_timescale'] = 300.0
+    namelist_defaults['diffusion']['e_folding_timescale'] = 0.01
 
     namelist_defaults['grid'] = {}
     namelist_defaults['grid']['dims'] = 1
@@ -52,7 +52,11 @@ def main():
 
     namelist_defaults['initialize'] = {}
     namelist_defaults['initialize']['inoise']              = 1 # flag for noise in initial condition
-    namelist_defaults['initialize']['noise_amp']           = 0.1 # tunable parameter 
+    namelist_defaults['initialize']['noise_type'] = 'white' # 'white', 'red', 'blue', or 'local' 
+    namelist_defaults['initialize']['noise_amp']           = 0.1 # scaling parameter 
+    namelist_defaults['initialize']['T1']   = 229.0 # initial temperature of layer 1 [K]
+    namelist_defaults['initialize']['T2']   = 257.0 # initial temperature of layer 2 [K] 
+    namelist_defaults['initialize']['T3']   = 300.0 # initial temperature of layer 3 [K]
 
     namelist_defaults['output'] = {}
     namelist_defaults['output']['output_root'] = './'

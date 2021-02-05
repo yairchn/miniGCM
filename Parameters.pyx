@@ -18,6 +18,9 @@ cdef class Parameters:
         self.p1        = namelist['grid']['p1']
         self.p2        = namelist['grid']['p2']
         self.p3        = namelist['grid']['p3']
+        self.T1        = namelist['initialize']['T1']
+        self.T2        = namelist['initialize']['T2']
+        self.T3        = namelist['initialize']['T3']
         self.p_ref     = namelist['grid']['p_ref']
         self.Omega     = namelist['planet']['Omega_rotation']
         self.g         = namelist['planet']['gravity']
@@ -37,6 +40,7 @@ cdef class Parameters:
 
         self.surface_model  = namelist['surface']['surface_model']
         self.inoise         = namelist['initialize']['inoise']
+        self.noise_type     = namelist['initialize']['noise_type']
         self.noise_amp      = namelist['initialize']['noise_amp']
 
         self.uuid        = namelist['meta']['uuid']
