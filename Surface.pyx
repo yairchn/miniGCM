@@ -78,24 +78,14 @@ cdef class SurfaceBulkFormula(SurfaceBase):
             double U_abs, z_a
 
         with nogil:
-            for i in range(nx):
-                for j in range(ny):
-                    U_abs = sqrt(pow(DV.U.values[i,j,nl-1],2.0) + pow(DV.V.values[i,j,nl-1],2.0))
-                    self.QT_surf[i,j] = Pr.qv_star0*Pr.eps_v/PV.P.values[i,j,nl]*exp(-Pr.Lv/Pr.Rv*(1.0/self.T_surf[i,j] - 1.0/Pr.T_0))
-                    z_a = DV.gZ.values[i,j,nl-1]/Pr.g
-                    DV.U.SurfaceFlux[i,j]  = -Pr.Cd/z_a*U_abs*DV.U.values[i,j,nl-1]
-                    DV.V.SurfaceFlux[i,j]  = -Pr.Cd/z_a*U_abs*DV.V.values[i,j,nl-1]
-                    PV.T.SurfaceFlux[i,j]  = -Pr.Ch/z_a*U_abs*(PV.T.values[i,j,nl-1] - self.T_surf[i,j])
-                    PV.QT.SurfaceFlux[i,j] = -Pr.Cq/z_a*U_abs*(PV.QT.values[i,j,nl-1] - self.QT_surf[i,j])
-        # with nogil:
-        #     surface_bulk_formula(Pr.g, Pr.Rv, Pr.Lv, Pr.T_0, Pr.Ch, Pr.Cq,
-        #                       Pr.Cd, Pr.qv_star0, Pr.eps_v, &PV.P.values[0,0,0],
-        #                       &DV.gZ.values[0,0,0], &PV.T.values[0,0,0],
-        #                       &PV.QT.values[0,0,0], &self.T_surf[0,0],
-        #                       &DV.U.values[0,0,0], &DV.V.values[0,0,0],
-        #                       &DV.U.SurfaceFlux[0,0], &DV.V.SurfaceFlux[0,0],
-        #                       &PV.T.SurfaceFlux[0,0], &PV.QT.SurfaceFlux[0,0],
-        #                       nx, ny, nl)
+            surface_bulk_formula(Pr.g, Pr.Rv, Pr.Lv, Pr.T_0, Pr.Ch, Pr.Cq,
+                              Pr.Cd, Pr.qv_star0, Pr.eps_v, &PV.P.values[0,0,0],
+                              &DV.gZ.values[0,0,0], &PV.T.values[0,0,0],
+                              &PV.QT.values[0,0,0], &self.T_surf[0,0],
+                              &DV.U.values[0,0,0], &DV.V.values[0,0,0],
+                              &DV.U.SurfaceFlux[0,0], &DV.V.SurfaceFlux[0,0],
+                              &PV.T.SurfaceFlux[0,0], &PV.QT.SurfaceFlux[0,0],
+                              nx, ny, nl)
 
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):

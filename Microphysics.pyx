@@ -9,6 +9,7 @@ from DiagnosticVariables cimport DiagnosticVariables
 from Grid cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
 from libc.math cimport pow, fmax, exp
+import pylab as plt
 
 cdef extern from "microphysics_functions.h":
     void microphysics_cutoff(double cp, double dt, double Rv, double Lv, double T_0, double rho_w,
@@ -91,23 +92,11 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
             double P_half, qv_star, denom
 
         with nogil:
-            for i in range(nx):
-                for j in range(ny):
-                    self.RainRate[i,j] = 0.0
-                    for k in range(nl):
-                        P_half = 0.5*(PV.P.values[i,j,k]+PV.P.values[i,j,k+1])
-                        qv_star = (Pr.qv_star0*Pr.eps_v/P_half)*exp(-Pr.Lv/Pr.Rv*(1.0/PV.T.values[i,j,k]-1.0/Pr.T_0))
-                        denom = (1.0+Pr.Lv**2.0/Pr.cp/Pr.Rv*qv_star/pow(PV.T.values[i,j,k],2.0))*TS.dt
-                        DV.QL.values[i,j,k] = fmax(PV.QT.values[i,j,k] - qv_star,0.0)
-                        PV.T.mp_tendency[i,j,k]  =  Pr.Lv/Pr.cp*DV.QL.values[i,j,k]/denom
-                        PV.QT.mp_tendency[i,j,k] = -fmax(PV.QT.values[i,j,k] - (1.0+Pr.max_ss)*qv_star, 0.0)/denom
-                        self.RainRate[i,j] -= (PV.QT.mp_tendency[i,j,k]/Pr.rho_w*Pr.g*(PV.P.values[i,j,nl]-PV.P.values[i,j,0]))/(nl+1)
-        # with nogil:
-        #     microphysics_cutoff(Pr.cp, TS.dt, Pr.Rv, Pr.Lv, Pr.T_0, Pr.rho_w,
-        #                         Pr.g, Pr.max_ss, Pr.qv_star0, Pr.eps_v, &PV.P.values[0,0,0],
-        #                         &PV.T.values[0,0,0], &PV.QT.values[0,0,0], &DV.QL.values[0,0,0],
-        #                         &PV.T.mp_tendency[0,0,0], &PV.QT.mp_tendency[0,0,0], &self.RainRate[0,0],
-        #                         nx, ny, nl)
+            microphysics_cutoff(Pr.cp, TS.dt, Pr.Rv, Pr.Lv, Pr.T_0, Pr.rho_w,
+                                Pr.g, Pr.max_ss, Pr.qv_star0, Pr.eps_v, &PV.P.values[0,0,0],
+                                &PV.T.values[0,0,0], &PV.QT.values[0,0,0], &DV.QL.values[0,0,0],
+                                &PV.T.mp_tendency[0,0,0], &PV.QT.mp_tendency[0,0,0], &self.RainRate[0,0],
+                                nx, ny, nl)
 
         return
 

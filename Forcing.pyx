@@ -11,13 +11,16 @@ from TimeStepping cimport TimeStepping
 import sys
 from Parameters cimport Parameters
 from libc.math cimport pow, log, sin, cos, fmax
+import pylab as plt
 
 cdef extern from "forcing_functions.h":
 	void focring_hs(double kappa, double p_ref, double sigma_b, double k_a, double k_b,
-			double k_f, double k_s, double d_theta_z, double T_equator, double DT_y,
+			double k_f, double k_s, double Dtheta_z, double T_equator, double DT_y,
 			double* p, double* T, double* T_bar, double* lat, double* u,
 			double* v, double* u_forc, double* v_forc, double* T_forc,
 			Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
+	void print_c(double* T, double* var, double*  var_2d,
+		         Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
 
 
 cdef class ForcingBase:
@@ -141,19 +144,20 @@ cdef class HelzSuarezMoist(ForcingBase):
 	@cython.boundscheck(False)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
 		cdef:
-			Py_ssize_t i,j,k
+			Py_ssize_t i,j,k, ijk
 			Py_ssize_t nx = Pr.nlats
 			Py_ssize_t ny = Pr.nlons
 			Py_ssize_t nl = Pr.n_layers
+			Py_ssize_t I = 4
+			Py_ssize_t J = 5
+			Py_ssize_t K = 3
 			Py_ssize_t nlm = Gr.SphericalGrid.nlm
 			double P_half, sigma_ratio
+			double [:,:,:] var  = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
+			double [:,:] var_2d = np.zeros((nx,ny),dtype=np.float64, order='c')
 
-		# with nogil:
-		# 	focring_hs(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
-		# 				Pr.Dtheta_z, Pr.T_equator, Pr.DT_y, &PV.P.values[0,0,0], &PV.T.values[0,0,0],
-		# 				&self.Tbar[0,0,0], &Gr.lat[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
-		# 				&DV.U.forcing[0,0,0], &DV.V.forcing[0,0,0], &PV.T.forcing[0,0,0], nx, ny, nl)
 
+		with nogil:
 			for i in range(nx):
 				for j in range(ny):
 					for k in range(nl):

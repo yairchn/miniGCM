@@ -58,6 +58,8 @@ class Simulation:
             self.TS.update(self.Pr, self.Gr, self.PV, self.DV, self.DF, namelist)
 
             wallclocktime = time.time() - start_time
+            if 38.0<self.TS.t/(24.0*3600.0)<40.0:
+                self.LF.update(self.Pr, self.TS, self.DV, self.PV, wallclocktime)
             if self.TS.t%self.Stats.stats_frequency < self.TS.dt:
                 self.LF.update(self.Pr, self.TS, self.DV, self.PV, wallclocktime)
                 self.stats_io()

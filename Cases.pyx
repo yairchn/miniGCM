@@ -177,7 +177,7 @@ cdef class HeldSuarezMoist(CaseBase):
         z            = np.linspace(0,20000,200)
 
         PV.P_init            = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
-        PV.T_init            = np.array([245.0, 282.0, 303.0])
+        # PV.T_init            = np.array([245.0, 282.0, 303.0])
         Tv_                  = np.zeros((len(Gr.lat[:,0]), len(z), Pr.n_layers),  dtype=np.double, order='c')
         QT_                  = np.zeros((len(Gr.lat[:,0]), len(z), Pr.n_layers),  dtype=np.double, order='c')
         qv_star_             = np.zeros((len(Gr.lat[:,0]), len(z), Pr.n_layers),  dtype=np.double, order='c')

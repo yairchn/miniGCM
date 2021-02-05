@@ -14,6 +14,12 @@ from libc.math cimport exp
 cdef extern from "complex.h" nogil:
     double complex exp(double complex z)
 
+# cdef extern from "diffusion.h":
+#     void hyperdiffusion(double dt, double efold, double dissipation_order,
+#            int truncation_number, int* shtns_l,
+#            double complex * laplacian, double complex * variable,
+#            Py_ssize_t imax, Py_ssize_t Py_kmax) nogil
+
 cdef class Diffusion:
 
     def __init__(self):
@@ -37,8 +43,11 @@ cdef class Diffusion:
         laplacian  = Gr.SphericalGrid.lap
 
         with nogil:
+            # hyperdiffusion(dt, Pr.efold, Pr.dissipation_order, Pr.truncation_number,
+            #                 &shtns_l[0], &laplacian[0], &PV.P.spectral[0,0], nlm, nl)
+
             for i in range(nlm):
-                diffusion_factor = (1.0/Pr.efold*((laplacian[i]/laplacian[-1])**(Pr.dissipation_order/2)))
+                diffusion_factor = (1.0/Pr.efold*((laplacian[i]/laplacian[-1])**(Pr.dissipation_order/2.0)))
                 HyperDiffusionFactor = exp(-dt*diffusion_factor)
                 if shtns_l[i]>=Pr.truncation_number:
                     HyperDiffusionFactor = 0.0

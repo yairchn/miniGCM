@@ -1,3 +1,6 @@
+// A collection of tendency functions computed in a given k (vertical) level
+// as some are conditioned upon a planner spcteral conversion in that level
+
 #pragma once
 #include <math.h>
 
@@ -28,24 +31,33 @@ void rhs_T(double cpi,
     double w_gz_dpi;
 
     for(ssize_t i=imin;i<imax;i++){
+        const ssize_t ishift_2d = i*jmax;
+        const ssize_t ishift = ishift_2d*kmax;
+        const ssize_t ishift_p = ishift_2d*(kmax+1);
         for(ssize_t j=jmin;j<jmax;j++){
-            dpi = 1.0/(p[i,j,k+1] - p[i,j,k]);
-        	if (k==0){
-                wT_up  = 0.0;
-                wT_dn  = 0.5*wp[i,j,k+1]*(T[i,j,k+1] + T[i,j,k])*dpi;
+            const ssize_t jshift = j*kmax;
+            const ssize_t jshift_p = j*(kmax+1);
+            const ssize_t ij = ishift_2d + j;
+            const ssize_t ijk = ishift + jshift + k;
+            const ssize_t ijkp = ishift_p + jshift_p + k;
+            dpi = 1.0/(p[ijkp+1] - p[ijkp]);
+            if (k==0){
+                wT_up = 0.0;
+                wT_dn = 0.5*wp[ijkp+1]*(T[ijk+1]+ T[ijk])*dpi;
             } // end if
             else if (k==kmax-1){
-                wT_up  = 0.5*wp[i,j,k] * (T[i,j,k]  + T[i,j,k-1])*dpi;
-                wT_dn  = 0.5*wp[i,j,k+1] * (T[i,j,k]  + T[i,j,k])*dpi;
+                wT_up = 0.5*wp[ijkp]  *(T[ijk] +T[ijk-1])*dpi;
+                wT_dn = 0.5*wp[ijkp+1]*(T[ijk] +T[ijk])*dpi;
             } // end else if
             else{
-                wT_up  = 0.5*wp[i,j,k]  *(T[i,j,k]    + T[i,j,k-1])*dpi;
-                wT_dn  = 0.5*wp[i,j,k+1]*(T[i,j,k+1]  + T[i,j,k])*dpi;
+                wT_up = 0.5*wp[ijkp]  *(T[ijk]   + T[ijk-1])*dpi;
+                wT_dn = 0.5*wp[ijkp+1]*(T[ijk+1] + T[ijk])*dpi;
             } // end else
-        w_gz_dpi = wp[i,j,k+1]*(gz[i,j,k+1]-gz[i,j,k])*dpi*cpi;
-        rhs_T[i,j] = (wT_up - wT_dn - w_gz_dpi + T_mp[i,j,k] + T_forc[i,j,k] + T_sur[i,j]);
-        u_T[i,j] = u[i,j,k] * T[i,j,k];
-        v_T[i,j] = v[i,j,k] * T[i,j,k];
+        w_gz_dpi = wp[ijkp+1]*(gz[ijkp+1]-gz[ijkp])*dpi*cpi;
+        // rhs_T[ij] = (wT_up - wT_dn - w_gz_dpi + T_mp[ijk] + T_forc[ijk] + T_sur[ij]);
+        rhs_T[ij] = (wT_up - wT_dn - w_gz_dpi);
+        u_T[ij] = u[ijk] * T[ijk];
+        v_T[ij] = v[ijk] * T[ijk];
         } // End j loop
     } // end i loop
     return;
@@ -75,23 +87,31 @@ void rhs_qt(double* restrict p,
     double dpi;
 
     for(ssize_t i=imin;i<imax;i++){
+        const ssize_t ishift_2d = i*jmax;
+        const ssize_t ishift = ishift_2d*kmax;
+        const ssize_t ishift_p = ishift_2d*(kmax+1);
         for(ssize_t j=jmin;j<jmax;j++){
-            dpi = 1.0/(p[i,j,k+1] - p[i,j,k]);
+            const ssize_t jshift = j*kmax;
+            const ssize_t jshift_p = j*(kmax+1);
+            const ssize_t ij = ishift_2d + j;
+            const ssize_t ijk = ishift + jshift + k;
+            const ssize_t ijkp = ishift_p + jshift_p + k;
+            dpi = 1.0/(p[ijkp+1] - p[ijkp]);
         	if (k==0){
                 wQT_up = 0.0;
-                wQT_dn = 0.5*wp[i,j,k+1]*(qt[i,j,k+1]+ qt[i,j,k])*dpi;
+                wQT_dn = 0.5*wp[ijkp+1]*(qt[ijk+1]+ qt[ijk])*dpi;
             } // end if
             else if (k==kmax-1){
-                wQT_up = 0.5*wp[i,j,k]  *(qt[i,j,k] +qt[i,j,k-1])*dpi;
-                wQT_dn = 0.5*wp[i,j,k+1]*(qt[i,j,k] +qt[i,j,k])*dpi;
+                wQT_up = 0.5*wp[ijkp]  *(qt[ijk] +qt[ijk-1])*dpi;
+                wQT_dn = 0.5*wp[ijkp+1]*(qt[ijk] +qt[ijk])*dpi;
             } // end else if
             else{
-                wQT_up = 0.5*wp[i,j,k]  *(qt[i,j,k]   + qt[i,j,k-1])*dpi;
-                wQT_dn = 0.5*wp[i,j,k+1]*(qt[i,j,k+1] + qt[i,j,k])*dpi;
+                wQT_up = 0.5*wp[ijkp]  *(qt[ijk]   + qt[ijk-1])*dpi;
+                wQT_dn = 0.5*wp[ijkp+1]*(qt[ijk+1] + qt[ijk])*dpi;
             } // end else
-        rhs_qt[i,j] = (wQT_up - wQT_dn + qt_mp[i,j,k] + qt_sur[i,j]);
-        u_qt[i,j] = u[i,j,k] * qt[i,j,k];
-        v_qt[i,j] = v[i,j,k] * qt[i,j,k];
+        rhs_qt[ij] = (wQT_up - wQT_dn + qt_mp[ijk] + qt_sur[ij]);
+        u_qt[ij] = u[ijk] * qt[ijk];
+        v_qt[ij] = v[ijk] * qt[ijk];
         } // End j loop
     } // end i loop
     return;
@@ -125,29 +145,37 @@ void vertical_uv_fluxes(double* restrict p,
     double dpi;
 
     for(ssize_t i=imin;i<imax;i++){
+        const ssize_t ishift_2d = i*jmax;
+        const ssize_t ishift = ishift_2d*kmax;
+        const ssize_t ishift_p = ishift_2d*(kmax+1);
         for(ssize_t j=jmin;j<jmax;j++){
-            dpi = 1.0/(p[i,j,k+1] - p[i,j,k]);
+            const ssize_t jshift = j*kmax;
+            const ssize_t jshift_p = j*(kmax+1);
+            const ssize_t ij = ishift_2d + j;
+            const ssize_t ijk = ishift + jshift + k;
+            const ssize_t ijkp = ishift_p + jshift_p + k;
+            dpi = 1.0/(p[ijkp+1] - p[ijkp]);
             if (k==0){
-                wdudp_up[i,j,k] = wp[i,j,k+1]*(u[i,j,k+1] - u[i,j,k])*dpi;
-                wdvdp_up[i,j,k] = wp[i,j,k+1]*(v[i,j,k+1] - v[i,j,k])*dpi;
-                wdudp_dn[i,j,k] = 0.0;
-                wdvdp_dn[i,j,k] = 0.0;
+                wdudp_dn[ij] = wp[ijkp+1]*(u[ijk+1] - u[ijk])*dpi;
+                wdvdp_dn[ij] = wp[ijkp+1]*(v[ijk+1] - v[ijk])*dpi;
+                wdudp_up[ij] = 0.0;
+                wdvdp_up[ij] = 0.0;
             } // end if
             else if (k==kmax-1){
-                wdudp_up[i,j,k] = 0.0;
-                wdvdp_up[i,j,k] = 0.0;
-                wdudp_dn[i,j,k] = wp[i,j,k]*(u[i,j,k] - u[i,j,k-1])*dpi;
-                wdvdp_dn[i,j,k] = wp[i,j,k]*(v[i,j,k] - v[i,j,k-1])*dpi;
+                wdudp_dn[ij] = 0.0;
+                wdvdp_dn[ij] = 0.0;
+                wdudp_up[ij] = wp[ijkp]*(u[ijk] - u[ijk-1])*dpi;
+                wdvdp_up[ij] = wp[ijkp]*(v[ijk] - v[ijk-1])*dpi;
             } // end else if
             else{
-                wdudp_up[i,j,k] = wp[i,j,k+1]*(u[i,j,k+1] - u[i,j,k])*dpi;
-                wdvdp_up[i,j,k] = wp[i,j,k+1]*(v[i,j,k+1] - v[i,j,k])*dpi;
-                wdudp_dn[i,j,k] = wp[i,j,k]*(u[i,j,k] - u[i,j,k-1])*dpi;
-                wdvdp_dn[i,j,k] = wp[i,j,k]*(v[i,j,k] - v[i,j,k-1])*dpi;
+                wdudp_dn[ij] = wp[ijkp+1]*(u[ijk+1] - u[ijk])*dpi;
+                wdvdp_dn[ij] = wp[ijkp+1]*(v[ijk+1] - v[ijk])*dpi;
+                wdudp_up[ij] = wp[ijkp]*(u[ijk] - u[ijk-1])*dpi;
+                wdvdp_up[ij] = wp[ijkp]*(v[ijk] - v[ijk-1])*dpi;
             } // end else
-            e_dry[i,j]  = gz[i,j,k] + ke[i,j,k];
-            u_vort[i,j] = u[i,j,k] * (vort[i,j,k]+f[i,j]);
-            v_vort[i,j] = v[i,j,k] * (vort[i,j,k]+f[i,j]);
+            e_dry[ij]  = gz[ijkp] + ke[ijk];
+            u_vort[ij] = u[ijk] * (vort[ijk]+f[ij]);
+            v_vort[ij] = v[ijk] * (vort[ijk]+f[ij]);
         } // end j loop
     } // end i loop
     return;
