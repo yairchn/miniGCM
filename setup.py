@@ -10,7 +10,7 @@ import string
 
 # Now get include paths from relevant python modules
 include_path = [np.get_include()]
-include_path += ['./Csrc']
+include_path += ['./c_kernels']
 
 if sys.platform == 'darwin':
     #Compile flags for MacOSX
