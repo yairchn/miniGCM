@@ -14,7 +14,6 @@
         "k_f": 1.1574074074074073e-05,
         "k_s": 2.8935185185185184e-06,
         "lapse_rate": 10.0,
-        "relaxation_temperature": 300.0,
         "sigma_b": 0.7
     },
     "grid": {
@@ -44,7 +43,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "eb1539e4-07bd-410e-96e6-b2a8cd8d526f"
+        "uuid": "edcec484-ddf7-4af0-ad2d-253c0555372e"
     },
     "microphysics": {
         "rain_model": "None"
@@ -70,7 +69,7 @@
         "vapor_gas_constant": 461.5
     },
     "timestepping": {
-        "CFL_limit": 0.5,
+        "CFL_limit": 0.8,
         "dt": 100.0,
         "t_max": 100.0
     }
