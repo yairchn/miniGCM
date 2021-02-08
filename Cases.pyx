@@ -99,7 +99,7 @@ cdef class HeldSuarez(CaseBase):
              #noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')*Pr.noise_amp
              # calculate noise
              F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
-             fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 5, correlation = 0.)
+             fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0.)
              noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(F0))*Pr.noise_amp
              # add noise
              PV.T.spectral.base[:,Pr.n_layers-1] = np.add(PV.T.spectral.base[:,Pr.n_layers-1],

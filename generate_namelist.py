@@ -53,7 +53,7 @@ def main():
     namelist_defaults['initialize'] = {}
     namelist_defaults['initialize']['inoise']              = 1 # flag for noise in initial condition
     namelist_defaults['initialize']['noise_type'] = 'white' # 'white', 'red', 'blue', or 'local' 
-    namelist_defaults['initialize']['noise_amp']           = 0.1 # scaling parameter 
+    namelist_defaults['initialize']['noise_amp']           = 0.1 # scaling parameter, tune between laminar & turbulent
     namelist_defaults['initialize']['T1']   = 229.0 # initial temperature of layer 1 [K]
     namelist_defaults['initialize']['T2']   = 257.0 # initial temperature of layer 2 [K] 
     namelist_defaults['initialize']['T3']   = 300.0 # initial temperature of layer 3 [K]
