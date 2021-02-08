@@ -1,6 +1,8 @@
-import numpy as np
-import sys
 import cython
+from concurrent.futures import ThreadPoolExecutor
+import numpy as np
+cimport numpy as np
+import sys
 from libc.math cimport fmax, fmin, fabs, floor
 from Grid cimport Grid
 from PrognosticVariables cimport PrognosticVariables
@@ -42,6 +44,7 @@ cdef class TimeStepping:
 
 	@cython.wraparound(False)
 	@cython.boundscheck(False)
+	@cython.cdivision(True)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, Diffusion DF, namelist):
 		cdef:
 			Py_ssize_t i, k

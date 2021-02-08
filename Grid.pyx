@@ -1,7 +1,9 @@
 import cython
+from concurrent.futures import ThreadPoolExecutor
 import matplotlib.pyplot as plt
 from math import *
 import numpy as np
+cimport numpy as np
 import scipy as sc
 import shtns
 import sphTrans as sph

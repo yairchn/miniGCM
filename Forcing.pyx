@@ -1,6 +1,8 @@
 import cython
+from concurrent.futures import ThreadPoolExecutor
 from Grid cimport Grid
 import numpy as np
+cimport numpy as np
 import sphericalForcing as spf
 import time
 import scipy as sc
@@ -79,6 +81,7 @@ cdef class HelzSuarez(ForcingBase):
 
 	@cython.wraparound(False)
 	@cython.boundscheck(False)
+	@cython.cdivision(True)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
 		cdef:
 			Py_ssize_t i,j,k
@@ -142,15 +145,13 @@ cdef class HelzSuarezMoist(ForcingBase):
 
 	@cython.wraparound(False)
 	@cython.boundscheck(False)
+	@cython.cdivision(True)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
 		cdef:
 			Py_ssize_t i,j,k, ijk
 			Py_ssize_t nx = Pr.nlats
 			Py_ssize_t ny = Pr.nlons
 			Py_ssize_t nl = Pr.n_layers
-			Py_ssize_t I = 4
-			Py_ssize_t J = 5
-			Py_ssize_t K = 3
 			Py_ssize_t nlm = Gr.SphericalGrid.nlm
 			double P_half, sigma_ratio
 			double [:,:,:] Tbar_c  = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
@@ -159,6 +160,11 @@ cdef class HelzSuarezMoist(ForcingBase):
 
 
 		with nogil:
+			# focring_hs(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
+			# 			Pr.Dtheta_z, Pr.T_equator, Pr.DT_y, &PV.P.values[0,0,0], &PV.T.values[0,0,0],
+			# 			&Tbar_c[0,0,0], &Gr.lat[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
+			# 			&DV.U.forcing[0,0,0], &DV.V.forcing[0,0,0], &PV.T.forcing[0,0,0], nx, ny, nl)
+		# with nogil:
 			for i in range(nx):
 				for j in range(ny):
 					for k in range(nl):
@@ -175,16 +181,11 @@ cdef class HelzSuarezMoist(ForcingBase):
 						DV.U.forcing[i,j,k] = -self.k_v[i,j,k]*DV.U.values[i,j,k]
 						DV.V.forcing[i,j,k] = -self.k_v[i,j,k]*DV.V.values[i,j,k]
 						PV.T.forcing[i,j,k] = -self.k_T[i,j,k]*(PV.T.values[i,j,k]-self.Tbar[i,j,k])
-		with nogil:
-			focring_hs(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
-						Pr.Dtheta_z, Pr.T_equator, Pr.DT_y, &PV.P.values[0,0,0], &PV.T.values[0,0,0],
-						&Tbar_c[0,0,0], &Gr.lat[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
-						&DV.U.forcing[0,0,0], &DV.V.forcing[0,0,0], &PV.T.forcing[0,0,0], nx, ny, nl)
-		if np.max(np.abs(np.subtract(self.Tbar,Tbar_c)))>1e-10:
-			plt.figure('Tbar')
-			plt.contourf(np.subtract(self.Tbar,Tbar_c))
-			plt.colorbar()
-			plt.show()
+		# if np.max(np.abs(np.subtract(self.Tbar,Tbar_c)))>1e-10:
+		# 	plt.figure('Tbar')
+		# 	plt.contourf(np.subtract(self.Tbar,Tbar_c))
+		# 	plt.colorbar()
+		# 	plt.show()
 		return
 
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):

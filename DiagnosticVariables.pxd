@@ -1,5 +1,7 @@
 import cython
+from concurrent.futures import ThreadPoolExecutor
 import numpy as np
+cimport numpy as np
 from Grid cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
 from PrognosticVariables cimport PrognosticVariables

@@ -1,5 +1,7 @@
 import cython
+from concurrent.futures import ThreadPoolExecutor
 import numpy as np
+cimport numpy as np
 from Grid import Grid
 from NetCDFIO import NetCDFIO_Stats
 from PrognosticVariables import PrognosticVariables
@@ -129,7 +131,7 @@ cdef class DiagnosticVariables:
 
     @cython.wraparound(False)
     @cython.boundscheck(False)
-
+    # @cython.cdivision(True)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV):
         cdef:
             Py_ssize_t k, k_rev

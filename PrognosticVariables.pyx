@@ -1,4 +1,5 @@
 import cython
+from concurrent.futures import ThreadPoolExecutor
 from Grid cimport Grid
 from math import *
 import netCDF4
@@ -167,6 +168,7 @@ cdef class PrognosticVariables:
 
     @cython.wraparound(False)
     @cython.boundscheck(False)
+    @cython.cdivision(True)
     cpdef compute_tendencies(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
         cdef:
             Py_ssize_t i,j,k

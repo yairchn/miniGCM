@@ -1,6 +1,8 @@
-import numpy as np
-import sys
 import cython
+from concurrent.futures import ThreadPoolExecutor
+import numpy as np
+cimport numpy as np
+import sys
 from Grid cimport Grid
 from PrognosticVariables cimport PrognosticVariables
 from DiagnosticVariables cimport DiagnosticVariables

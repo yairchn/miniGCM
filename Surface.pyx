@@ -1,4 +1,5 @@
 import cython
+from concurrent.futures import ThreadPoolExecutor
 from Grid cimport Grid
 from DiagnosticVariables cimport DiagnosticVariables
 from math import *
@@ -69,6 +70,7 @@ cdef class SurfaceBulkFormula(SurfaceBase):
 
     @cython.wraparound(False)
     @cython.boundscheck(False)
+    @cython.cdivision(True)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
         cdef:
             Py_ssize_t i,j,k

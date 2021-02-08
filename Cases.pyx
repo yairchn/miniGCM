@@ -1,4 +1,7 @@
+import cython
+from concurrent.futures import ThreadPoolExecutor
 import numpy as np
+cimport numpy as np
 from PrognosticVariables cimport PrognosticVariables
 from DiagnosticVariables cimport DiagnosticVariables
 from Grid cimport Grid
@@ -6,7 +9,6 @@ from NetCDFIO cimport NetCDFIO_Stats
 cimport Forcing
 cimport Surface
 cimport Microphysics
-import cython
 import sys
 from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters

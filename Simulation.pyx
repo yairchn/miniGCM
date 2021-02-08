@@ -1,4 +1,5 @@
 import cython
+from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 from Cases import CasesFactory
 from Cases import CaseBase

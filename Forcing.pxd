@@ -4,6 +4,7 @@ from DiagnosticVariables cimport DiagnosticVariables
 from math import *
 import matplotlib.pyplot as plt
 import numpy as np
+cimport numpy as np
 from NetCDFIO cimport NetCDFIO_Stats
 from PrognosticVariables cimport PrognosticVariables
 import scipy as sc

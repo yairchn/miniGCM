@@ -1,6 +1,8 @@
 import cython
+from concurrent.futures import ThreadPoolExecutor
 import matplotlib.pyplot as plt
 import numpy as np
+cimport numpy as np
 from math import *
 from Parameters cimport Parameters
 from TimeStepping cimport TimeStepping
@@ -83,6 +85,7 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
 
     @cython.wraparound(False)
     @cython.boundscheck(False)
+    @cython.cdivision(True)
     cpdef update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         cdef:
             Py_ssize_t i,j,k

@@ -1,6 +1,8 @@
 import cython
+from concurrent.futures import ThreadPoolExecutor
 import matplotlib.pyplot as plt
 import numpy as np
+cimport numpy as np
 from math import *
 from Parameters cimport Parameters
 from TimeStepping cimport TimeStepping
