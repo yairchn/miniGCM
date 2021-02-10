@@ -4,11 +4,6 @@ import numpy as np
 cimport numpy as np
 import shtns
 import sphTrans as sph
-import matplotlib.pyplot as plt
-import time
-import scipy as sc
-from math import *
-import os
 
 cdef class Parameters:
     def __init__(self, namelist):

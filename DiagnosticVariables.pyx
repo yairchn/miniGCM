@@ -7,9 +7,6 @@ from NetCDFIO import NetCDFIO_Stats
 from PrognosticVariables import PrognosticVariables
 from TimeStepping import TimeStepping
 from Parameters cimport Parameters
-import time
-from libc.math cimport pow, log
-import pylab as plt
 
 cdef extern from "diagnostic_variables.h":
     void diagnostic_variables(double Rd, double Rv,

@@ -2,19 +2,12 @@ import cython
 from concurrent.futures import ThreadPoolExecutor
 from Grid cimport Grid
 from DiagnosticVariables cimport DiagnosticVariables
-from math import *
-import matplotlib.pyplot as plt
 import numpy as np
 cimport numpy as np
 from NetCDFIO cimport NetCDFIO_Stats
 from PrognosticVariables cimport PrognosticVariables
-import scipy as sc
-import sphericalForcing as spf
-import time
 from TimeStepping cimport TimeStepping
-import sys
 from Parameters cimport Parameters
-from libc.math cimport exp, pow, sqrt
 
 cdef extern from "surface_functions.h":
     void surface_bulk_formula(double g, double Rv, double Lv, double T_0, double Ch, double Cq,
@@ -77,7 +70,6 @@ cdef class SurfaceBulkFormula(SurfaceBase):
             Py_ssize_t nx = Pr.nlats
             Py_ssize_t ny = Pr.nlons
             Py_ssize_t nl = Pr.n_layers
-            double U_abs, z_a
 
         with nogil:
             surface_bulk_formula(Pr.g, Pr.Rv, Pr.Lv, Pr.T_0, Pr.Ch, Pr.Cq,

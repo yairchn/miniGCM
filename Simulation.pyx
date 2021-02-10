@@ -11,7 +11,6 @@ cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
 from PrognosticVariables cimport PrognosticVariables, PrognosticVariable
 from PrognosticVariables import PrognosticVariables, PrognosticVariable
-import sys
 import time
 from TimeStepping import TimeStepping
 from Microphysics import MicrophysicsBase

@@ -1,17 +1,13 @@
 import cython
 from concurrent.futures import ThreadPoolExecutor
-import matplotlib.pyplot as plt
 import numpy as np
 cimport numpy as np
-from math import *
 from Parameters cimport Parameters
 from TimeStepping cimport TimeStepping
 from PrognosticVariables cimport PrognosticVariables
 from DiagnosticVariables cimport DiagnosticVariables
 from Grid cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
-from libc.math cimport pow, fmax, exp
-import pylab as plt
 
 cdef extern from "microphysics_functions.h":
     void microphysics_cutoff(double cp, double dt, double Rv, double Lv, double T_0, double rho_w,
@@ -86,11 +82,9 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
     @cython.cdivision(True)
     cpdef update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         cdef:
-            Py_ssize_t i,j,k
             Py_ssize_t nx = Pr.nlats
             Py_ssize_t ny = Pr.nlons
             Py_ssize_t nl = Pr.n_layers
-            double P_half, qv_star, denom
 
         with nogil:
             microphysics_cutoff(Pr.cp, TS.dt, Pr.Rv, Pr.Lv, Pr.T_0, Pr.rho_w,

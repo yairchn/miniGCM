@@ -1,14 +1,9 @@
 import cython
 from concurrent.futures import ThreadPoolExecutor
 from Grid cimport Grid
-from math import *
-import matplotlib.pyplot as plt
 import numpy as np
 cimport numpy as np
 from PrognosticVariables cimport PrognosticVariables
-import scipy as sc
-from scipy.signal import savgol_filter
-import sys
 from Parameters cimport Parameters
 
 cdef class Diffusion:

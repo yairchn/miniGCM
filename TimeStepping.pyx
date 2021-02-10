@@ -2,7 +2,6 @@ import cython
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 cimport numpy as np
-import sys
 from libc.math cimport fmax, fmin, fabs, floor
 from Grid cimport Grid
 from PrognosticVariables cimport PrognosticVariables

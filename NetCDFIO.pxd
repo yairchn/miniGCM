@@ -1,14 +1,11 @@
 import cython
 from concurrent.futures import ThreadPoolExecutor
 from Grid cimport Grid
-from math import *
 import netCDF4 as nc
 import numpy as np
 cimport numpy as np
 import os
-import time
 import shutil
-import sys
 from Parameters cimport Parameters
 
 cdef class NetCDFIO_Stats:
