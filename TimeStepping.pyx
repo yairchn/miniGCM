@@ -10,27 +10,6 @@ from DiagnosticVariables cimport DiagnosticVariables
 from Diffusion cimport Diffusion
 from Parameters cimport Parameters
 
-# cdef extern from "timestepping.h":
-# 		void forward_euler(
-# 			double dt, double* variable_old, double* tendency,
-#         	double* variable_new, Py_ssize_t imax, Py_ssize_t kmax) nogil
-# 		void adams_bashforth_2nd_order(
-# 			double dt, complex* variable_old, complex* tendency_now,
-# 			complex* tendency, complex* variable_new, Py_ssize_t imax, Py_ssize_t kmax) nogil
-# 		void adams_bashforth_3rd_order(
-# 			double dt, complex* variable_old, complex* tendency_old, complex* tendency_now,
-# 			complex* tendency, complex* variable_new, Py_ssize_t imax, Py_ssize_t kmax) nogil
-# 		void forward_euler_2d(
-# 			double dt, complex* variable_old, complex* tendency,
-# 			complex* variable_new, Py_ssize_t imax, Py_ssize_t kmax) nogil
-# 		void adams_bashforth_2nd_order_2d(
-# 			double dt, complex* variable_old, complex* tendency_now,
-# 			complex* tendency, complex* variable_new, Py_ssize_t imax, Py_ssize_t kmax) nogil
-# 		void adams_bashforth_3rd_order_2d(
-# 			double dt, complex* variable_old, complex* tendency_old, complex* tendency_now,
-# 			complex* tendency, complex* variable_new, Py_ssize_t imax, Py_ssize_t kmax) nogil
-
-
 cdef class TimeStepping:
 	def __init__(self, namelist):
 		self.dt = namelist['timestepping']['dt']
