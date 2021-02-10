@@ -21,9 +21,6 @@ cdef extern from "forcing_functions.h":
 			double* p, double* T, double* T_bar, double* sin_lat, double* cos_lat, double* u,
 			double* v, double* u_forc, double* v_forc, double* T_forc,
 			Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
-	void print_c(double* T, double* var, double*  var_2d,
-		         Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
-
 
 cdef class ForcingBase:
 	def __init__(self):

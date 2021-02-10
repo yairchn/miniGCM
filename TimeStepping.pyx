@@ -10,25 +10,25 @@ from DiagnosticVariables cimport DiagnosticVariables
 from Diffusion cimport Diffusion
 from Parameters cimport Parameters
 
-cdef extern from "timestepping.h":
-		void forward_euler(
-			double dt, double* variable_old, double* tenency,
-			double* variable_new, Py_ssize_t imax, Py_ssize_t kmax) nogil
-		void adams_bashforth_2nd_order(
-			double dt, double* variable_old, double* tenency_now,
-			double* tenency, double* variable_new, Py_ssize_t imax, Py_ssize_t kmax) nogil
-		void adams_bashforth_3rd_order(
-			double dt, double* variable_old, double* tenency_old, double* tenency_now,
-			double* tenency, double* variable_new, Py_ssize_t imax, Py_ssize_t kmax) nogil
-		void forward_euler_2d(
-			double dt, double* variable_old, double* tenency,
-			double* variable_new, Py_ssize_t imax, Py_ssize_t kmax) nogil
-		void adams_bashforth_2nd_order_2d(
-			double dt, double* variable_old, double* tenency_now,
-			double* tenency, double* variable_new, Py_ssize_t imax, Py_ssize_t kmax) nogil
-		void adams_bashforth_3rd_order_2d(
-			double dt, double* variable_old, double* tenency_old, double* tenency_now,
-			double* tenency, double* variable_new, Py_ssize_t imax, Py_ssize_t kmax) nogil
+# cdef extern from "timestepping.h":
+# 		void forward_euler(
+# 			double dt, double* variable_old, double* tendency,
+#         	double* variable_new, Py_ssize_t imax, Py_ssize_t kmax) nogil
+# 		void adams_bashforth_2nd_order(
+# 			double dt, complex* variable_old, complex* tendency_now,
+# 			complex* tendency, complex* variable_new, Py_ssize_t imax, Py_ssize_t kmax) nogil
+# 		void adams_bashforth_3rd_order(
+# 			double dt, complex* variable_old, complex* tendency_old, complex* tendency_now,
+# 			complex* tendency, complex* variable_new, Py_ssize_t imax, Py_ssize_t kmax) nogil
+# 		void forward_euler_2d(
+# 			double dt, complex* variable_old, complex* tendency,
+# 			complex* variable_new, Py_ssize_t imax, Py_ssize_t kmax) nogil
+# 		void adams_bashforth_2nd_order_2d(
+# 			double dt, complex* variable_old, complex* tendency_now,
+# 			complex* tendency, complex* variable_new, Py_ssize_t imax, Py_ssize_t kmax) nogil
+# 		void adams_bashforth_3rd_order_2d(
+# 			double dt, complex* variable_old, complex* tendency_old, complex* tendency_now,
+# 			complex* tendency, complex* variable_new, Py_ssize_t imax, Py_ssize_t kmax) nogil
 
 
 cdef class TimeStepping:
@@ -74,6 +74,11 @@ cdef class TimeStepping:
 				for i in range(nlm):
 					for k in range(nl):
 						# Euler
+					# 	forward_euler(self.dt, &F_Divergence[0,0], &PV.Divergence.tendency[0,0], &PV.Divergence.spectral[0,0], nlm, nl)
+					# 	forward_euler(self.dt, &F_Vorticity[0,0],  &PV.Vorticity.tendency[0,0],  &PV.Vorticity.spectral[0,0], nlm, nl)
+					# 	forward_euler(self.dt, &F_T[0,0], &PV.T.tendency[0,0],   &PV.T.spectral[0,0], nlm, nl)
+					# 	forward_euler(self.dt, &F_QT[0,0],&PV.QT.tendency[0,0],  &PV.QT.spectral[0,0], nlm, nl)
+					# forward_euler_2d(self.dt,  &F_P[0], &PV.P.tendency[0,0],&PV.P.spectral[0,0], nlm, nl)
 						# new                                old                      tendency
 						PV.Divergence.spectral[i,k] = F_Divergence[i,k] + self.dt*PV.Divergence.tendency[i,k]
 						PV.Vorticity.spectral[i,k]  = F_Vorticity[i,k]  + self.dt*PV.Vorticity.tendency[i,k]

@@ -6,9 +6,9 @@
 // 3D forward euler - first setp for Adams Bashforth
 void forward_euler(
            double dt,
-           double* restrict variable_old,
-           double* restrict tenency,
-           double* restrict variable_new,
+           double complex* variable_old,
+           double complex* tendency,
+           double complex* variable_new,
            ssize_t imax,
            ssize_t kmax)
            {
@@ -19,7 +19,7 @@ void forward_euler(
         const ssize_t ishift = i*kmax;
         for(ssize_t k=kmin;k<kmax;k++){
             const ssize_t ik = ishift + k;
-            variable_new[ik] = variable_old[ik] + dt*tenency[ik];
+            variable_new[ik] = variable_old[ik] + dt*tendency[ik];
         } // end j loop
     } // end i loop
     return;
@@ -29,8 +29,8 @@ void forward_euler(
 void adams_bashforth_2nd_order(
            double dt,
            double* restrict variable_old,
-           double* restrict tenency_now,
-           double* restrict tenency,
+           double* restrict tendency_now,
+           double* restrict tendency,
            double* restrict variable_new,
            ssize_t imax,
            ssize_t kmax)
@@ -44,7 +44,7 @@ void adams_bashforth_2nd_order(
         const ssize_t ishift = i*kmax;
         for(ssize_t k=kmin;k<kmax;k++){
             const ssize_t ik = ishift + k;
-            variable_new[ik] = variable_old[ik] + dt*(ab1*tenency[ik] + ab2*tenency_now[ik]);
+            variable_new[ik] = variable_old[ik] + dt*(ab1*tendency[ik] + ab2*tendency_now[ik]);
         } // end j loop
     } // end i loop
     return;
@@ -54,9 +54,9 @@ void adams_bashforth_2nd_order(
 void adams_bashforth_3rd_order(
            double dt,
            double* restrict variable_old,
-           double* restrict tenency_old,
-           double* restrict tenency_now,
-           double* restrict tenency,
+           double* restrict tendency_old,
+           double* restrict tendency_now,
+           double* restrict tendency,
            double* restrict variable_new,
            ssize_t imax,
            ssize_t kmax)
@@ -72,7 +72,7 @@ void adams_bashforth_3rd_order(
         for(ssize_t k=kmin;k<kmax;k++){
             const ssize_t ik = ishift + k;
             variable_new[ik] = variable_old[ik] +
-                dt*(ab1*tenency[ik] + ab2*tenency_now[ik] + ab3*tenency_old[ik]);
+                dt*(ab1*tendency[ik] + ab2*tendency_now[ik] + ab3*tendency_old[ik]);
         } // end j loop
     } // end i loop
     return;
@@ -82,7 +82,7 @@ void adams_bashforth_3rd_order(
 void forward_euler_2d(
            double dt,
            double* restrict variable_old,
-           double* restrict tenency,
+           double* restrict tendency,
            double* restrict variable_new,
            ssize_t imax,
            ssize_t kmax)
@@ -91,7 +91,7 @@ void forward_euler_2d(
 
     for(ssize_t i=imin;i<imax;i++){
         const ssize_t ik = i*kmax + kmax;
-        variable_new[ik] = variable_old[ik] + dt*tenency[ik];
+        variable_new[ik] = variable_old[i] + dt*tendency[ik];
     } // end i loop
     return;
 }
@@ -100,8 +100,8 @@ void forward_euler_2d(
 void adams_bashforth_2nd_order_2d(
            double dt,
            double* restrict variable_old,
-           double* restrict tenency_now,
-           double* restrict tenency,
+           double* restrict tendency_now,
+           double* restrict tendency,
            double* restrict variable_new,
            ssize_t imax,
            ssize_t kmax)
@@ -113,7 +113,7 @@ void adams_bashforth_2nd_order_2d(
 
     for(ssize_t i=imin;i<imax;i++){
         const ssize_t ik = i*kmax + kmax;
-        variable_new[ik] = variable_old[ik] + dt*(ab1*tenency[ik] + ab2*tenency_now[ik]);
+        variable_new[ik] = variable_old[ik] + dt*(ab1*tendency[ik] + ab2*tendency_now[ik]);
     } // end i loop
     return;
 }
@@ -122,9 +122,9 @@ void adams_bashforth_2nd_order_2d(
 void adams_bashforth_3rd_order_2d(
            double dt,
            double* restrict variable_old,
-           double* restrict tenency_old,
-           double* restrict tenency_now,
-           double* restrict tenency,
+           double* restrict tendency_old,
+           double* restrict tendency_now,
+           double* restrict tendency,
            double* restrict variable_new,
            ssize_t imax,
            ssize_t kmax)
@@ -138,7 +138,7 @@ void adams_bashforth_3rd_order_2d(
     for(ssize_t i=imin;i<imax;i++){
         const ssize_t ik = i*kmax + kmax;
         variable_new[ik] = variable_old[ik] +
-            dt*(ab1*tenency[ik] + ab2*tenency_now[ik] + ab3*tenency_old[ik]);
+            dt*(ab1*tendency[ik] + ab2*tendency_now[ik] + ab3*tendency_old[ik]);
     } // end i loop
     return;
 }
