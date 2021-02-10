@@ -18,7 +18,8 @@ void focring_hs(
            double* restrict p,
            double* restrict T,
            double* restrict T_bar,
-           double* restrict lat,
+           double* restrict sin_lat,
+           double* restrict cos_lat,
            double* restrict u,
            double* restrict v,
            double* restrict u_forc,
@@ -51,12 +52,13 @@ void focring_hs(
                 const ssize_t ijk = ishift + jshift + k;
                 const ssize_t ijkp = ishift_p + jshift_p + k;
                 p_half = (p[ijkp]+p[ijkp+1])/2.0;
-                T_bar[ijk] = fmax(((T_equator - DT_y*pow(sin(lat[ij]),2.0) -
-                                Dtheta_z*log(p_half/p_ref)*pow(cos(lat[ij]),2.0))*
+                T_bar[ijk] = fmax(((T_equator - DT_y*sin_lat[ij]*sin_lat[ij] -
+                                Dtheta_z*log(p_half/p_ref)*cos_lat[ij]*cos_lat[ij])*
                                 pow(p_half/p_ref, kappa)),200.0);
 
+
                 sigma_ratio = fmax((p_half/p[ijkmax_p]-sigma_b)/(1-sigma_b),0.0);
-                k_T = k_a + (k_s-k_a)*sigma_ratio*pow(cos(lat[ij]),4.0);
+                k_T = k_a + (k_s-k_a)*sigma_ratio*pow(cos_lat[ij],4.0);
                 k_v = k_b +  k_f*sigma_ratio;
 
                 u_forc[ijk] = -k_v *  u[ijk];

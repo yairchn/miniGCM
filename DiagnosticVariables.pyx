@@ -9,6 +9,7 @@ from TimeStepping import TimeStepping
 from Parameters cimport Parameters
 import time
 from libc.math cimport pow, log
+import pylab as plt
 
 cdef extern from "diagnostic_variables.h":
     void diagnostic_variables(double Rd, double Rv,
@@ -131,7 +132,6 @@ cdef class DiagnosticVariables:
 
     @cython.wraparound(False)
     @cython.boundscheck(False)
-    # @cython.cdivision(True)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV):
         cdef:
             Py_ssize_t k, k_rev
@@ -146,24 +146,11 @@ cdef class DiagnosticVariables:
         for k in range(nl):
             self.U.values.base[:,:,k], self.V.values.base[:,:,k] = Gr.SphericalGrid.getuv(
                          PV.Vorticity.spectral.base[:,k],PV.Divergence.spectral.base[:,k])
-            # with nogil:
-            #     diagnostic_variables(Pr.Rd, Pr.Rv, &PV.P.values[0,0,0], &PV.T.values[0,0,0],
-            #                          &PV.QT.values[0,0,0],   &self.QL.values[0,0,0], &self.U.values[0,0,0],
-            #                          &self.V.values[0,0,0],  &PV.Divergence.values[0,0,0],
-            #                          &self.KE.values[0,0,0], &self.Wp.values[0,0,0], &self.gZ.values[0,0,0],
-            #                          &self.UV.values[0,0,0], &self.TT.values[0,0,0], &self.VT.values[0,0,0],
-            #                          k, nx, ny, nl)
-
-            k_rev = nl-k-ii # geopotential is computed bottom -> up
             with nogil:
-                for i in range(nx):
-                    for j in range(ny):
-                        self.KE.values[i,j,k]    = 0.5*(pow(self.U.values[i,j,k],2.0) + pow(self.V.values[i,j,k],2.0))
-                        self.Wp.values[i,j,k+1]  = self.Wp.values[i,j,k] - (PV.P.values[i,j,k+1]-PV.P.values[i,j,k])*PV.Divergence.values[i,j,k]
-                        Rm = Pr.Rd*(1.0-PV.QT.values[i,j,k_rev]) + Pr.Rv*(PV.QT.values[i,j,k_rev]-self.QL.values[i,j,k_rev])
-                        # need to use Rm here
-                        self.gZ.values[i,j,k_rev] = Pr.Rd*PV.T.values[i,j,k_rev]*log(PV.P.values[i,j,k_rev+1]/PV.P.values[i,j,k_rev]) + self.gZ.values[i,j,k_rev+1]
-                        self.VT.values[i,j,k] = self.V.values[i,j,k] * PV.T.values[i,j,k]
-                        self.TT.values[i,j,k] = PV.T.values[i,j,k]   * PV.T.values[i,j,k]
-                        self.UV.values[i,j,k] = self.V.values[i,j,k] * self.U.values[i,j,k]
+                diagnostic_variables(Pr.Rd, Pr.Rv, &PV.P.values[0,0,0], &PV.T.values[0,0,0],
+                                     &PV.QT.values[0,0,0],   &self.QL.values[0,0,0], &self.U.values[0,0,0],
+                                     &self.V.values[0,0,0],  &PV.Divergence.values[0,0,0],
+                                     &self.KE.values[0,0,0], &self.Wp.values[0,0,0], &self.gZ.values[0,0,0],
+                                     &self.UV.values[0,0,0], &self.TT.values[0,0,0], &self.VT.values[0,0,0],
+                                     k, nx, ny, nl)
         return

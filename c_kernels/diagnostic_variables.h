@@ -1,6 +1,6 @@
 // Solving diagnostic functions for: pressure vertical velocity ω (Wp),
 // geopotential ϕ (gZ) and kinetic energy (ke)
-// in a given k (vertical) level as some are conditioned on a planner spcteral conversion
+// at a given k (vertical) level as some are conditioned on a planner spcteral conversion
 // Note - geopotential is computed diagnostically bottom -> up
 
 #pragma once
@@ -31,7 +31,7 @@ void diagnostic_variables(
     const ssize_t imin = 0;
     const ssize_t jmin = 0;
     const ssize_t kmin = 0;
-    double k_rev = kmax-k-1;
+    const ssize_t k_rev = kmax-k-1;
     double Rm;
 
     for(ssize_t i=imin;i<imax;i++){
@@ -43,13 +43,13 @@ void diagnostic_variables(
             const ssize_t jshift_p = j*(kmax+1);
             const ssize_t ij = ishift_2d + j;
             const ssize_t ijk = ishift + jshift + k;
-            const ssize_t ijkp  = ishift_p + jshift_p + k;
+            const ssize_t ijkp = ishift_p + jshift_p + k;
             const ssize_t ijk_rev = ishift + jshift + k_rev;
             const ssize_t ijkp_rev = ishift_p + jshift_p + k_rev;
             ke[ijk]      = 0.5*(pow(u[ijk],2.0) + pow(v[ijk],2.0));
-            wp[ijkp+1]   = wp[ijk] - (p[ijk+1]-p[ijk])*div[ijk];
+            wp[ijkp+1]   = wp[ijkp] - (p[ijkp+1]-p[ijkp])*div[ijk];
             Rm           = Rd*(1.0-qt[ijk_rev]) + Rv*(qt[ijk_rev] - ql[ijk_rev]);
-            gz[ijkp_rev] = Rd*T[ijk_rev]*log(p[ijk_rev+1]/p[ijk_rev]) + gz[ijk_rev+1];
+            gz[ijkp_rev] = Rd*T[ijk_rev]*log(p[ijkp_rev+1]/p[ijkp_rev]) + gz[ijkp_rev+1];
             vT[ijk]      = v[ijk] * T[ijk];
             TT[ijk]      = T[ijk] * T[ijk];
             uv[ijk]      = v[ijk] * u[ijk];

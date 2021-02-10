@@ -43,8 +43,6 @@ cdef class MicrophysicsNone(MicrophysicsBase):
         self.RainRate = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
         return
     cpdef update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
-        # PV.QT.mp_tendency = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
-        # PV.T.mp_tendency  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.double, order='c')
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         return

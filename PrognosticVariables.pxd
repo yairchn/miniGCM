@@ -1,19 +1,15 @@
 import cython
 from concurrent.futures import ThreadPoolExecutor
-from Grid cimport Grid
-from math import *
 from DiagnosticVariables cimport DiagnosticVariables
-import matplotlib.pyplot as plt
-import netCDF4
+from Grid cimport Grid
+from NetCDFIO cimport NetCDFIO_Stats
+import Microphysics
+cimport Microphysics
 from NetCDFIO cimport NetCDFIO_Stats
 import numpy as np
 cimport numpy as np
-import scipy as sc
-import sys
-from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
-cimport Microphysics
-import Microphysics
+from TimeStepping cimport TimeStepping
 
 cdef class PrognosticVariable:
     cdef:

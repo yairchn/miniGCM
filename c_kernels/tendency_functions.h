@@ -4,7 +4,7 @@
 #pragma once
 #include <math.h>
 
-void rhs_T(double cpi,
+void rhs_T(double cp,
            double* restrict p,
            double* restrict gz,
            double* restrict T,
@@ -25,10 +25,7 @@ void rhs_T(double cpi,
 
     const ssize_t imin = 0;
     const ssize_t jmin = 0;
-    double wT_dn;
-    double wT_up;
     double dpi;
-    double w_gz_dpi;
 
     for(ssize_t i=imin;i<imax;i++){
         const ssize_t ishift_2d = i*jmax;
@@ -40,24 +37,25 @@ void rhs_T(double cpi,
             const ssize_t ij = ishift_2d + j;
             const ssize_t ijk = ishift + jshift + k;
             const ssize_t ijkp = ishift_p + jshift_p + k;
+            u_T[ij] = u[ijk] * T[ijk];
+            v_T[ij] = v[ijk] * T[ijk];
             dpi = 1.0/(p[ijkp+1] - p[ijkp]);
+            rhs_T[ij] = 0.0;
             if (k==0){
-                wT_up = 0.0;
-                wT_dn = 0.5*wp[ijkp+1]*(T[ijk+1]+ T[ijk])*dpi;
+                rhs_T[ij] -= 0.5*wp[ijkp+1]*(T[ijk+1]+ T[ijk])*dpi;
             } // end if
             else if (k==kmax-1){
-                wT_up = 0.5*wp[ijkp]  *(T[ijk] +T[ijk-1])*dpi;
-                wT_dn = 0.5*wp[ijkp+1]*(T[ijk] +T[ijk])*dpi;
+                rhs_T[ij] += 0.5*wp[ijkp]  *(T[ijk] +T[ijk-1])*dpi;
+                rhs_T[ij] -= 0.5*wp[ijkp+1]*(T[ijk] +T[ijk])*dpi;
             } // end else if
             else{
-                wT_up = 0.5*wp[ijkp]  *(T[ijk]   + T[ijk-1])*dpi;
-                wT_dn = 0.5*wp[ijkp+1]*(T[ijk+1] + T[ijk])*dpi;
+                rhs_T[ij] += 0.5*wp[ijkp]  *(T[ijk]   + T[ijk-1])*dpi;
+                rhs_T[ij] -= 0.5*wp[ijkp+1]*(T[ijk+1] + T[ijk])*dpi;
             } // end else
-        w_gz_dpi = wp[ijkp+1]*(gz[ijkp+1]-gz[ijkp])*dpi*cpi;
-        // rhs_T[ij] = (wT_up - wT_dn - w_gz_dpi + T_mp[ijk] + T_forc[ijk] + T_sur[ij]);
-        rhs_T[ij] = (wT_up - wT_dn - w_gz_dpi);
-        u_T[ij] = u[ijk] * T[ijk];
-        v_T[ij] = v[ijk] * T[ijk];
+            rhs_T[ij] -= wp[ijkp+1]*(gz[ijkp+1]-gz[ijkp])*dpi/cp;
+            rhs_T[ij] += T_mp[ijk];
+            rhs_T[ij] += T_forc[ijk];
+            rhs_T[ij] += T_sur[ij];
         } // End j loop
     } // end i loop
     return;
@@ -82,8 +80,6 @@ void rhs_qt(double* restrict p,
 
     const ssize_t imin = 0;
     const ssize_t jmin = 0;
-    double wQT_dn;
-    double wQT_up;
     double dpi;
 
     for(ssize_t i=imin;i<imax;i++){
@@ -96,22 +92,23 @@ void rhs_qt(double* restrict p,
             const ssize_t ij = ishift_2d + j;
             const ssize_t ijk = ishift + jshift + k;
             const ssize_t ijkp = ishift_p + jshift_p + k;
+            rhs_qt[ij]  = 0.0;
             dpi = 1.0/(p[ijkp+1] - p[ijkp]);
-        	if (k==0){
-                wQT_up = 0.0;
-                wQT_dn = 0.5*wp[ijkp+1]*(qt[ijk+1]+ qt[ijk])*dpi;
+            if (k==0){
+                rhs_qt[ij] -= 0.5*wp[ijkp+1]*(qt[ijk+1]+ qt[ijk])*dpi;
             } // end if
             else if (k==kmax-1){
-                wQT_up = 0.5*wp[ijkp]  *(qt[ijk] +qt[ijk-1])*dpi;
-                wQT_dn = 0.5*wp[ijkp+1]*(qt[ijk] +qt[ijk])*dpi;
+                rhs_qt[ij] += 0.5*wp[ijkp]  *(qt[ijk] +qt[ijk-1])*dpi;
+                rhs_qt[ij] -= 0.5*wp[ijkp+1]*(qt[ijk] +qt[ijk])*dpi;
             } // end else if
             else{
-                wQT_up = 0.5*wp[ijkp]  *(qt[ijk]   + qt[ijk-1])*dpi;
-                wQT_dn = 0.5*wp[ijkp+1]*(qt[ijk+1] + qt[ijk])*dpi;
+                rhs_qt[ij] += 0.5*wp[ijkp]  *(qt[ijk]   + qt[ijk-1])*dpi;
+                rhs_qt[ij] -= 0.5*wp[ijkp+1]*(qt[ijk+1] + qt[ijk])*dpi;
             } // end else
-        rhs_qt[ij] = (wQT_up - wQT_dn + qt_mp[ijk] + qt_sur[ij]);
-        u_qt[ij] = u[ijk] * qt[ijk];
-        v_qt[ij] = v[ijk] * qt[ijk];
+            rhs_qt[ij] += qt_mp[ijk];
+            rhs_qt[ij] += qt_sur[ij];
+            u_qt[ij] = u[ijk] * qt[ijk];
+            v_qt[ij] = v[ijk] * qt[ijk];
         } // End j loop
     } // end i loop
     return;
@@ -121,7 +118,6 @@ void rhs_qt(double* restrict p,
 void vertical_uv_fluxes(double* restrict p,
                         double* restrict gz,
                         double* restrict vort,
-                        double* restrict div,
                         double* restrict f,
                         double* restrict u,
                         double* restrict v,
