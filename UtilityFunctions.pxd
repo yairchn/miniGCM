@@ -6,4 +6,4 @@ cimport numpy as np
 from Parameters cimport Parameters
 
 cpdef set_min_vapour(qp,qbar)
-cpdef keSpectra(u,v)
+cpdef keSpectra(Grid Gr, u, v)

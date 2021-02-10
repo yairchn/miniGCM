@@ -52,11 +52,6 @@ cdef class TimeStepping:
 				for i in range(nlm):
 					for k in range(nl):
 						# Euler
-					# 	forward_euler(self.dt, &F_Divergence[0,0], &PV.Divergence.tendency[0,0], &PV.Divergence.spectral[0,0], nlm, nl)
-					# 	forward_euler(self.dt, &F_Vorticity[0,0],  &PV.Vorticity.tendency[0,0],  &PV.Vorticity.spectral[0,0], nlm, nl)
-					# 	forward_euler(self.dt, &F_T[0,0], &PV.T.tendency[0,0],   &PV.T.spectral[0,0], nlm, nl)
-					# 	forward_euler(self.dt, &F_QT[0,0],&PV.QT.tendency[0,0],  &PV.QT.spectral[0,0], nlm, nl)
-					# forward_euler_2d(self.dt,  &F_P[0], &PV.P.tendency[0,0],&PV.P.spectral[0,0], nlm, nl)
 						# new                                old                      tendency
 						PV.Divergence.spectral[i,k] = F_Divergence[i,k] + self.dt*PV.Divergence.tendency[i,k]
 						PV.Vorticity.spectral[i,k]  = F_Vorticity[i,k]  + self.dt*PV.Vorticity.tendency[i,k]
