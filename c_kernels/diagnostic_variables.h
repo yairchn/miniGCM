@@ -49,7 +49,7 @@ void diagnostic_variables(
             ke[ijk]      = 0.5*(pow(u[ijk],2.0) + pow(v[ijk],2.0));
             wp[ijkp+1]   = wp[ijkp] - (p[ijkp+1]-p[ijkp])*div[ijk];
             Rm           = Rd*(1.0-qt[ijk_rev]) + Rv*(qt[ijk_rev] - ql[ijk_rev]);
-            gz[ijkp_rev] = Rd*T[ijk_rev]*log(p[ijkp_rev+1]/p[ijkp_rev]) + gz[ijkp_rev+1];
+            gz[ijkp_rev] = Rm*T[ijk_rev]*log(p[ijkp_rev+1]/p[ijkp_rev]) + gz[ijkp_rev+1];
             vT[ijk]      = v[ijk] * T[ijk];
             TT[ijk]      = T[ijk] * T[ijk];
             uv[ijk]      = v[ijk] * u[ijk];

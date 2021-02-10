@@ -234,15 +234,17 @@ cdef class PrognosticVariables:
                        &DV.Wp.values[0,0,0], &PV.QT.mp_tendency[0,0,0], &QT_sur_flux[0,0],
                        &RHS_grid_QT[0,0], &uQT[0,0], &vQT[0,0], nx, ny, nl, k)
 
-                rhs_T(Pr.cp, &PV.P.values[0,0,0], &DV.gZ.values[0,0,0], &PV.T.values[0,0,0], &DV.U.values[0,0,0],
-                           &DV.V.values[0,0,0], &DV.Wp.values[0,0,0], &PV.T.mp_tendency[0,0,0], &T_sur_flux[0,0],
-                           &PV.T.forcing[0,0,0], &RHS_grid_T[0,0], &uT[0,0], &vT[0,0], nx, ny, nl, k)
-
                 vertical_uv_fluxes(&PV.P.values[0,0,0], &DV.gZ.values[0,0,0], &PV.Vorticity.values[0,0,0],
                             &Gr.Coriolis[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
                             &DV.Wp.values[0,0,0], &DV.KE.values[0,0,0], &wu_up[0,0], &wv_up[0,0], &wu_dn[0,0], &wv_dn[0,0],
                             &Dry_Energy[0,0], &u_vorticity[0,0], &v_vorticity[0,0],
                             nx, ny, nl, k)
+
+            if not (Pr.thermodynamics_type=='dry'):
+                with nogil:
+                    rhs_T(Pr.cp, &PV.P.values[0,0,0], &DV.gZ.values[0,0,0], &PV.T.values[0,0,0], &DV.U.values[0,0,0],
+                               &DV.V.values[0,0,0], &DV.Wp.values[0,0,0], &PV.T.mp_tendency[0,0,0], &T_sur_flux[0,0],
+                               &PV.T.forcing[0,0,0], &RHS_grid_T[0,0], &uT[0,0], &vT[0,0], nx, ny, nl, k)
 
             Dry_Energy_laplacian = Gr.laplacian*Gr.SphericalGrid.grdtospec(Dry_Energy.base)
             Vortical_momentum_flux, Divergent_momentum_flux = Gr.SphericalGrid.getvrtdivspec(u_vorticity.base, v_vorticity.base)
@@ -262,5 +264,8 @@ cdef class PrognosticVariables:
                                                     - w_div_up[i] - w_div_dn[i] + Div_forc[i] + Div_sur_flux[i])
 
                     PV.T.tendency[i,k]  = RHS_T[i]  - Divergent_T_flux[i]
+
+            if not (Pr.thermodynamics_type=='dry'):
+                with nogil:
                     PV.QT.tendency[i,k] = RHS_QT[i] - Divergent_QT_flux[i]
         return

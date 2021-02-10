@@ -5,6 +5,7 @@ cimport numpy as np
 import shtns
 import sphTrans as sph
 from math import *
+import os
 
 cdef class Parameters:
     cdef:
@@ -61,3 +62,4 @@ cdef class Parameters:
         str casename
         str outpath
         str logfilename
+        str thermodynamics_type

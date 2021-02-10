@@ -4,9 +4,12 @@ import numpy as np
 cimport numpy as np
 import shtns
 import sphTrans as sph
+import os
 
 cdef class Parameters:
     def __init__(self, namelist):
+
+        self.thermodynamics_type = namelist['thermodynamics']['thermodynamics_type']
 
         self.case      = namelist['meta']['casename']
         self.nlats     = namelist['grid']['number_of_latitute_points']

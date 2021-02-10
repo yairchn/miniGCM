@@ -47,36 +47,19 @@ class Simulation:
         print('run')
         start_time = time.time()
         while self.TS.t <= self.TS.t_max:
-            t0 = time.time()
             self.PV.reset_pressures_and_bcs(self.Pr, self.DV)
-            print('PV.compute_tendencies',time.time() - t0)
-            t0 = time.time()
             self.PV.spectral_to_physical(self.Pr, self.Gr)
-            print('PV.compute_tendencies',time.time() - t0)
-            t0 = time.time()
             self.DV.update(self.Pr, self.Gr, self.PV)
-            print('PV.compute_tendencies',time.time() - t0)
-            t0 = time.time()
             self.DV.physical_to_spectral(self.Pr, self.Gr)
-            print('PV.compute_tendencies',time.time() - t0)
-            t0 = time.time()
             self.Case.update(self.Pr, self.Gr, self.PV, self.DV, self.TS)
-            print('PV.compute_tendencies',time.time() - t0)
-            t0 = time.time()
             self.PV.compute_tendencies(self.Pr, self.Gr, self.PV, self.DV)
-            print('PV.compute_tendencies',time.time() - t0)
-            t0 = time.time()
             self.TS.update(self.Pr, self.Gr, self.PV, self.DV, self.DF, namelist)
-            print('PV.compute_tendencies',time.time() - t0)
-            t0 = time.time()
 
             wallclocktime = time.time() - start_time
-            # if 38.0<self.TS.t/(24.0*3600.0)<40.0:
-            #     self.LF.update(self.Pr, self.TS, self.DV, self.PV, wallclocktime)
             if self.TS.t%self.Stats.stats_frequency < self.TS.dt:
-                self.LF.update(self.Pr, self.TS, self.DV, self.PV, wallclocktime)
                 self.stats_io()
             if self.TS.t%self.Stats.output_frequency < self.TS.dt:
+                self.LF.update(self.Pr, self.TS, self.DV, self.PV, wallclocktime)
                 self.io()
         return
 

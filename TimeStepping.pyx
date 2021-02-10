@@ -23,14 +23,12 @@ cdef class TimeStepping:
 	@cython.wraparound(False)
 	@cython.boundscheck(False)
 	@cython.cdivision(True)
+	@cython.nonecheck(False)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, Diffusion DF, namelist):
 		cdef:
 			Py_ssize_t i, k
 			Py_ssize_t nl = Pr.n_layers
 			Py_ssize_t nlm = Gr.SphericalGrid.nlm
-			double zonal_timescale, meridional_timescale, CFL_limit, dt0
-			double [:,:] U_max = np.zeros((Pr.nlats, Pr.nlons), dtype = np.float64, order='c')
-			double [:,:] V_max = np.zeros((Pr.nlats, Pr.nlons), dtype = np.float64, order='c')
 			double complex [:,:] F_Divergence = np.zeros((nlm, nl), dtype = np.complex, order='c')
 			double complex [:,:] F_Vorticity  = np.zeros((nlm, nl), dtype = np.complex, order='c')
 			double complex [:,:] F_T          = np.zeros((nlm, nl), dtype = np.complex, order='c')
@@ -91,6 +89,7 @@ cdef class TimeStepping:
 
 	@cython.wraparound(False)
 	@cython.boundscheck(False)
+	@cython.nonecheck(False)
 	cpdef CFL_limiter(self, Parameters Pr, Grid Gr, DiagnosticVariables DV, namelist):
 		cdef:
 			Py_ssize_t i, j, k
