@@ -12,7 +12,7 @@ def main():
     args = parser.parse_args()
     varname = args.varname
 
-    folder1 = os.getcwd() + '/Output.HeldSuarezMoist._PMFS/stats/'
+    folder1 = os.getcwd() + '/Output.HeldSuarezMoist.moist/stats/'
     folder2 = os.getcwd() + '/Output.HeldSuarezMoist.cnon2/stats/'
     ncfile1 = folder1 + 'Stats.HeldSuarezMoist.nc'
     ncfile2 = folder2 + 'Stats.HeldSuarezMoist.nc'

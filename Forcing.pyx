@@ -1,3 +1,9 @@
+#!python
+#cython: boundscheck=False
+#cython: wraparound=False
+#cython: initializedcheck=False
+#cython: cdivision=True
+
 import cython
 from concurrent.futures import ThreadPoolExecutor
 from Grid cimport Grid
@@ -54,9 +60,19 @@ cdef class HelzSuarez(ForcingBase):
 		return
 
 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
+		cdef:
+			Py_ssize_t i,j
+			Py_ssize_t nx = Pr.nlats
+			Py_ssize_t ny = Pr.nlons
+
 		self.Tbar = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
-		self.sin_lat = np.sin(Gr.lat)
-		self.cos_lat = np.cos(Gr.lat)
+		self.sin_lat = np.zeros((Pr.nlats, Pr.nlons), dtype=np.float64, order='c')
+		self.cos_lat = np.zeros((Pr.nlats, Pr.nlons), dtype=np.float64, order='c')
+		with nogil:
+			for i in range(nx):
+				for j in range(ny):
+					self.sin_lat[i,j] = sin(Gr.lat[i,j])
+					self.cos_lat[i,j] = cos(Gr.lat[i,j])
 		return
 
 	cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -97,9 +113,18 @@ cdef class HelzSuarezMoist(ForcingBase):
 		return
 
 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
+		cdef:
+			Py_ssize_t i,j
+			Py_ssize_t nx = Pr.nlats
+			Py_ssize_t ny = Pr.nlons
 		self.Tbar = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
-		self.sin_lat = np.sin(Gr.lat)
-		self.cos_lat = np.cos(Gr.lat)
+		self.sin_lat = np.zeros((Pr.nlats, Pr.nlons), dtype=np.float64, order='c')
+		self.cos_lat = np.zeros((Pr.nlats, Pr.nlons), dtype=np.float64, order='c')
+		with nogil:
+			for i in range(nx):
+				for j in range(ny):
+					self.sin_lat[i,j] = sin(Gr.lat[i,j])
+					self.cos_lat[i,j] = cos(Gr.lat[i,j])
 		return
 
 	cpdef initialize_io(self, NetCDFIO_Stats Stats):

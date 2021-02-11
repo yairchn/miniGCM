@@ -1,3 +1,9 @@
+#!python
+#cython: boundscheck=False
+#cython: wraparound=False
+#cython: initializedcheck=False
+#cython: cdivision=True
+
 import cython
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np

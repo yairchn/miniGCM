@@ -46,7 +46,7 @@ void diagnostic_variables(
             const ssize_t ijkp = ishift_p + jshift_p + k;
             const ssize_t ijk_rev = ishift + jshift + k_rev;
             const ssize_t ijkp_rev = ishift_p + jshift_p + k_rev;
-            ke[ijk]      = 0.5*(pow(u[ijk],2.0) + pow(v[ijk],2.0));
+            ke[ijk]      = 0.5*(u[ijk]*u[ijk] + v[ijk]*v[ijk]);
             wp[ijkp+1]   = wp[ijkp] - (p[ijkp+1]-p[ijkp])*div[ijk];
             Rm           = Rd*(1.0-qt[ijk_rev]) + Rv*(qt[ijk_rev] - ql[ijk_rev]);
             gz[ijkp_rev] = Rm*T[ijk_rev]*log(p[ijkp_rev+1]/p[ijkp_rev]) + gz[ijkp_rev+1];
