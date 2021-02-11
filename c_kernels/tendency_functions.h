@@ -52,7 +52,7 @@ void rhs_T(double cp,
                 rhs_T[ij] += 0.5*wp[ijkp]  *(T[ijk]   + T[ijk-1])*dpi;
                 rhs_T[ij] -= 0.5*wp[ijkp+1]*(T[ijk+1] + T[ijk])*dpi;
             } // end else
-            rhs_T[ij] -= wp[ijkp+1]*(gz[ijkp+1]-gz[ijkp])*dpi/cp;
+            rhs_T[ij] -= 0.5*(wp[ijkp+1]+wp[ijkp])*(gz[ijkp+1]-gz[ijkp])*dpi/cp;
             rhs_T[ij] += T_mp[ijk];
             rhs_T[ij] += T_forc[ijk];
             rhs_T[ij] += T_sur[ij];
@@ -169,7 +169,7 @@ void vertical_uv_fluxes(double* restrict p,
                 wdudp_up[ij] = wp[ijkp]*(u[ijk] - u[ijk-1])*dpi;
                 wdvdp_up[ij] = wp[ijkp]*(v[ijk] - v[ijk-1])*dpi;
             } // end else
-            e_dry[ij]  = gz[ijkp] + ke[ijk];
+            e_dry[ij]  = (gz[ijkp+1]+gz[ijkp])/2.0 + ke[ijk];
             u_vort[ij] = u[ijk] * (vort[ijk]+f[ij]);
             v_vort[ij] = v[ijk] * (vort[ijk]+f[ij]);
         } // end j loop

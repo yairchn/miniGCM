@@ -180,43 +180,43 @@ cdef class PrognosticVariables:
             Py_ssize_t nl = Pr.n_layers
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
 
-            double complex [:] w_vort_up = np.zeros((nlm), dtype = np.complex, order='c')
-            double complex [:] w_vort_dn = np.zeros((nlm), dtype = np.complex, order='c')
-            double complex [:] w_div_up  = np.zeros((nlm), dtype = np.complex, order='c')
-            double complex [:] w_div_dn  = np.zeros((nlm), dtype = np.complex, order='c')
-            double complex [:] Vort_forc = np.zeros((nlm), dtype = np.complex, order='c')
-            double complex [:] Div_forc  = np.zeros((nlm), dtype = np.complex, order='c')
-            double complex [:] RHS_T     = np.zeros((nlm), dtype = np.complex, order='c')
-            double complex [:] RHS_QT    = np.zeros((nlm), dtype = np.complex, order='c')
-            double complex [:] Vort_sur_flux = np.zeros((nlm), dtype = np.complex, order='c')
-            double complex [:] Div_sur_flux  = np.zeros((nlm), dtype = np.complex, order='c')
-            double complex [:] Vortical_T_flux = np.zeros((nlm), dtype = np.complex, order='c')
-            double complex [:] Divergent_T_flux = np.zeros((nlm), dtype = np.complex, order='c')
-            double complex [:] Vortical_QT_flux = np.zeros((nlm), dtype = np.complex, order='c')
-            double complex [:] Vortical_P_flux  = np.zeros((nlm), dtype = np.complex, order='c')
-            double complex [:] Divergent_P_flux = np.zeros((nlm), dtype = np.complex, order='c')
-            double complex [:] Divergent_QT_flux = np.zeros((nlm), dtype = np.complex, order='c')
-            double complex [:] Dry_Energy_laplacian = np.zeros((nlm), dtype = np.complex, order='c')
-            double complex [:] Vortical_momentum_flux = np.zeros((nlm), dtype = np.complex, order='c')
-            double complex [:] Divergent_momentum_flux = np.zeros((nlm), dtype = np.complex, order='c')
+            double complex [:] w_vort_up = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] w_vort_dn = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] w_div_up  = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] w_div_dn  = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] Vort_forc = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] Div_forc  = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] RHS_T     = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] RHS_QT    = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] Vort_sur_flux = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] Div_sur_flux  = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] Vortical_T_flux = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] Divergent_T_flux = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] Vortical_QT_flux = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] Vortical_P_flux  = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] Divergent_P_flux = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] Divergent_QT_flux = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] Dry_Energy_laplacian = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] Vortical_momentum_flux = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] Divergent_momentum_flux = np.zeros((nlm), dtype = np.complex, order ='c')
 
-            double [:,:] uT  = np.zeros((nx, ny),dtype=np.float64, order='c')
-            double [:,:] vT  = np.zeros((nx, ny),dtype=np.float64, order='c')
-            double [:,:] uQT = np.zeros((nx, ny),dtype=np.float64, order='c')
-            double [:,:] vQT = np.zeros((nx, ny),dtype=np.float64, order='c')
-            double [:,:] wu_dn = np.zeros((nx, ny),dtype=np.float64, order='c')
-            double [:,:] wv_dn = np.zeros((nx, ny),dtype=np.float64, order='c')
-            double [:,:] wu_up = np.zeros((nx, ny),dtype=np.float64, order='c')
-            double [:,:] wv_up = np.zeros((nx, ny),dtype=np.float64, order='c')
-            double [:,:] Dry_Energy = np.zeros((nx, ny),dtype=np.float64, order='c')
-            double [:,:] u_vorticity = np.zeros((nx, ny),dtype=np.float64, order='c')
-            double [:,:] v_vorticity = np.zeros((nx, ny),dtype=np.float64, order='c')
-            double [:,:] RHS_grid_T  = np.zeros((nx, ny),dtype=np.float64, order='c')
-            double [:,:] RHS_grid_QT = np.zeros((nx, ny),dtype=np.float64, order='c')
-            double [:,:] T_sur_flux  = np.zeros((nx, ny),dtype=np.float64, order='c')
-            double [:,:] QT_sur_flux = np.zeros((nx, ny),dtype=np.float64, order='c')
-            double [:,:] u_vertical_flux = np.zeros((nx, ny),dtype=np.float64, order='c')
-            double [:,:] v_vertical_flux = np.zeros((nx, ny),dtype=np.float64, order='c')
+            double [:,:] uT  = np.zeros((nx, ny),dtype=np.float64, order ='c')
+            double [:,:] vT  = np.zeros((nx, ny),dtype=np.float64, order ='c')
+            double [:,:] uQT = np.zeros((nx, ny),dtype=np.float64, order ='c')
+            double [:,:] vQT = np.zeros((nx, ny),dtype=np.float64, order ='c')
+            double [:,:] wu_dn = np.zeros((nx, ny),dtype=np.float64, order ='c')
+            double [:,:] wv_dn = np.zeros((nx, ny),dtype=np.float64, order ='c')
+            double [:,:] wu_up = np.zeros((nx, ny),dtype=np.float64, order ='c')
+            double [:,:] wv_up = np.zeros((nx, ny),dtype=np.float64, order ='c')
+            double [:,:] Dry_Energy = np.zeros((nx, ny),dtype=np.float64, order ='c')
+            double [:,:] u_vorticity = np.zeros((nx, ny),dtype=np.float64, order ='c')
+            double [:,:] v_vorticity = np.zeros((nx, ny),dtype=np.float64, order ='c')
+            double [:,:] RHS_grid_T  = np.zeros((nx, ny),dtype=np.float64, order ='c')
+            double [:,:] RHS_grid_QT = np.zeros((nx, ny),dtype=np.float64, order ='c')
+            double [:,:] T_sur_flux  = np.zeros((nx, ny),dtype=np.float64, order ='c')
+            double [:,:] QT_sur_flux = np.zeros((nx, ny),dtype=np.float64, order ='c')
+            double [:,:] u_vertical_flux = np.zeros((nx, ny),dtype=np.float64, order ='c')
+            double [:,:] v_vertical_flux = np.zeros((nx, ny),dtype=np.float64, order ='c')
 
 
         Vortical_P_flux, Divergent_P_flux = Gr.SphericalGrid.getvrtdivspec(
@@ -233,9 +233,6 @@ cdef class PrognosticVariables:
                 Vort_sur_flux ,Div_sur_flux = Gr.SphericalGrid.getvrtdivspec(DV.U.SurfaceFlux.base, DV.V.SurfaceFlux.base)
                 T_sur_flux  = PV.T.SurfaceFlux
                 QT_sur_flux = PV.QT.SurfaceFlux
-            # else:
-            #     T_sur_flux  = np.zeros((nx, ny),dtype=np.float64, order='c')
-            #     QT_sur_flux = np.zeros((nx, ny),dtype=np.float64, order='c')
 
             with nogil:
                 vertical_uv_fluxes(&PV.P.values[0,0,0], &DV.gZ.values[0,0,0], &PV.Vorticity.values[0,0,0],
@@ -257,12 +254,14 @@ cdef class PrognosticVariables:
             Dry_Energy_laplacian = Gr.laplacian*Gr.SphericalGrid.grdtospec(Dry_Energy.base)
             Vortical_momentum_flux, Divergent_momentum_flux = Gr.SphericalGrid.getvrtdivspec(u_vorticity.base, v_vorticity.base)
             Vortical_T_flux, Divergent_T_flux = Gr.SphericalGrid.getvrtdivspec(uT.base, vT.base) # Vortical_T_flux is not used
-            Vortical_QT_flux, Divergent_QT_flux = Gr.SphericalGrid.getvrtdivspec(uQT.base, vQT.base) # Vortical_T_flux is not used
             Vort_forc ,Div_forc = Gr.SphericalGrid.getvrtdivspec(DV.U.forcing.base[:,:,k],DV.V.forcing.base[:,:,k])
             w_vort_up ,w_div_up = Gr.SphericalGrid.getvrtdivspec(wu_up.base, wv_up.base)
             w_vort_dn ,w_div_dn = Gr.SphericalGrid.getvrtdivspec(wu_dn.base, wv_dn.base)
             RHS_T  = Gr.SphericalGrid.grdtospec(RHS_grid_T.base)
-            RHS_QT = Gr.SphericalGrid.grdtospec(RHS_grid_QT.base)
+
+            if not (Pr.thermodynamics_type=='dry'):
+                Vortical_QT_flux, Divergent_QT_flux = Gr.SphericalGrid.getvrtdivspec(uQT.base, vQT.base) # Vortical_T_flux is not used
+                RHS_QT = Gr.SphericalGrid.grdtospec(RHS_grid_QT.base)
 
             with nogil:
                 for i in range(nlm):
