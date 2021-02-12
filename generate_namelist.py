@@ -53,7 +53,7 @@ def main():
 
     namelist_defaults['initialize'] = {}
     namelist_defaults['initialize']['inoise']                   = 1 # flag for noise in initial condition
-    namelist_defaults['initialize']['noise_amplitude']          = 0.1 # amplitude of initial noise in K
+    namelist_defaults['initialize']['noise_amplitude']          = 0.01 # amplitude of initial noise in K
 
     namelist_defaults['output'] = {}
     namelist_defaults['output']['output_root'] = './'
