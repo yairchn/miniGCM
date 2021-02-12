@@ -32,8 +32,12 @@ void surface_bulk_formula(
 
     const ssize_t imin = 0;
     const ssize_t jmin = 0;
-    double windspeed_za;
+    double z_a;
+    double windspeed;
     double qt_surf;
+    double Lv_Rv=Lv/Rv;
+    double qv0epsv=qv_star0*eps_v;
+    double T_0_inv=1.0/T_0;
 
     for(ssize_t i=imin;i<imax;i++){
         const ssize_t ishift_2d = i*jmax;
@@ -45,12 +49,13 @@ void surface_bulk_formula(
             const ssize_t ij = ishift_2d + j;
             const ssize_t ijkmax = ishift + jshift + kmax;
             const ssize_t ijkmax_p = ishift_p + jshift_p + kmax;
-            windspeed_za = g*sqrt(u[ijkmax-1]*u[ijkmax-1] + v[ijkmax-1]*v[ijkmax-1])/gz[ijkmax_p-1];
-            qt_surf = qv_star0*eps_v/p[ijkmax_p]*exp(-Lv/Rv*(1.0/T_surf[ij] - 1.0/T_0));
-            u_surf_flux[ij]  = -Cd*windspeed_za*u[ijkmax-1];
-            v_surf_flux[ij]  = -Cd*windspeed_za*v[ijkmax-1];
-            T_surf_flux[ij]  = -Ch*windspeed_za*(T[ijkmax-1] - T_surf[ij]);
-            qt_surf_flux[ij] = -Cq*windspeed_za*(qt[ijkmax-1] - qt_surf);
+            windspeed = sqrt(u[ijkmax-1]*u[ijkmax-1] + v[ijkmax-1]*v[ijkmax-1]);
+            qt_surf = qv0epsv/p[ijkmax_p]*exp(-Lv_Rv*(1.0/T_surf[ij] - T_0_inv));
+            z_a = gz[ijkmax_p-1]/g;
+            u_surf_flux[ij]  = -Cd/z_a*windspeed*u[ijkmax-1];
+            v_surf_flux[ij]  = -Cd/z_a*windspeed*v[ijkmax-1];
+            T_surf_flux[ij]  = -Ch/z_a*windspeed*(T[ijkmax-1] - T_surf[ij]);
+            qt_surf_flux[ij] = -Cq/z_a*windspeed*(qt[ijkmax-1] - qt_surf);
         } // end j loop
     } // end i loop
     return;

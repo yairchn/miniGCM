@@ -34,9 +34,11 @@ void microphysics_cutoff(
     double p_half;
     double qv_star;
     double denom;
-    double Lv2_cp_Rv = Lv*Lv/cp/Rv;
-    double Lv_cp = Lv/cp;
-    double Lv_Rv = Lv/Rv;
+    double Lv_Rv=Lv/Rv;
+    double Lv_cpRv=pow(Lv,2.0)/cp/Rv;
+    double Lv_cp=Lv/cp;
+    double qv0epsv=qv_star0*eps_v;
+    double T_0_inv=1.0/T_0;
 
     for(ssize_t i=imin;i<imax;i++){
         const ssize_t ishift_2d = i*jmax;
@@ -53,8 +55,8 @@ void microphysics_cutoff(
                 const ssize_t ijk = ishift + jshift + k;
                 const ssize_t ijkp = ishift_p + jshift_p + k;
                 p_half = 0.5*(p[ijkp]+p[ijkp+1]);
-                qv_star = (qv_star0*eps_v/p_half)*exp(-Lv_Rv*(1.0/T[ijk]-1.0/T_0));
-                denom = (1.0+Lv2_cp_Rv*qv_star/(T[ijk]*T[ijk]))*dt;
+                qv_star = (qv0epsv/p_half)*exp(-Lv_Rv*(1.0/T[ijk]-T_0_inv));
+                denom = (1.0+Lv_cpRv*qv_star/(T[ijk]*T[ijk]))*dt;
                 ql[ijk] = fmax(qt[ijk] - qv_star,0.0);
                 T_mp[ijk] = Lv_cp*ql[ijk]/denom;
                 qt_mp[ijk] = -fmax((qt[ijk] - (1.0+max_ss)*qv_star), 0.0)/denom;
