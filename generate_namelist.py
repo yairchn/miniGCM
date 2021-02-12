@@ -25,7 +25,7 @@ def main():
     namelist_defaults['diffusion'] = {}
     namelist_defaults['diffusion']['dissipation_order'] = 8.0
     namelist_defaults['diffusion']['truncation_order'] = 4
-    namelist_defaults['diffusion']['e_folding_timescale'] = 600.0
+    namelist_defaults['diffusion']['e_folding_timescale'] = 0.01
 
     namelist_defaults['grid'] = {}
     namelist_defaults['grid']['dims'] = 1
@@ -53,6 +53,7 @@ def main():
 
     namelist_defaults['initialize'] = {}
     namelist_defaults['initialize']['inoise']                   = 1 # flag for noise in initial condition
+    namelist_defaults['initialize']['noise_amplitude']          = 0.1 # amplitude of initial noise in K
 
     namelist_defaults['output'] = {}
     namelist_defaults['output']['output_root'] = './'

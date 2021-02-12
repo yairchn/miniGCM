@@ -39,6 +39,7 @@ cdef class Parameters:
         self.truncation_order  = namelist['diffusion']['truncation_order']
         self.truncation_number = int(self.nlons/self.truncation_order)
         self.efold             = namelist['diffusion']['e_folding_timescale']
+        self.noise_amp      = namelist['initialize']['noise_amplitude']
 
         self.surface_model = namelist['surface']['surface_model']
         self.inoise        = namelist['initialize']['inoise']
