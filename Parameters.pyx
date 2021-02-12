@@ -10,6 +10,10 @@ cdef class Parameters:
     def __init__(self, namelist):
 
         self.thermodynamics_type = namelist['thermodynamics']['thermodynamics_type']
+        if (self.thermodynamics_type=='dry'):
+            self.moist_index = 0.0
+        else:
+            self.moist_index = 1.0
 
         self.case      = namelist['meta']['casename']
         self.nlats     = namelist['grid']['number_of_latitute_points']

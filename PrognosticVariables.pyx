@@ -245,11 +245,10 @@ cdef class PrognosticVariables:
                            &DV.V.values[0,0,0], &DV.Wp.values[0,0,0], &PV.T.mp_tendency[0,0,0], &T_sur_flux[0,0],
                            &PV.T.forcing[0,0,0], &RHS_grid_T[0,0], &uT[0,0], &vT[0,0], nx, ny, nl, k)
 
-            if not (Pr.thermodynamics_type=='dry'):
-                with nogil:
-                    rhs_qt(&PV.P.values[0,0,0], &PV.QT.values[0,0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
-                           &DV.Wp.values[0,0,0], &PV.QT.mp_tendency[0,0,0], &QT_sur_flux[0,0],
-                           &RHS_grid_QT[0,0], &uQT[0,0], &vQT[0,0], nx, ny, nl, k)
+            for i in range(nlm):
+                rhs_qt(&PV.P.values[0,0,0], &PV.QT.values[0,0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
+                       &DV.Wp.values[0,0,0], &PV.QT.mp_tendency[0,0,0], &QT_sur_flux[0,0],
+                       &RHS_grid_QT[0,0], &uQT[0,0], &vQT[0,0], nx, ny, nl, k)
 
             Dry_Energy_laplacian = Gr.laplacian*Gr.SphericalGrid.grdtospec(Dry_Energy.base)
             Vortical_momentum_flux, Divergent_momentum_flux = Gr.SphericalGrid.getvrtdivspec(u_vorticity.base, v_vorticity.base)
@@ -259,7 +258,7 @@ cdef class PrognosticVariables:
             w_vort_dn ,w_div_dn = Gr.SphericalGrid.getvrtdivspec(wu_dn.base, wv_dn.base)
             RHS_T  = Gr.SphericalGrid.grdtospec(RHS_grid_T.base)
 
-            if not (Pr.thermodynamics_type=='dry'):
+            for i in range(nlm):
                 Vortical_QT_flux, Divergent_QT_flux = Gr.SphericalGrid.getvrtdivspec(uQT.base, vQT.base) # Vortical_T_flux is not used
                 RHS_QT = Gr.SphericalGrid.grdtospec(RHS_grid_QT.base)
 
@@ -272,7 +271,6 @@ cdef class PrognosticVariables:
 
                     PV.T.tendency[i,k]  = RHS_T[i]  - Divergent_T_flux[i]
 
-            if not (Pr.thermodynamics_type=='dry'):
-                with nogil:
-                    PV.QT.tendency[i,k] = RHS_QT[i] - Divergent_QT_flux[i]
+            for i in range(nlm):
+                PV.QT.tendency[i,k] = RHS_QT[i] - Divergent_QT_flux[i]
         return
