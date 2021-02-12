@@ -56,6 +56,7 @@ cdef class Parameters:
         double dphi_s
         double efold
         double inoise
+        double noise_amp
 
         str case
         str surface_model
