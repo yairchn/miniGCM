@@ -32,11 +32,9 @@ cdef class PrognosticVariables:
         Py_ssize_t k
         PrognosticVariable Vorticity
         PrognosticVariable Divergence
-        PrognosticVariable T
+        PrognosticVariable H
         PrognosticVariable QT
-        PrognosticVariable P
-        double [:] T_init
-        double [:] P_init
+        double [:] H_init
         double [:] QT_init
         object MP
 
