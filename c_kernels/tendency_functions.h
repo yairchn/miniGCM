@@ -23,11 +23,10 @@ void rhs_H(double* restrict H,
     const ssize_t jmin = 0;
 
     for(ssize_t i=imin;i<imax;i++){
-        const ssize_t ishift_2d = i*jmax;
-        const ssize_t ishift = ishift_2d*kmax;
+        const ssize_t ishift = i*jmax*kmax;
         for(ssize_t j=jmin;j<jmax;j++){
             const ssize_t jshift = j*kmax;
-            const ssize_t ij = ishift_2d + j;
+            const ssize_t ij = i*jmax + j;
             const ssize_t ijk = ishift + jshift + k;
             u_H[ij] = u[ijk] * H[ijk];
             v_H[ij] = v[ijk] * H[ijk];
@@ -60,11 +59,10 @@ void rhs_qt(double* restrict qt,
     double dpi;
 
     for(ssize_t i=imin;i<imax;i++){
-        const ssize_t ishift_2d = i*jmax;
-        const ssize_t ishift = ishift_2d*kmax;
+        const ssize_t ishift = i*jmax*kmax;
         for(ssize_t j=jmin;j<jmax;j++){
             const ssize_t jshift = j*kmax;
-            const ssize_t ij = ishift_2d + j;
+            const ssize_t ij = i*jmax + j;
             const ssize_t ijk = ishift + jshift + k;
             rhs_qt[ij]  = 0.0;
             rhs_qt[ij] += qt_mp[ijk];
@@ -97,11 +95,10 @@ void RHS_momentum(double* g
     const ssize_t jmin = 0;
 
     for(ssize_t i=imin;i<imax;i++){
-        const ssize_t ishift_2d = i*jmax;
-        const ssize_t ishift = ishift_2d*kmax;
+        const ssize_t ishift = i*jmax*kmax;
         for(ssize_t j=jmin;j<jmax;j++){
             const ssize_t jshift = j*kmax;
-            const ssize_t ij = ishift_2d + j;
+            const ssize_t ij = i*jmax + j;
             const ssize_t ijk = ishift + jshift + k;
             e_dry[ij]  = g*H[ijk+1] + ke[ijk];
             u_vort[ij] = u[ijk] * (vort[ijk]+f[ij]);
