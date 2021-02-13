@@ -40,9 +40,8 @@ cdef class Diffusion:
                 if shtns_l[i]>=Pr.truncation_number:
                     HyperDiffusionFactor = 0.0
                 for k in range(nl):
-                    PV.P.spectral[i,k]          = HyperDiffusionFactor * PV.P.spectral[i,k]
                     PV.Vorticity.spectral[i,k]  = HyperDiffusionFactor * PV.Vorticity.spectral[i,k]
                     PV.Divergence.spectral[i,k] = HyperDiffusionFactor * PV.Divergence.spectral[i,k]
-                    PV.T.spectral[i,k]          = HyperDiffusionFactor * PV.T.spectral[i,k]
+                    PV.H.spectral[i,k]          = HyperDiffusionFactor * PV.H.spectral[i,k]
                     PV.QT.spectral[i,k]         = HyperDiffusionFactor * PV.QT.spectral[i,k]
         return

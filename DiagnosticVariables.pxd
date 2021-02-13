@@ -20,14 +20,13 @@ cdef class DiagnosticVariable:
 
 cdef class DiagnosticVariables:
     cdef:
-        DiagnosticVariable QL
         DiagnosticVariable U
         DiagnosticVariable V
         DiagnosticVariable KE
-        DiagnosticVariable gZ
-        DiagnosticVariable Wp
-        DiagnosticVariable VT
-        DiagnosticVariable TT
+        DiagnosticVariable QL
+        DiagnosticVariable P
+        DiagnosticVariable VH
+        DiagnosticVariable TH
         DiagnosticVariable UV
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV)

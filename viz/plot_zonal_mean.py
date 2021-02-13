@@ -5,7 +5,7 @@ import argparse
 import os
 
 # command line:
-# python viz/plot_zonal_mean.py zonal_mean_U 1800.0
+# python viz/plot_zonal_mean.py zonal_mean_T 80.0
 def main():
     parser = argparse.ArgumentParser(prog='miniGCM')
     parser.add_argument("varname")
@@ -14,7 +14,7 @@ def main():
     varname = args.varname
     mytime = args.mytime
 
-    folder = os.getcwd() + '/Output.HeldSuarezMoist.30day/stats/'
+    folder = os.getcwd() + '/Output.HeldSuarezMoist._mid_/stats/'
     ncfile = folder + 'Stats.HeldSuarezMoist.nc'
     data = nc.Dataset(ncfile, 'r')
 
@@ -23,16 +23,16 @@ def main():
 
     lat_list = np.array(data.groups['coordinates'].variables['latitude_list'])
     var = np.array(data.groups['zonal_mean'].variables[varname])
-    timescale = 3600.0
+    timescale = 24*3600.0
     t = np.divide(data.groups['zonal_mean'].variables['t'],timescale)
 
     # t0 = numpy.where(numpy.diff(numpy.signbit(t-mytime)))[0]
     t0 = np.argmin(np.abs(np.subtract(t,mytime-0.1)))
-    t1 = np.argmin(np.abs(np.subtract(t,mytime+0.1)))
+    # t1 = np.argmax(np.abs(np.subtract(t,mytime+0.1)))
     fig = plt.figure(varname)
     for i in range(n):
         ax1 = fig.add_subplot(n, 1, i+1)
-        im1 = ax1.plot(lat_list,np.mean(var[t0:t1,:,i],0))
+        im1 = ax1.plot(lat_list,np.mean(var[t0:-1,:,i],0))
         ax1.set_ylabel(varname)
         if i<n-1:
             xlabels = [item.get_text() for item in ax1.get_xticklabels()]

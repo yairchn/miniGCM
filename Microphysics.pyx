@@ -95,8 +95,8 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
         with nogil:
             microphysics_cutoff(Pr.cp, TS.dt, Pr.Rv, Pr.Lv, Pr.T_0, Pr.rho_w,
                                 Pr.g, Pr.max_ss, Pr.qv_star0, Pr.eps_v, &PV.P.values[0,0,0],
-                                &PV.T.values[0,0,0], &PV.QT.values[0,0,0], &DV.QL.values[0,0,0],
-                                &PV.T.mp_tendency[0,0,0], &PV.QT.mp_tendency[0,0,0], &self.RainRate[0,0],
+                                &PV.H.values[0,0,0], &PV.QT.values[0,0,0], &DV.QL.values[0,0,0],
+                                &PV.H.mp_tendency[0,0,0], &PV.QT.mp_tendency[0,0,0], &self.RainRate[0,0],
                                 nx, ny, nl)
 
         return
