@@ -245,7 +245,7 @@ cdef class PrognosticVariables:
                            &DV.V.values[0,0,0], &DV.Wp.values[0,0,0], &PV.T.mp_tendency[0,0,0], &T_sur_flux[0,0],
                            &PV.T.forcing[0,0,0], &RHS_grid_T[0,0], &uT[0,0], &vT[0,0], nx, ny, nl, k)
 
-            for i in range(nlm):
+            if Pr.moist_index > 0.0:
                 rhs_qt(&PV.P.values[0,0,0], &PV.QT.values[0,0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
                        &DV.Wp.values[0,0,0], &PV.QT.mp_tendency[0,0,0], &QT_sur_flux[0,0],
                        &RHS_grid_QT[0,0], &uQT[0,0], &vQT[0,0], nx, ny, nl, k)
@@ -258,7 +258,7 @@ cdef class PrognosticVariables:
             w_vort_dn ,w_div_dn = Gr.SphericalGrid.getvrtdivspec(wu_dn.base, wv_dn.base)
             RHS_T  = Gr.SphericalGrid.grdtospec(RHS_grid_T.base)
 
-            for i in range(nlm):
+            if Pr.moist_index > 0.0:
                 Vortical_QT_flux, Divergent_QT_flux = Gr.SphericalGrid.getvrtdivspec(uQT.base, vQT.base) # Vortical_T_flux is not used
                 RHS_QT = Gr.SphericalGrid.grdtospec(RHS_grid_QT.base)
 
@@ -271,6 +271,6 @@ cdef class PrognosticVariables:
 
                     PV.T.tendency[i,k]  = RHS_T[i]  - Divergent_T_flux[i]
 
-            for i in range(nlm):
-                PV.QT.tendency[i,k] = RHS_QT[i] - Divergent_QT_flux[i]
+                if Pr.moist_index > 0.0:
+                    PV.QT.tendency[i,k] = RHS_QT[i] - Divergent_QT_flux[i]
         return
