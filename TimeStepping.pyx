@@ -93,13 +93,13 @@ cdef class TimeStepping:
 	@cython.wraparound(False)
 	@cython.boundscheck(False)
 	@cython.nonecheck(False)
-	cpdef CFL_limiter(self, Parameters Pr, Grid Gr, DiagnosticVariables DV, namelist):
+	cpdef CFL_limiter(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
 		cdef:
 			Py_ssize_t i, j, k
 			Py_ssize_t nx = Pr.nlats
 			Py_ssize_t ny = Pr.nlons
 			Py_ssize_t nl = Pr.n_layers
-			double CFL_limit, dt
+			double CFL_limit, dt, U, V, gravitywave
 
 		dt = namelist['timestepping']['dt']
 		CFL_limit = namelist['timestepping']['CFL_limit']
@@ -108,7 +108,8 @@ cdef class TimeStepping:
 				for j in range(ny):
 					for k in range(nl):
 						gravitywave = sqrt(Pr.g*PV.H.values[i,j,k])
-						U = 
+						U = fmax(fabs(DV.U.values[i,j,k]) + 0.1, gravitywave)
+						V = fmax(fabs(DV.V.values[i,j,k]) + 0.1, gravitywave)
 						dt = fmin(dt,
-						CFL_limit*fmin(Gr.dx[i,j]/(fabs(DV.U.values[i,j,k])+ 0.1) ,Gr.dy[i,j]/(fabs(DV.V.values[i,j,k])+ 0.1)))
+						CFL_limit*fmin(Gr.dx[i,j]/U ,Gr.dy[i,j]/V))
 		return dt

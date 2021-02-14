@@ -15,9 +15,10 @@ from TimeStepping import TimeStepping
 from Parameters cimport Parameters
 
 cdef extern from "diagnostic_variables.h":
-    void diagnostic_variables(double* rho, double* H,  double* qt, double* ql,
-           double* u,  double* v, double* div, double* ke, double* uv, double* TT,
-           double* vT, Py_ssize_t k, Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
+    void diagnostic_variables(double g, double* rho, double* p, double* h, double* qt, double* ql,
+           double* u, double* v, double* div, double* ke, double* uv, double* hh,
+           double* vh, Py_ssize_t k, Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
+
 
 cdef class DiagnosticVariable:
     def __init__(self, nx,ny,nl,n_spec, kind, name, units):
@@ -39,7 +40,7 @@ cdef class DiagnosticVariables:
         self.QL = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers, Gr.SphericalGrid.nlm, 'liquid water specific humidity', 'ql','kg/kg' )
         self.P  = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers, Gr.SphericalGrid.nlm, 'Pressure', 'p','pasc' )
         self.VH = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers, Gr.SphericalGrid.nlm, 'Depth_flux', 'vH','m^2/s' )
-        self.TH = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers, Gr.SphericalGrid.nlm, 'Depth_variance', 'HH','m^2' )
+        self.HH = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers, Gr.SphericalGrid.nlm, 'Depth_variance', 'HH','m^2' )
         self.UV = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers, Gr.SphericalGrid.nlm, 'momentum_flux', 'uv','m^2/s^2' )
         return
 
@@ -52,10 +53,10 @@ cdef class DiagnosticVariables:
             self.KE.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.KE.values.base[:,:,k])
             self.QL.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.QL.values.base[:,:,k])
             self.VH.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(np.multiply(self.V.values[:,:,k],PV.H.values[:,:,k]))
-            self.TH.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(np.multiply(PV.H.values[:,:,k],PV.H.values[:,:,k]))
+            self.HH.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(np.multiply(PV.H.values[:,:,k],PV.H.values[:,:,k]))
             self.UV.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(np.multiply(self.V.values[:,:,k],self.U.values[:,:,k]))
             self.P.values.base[:,:,k] = np.sum(PV.H.values[:,:,0:k],axis = 2)
-            self.P.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.P.values.base[:,:,j])
+            self.P.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.P.values.base[:,:,k])
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -135,9 +136,9 @@ cdef class DiagnosticVariables:
             self.U.values.base[:,:,k], self.V.values.base[:,:,k] = Gr.SphericalGrid.getuv(
                          PV.Vorticity.spectral.base[:,k],PV.Divergence.spectral.base[:,k])
             with nogil:
-                diagnostic_variables(&Pr.rho[0], &PV.P.values[0,0,0], &PV.H.values[0,0,0], &PV.QT.values[0,0,0],
+                diagnostic_variables(Pr.g, &Pr.rho[0], &self.P.values[0,0,0], &PV.H.values[0,0,0], &PV.QT.values[0,0,0],
                                      &self.QL.values[0,0,0], &self.U.values[0,0,0], &self.V.values[0,0,0],
                                      &PV.Divergence.values[0,0,0],&self.KE.values[0,0,0],
-                                     &self.UV.values[0,0,0], &self.TT.values[0,0,0], &self.VT.values[0,0,0],
+                                     &self.UV.values[0,0,0], &self.HH.values[0,0,0], &self.VH.values[0,0,0],
                                      k, nx, ny, nl)
         return

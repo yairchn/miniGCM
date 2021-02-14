@@ -37,7 +37,7 @@ class Simulation:
         # self.PV.initialize(self.Pr)
         self.Case.initialize_microphysics(self.Pr, self.PV, self.DV, namelist)
         self.Case.initialize_forcing(self.Pr, self.Gr, namelist)
-        self.Case.initialize_surface(self.Pr, self.Gr, self.PV, namelist)
+        self.Case.initialize_surface(self.Pr, self.Gr, self.PV, self.DV, namelist)
         self.DF.initialize(self.Pr, self.Gr, namelist)
         self.TS.initialize()
         self.initialize_io()
@@ -47,9 +47,6 @@ class Simulation:
         print('run')
         start_time = time.time()
         while self.TS.t <= self.TS.t_max:
-            # time0 = time.time()
-            self.PV.reset_pressures_and_bcs(self.Pr, self.DV)
-            # print('PV.reset_pressures_and_bcs', time.time() - time0)
             # time0 = time.time()
             self.PV.spectral_to_physical(self.Pr, self.Gr)
             # print('PV.spectral_to_physical', time.time() - time0)

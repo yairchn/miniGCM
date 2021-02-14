@@ -4,7 +4,7 @@
 #pragma once
 #include <math.h>
 
-void focring_hs(
+void forcing_hs(
            double k_a,
            double k_b,
            double k_f,

@@ -23,17 +23,8 @@ cdef class Parameters:
         self.rho1      = namelist['grid']['rho1']
         self.rho2      = namelist['grid']['rho2']
         self.rho3      = namelist['grid']['rho3']
-        self.p_ref     = namelist['grid']['p_ref']
         self.Omega     = namelist['planet']['Omega_rotation']
         self.g         = namelist['planet']['gravity']
-        self.cp        = namelist['thermodynamics']['heat_capacity']
-        self.Rd        = namelist['thermodynamics']['dry_air_gas_constant']
-        self.Rv        = namelist['thermodynamics']['vapor_gas_constant']
-        self.Lv        = namelist['thermodynamics']['latent_heat_evap']
-        self.qv_star0  = namelist['thermodynamics']['pv_star_triple_point']
-        self.T_0       = namelist['thermodynamics']['triple_point_temp']
-        self.eps_v     = self.Rd/self.Rv
-        self.kappa     = self.Rd/self.cp
 
         self.dissipation_order = namelist['diffusion']['dissipation_order']
         self.truncation_order  = namelist['diffusion']['truncation_order']
@@ -50,6 +41,8 @@ cdef class Parameters:
         self.outpath     = str(os.path.join(namelist['output']['output_root'] + 'Output.' + namelist['meta']['simname'] + '.'
                             + self.uuid[len(self.uuid )-5:len(self.uuid)]))
         self.logfilename = self.outpath+'/'+self.casename+'.log'
+
+        self.rho = np.array([self.rho1 ,self.rho2 ,self.rho3])
 
         return
 

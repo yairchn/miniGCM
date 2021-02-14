@@ -7,8 +7,7 @@
 #include <math.h>
 
 void diagnostic_variables(
-           double Rd,
-           double Rv,
+           double g,
            double* restrict rho,
            double* restrict p,
            double* restrict h,
@@ -19,8 +18,8 @@ void diagnostic_variables(
            double* restrict div,
            double* restrict ke,
            double* restrict uv,
-           double* restrict TT,
-           double* restrict vT,
+           double* restrict hh,
+           double* restrict vh,
            ssize_t k,
            ssize_t imax,
            ssize_t jmax,

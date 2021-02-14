@@ -75,7 +75,7 @@ void rhs_qt(double* restrict qt,
 }
 
 
-void RHS_momentum(double* g
+void RHS_momentum(double g,
                   double* restrict H,
                   double* restrict vort,
                   double* restrict f,
