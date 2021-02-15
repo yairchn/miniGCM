@@ -9,11 +9,12 @@ import os
 
 cdef class Parameters:
     cdef:
-        Py_ssize_t nlats
-        Py_ssize_t nlons
+        Py_ssize_t nx
+        Py_ssize_t ny
         Py_ssize_t n_layers
         int truncation_order
         int truncation_number
+        double lat
         double moist_index
         double dissipation_order
         double p1

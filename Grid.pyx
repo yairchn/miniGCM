@@ -2,21 +2,17 @@ import cython
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 cimport numpy as np
-import shtns
-import sphTrans as sph
 from Parameters cimport Parameters
 
 cdef class Grid:
 	def __init__(self, Parameters Pr, namelist):
-		self.SphericalGrid = sph.Spharmt(Pr.nlons, Pr.nlats, Pr.truncation_number, Pr.rsphere, gridtype='gaussian')
-		self.lon, self.lat = np.meshgrid(self.SphericalGrid.lons, self.SphericalGrid.lats) # these are in radians
-		self.longitude = np.degrees(self.lon)
-		self.latitude  = np.degrees(self.lat)
-		self.longitude_list = self.longitude[1,:]
-		self.latitude_list = self.latitude[:,1]
-		self.Coriolis = 2.0*Pr.Omega*np.sin(self.lat)
-		self.dx = np.abs(np.multiply(np.multiply(np.gradient(self.lon,axis=1),Pr.rsphere),np.cos(self.lat)))
-		self.dy = np.abs(np.multiply(np.gradient(self.lat,axis=0),Pr.rsphere))
-		self.laplacian = self.SphericalGrid.lap
+		self.dx = namelist['grid']['dx']
+		self.dy = namelist['grid']['dy']
+		self.x = np.zeros((Pr.nx),dtype=np.float64, order='c')
+		self.y = np.zeros((Pr.ny),dtype=np.float64, order='c')
+		for i in range(nx):
+			self.x[i] = self.dx*i
+		for j in range(nx):
+			self.y[j] = self.dy*j
 		return
 

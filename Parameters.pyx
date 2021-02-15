@@ -16,8 +16,9 @@ cdef class Parameters:
             self.moist_index = 1.0
 
         self.case      = namelist['meta']['casename']
-        self.nlats     = namelist['grid']['number_of_latitute_points']
-        self.nlons     = namelist['grid']['number_of_longitude_points']
+        self.nx        = namelist['grid']['number_of_longitude_points']
+        self.ny        = namelist['grid']['number_of_latitute_points']
+        self.lat       = namelist['grid']['degree_latitute']
         self.rsphere   = namelist['planet']['planet_radius']
         self.n_layers  = namelist['grid']['number_of_layers']
         self.p1        = namelist['grid']['p1']
@@ -34,6 +35,7 @@ cdef class Parameters:
         self.T_0       = namelist['thermodynamics']['triple_point_temp']
         self.eps_v     = self.Rd/self.Rv
         self.kappa     = self.Rd/self.cp
+        self.Coriolis = 2.0*self.Omega*np.sin(self.lat)
 
         self.dissipation_order = namelist['diffusion']['dissipation_order']
         self.truncation_order  = namelist['diffusion']['truncation_order']
