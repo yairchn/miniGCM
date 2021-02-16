@@ -36,13 +36,22 @@ cdef class DiagnosticVariables:
     cpdef convert_temperature2theta(self, Parameters Pr, temperature, pressure):
         cdef:
             double [:,:] theta
-        theta=np.multiply(temperature, np.power(np.divide(pressure,Pr.p_ref),Pr.kappa))
+            double [:,:] exner
+        # π=(p/p₀)^κ
+        exner = np.power(np.divide(pressure,Pr.p_ref),Pr.kappa)
+        # θ=T/π
+        theta=np.divide(temperature, exner)
         return theta
+
 
     cpdef convert_theta2temperature(self, Parameters Pr, theta, pressure):
         cdef:
             double [:,:] temperature
-        temperature=np.divide(theta,np.power(np.divide(pressure,Pr.p_ref),Pr.kappa))
+            double [:,:] exner
+        # T = θ(p/p₀)^κ
+        exner = np.power(np.divide(pressure,Pr.p_ref),Pr.kappa)
+        # T=θ*π
+        temperature=np.multiply(theta,exner)
         return temperature
 
 
