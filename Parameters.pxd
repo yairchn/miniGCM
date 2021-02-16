@@ -47,6 +47,14 @@ cdef class Parameters:
         double inoise
         double noise_amp
         double [:] rho
+        double dT_s
+        double T_min
+        double Rd
+        double Rv
+        double Lv
+        double qv_star0
+        double T_0
+        double eps_v
 
         str case
         str surface_model

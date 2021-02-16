@@ -74,6 +74,11 @@ def Defualt(namelist_defaults):
 
     namelist['thermodynamics'] = {}
     namelist['thermodynamics']['thermodynamics_type'] = 'dry'
+    namelist['thermodynamics']['dry_air_gas_constant'] = 287.04     # [J / (kg K)]
+    namelist['thermodynamics']['vapor_gas_constant']   = 461.5     # [J / (kg K)]
+    namelist['thermodynamics']['latent_heat_evap']     = 2.5008e6  # [J / (kg K)]
+    namelist['thermodynamics']['pv_star_triple_point'] = 610.78
+    namelist['thermodynamics']['triple_point_temp']    = 273.16    # [K]
 
     namelist['microphysics'] = {}
     namelist['microphysics']['rain_model'] = 'None'
@@ -90,7 +95,13 @@ def Defualt(namelist_defaults):
     namelist['microphysics']['rain_model'] = 'None'
 
     namelist['surface'] = {}
-    namelist['surface']['surface_model'] = 'None'
+    namelist['surface']['surface_model'] = 'bulk_formula'
+    namelist['surface']['momentum_transfer_coeff'] = 0.00044
+    namelist['surface']['sensible_heat_transfer_coeff'] = 0.00044
+    namelist['surface']['latent_heat_transfer_coeff'] = 0.00044
+    namelist['surface']['surface_temp_diff'] = 29.0 # [K]
+    namelist['surface']['surface_temp_min'] = 271.0 # [K]
+    namelist['surface']['surface_temp_lat_dif'] = 26.0*3.14/180.0
 
     namelist['diffusion']['type'] = 'hyperdiffusion'
     namelist['diffusion']['order'] = 8.0

@@ -59,7 +59,7 @@ cdef class Defualt(CaseBase):
     def __init__(self, namelist):
         # Pr.casename = namelist['meta']['casename']
         self.Fo  = Forcing.Defualt()
-        self.Sur = Surface.SurfaceNone()
+        self.Sur = Surface.SurfaceBulkFormula()
         self.MP = Microphysics.MicrophysicsNone()
         return
 
