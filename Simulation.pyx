@@ -32,9 +32,10 @@ class Simulation:
 
     def initialize(self, namelist):
         self.LF.initialize(self.Pr, namelist)
+        print('initialize Held & Suarez')
         self.Case.initialize(self.Pr, self.Gr, self.PV, namelist)
         self.DV.initialize(self.Pr, self.Gr,self.PV)
-        # self.PV.initialize(self.Pr)
+        #self.PV.initialize(self.Pr)
         self.Case.initialize_microphysics(self.Pr, self.PV, self.DV, namelist)
         self.Case.initialize_forcing(self.Pr, namelist)
         self.Case.initialize_surface(self.Pr, self.Gr, self.PV, namelist)
@@ -45,7 +46,7 @@ class Simulation:
 
     def run(self, namelist):
         print('run')
-        start_time = time.clock()
+        start_time = time.time()
         while self.TS.t <= self.TS.t_max:
             # t0 = time.clock()
             self.PV.reset_pressures(self.Pr)
@@ -73,7 +74,7 @@ class Simulation:
             if np.mod(self.TS.t, self.Stats.stats_frequency) == 0:
                 self.stats_io()
             if np.mod(self.TS.t, self.Stats.output_frequency) == 0:
-                wallclocktime = time.clock() - start_time
+                wallclocktime = time.time() - start_time
                 self.LF.update(self.Pr, self.TS, self.DV, self.PV, wallclocktime, namelist)
                 self.io()
         return

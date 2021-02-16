@@ -11,47 +11,43 @@ def main():
     #parser.add_argument("varname")
     #args = parser.parse_args()
     #varname = args.varname
-    varname = 'zonal_mean_V'
-    runname='410k2'
-    #runname='4e5k0'
-    runname='009mi'
+    varname = 'zonal_mean_T'
+    varname2= 'zonal_mean_T_eq'
+    runname='T_mid'
 
-    folder = '/home/scoty/miniGCM/Output.HeldSuarez.'+runname+'/stats/'
-    ncfile = folder + 'Stats.HeldSuarez.nc'
+    folder = '/home/yair/miniGCM/Output.HeldSuarezMoist.'+runname+'/stats/'
+    ncfile = folder + 'Stats.HeldSuarezMoist.nc'
     data = nc.Dataset(ncfile, 'r')
-
-    runname2='007e8'
-    folder2= '/home/scoty/miniGCM/Output.HeldSuarez.'+runname2+'/stats/'
-    ncfile2= folder2+ 'Stats.HeldSuarez.Restart_1.nc'
-    print('ncfile2: ',ncfile2)
-    data2= nc.Dataset(ncfile2,'r')
-
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
     n = int(np.multiply(data.groups['coordinates'].variables['layers'],1.0))
 
     lat_list = np.array(data.groups['coordinates'].variables['latitude_list'])
     var = np.array(data.groups['zonal_mean'].variables[varname])
+    var2= np.array(data.groups['zonal_mean'].variables[varname2])
     t = np.divide(data.groups['zonal_mean'].variables['t'],3600.0*24.0)
-    var2= np.array(data2.groups['zonal_mean'].variables[varname])
-    t2= np.divide(data2.groups['zonal_mean'].variables['t'],3600.0*24.0)
+
 
     fig = plt.figure(varname,figsize=(3,6))
     for i in range(n):
         print('i',i)
-        print('min max np.mean(var[50:100,:,i],axis=0) ', np.amin(np.mean(var[50:100,:,i],axis=0)), np.amax(np.mean(var[50:100,:,i],axis=0)))
+        print('min max np.mean(var[250:500,:,i],axis=0) ', np.amin(np.mean(var[250:500,:,i],axis=0)), np.amax(np.mean(var[250:500,:,i],axis=0)))
         print('lat_list.shape',lat_list.shape)
         print('var.shape',var.shape)
         ax1 = fig.add_subplot(n, 1, i+1)
-        im1 = ax1.plot(np.mean(var[50:100,:,i],axis=0),np.array(lat_list),'-k')
-        im2 = ax1.plot(np.mean(var2[200:800,:,i],axis=0),np.array(lat_list),'-g')
+        im2 = ax1.plot(np.mean(var2[250:500,:,i],axis=0),np.array(lat_list),'-r',alpha=0.4,linewidth=2)
+        im1 = ax1.plot(np.mean(var[250:500,:,i],axis=0),np.array(lat_list),'-k')
         ax1.set_ylabel('latitude / $\circ$')
-        ax1.set_xlim(-2,2)
         plt.grid(linestyle=':',alpha=0.6,linewidth=1)
-        if i==0: plt.title("Meridional Wind")
+        if i==0:
+           plt.title("Temperature")
+           ax1.set_xlim(200,250)
+        if i==1: 
+           ax1.set_xlim(220,300)
         if i==n-1:
-            ax1.set_xlabel("$\overline{v}$ / m s$^{-1}$")
+           ax1.set_xlim(240,320)
+           ax1.set_xlabel("$\overline{T}$ / K")
         plt.tight_layout()
-    plt.savefig('v_3layers_'+runname+'.png')
+    plt.savefig('t_3layers_'+runname+'.png')
 if __name__ == '__main__':
     main()

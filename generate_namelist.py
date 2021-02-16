@@ -24,8 +24,8 @@ def main():
 
     namelist_defaults['diffusion'] = {}
     namelist_defaults['diffusion']['dissipation_order'] = 8.0
-    namelist_defaults['diffusion']['truncation_order'] = 4
-    namelist_defaults['diffusion']['e_folding_timescale'] = 600.0
+    namelist_defaults['diffusion']['truncation_order'] = 3
+    namelist_defaults['diffusion']['e_folding_timescale'] = 0.01
 
     namelist_defaults['grid'] = {}
     namelist_defaults['grid']['dims'] = 1
@@ -52,7 +52,12 @@ def main():
     namelist_defaults['thermodynamics']['triple_point_temp']    = 273.16    # [K]
 
     namelist_defaults['initialize'] = {}
-    namelist_defaults['initialize']['inoise']                   = 1 # flag for noise in initial condition
+    namelist_defaults['initialize']['inoise']              = 1 # flag for noise in initial condition
+    namelist_defaults['initialize']['noise_type'] = 'white' # 'white', 'red', 'blue', or 'local' 
+    namelist_defaults['initialize']['noise_amp']           = 0.1 # scaling parameter, tune between laminar & turbulent
+    namelist_defaults['initialize']['T1']   = 229.0 # initial temperature of layer 1 [K]
+    namelist_defaults['initialize']['T2']   = 257.0 # initial temperature of layer 2 [K] 
+    namelist_defaults['initialize']['T3']   = 300.0 # initial temperature of layer 3 [K]
 
     namelist_defaults['output'] = {}
     namelist_defaults['output']['output_root'] = './'
@@ -92,7 +97,7 @@ def HeldSuarez(namelist_defaults):
     namelist['forcing']['k_a']          = 1./40.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_s']          =  1./4.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_f']          = 1.0/(24.0*3600.0)      # [1/sec]
-    namelist['forcing']['k_b']          = 1./40.0/(24.0*3600.0)/2.0  # [1/sec]
+    namelist['forcing']['k_b']          = 1./80.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['equator_to_pole_dT']         = 60.                    # Characteristic temperature change in meridional direction [K]
     namelist['forcing']['equatorial_temperature']    = 315.                   # Characteristic temperature at the equator [K]
     namelist['forcing']['lapse_rate']   = 10.0                   # Characteristic potential temperature change in vertical [K]
@@ -103,7 +108,6 @@ def HeldSuarez(namelist_defaults):
     namelist['surface']['surface_model'] = 'None'
 
     namelist['diffusion']['type'] = 'hyperdiffusion'
-    namelist['diffusion']['order'] = 8.0
 
     return namelist
 
