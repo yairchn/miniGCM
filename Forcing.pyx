@@ -76,6 +76,7 @@ cdef class HelzSuarez(ForcingBase):
 			double [:,:] Ty
 			double [:,:] Tp
 			double [:,:] exner
+			double [:,:] Temperature_bar
 
 		for k in range(nl):
 			p_half = np.divide(np.add(PV.P.values[:,:,k],PV.P.values[:,:,k+1]),2.0)
@@ -83,8 +84,11 @@ cdef class HelzSuarez(ForcingBase):
 			exner  = np.power(pressure_ratio,Pr.kappa*2.)
 			Ty = np.multiply(Pr.DT_y,np.power(np.sin(Gr.lat),2))
 			Tp = np.multiply(Pr.Dtheta_z,np.log(pressure_ratio)*np.power(np.cos(Gr.lat),2))
-			self.Tbar.base[:,:,k] = np.clip(np.multiply(np.subtract(np.subtract(Pr.T_equator,Ty),Tp),exner),
-                                DV.convert_temperature2theta(Pr,200.0,p_half), None)
+			# self.Tbar.base[:,:,k] = np.clip(np.multiply(np.subtract(np.subtract(Pr.T_equator,Ty),Tp),exner),
+   #                              DV.convert_temperature2theta(Pr,200.0,p_half), None)
+			Temperature_bar = np.clip(np.multiply(np.subtract(np.subtract(Pr.T_equator,Ty),Tp),exner), 200.0, None)
+			self.Tbar.base[:,:,k] = DV.convert_temperature2theta(Pr,Temperature_bar,p_half)
+
 
 			sigma = np.divide(p_half,PV.P.values[:,:,nl])
 			sigma_ratio = np.clip(np.divide(sigma-Pr.sigma_b,1-Pr.sigma_b),0,None)
