@@ -13,7 +13,6 @@ cdef class DiagnosticVariable:
         double [:,:,:] values
         double [:,:,:] forcing
         double [:,:] SurfaceFlux
-        double complex [:,:] spectral
         str kind
         str name
         str units
@@ -21,14 +20,9 @@ cdef class DiagnosticVariable:
 cdef class DiagnosticVariables:
     cdef:
         DiagnosticVariable QL
-        DiagnosticVariable U
-        DiagnosticVariable V
         DiagnosticVariable KE
         DiagnosticVariable gZ
         DiagnosticVariable Wp
-        DiagnosticVariable VT
-        DiagnosticVariable TT
-        DiagnosticVariable UV
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)

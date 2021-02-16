@@ -16,8 +16,8 @@ from Parameters cimport Parameters
 
 cdef extern from "diagnostic_variables.h":
     void diagnostic_variables(double Rd, double Rv,
-           double* p,  double* T,  double* qt, double* ql, double* u,  double* v,
-           double* div, double* ke, double* wp, double* gz, double* uv, double* TT, double* vT,
+           double* p,  double* T,  double* qt, double* ql, double* u,
+           double* v, double* div, double* ke, double* wp, double* gz,
            Py_ssize_t k, Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
 
 cdef class DiagnosticVariable:
@@ -26,7 +26,6 @@ cdef class DiagnosticVariable:
         self.name = name
         self.units = units
         self.values = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
-        self.spectral = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         if name=='u' or name=='v':
             self.SurfaceFlux =  np.zeros((nx,ny),dtype=np.float64, order='c')
             self.forcing =  np.zeros((nx,ny,nl),dtype=np.float64, order='c')
@@ -34,15 +33,10 @@ cdef class DiagnosticVariable:
 
 cdef class DiagnosticVariables:
     def __init__(self, Parameters Pr, Grid Gr):
-        self.U  = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'zonal_velocity'     , 'u','m/s' )
-        self.V  = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'meridional_velocity', 'v','m/s' )
         self.KE = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'kinetic_enetry',      'Ek','m^2/s^2' )
         self.QL = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'liquid water specific humidity', 'ql','kg/kg' )
         self.gZ = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers+1, Gr.SphericalGrid.nlm, 'Geopotential', 'z','m^/s^2' )
         self.Wp = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers+1, Gr.SphericalGrid.nlm, 'Wp', 'w','pasc/s' )
-        self.VT = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'temperature_flux', 'vT','Km/s' )
-        self.TT = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'temperature_variance', 'TT','K^2' )
-        self.UV = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'momentum_flux', 'uv','m^2/s^2' )
         return
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV):
@@ -52,17 +46,8 @@ cdef class DiagnosticVariables:
         # self.TT.values.base     = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         # self.UV.values.base     = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         for k in range(Pr.n_layers):
-            self.U.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(self.U.values.base[:,:,k])
-            self.V.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(self.V.values.base[:,:,k])
-            self.KE.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.KE.values.base[:,:,k])
-            self.QL.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.gZ.values.base[:,:,k])
-            self.Wp.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.Wp.values.base[:,:,k])
-            self.VT.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(np.multiply(self.V.values[:,:,k],PV.T.values[:,:,k]))
-            self.TT.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(np.multiply(PV.T.values[:,:,k],PV.T.values[:,:,k]))
-            self.UV.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(np.multiply(self.V.values[:,:,k],self.U.values[:,:,k]))
             j = Pr.n_layers-k-1 # geopotential is computed bottom -> up
             self.gZ.values.base[:,:,j] = np.add(np.multiply(np.multiply(Pr.Rd,PV.T.values[:,:,j]),np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))),self.gZ.values[:,:,j+1])
-            self.gZ.spectral.base[:,j] = Gr.SphericalGrid.grdtospec(self.gZ.values.base[:,:,j])
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -71,35 +56,10 @@ cdef class DiagnosticVariables:
         Stats.add_meridional_mean('meridional_mean_QL')
         Stats.add_global_mean('global_mean_KE')
         Stats.add_global_mean('global_mean_gZ')
-        Stats.add_zonal_mean('zonal_mean_U')
-        Stats.add_zonal_mean('zonal_mean_V')
         Stats.add_zonal_mean('zonal_mean_gZ')
         Stats.add_zonal_mean('zonal_mean_Wp')
-        Stats.add_zonal_mean('zonal_mean_VT')
-        Stats.add_zonal_mean('zonal_mean_TT')
-        Stats.add_zonal_mean('zonal_mean_UV')
-        Stats.add_meridional_mean('meridional_mean_U')
-        Stats.add_meridional_mean('meridional_mean_V')
         Stats.add_meridional_mean('meridional_mean_gZ')
         Stats.add_meridional_mean('meridional_mean_Wp')
-        Stats.add_meridional_mean('meridional_mean_VT')
-        Stats.add_meridional_mean('meridional_mean_TT')
-        Stats.add_meridional_mean('meridional_mean_UV')
-        return
-
-    @cython.wraparound(False)
-    @cython.boundscheck(False)
-    cpdef physical_to_spectral(self, Parameters Pr, Grid Gr):
-        cdef:
-            Py_ssize_t k
-        for k in range(Pr.n_layers):
-            self.U.spectral.base[:,k]    = Gr.SphericalGrid.grdtospec(self.U.values.base[:,:,k])
-            self.V.spectral.base[:,k]    = Gr.SphericalGrid.grdtospec(self.V.values.base[:,:,k])
-            self.Wp.spectral.base[:,k+1] = Gr.SphericalGrid.grdtospec(self.Wp.values.base[:,:,k+1])
-            self.gZ.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(self.gZ.values.base[:,:,k])
-            self.VT.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(self.VT.values.base[:,:,k])
-            self.TT.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(self.TT.values.base[:,:,k])
-            self.UV.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(self.UV.values.base[:,:,k])
         return
 
     cpdef stats_io(self, NetCDFIO_Stats Stats):
@@ -108,28 +68,16 @@ cdef class DiagnosticVariables:
         Stats.write_meridional_mean('meridional_mean_QL',self.QL.values)
         Stats.write_global_mean('global_mean_KE', self.KE.values)
         Stats.write_global_mean('global_mean_gZ', self.gZ.values[:,:,0:3])
-        Stats.write_zonal_mean('zonal_mean_U',self.U.values)
-        Stats.write_zonal_mean('zonal_mean_V',self.V.values)
         Stats.write_zonal_mean('zonal_mean_Wp',self.Wp.values[:,:,1:4])
         Stats.write_zonal_mean('zonal_mean_gZ',self.gZ.values[:,:,0:3])
-        Stats.write_zonal_mean('zonal_mean_UV',self.UV.values.base)
-        Stats.write_zonal_mean('zonal_mean_VT',self.VT.values.base)
-        Stats.write_zonal_mean('zonal_mean_TT',self.TT.values.base)
-        Stats.write_meridional_mean('meridional_mean_U',self.U.values)
-        Stats.write_meridional_mean('meridional_mean_V',self.V.values)
         Stats.write_meridional_mean('meridional_mean_Wp',self.Wp.values[:,:,1:4])
         Stats.write_meridional_mean('meridional_mean_gZ',self.gZ.values[:,:,0:3])
-        Stats.write_meridional_mean('meridional_mean_UV',self.UV.values)
-        Stats.write_meridional_mean('meridional_mean_VT',self.VT.values)
-        Stats.write_meridional_mean('meridional_mean_TT',self.TT.values)
         return
 
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Geopotential',  self.gZ.values[:,:,0:Pr.n_layers])
         Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Wp',            self.Wp.values[:,:,1:Pr.n_layers+1])
         Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'QL',            self.QL.values)
-        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'U',             self.U.values)
-        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'V',             self.V.values)
         Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Kinetic_enegry',self.KE.values)
         return
 
@@ -142,18 +90,21 @@ cdef class DiagnosticVariables:
             Py_ssize_t nx = Pr.nlats
             Py_ssize_t ny = Pr.nlons
             Py_ssize_t nl = Pr.n_layers
+            double dxi = 1.0/Pr.dx
+            double dyi = 1.0/Pr.dy
             double Rm
 
         self.Wp.values.base[:,:,0] = np.zeros_like(self.Wp.values[:,:,0])
         self.gZ.values.base[:,:,nl] = np.zeros_like(self.Wp.values[:,:,0])
-        for k in range(nl):
-            self.U.values.base[:,:,k], self.V.values.base[:,:,k] = Gr.SphericalGrid.getuv(
-                         PV.Vorticity.spectral.base[:,k],PV.Divergence.spectral.base[:,k])
-            with nogil:
+        with nogil:
+            for k in range(nl):
+                for i in range(Pr.nx):
+                    for j in range(Pr.ny):
+                        self.Divergence.values[i,j,k] = ((PV.U.values[i+1,j,k]-PV.U.values[i-1,j,k])*dxi +
+                                                       (PV.V.values[i,j+1,k]-PV.V.values[i,j-1,k])*dyi)
+
                 diagnostic_variables(Pr.Rd, Pr.Rv, &PV.P.values[0,0,0], &PV.T.values[0,0,0],
-                                     &PV.QT.values[0,0,0],   &self.QL.values[0,0,0], &self.U.values[0,0,0],
-                                     &self.V.values[0,0,0],  &PV.Divergence.values[0,0,0],
-                                     &self.KE.values[0,0,0], &self.Wp.values[0,0,0], &self.gZ.values[0,0,0],
-                                     &self.UV.values[0,0,0], &self.TT.values[0,0,0], &self.VT.values[0,0,0],
-                                     k, nx, ny, nl)
+                                     &PV.QT.values[0,0,0],   &PV.QL.values[0,0,0], &PV.U.values[0,0,0],
+                                     &PV.V.values[0,0,0],  &self.Divergence.values[0,0,0],&self.KE.values[0,0,0],
+                                     &self.Wp.values[0,0,0], &self.gZ.values[0,0,0], k, nx, ny, nl)
         return

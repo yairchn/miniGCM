@@ -6,8 +6,11 @@ from Parameters cimport Parameters
 
 cdef class Grid:
 	cdef:
+		int nx
+		int ny
+		int ng
+		double dx
+		double dy
 		double [:] x
 		double [:] y
 		double Coriolis
-		double dx
-		double dy

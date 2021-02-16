@@ -65,66 +65,6 @@ cdef class HelzSuarez(ForcingBase):
 			Py_ssize_t nx = Pr.nlats
 			Py_ssize_t ny = Pr.nlons
 
-		self.Tbar = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
-		self.sin_lat = np.zeros((Pr.nlats, Pr.nlons), dtype=np.float64, order='c')
-		self.cos_lat = np.zeros((Pr.nlats, Pr.nlons), dtype=np.float64, order='c')
-		with nogil:
-			for i in range(nx):
-				for j in range(ny):
-					self.sin_lat[i,j] = sin(Gr.lat[i,j])
-					self.cos_lat[i,j] = cos(Gr.lat[i,j])
-		return
-
-	cpdef initialize_io(self, NetCDFIO_Stats Stats):
-		Stats.add_zonal_mean('zonal_mean_T_eq')
-		Stats.add_meridional_mean('meridional_mean_T_eq')
-		return
-
-	@cython.wraparound(False)
-	@cython.boundscheck(False)
-	@cython.cdivision(True)
-	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
-		cdef:
-			Py_ssize_t nx = Pr.nlats
-			Py_ssize_t ny = Pr.nlons
-			Py_ssize_t nl = Pr.n_layers
-
-		with nogil:
-			focring_hs(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
-						Pr.Dtheta_z, Pr.T_equator, Pr.DT_y, &PV.P.values[0,0,0],
-						&PV.T.values[0,0,0],&self.Tbar[0,0,0], &self.sin_lat[0,0],
-						&self.cos_lat[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
-						&DV.U.forcing[0,0,0], &DV.V.forcing[0,0,0], &PV.T.forcing[0,0,0],
-						nx, ny, nl)
-		return
-
-	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'T_eq', self.Tbar)
-		return
-
-	cpdef stats_io(self, NetCDFIO_Stats Stats):
-		Stats.write_zonal_mean('zonal_mean_T_eq', self.Tbar)
-		Stats.write_meridional_mean('meridional_mean_T_eq', self.Tbar)
-		return
-
-cdef class HelzSuarezMoist(ForcingBase):
-	def __init__(self):
-		ForcingBase.__init__(self)
-		return
-
-	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
-		cdef:
-			Py_ssize_t i,j
-			Py_ssize_t nx = Pr.nlats
-			Py_ssize_t ny = Pr.nlons
-		self.Tbar = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
-		self.sin_lat = np.zeros((Pr.nlats, Pr.nlons), dtype=np.float64, order='c')
-		self.cos_lat = np.zeros((Pr.nlats, Pr.nlons), dtype=np.float64, order='c')
-		with nogil:
-			for i in range(nx):
-				for j in range(ny):
-					self.sin_lat[i,j] = sin(Gr.lat[i,j])
-					self.cos_lat[i,j] = cos(Gr.lat[i,j])
 		return
 
 	cpdef initialize_io(self, NetCDFIO_Stats Stats):

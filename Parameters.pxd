@@ -59,6 +59,7 @@ cdef class Parameters:
         double inoise
         double noise_amp
 
+        str numerical_scheme
         str case
         str surface_model
         str uuid

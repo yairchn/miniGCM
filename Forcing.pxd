@@ -11,9 +11,7 @@ from Parameters cimport Parameters
 
 cdef class ForcingBase:
 	cdef:
-		double [:,:,:] Tbar
-		double [:,:] sin_lat
-		double [:,:] cos_lat
+
 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
@@ -33,17 +31,6 @@ cdef class HelzSuarez(ForcingBase):
 		Py_ssize_t ny
 		Py_ssize_t nl
 
-	cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
-	cpdef initialize_io(self, NetCDFIO_Stats Stats)
-	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
-	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
-	cpdef stats_io(self, NetCDFIO_Stats Stats)
-
-cdef class HelzSuarezMoist(ForcingBase):
-	cdef:
-		Py_ssize_t nx
-		Py_ssize_t ny
-		Py_ssize_t nl
 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
