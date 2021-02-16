@@ -37,10 +37,10 @@ cdef class DiagnosticVariables:
         cdef:
             double [:,:] theta
             double [:,:] exner
-        # π=(p/p₀)^κ
-        exner = np.power(np.divide(pressure,Pr.p_ref),Pr.kappa)
-        # θ=T/π
-        theta=np.divide(temperature, exner)
+        # π=(p₀/p)^κ
+        exner = np.power(np.divide(Pr.p_ref,pressure),Pr.kappa)
+        # θ=T*π
+        theta=np.multiply(temperature, exner)
         return theta
 
 
@@ -48,10 +48,10 @@ cdef class DiagnosticVariables:
         cdef:
             double [:,:] temperature
             double [:,:] exner
-        # T = θ(p/p₀)^κ
-        exner = np.power(np.divide(pressure,Pr.p_ref),Pr.kappa)
-        # T=θ*π
-        temperature=np.multiply(theta,exner)
+        # π=(p₀/p)^κ
+        exner = np.power(np.divide(Pr.p_ref,pressure),Pr.kappa)
+        # T=θ/π
+        temperature=np.divide(theta, exner)
         return temperature
 
 
