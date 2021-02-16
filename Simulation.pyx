@@ -73,9 +73,9 @@ class Simulation:
 
             if np.mod(self.TS.t, self.Stats.stats_frequency) == 0:
                 self.stats_io()
-            if np.mod(self.TS.t, self.Stats.output_frequency) == 0:
                 wallclocktime = time.time() - start_time
                 self.LF.update(self.Pr, self.TS, self.DV, self.PV, wallclocktime, namelist)
+            if np.mod(self.TS.t, self.Stats.output_frequency) == 0:
                 self.io()
         return
 
