@@ -271,6 +271,6 @@ cdef class PrognosticVariables:
 
                     PV.T.tendency[i,k]  = RHS_T[i]  - Divergent_T_flux[i]
 
-                if Pr.moist_index > 0.0:
-                    PV.QT.tendency[i,k] = RHS_QT[i] - Divergent_QT_flux[i]
+                    if Pr.moist_index > 0.0:
+                        PV.QT.tendency[i,k] = RHS_QT[i] - Divergent_QT_flux[i]
         return
