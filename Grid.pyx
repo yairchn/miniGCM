@@ -17,9 +17,9 @@ cdef class Grid:
 
 		self.x = np.zeros((self.nx+2*self.ng),dtype=np.float64, order='c')
 		self.y = np.zeros((self.ny+2*self.ng),dtype=np.float64, order='c')
-		for i in range(nx+2*self.ng):
+		for i in range(self.nx+2*self.ng):
 			self.x[i] = self.dx*i
-		for j in range(ny+2*self.ng):
+		for j in range(self.ny+2*self.ng):
 			self.y[j] = self.dy*j
 		return
 

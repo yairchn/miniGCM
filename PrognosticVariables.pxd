@@ -18,11 +18,9 @@ cdef class PrognosticVariable:
         double [:,:] SurfaceFlux
         double [:,:,:] forcing
         double [:,:,:] mp_tendency
-        double complex [:,:] spectral
-        double complex [:,:] old
-        double complex [:,:] now
-        double complex [:,:] tendency
-        double complex [:,:] sp_VerticalFlux
+        double [:,:,:] old
+        double [:,:,:] now
+        double [:,:,:] tendency
         str kind
         str name
         str units
@@ -30,8 +28,8 @@ cdef class PrognosticVariable:
 cdef class PrognosticVariables:
     cdef:
         Py_ssize_t k
-        PrognosticVariable Vorticity
-        PrognosticVariable Divergence
+        PrognosticVariable U
+        PrognosticVariable V
         PrognosticVariable T
         PrognosticVariable QT
         PrognosticVariable P
@@ -43,8 +41,6 @@ cdef class PrognosticVariables:
 
     cpdef initialize(self, Parameters Pr)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
-    cpdef physical_to_spectral(self, Parameters Pr, Grid Gr)
-    cpdef spectral_to_physical(self, Parameters Pr, Grid Gr)
     cpdef set_old_with_now(self)
     cpdef set_now_with_tendencies(self)
     cpdef reset_pressures_and_bcs(self, Parameters Pr, DiagnosticVariables DV)

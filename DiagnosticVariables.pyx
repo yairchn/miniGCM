@@ -85,10 +85,10 @@ cdef class DiagnosticVariables:
     @cython.boundscheck(False)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV):
         cdef:
-            Py_ssize_t k, k_rev
+            Py_ssize_t i, j, k
             Py_ssize_t ii = 1
-            Py_ssize_t nx = Pr.nlats
-            Py_ssize_t ny = Pr.nlons
+            Py_ssize_t nx = Pr.nx
+            Py_ssize_t ny = Pr.ny
             Py_ssize_t nl = Pr.n_layers
             double dxi = 1.0/Pr.dx
             double dyi = 1.0/Pr.dy
@@ -97,14 +97,14 @@ cdef class DiagnosticVariables:
         self.Wp.values.base[:,:,0] = np.zeros_like(self.Wp.values[:,:,0])
         self.gZ.values.base[:,:,nl] = np.zeros_like(self.Wp.values[:,:,0])
         with nogil:
-            for k in range(nl):
-                for i in range(Pr.nx):
-                    for j in range(Pr.ny):
+            for i in range(nx):
+                for j in range(ny):
+                    for k in range(nl):
                         self.Divergence.values[i,j,k] = ((PV.U.values[i+1,j,k]-PV.U.values[i-1,j,k])*dxi +
                                                        (PV.V.values[i,j+1,k]-PV.V.values[i,j-1,k])*dyi)
 
                 diagnostic_variables(Pr.Rd, Pr.Rv, &PV.P.values[0,0,0], &PV.T.values[0,0,0],
-                                     &PV.QT.values[0,0,0],   &PV.QL.values[0,0,0], &PV.U.values[0,0,0],
+                                     &PV.QT.values[0,0,0],   &self.QL.values[0,0,0], &PV.U.values[0,0,0],
                                      &PV.V.values[0,0,0],  &self.Divergence.values[0,0,0],&self.KE.values[0,0,0],
                                      &self.Wp.values[0,0,0], &self.gZ.values[0,0,0], k, nx, ny, nl)
         return
