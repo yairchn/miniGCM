@@ -51,13 +51,7 @@ cdef class CaseBase:
     cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
         return
 
-    cpdef update_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
-        return
-
-    cpdef update_forcing(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
-        return
-
-    cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
+    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         return
 
 cdef class HeldSuarez(CaseBase):
@@ -83,7 +77,6 @@ cdef class HeldSuarez(CaseBase):
         Pr.DT_y = namelist['forcing']['equator_to_pole_dT']
         Pr.Dtheta_z = namelist['forcing']['lapse_rate']
         Pr.T_equator = namelist['forcing']['equatorial_temperature']
-        Pr.Tbar0 = namelist['forcing']['relaxation_temperature']
 
         PV.Vorticity.values  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         PV.Divergence.values = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
@@ -137,15 +130,9 @@ cdef class HeldSuarez(CaseBase):
         self.Sur.stats_io(Stats)
         return
 
-    cpdef update_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         self.Sur.update(Pr, Gr, PV, DV)
-        return
-
-    cpdef update_forcing(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
         self.Fo.update(Pr, Gr, PV, DV)
-        return
-
-    cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         self.MP.update(Pr, PV, DV, TS)
         return
 
@@ -194,7 +181,6 @@ cdef class HeldSuarezMoist(CaseBase):
         Pr.DT_y      = namelist['forcing']['equator_to_pole_dT']
         Pr.T_equator = namelist['forcing']['equatorial_temperature']
         Pr.Dtheta_z  = namelist['forcing']['lapse_rate']
-        Pr.Tbar0     = namelist['forcing']['relaxation_temperature']
         Pr.T_pole    = namelist['forcing']['polar_temperature']
         Pr.init_k    = namelist['forcing']['initial_profile_power']
         z            = np.linspace(0,20000,200)
@@ -246,17 +232,19 @@ cdef class HeldSuarezMoist(CaseBase):
                 PV.QT.values.base[:,i,k] = QT_meridional
                 PV.T.values.base[:,i,k]  = T_meridional
 
-        for k in range(Pr.n_layers):
-            PV.T.spectral.base[:,k]           = Gr.SphericalGrid.grdtospec(PV.T.values.base[:,:,k])
-            PV.QT.spectral.base[:,k]          = Gr.SphericalGrid.grdtospec(PV.QT.values.base[:,:,k])
-            PV.Vorticity.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(PV.Vorticity.values.base[:,:,k])
-            PV.Divergence.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(PV.Divergence.values.base[:,:,k])
-        PV.P.spectral.base[:,Pr.n_layers]     = Gr.SphericalGrid.grdtospec(PV.P.values.base[:,:,Pr.n_layers])
-
-        if Pr.inoise==1: # load the random noise to grid space
-             noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')*Pr.inoise
+        PV.physical_to_spectral(Pr, Gr)
+        print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
+        if Pr.inoise==1:
+             # load the random noise to grid space
+             #noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')*Pr.noise_amp
+             # calculate noise
+             F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
+             fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0.)
+             noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(F0))*Pr.noise_amp
+             # add noise
              PV.T.spectral.base[:,Pr.n_layers-1] = np.add(PV.T.spectral.base[:,Pr.n_layers-1],
                                                         Gr.SphericalGrid.grdtospec(noise.base))
+        print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
         return
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
@@ -292,14 +280,8 @@ cdef class HeldSuarezMoist(CaseBase):
         self.MP.stats_io(PV, Stats)
         return
 
-    cpdef update_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         self.Sur.update(Pr, Gr, PV, DV)
-        return
-
-    cpdef update_forcing(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
         self.Fo.update(Pr, Gr, PV, DV)
-        return
-
-    cpdef update_microphysics(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         self.MP.update(Pr, PV, DV, TS)
         return

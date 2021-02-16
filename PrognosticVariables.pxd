@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import netCDF4
 from NetCDFIO cimport NetCDFIO_Stats
 import numpy as np
+cimport numpy as np
 import scipy as sc
 import sys
 from TimeStepping cimport TimeStepping
@@ -17,13 +18,14 @@ cdef class PrognosticVariable:
     cdef:
         double [:,:,:] values
         double [:,:,:] VerticalFlux
+        double [:,:] SurfaceFlux
+        double [:,:,:] forcing
         double [:,:,:] mp_tendency
         double complex [:,:] spectral
         double complex [:,:] old
         double complex [:,:] now
         double complex [:,:] tendency
         double complex [:,:] sp_VerticalFlux
-        double complex [:,:] forcing
         str kind
         str name
         str units

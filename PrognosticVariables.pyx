@@ -26,9 +26,11 @@ cdef class PrognosticVariable:
         self.tendency = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         self.VerticalFlux = np.zeros((nx,ny,nl+1),dtype=np.float64, order='c')
         self.sp_VerticalFlux = np.zeros((n_spec,nl),dtype = np.complex, order='c')
-        self.forcing = np.zeros((n_spec,nl),dtype = np.complex, order='c')
+        if name=='T':
+            self.forcing = np.zeros((nx,ny,nl),dtype = np.float64, order='c')
         if name=='T' or name=='QT':
             self.mp_tendency = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
+            self.SurfaceFlux = np.zeros((nx,ny)   ,dtype=np.float64, order='c')
 
 
         return
@@ -165,6 +167,10 @@ cdef class PrognosticVariables:
             double complex [:] vrt_flux_up
             double complex [:] div_flux_dn
             double complex [:] div_flux_up
+            double complex [:] Vort_forc
+            double complex [:] Div_forc
+            double complex [:] Vort_sur_flux_
+            double complex [:] Div_sur_flux_
             double [:,:] u_vertical_flux
             double [:,:] v_vertical_flux
             double [:,:] T_high
@@ -174,10 +180,14 @@ cdef class PrognosticVariables:
             double [:,:] T_flux_up
             double [:,:] QT_flux_up
             double [:,:] Thermal_expension
-            double [:,:,:] dp = np.zeros_like(PV.P.values)
             double [:,:] gZ_half 
             double [:,:] Wp_half 
-
+            double [:,:] RHS_grid
+            double complex [:,:] Vort_sur_flux = np.zeros((Gr.SphericalGrid.nlm,Pr.n_layers),dtype = np.complex, order='c')
+            double complex [:,:] Div_sur_flux  = np.zeros((Gr.SphericalGrid.nlm,Pr.n_layers),dtype = np.complex, order='c')
+            double [:,:,:] T_sur_flux = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.float64, order='c')
+            double [:,:,:] QT_sur_flux = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),dtype=np.float64, order='c')
+            double [:,:,:] dp = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers+1),dtype=np.float64, order='c')
 
         Vortical_P_flux, Divergent_P_flux = Gr.SphericalGrid.getvrtdivspec(
             np.multiply(DV.U.values[:,:,nl-1],np.subtract(PV.P.values[:,:,nl-1],PV.P.values[:,:,nl])),
@@ -245,6 +255,11 @@ cdef class PrognosticVariables:
                 T_flux_up   = np.multiply(PV.T.VerticalFlux[:,:,k-1],np.divide(np.subtract(PV.P.values[:,:,k],PV.P.values[:,:,k-1]),dp[:,:,k]))
                 QT_flux_up  = np.multiply(PV.QT.VerticalFlux[:,:,k-1],np.divide(np.subtract(PV.P.values[:,:,k],PV.P.values[:,:,k-1]),dp[:,:,k]))
                 Thermal_expension = -np.divide(np.divide(np.multiply(Wp_half,DV.gZ.values[:,:,k]),dp[:,:,k]),Pr.cp)
+                Vort_sur_flux_ ,Div_sur_flux_ = Gr.SphericalGrid.getvrtdivspec(DV.U.SurfaceFlux.base, DV.V.SurfaceFlux.base)
+                Vort_sur_flux[:,k] = Vort_sur_flux_
+                Div_sur_flux[:,k] = Div_sur_flux_
+                T_sur_flux[:,:,k] = PV.T.SurfaceFlux
+                QT_sur_flux[:,:,k] = PV.QT.SurfaceFlux
 
             else:
                 vrt_flux_dn = PV.Vorticity.sp_VerticalFlux[:,k]
@@ -256,9 +271,15 @@ cdef class PrognosticVariables:
                 Thermal_expension = np.divide(np.multiply(Wp_half,np.divide(
                                     np.subtract(DV.gZ.values[:,:,k+1],DV.gZ.values[:,:,k]),dp[:,:,k])),Pr.cp)
 
-            PV.Vorticity.tendency.base[:,k]  = np.subtract(PV.Vorticity.forcing[:,k], np.add(np.add(Divergent_momentum_flux, vrt_flux_up), vrt_flux_dn))
-            PV.Divergence.tendency.base[:,k] =  np.add(np.subtract(np.subtract(np.subtract(Vortical_momentum_flux, Dry_Energy_laplacian),
-                div_flux_up),div_flux_dn), PV.Divergence.forcing[:,k])
-            PV.T.tendency.base[:,k] = np.subtract(np.add(Gr.SphericalGrid.grdtospec(np.subtract(np.subtract(np.add(T_flux_up,PV.T.mp_tendency[:,:,k]),Thermal_expension),PV.T.VerticalFlux[:,:,k])), PV.T.forcing[:,k]), Divergent_T_flux)
-            PV.QT.tendency.base[:,k] = np.subtract(np.add(Gr.SphericalGrid.grdtospec(np.subtract(np.add(QT_flux_up,PV.QT.mp_tendency[:,:,k]),PV.QT.VerticalFlux[:,:,k])),PV.QT.forcing[:,k]),Divergent_QT_flux)
+            Vort_forc ,Div_forc = Gr.SphericalGrid.getvrtdivspec(DV.U.forcing.base[:,:,k],DV.V.forcing.base[:,:,k])
+
+            PV.Vorticity.tendency.base[:,k]  = np.add(np.subtract(Vort_forc, np.add(np.add(Divergent_momentum_flux, vrt_flux_up), vrt_flux_dn)),Vort_sur_flux[:,k])
+            PV.Divergence.tendency.base[:,k] =  np.add(np.add(np.subtract(np.subtract(np.subtract(Vortical_momentum_flux, Dry_Energy_laplacian),
+                div_flux_up),div_flux_dn), Div_forc),Div_sur_flux[:,k])
+            RHS_grid = np.add(np.add(np.subtract(np.subtract(np.add(T_flux_up,PV.T.mp_tendency[:,:,k]),
+                Thermal_expension),PV.T.VerticalFlux[:,:,k]), PV.T.forcing[:,:,k]),T_sur_flux[:,:,k])
+
+            PV.T.tendency.base[:,k] = np.subtract(Gr.SphericalGrid.grdtospec(RHS_grid.base), Divergent_T_flux)
+            RHS_grid = np.add(np.subtract(np.add(QT_flux_up,PV.QT.mp_tendency[:,:,k]),PV.QT.VerticalFlux[:,:,k]),QT_sur_flux[:,:,k])
+            PV.QT.tendency.base[:,k] = np.subtract(Gr.SphericalGrid.grdtospec(RHS_grid.base),Divergent_QT_flux)
         return

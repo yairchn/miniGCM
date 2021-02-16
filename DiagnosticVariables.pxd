@@ -9,6 +9,8 @@ from Parameters cimport Parameters
 cdef class DiagnosticVariable:
     cdef:
         double [:,:,:] values
+        double [:,:,:] forcing
+        double [:,:] SurfaceFlux
         double complex [:,:] spectral
         str kind
         str name
