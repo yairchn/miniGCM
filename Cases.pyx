@@ -30,7 +30,7 @@ cdef class CaseBase:
     def __init__(self, namelist):
         return
 
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
+    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         return
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
@@ -62,13 +62,12 @@ cdef class HeldSuarez(CaseBase):
         self.MP = Microphysics.MicrophysicsNone()
         return
 
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
+    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         cdef:
             double [:,:] noise
 
         PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
-        PV.T_init        = np.array([DV.convert_temperature2theta(Pr, Pr.T1, (Pr.p1+Pr.p2)/2.), 
-            DV.convert_temperature2theta(Pr, Pr.T2, (Pr.p2+Pr.p3)/2.), DV.convert_temperature2theta(Pr, Pr.T3,(Pr.p3+Pr.pref)/2.)])
+        PV.T_init        = np.array([Pr.T1, Pr.T2, Pr.T3])
 
         Pr.sigma_b = namelist['forcing']['sigma_b']
         Pr.k_a = namelist['forcing']['k_a']
@@ -146,7 +145,7 @@ cdef class HeldSuarezMoist(CaseBase):
         return
 
 
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
+    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         cdef:
             Py_ssize_t i, j, k
             double Gamma, T_0, B, C, H
