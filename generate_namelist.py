@@ -25,7 +25,7 @@ def main():
     namelist_defaults['diffusion'] = {}
     namelist_defaults['diffusion']['dissipation_order'] = 8.0
     namelist_defaults['diffusion']['truncation_order'] = 3
-    namelist_defaults['diffusion']['e_folding_timescale'] = 0.001
+    namelist_defaults['diffusion']['e_folding_timescale'] = 0.01
 
     namelist_defaults['grid'] = {}
     namelist_defaults['grid']['dims'] = 1
@@ -33,9 +33,9 @@ def main():
     namelist_defaults['grid']['number_of_latitute_points'] =  256
     namelist_defaults['grid']['number_of_longitude_points'] = 512
     namelist_defaults['grid']['number_of_layers'] =  3
-    namelist_defaults['grid']['p1']       =  250.0*1.e2  # [pasc]
-    namelist_defaults['grid']['p2']       =  500.0*1.e2  # [pasc]
     namelist_defaults['grid']['p3']       =  850.0*1.e2  # [pasc]
+    namelist_defaults['grid']['p2']       =  500.0*1.e2  # [pasc]
+    namelist_defaults['grid']['p1']       =  250.0*1.e2  # [pasc]
     namelist_defaults['grid']['p_ref']    =  1000.0*1.e2 # [pasc]
 
     namelist_defaults['planet'] = {}
