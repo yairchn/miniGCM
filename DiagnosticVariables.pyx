@@ -32,34 +32,9 @@ cdef class DiagnosticVariables:
         self.UV = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'momentum_flux', 'uv','m^2/s^2' )
         return
 
-
-    cpdef convert_temperature2theta(self, Parameters Pr, temperature, pressure):
-        cdef:
-            double [:,:] theta
-            double [:,:] exner
-        # π=(p₀/p)^κ
-        exner = np.power(np.divide(Pr.p_ref,pressure),Pr.kappa)
-        # θ=T*π
-        theta=np.multiply(temperature, exner)
-        return theta
-
-
-    cpdef convert_theta2temperature(self, Parameters Pr, theta, pressure):
-        cdef:
-            double [:,:] temperature
-            double [:,:] exner
-        # π=(p₀/p)^κ
-        exner = np.power(np.divide(Pr.p_ref,pressure),Pr.kappa)
-        # T=θ/π
-        temperature=np.divide(theta, exner)
-        return temperature
-
-
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV):
         cdef:
             Py_ssize_t k, j
-            double [:,:] p_half
-            double [:,:] Temperature
         # self.VT.values.base     = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         # self.TT.values.base     = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         # self.UV.values.base     = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
@@ -73,9 +48,7 @@ cdef class DiagnosticVariables:
             self.TT.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(np.multiply(PV.T.values[:,:,k],PV.T.values[:,:,k]))
             self.UV.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(np.multiply(self.V.values[:,:,k],self.U.values[:,:,k]))
             j = Pr.n_layers-k-1 # geopotential is computed bottom -> up
-            p_half=np.divide(np.add(PV.P.values[:,:,j+1],PV.P.values[:,:,j]),2.)
-            Temperature = self.convert_theta2temperature(Pr, PV.T.values[:,:,j], p_half)
-            self.gZ.values.base[:,:,j] = np.add(np.multiply(np.multiply(Pr.Rd,Temperature),np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))),self.gZ.values[:,:,j+1])
+            self.gZ.values.base[:,:,j] = np.add(np.multiply(np.multiply(Pr.Rd,PV.T.values[:,:,j]),np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))),self.gZ.values[:,:,j+1])
             self.gZ.spectral.base[:,j] = Gr.SphericalGrid.grdtospec(self.gZ.values.base[:,:,j])
         return
 
@@ -154,9 +127,6 @@ cdef class DiagnosticVariables:
             Py_ssize_t j, k
             Py_ssize_t ii = 1
             Py_ssize_t nl = Pr.n_layers
-            double [:,:] p_half
-            double [:,:] Temperature
-            double [:,:] Rm
 
         self.Wp.values.base[:,:,0] = np.zeros_like(self.Wp.values[:,:,0])
         self.gZ.values.base[:,:,nl] = np.zeros_like(self.Wp.values[:,:,0])
@@ -170,9 +140,7 @@ cdef class DiagnosticVariables:
             self.Wp.values.base[:,:,k+1]  = np.subtract(self.Wp.values[:,:,k],
                                        np.multiply(np.subtract(PV.P.values[:,:,k+1],PV.P.values[:,:,k]),PV.Divergence.values[:,:,k]))
             Rm = np.add(np.multiply(Pr.Rd,np.subtract(1.0,PV.QT.values[:,:,j])),np.multiply(Pr.Rv,np.subtract(PV.QT.values[:,:,j],self.QL.values[:,:,j])))
-            p_half=np.divide(np.add(PV.P.values[:,:,j+1],PV.P.values[:,:,j]),2.)
-            Temperature = self.convert_theta2temperature(Pr, PV.T.values[:,:,j], p_half)
-            self.gZ.values.base[:,:,j]  = np.add(np.multiply(np.multiply(Pr.Rd,Temperature),np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))),self.gZ.values[:,:,j+1])
+            self.gZ.values.base[:,:,j]  = np.add(np.multiply(np.multiply(Pr.Rd,PV.T.values[:,:,j]),np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))),self.gZ.values[:,:,j+1])
 
             self.VT.values.base[:,:,k] = np.multiply(self.V.values[:,:,k],PV.T.values[:,:,k])
             self.TT.values.base[:,:,k] = np.multiply(PV.T.values[:,:,k],PV.T.values[:,:,k])

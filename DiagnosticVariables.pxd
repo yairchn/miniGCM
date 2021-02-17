@@ -28,8 +28,6 @@ cdef class DiagnosticVariables:
         DiagnosticVariable TT
         DiagnosticVariable UV
 
-    cpdef convert_temperature2theta(self, Parameters Pr, temperature, pressure)
-    cpdef convert_theta2temperature(self, Parameters Pr, theta, pressure)
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef physical_to_spectral(self, Parameters Pr, Grid Gr)

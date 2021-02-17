@@ -25,7 +25,7 @@ cdef class CaseBase:
         ForcingBase Fo
         MicrophysicsBase MP
 
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef initialize_forcing(self, Parameters Pr, namelist)
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist)
@@ -35,7 +35,7 @@ cdef class CaseBase:
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS)
 
 cdef class HeldSuarez(CaseBase):
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef initialize_forcing(self, Parameters Pr, namelist)
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist)
@@ -46,7 +46,7 @@ cdef class HeldSuarez(CaseBase):
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS)
 
 cdef class HeldSuarezMoist(CaseBase):
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
+    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef initialize_forcing(self, Parameters Pr, namelist)
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist)
