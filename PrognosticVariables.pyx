@@ -82,6 +82,24 @@ cdef class PrognosticVariables:
         Stats.add_meridional_mean('meridional_mean_QT')
         return
 
+    cpdef set_bcs(self, Parameters Pr, Grid Gr):
+        cdef:
+            Py_ssize_t i,j,k
+            Py_ssize_t nx = Pr.nx
+            Py_ssize_t ny = Pr.ny
+            Py_ssize_t nl = Pr.n_layers
+            Py_ssize_t ng = Gr.ng
+            Py_ssize_t start_low = Gr.gw - 1
+            Py_ssize_t start_high = Gr.nzg - Gr.gw - 1
+
+        for i in xrange(1,Gr.gw):
+            for j in xrange(1,Gr.gw):
+                self.values[i,start_high] = 0.0
+                self.values[i,start_low] = 0.0
+                for k in xrange(nl):
+                    self.values[i,start_high + k +1] = self.values[i,start_high  - k]
+                    self.values[i,start_low - k] = self.values[i,start_low + 1 + k]
+        return
     # quick utility to set arrays with values in the "new" arrays
     cpdef set_old_with_now(self):
         self.U.old  = self.U.now.copy()
