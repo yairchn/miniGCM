@@ -88,6 +88,7 @@ cdef class Defualt(ForcingBase):
 			Py_ssize_t nx = Pr.nlats
 			Py_ssize_t ny = Pr.nlons
 			Py_ssize_t nl = Pr.n_layers
+			double k_T, k_v
 
 		with nogil:
 			forcing_hs(Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s, Pr.Dtheta_z,
@@ -95,7 +96,6 @@ cdef class Defualt(ForcingBase):
 					&self.Hbar[0,0,0], &self.sin_lat[0,0], &self.cos_lat[0,0],
 					&DV.U.values[0,0,0], &DV.V.values[0,0,0], &DV.U.forcing[0,0,0],
 					&DV.V.forcing[0,0,0], &PV.H.forcing[0,0,0], nx, ny, nl)
-
 		return
 
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):

@@ -33,9 +33,15 @@ def main():
     namelist_defaults['grid']['number_of_latitute_points'] =  256
     namelist_defaults['grid']['number_of_longitude_points'] = 512
     namelist_defaults['grid']['number_of_layers'] =  3
-    namelist_defaults['grid']['rho3']       =  1000.0*1.0  # [km/m^3]
-    namelist_defaults['grid']['rho2']       =  1000.0*0.95 # [km/m^3]
-    namelist_defaults['grid']['rho1']       =  1000.0*0.9  # [km/m^3]
+    namelist_defaults['grid']['rho3']       =  1000.0*1.0  # [kg/m^3]
+    namelist_defaults['grid']['rho2']       =  1000.0*0.95 # [kg/m^3]
+    namelist_defaults['grid']['rho1']       =  1000.0*0.9  # [kg/m^3]
+    namelist_defaults['grid']['H3']         =  100.0       # [m]
+    namelist_defaults['grid']['H2']         =  100.0       # [m]
+    namelist_defaults['grid']['H1']         =  100.0       # [m]
+    namelist_defaults['grid']['QT3']        =  0.00001 # [kg/kg]
+    namelist_defaults['grid']['QT2']        =  0.00001 # [kg/kg]
+    namelist_defaults['grid']['QT1']        =  0.00001 # [kg/kg]
 
     namelist_defaults['planet'] = {}
     namelist_defaults['planet']['planet_radius']    = 6.37122e6 # earth radius [m]

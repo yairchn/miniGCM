@@ -37,7 +37,7 @@ cdef class PrognosticVariable:
         self.name = name
         self.units = units
 
-        self.values = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
+        self.values   = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
         self.spectral = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         self.old      = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         self.now      = np.zeros((n_spec,nl),dtype = np.complex, order='c')
@@ -55,7 +55,7 @@ cdef class PrognosticVariables:
     def __init__(self, Parameters Pr, Grid Gr, namelist):
         self.Vorticity   = PrognosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,  Gr.SphericalGrid.nlm,'Vorticity'         ,'zeta' ,'1/s')
         self.Divergence  = PrognosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,  Gr.SphericalGrid.nlm,'Divergance'        ,'delta','1/s')
-        self.H           = PrognosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,  Gr.SphericalGrid.nlm,'Temperature'       ,'T'    ,'K')
+        self.H           = PrognosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,  Gr.SphericalGrid.nlm,'Temperature'       ,'H'    ,'K')
         self.QT          = PrognosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,  Gr.SphericalGrid.nlm,'Specific Humidity' ,'QT'   ,'K')
         return
 
