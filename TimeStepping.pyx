@@ -33,57 +33,61 @@ cdef class TimeStepping:
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, Diffusion DF, namelist):
 		cdef:
 			Py_ssize_t i, k
+			Py_ssize_t nx = Gr.nx
+			Py_ssize_t ny = Gr.ny
 			Py_ssize_t nl = Pr.n_layers
-			Py_ssize_t nlm = Gr.SphericalGrid.nlm
-			double complex [:,:] F_Divergence = np.zeros((nlm, nl), dtype = np.complex, order='c')
-			double complex [:,:] F_Vorticity  = np.zeros((nlm, nl), dtype = np.complex, order='c')
-			double complex [:,:] F_T          = np.zeros((nlm, nl), dtype = np.complex, order='c')
-			double complex [:,:] F_QT         = np.zeros((nlm, nl), dtype = np.complex, order='c')
-			double complex [:]   F_P          = np.zeros((nlm),     dtype = np.complex, order='c')
+			double [:,:,:] F_V = np.zeros((nx,ny,nl), dtype = np.float64, order='c')
+			double [:,:,:] F_U = np.zeros((nx,ny,nl), dtype = np.float64, order='c')
+			double [:,:,:] F_T = np.zeros((nx,ny,nl), dtype = np.float64, order='c')
+			double [:,:,:] F_QT= np.zeros((nx,ny,nl), dtype = np.float64, order='c')
+			double [:,:]   F_P = np.zeros((nx,ny),    dtype = np.float64, order='c')
 
 		# self.CFL_limiter(Pr, Gr, DV, namelist)
 		dt = namelist['timestepping']['dt']
 
-		F_Divergence = PV.Divergence.spectral
-		F_Vorticity  = PV.Vorticity.spectral
-		F_T          = PV.T.spectral
-		F_QT         = PV.QT.spectral
-		F_P          = PV.P.spectral[:,nl]
+		F_V  = PV.V.values
+		F_U  = PV.U.values
+		F_T  = PV.T.values
+		F_QT = PV.QT.values
+		F_P  = PV.P.values[:,:,nl]
 
 		if self.ncycle==0:
 			PV.set_now_with_tendencies()
 			with nogil:
-				for i in range(nlm):
-					for k in range(nl):
-						# Euler
-						# new                                old                      tendency
-						PV.Divergence.spectral[i,k] = F_Divergence[i,k] + self.dt*PV.Divergence.tendency[i,k]
-						PV.Vorticity.spectral[i,k]  = F_Vorticity[i,k]  + self.dt*PV.Vorticity.tendency[i,k]
-						PV.T.spectral[i,k]          = F_T[i,k]          + self.dt*PV.T.tendency[i,k]
-						PV.QT.spectral[i,k]         = F_QT[i,k]         + self.dt*PV.QT.tendency[i,k]
-					PV.P.spectral[i,nl]             = F_P[i]            + self.dt*PV.P.tendency[i,nl]
+				for i in range(nx):
+					for j in range(ny):
+						for k in range(nl):
+							# Euler
+							# new                   old                      tendency
+							PV.V.values[i,j,k]  = F_V[i,j,k]  + self.dt*PV.V.tendency[i,j,k]
+							PV.U.values[i,j,k]  = F_U[i,j,k]  + self.dt*PV.U.tendency[i,j,k]
+							PV.T.values[i,j,k]  = F_T[i,j,k]  + self.dt*PV.T.tendency[i,j,k]
+							PV.QT.values[i,j,k] = F_QT[i,j,k] + self.dt*PV.QT.tendency[i,j,k]
+						PV.P.values[i,j,nl]       = F_P[i,j]    + self.dt*PV.P.tendency[i,j,nl]
 		elif self.ncycle==1:
 			with nogil:
-				for i in range(nlm):
-					for k in range(nl):
-						#2nd order AB
-						#           new                     old                        tendency                            tendency now
-						PV.Divergence.spectral[i,k] = F_Divergence[i,k] + self.dt*(1.5*PV.Divergence.tendency[i,k] - 0.5*PV.Divergence.now[i,k])
-						PV.Vorticity.spectral[i,k]  = F_Vorticity[i,k]  + self.dt*(1.5*PV.Vorticity.tendency[i,k]  - 0.5*PV.Vorticity.now[i,k])
-						PV.T.spectral[i,k]          = F_T[i,k]          + self.dt*(1.5*PV.T.tendency[i,k]          - 0.5*PV.T.now[i,k])
-						PV.QT.spectral[i,k]         = F_QT[i,k]         + self.dt*(1.5*PV.QT.tendency[i,k]         - 0.5*PV.QT.now[i,k])
-					PV.P.spectral[i,nl]             = F_P[i]            + self.dt*(1.5*PV.P.tendency[i,nl]         - 0.5*PV.P.now[i,nl])
+				for i in range(nx):
+					for j in range(ny):
+						for k in range(nl):
+							#2nd order AB
+							#           new        old                        tendency                tendency now
+							PV.V.values[i,j,k]  = F_V[i,j,k]  + self.dt*(1.5*PV.V.tendency[i,j,k]  - 0.5*PV.V.now[i,j,k])
+							PV.U.values[i,j,k]  = F_U[i,j,k]  + self.dt*(1.5*PV.U.tendency[i,j,k]  - 0.5*PV.U.now[i,j,k])
+							PV.T.values[i,j,k]  = F_T[i,j,k]  + self.dt*(1.5*PV.T.tendency[i,j,k]  - 0.5*PV.T.now[i,j,k])
+							PV.QT.values[i,j,k] = F_QT[i,j,k] + self.dt*(1.5*PV.QT.tendency[i,j,k] - 0.5*PV.QT.now[i,j,k])
+						PV.P.values[i,j,nl]     = F_P[i,j]    + self.dt*(1.5*PV.P.tendency[i,j,nl] - 0.5*PV.P.now[i,j,nl])
 		else:
 			with nogil:
-				for i in range(nlm):
-					for k in range(nl):
-						#3nd order AB
-						#           new                    old                               tendency                                tendency now                         tendency old
-						PV.Divergence.spectral[i,k] = F_Divergence[i,k] + self.dt*(23.0/12.0*PV.Divergence.tendency[i,k] - 16.0/12.0*PV.Divergence.now[i,k] + 5.0/12.0*PV.Divergence.old[i,k])
-						PV.Vorticity.spectral[i,k]  = F_Vorticity[i,k]  + self.dt*(23.0/12.0*PV.Vorticity.tendency[i,k]  - 16.0/12.0*PV.Vorticity.now[i,k]  + 5.0/12.0*PV.Vorticity.old[i,k] )
-						PV.T.spectral[i,k]          = F_T[i,k]          + self.dt*(23.0/12.0*PV.T.tendency[i,k]          - 16.0/12.0*PV.T.now[i,k]          + 5.0/12.0*PV.T.old[i,k]         )
-						PV.QT.spectral[i,k]         = F_QT[i,k]         + self.dt*(23.0/12.0*PV.QT.tendency[i,k]         - 16.0/12.0*PV.QT.now[i,k]         + 5.0/12.0*PV.QT.old[i,k]        )
-					PV.P.spectral[i,nl]             = F_P[i]            + self.dt*(23.0/12.0*PV.P.tendency[i,nl]         - 16.0/12.0*PV.P.now[i,nl]         + 5.0/12.0*PV.P.old[i,nl]        )
+				for i in range(nx):
+					for j in range(ny):
+						for k in range(nl):
+							#3nd order AB
+							#   new                old                               tendency                      tendency now              tendency old
+							PV.V.values[i,j,k]  = F_V[i,j,k]  + self.dt*(23.0/12.0*PV.V.tendency[i,j,k]  - 16.0/12.0*PV.V.now[i,j,k]  + 5.0/12.0*PV.V.old[i,j,k] )
+							PV.U.values[i,j,k]  = F_U[i,j,k]  + self.dt*(23.0/12.0*PV.U.tendency[i,j,k]  - 16.0/12.0*PV.U.now[i,j,k]  + 5.0/12.0*PV.U.old[i,j,k] )
+							PV.T.values[i,j,k]  = F_T[i,j,k]  + self.dt*(23.0/12.0*PV.T.tendency[i,j,k]  - 16.0/12.0*PV.T.now[i,j,k]  + 5.0/12.0*PV.T.old[i,j,k] )
+							PV.QT.values[i,j,k] = F_QT[i,j,k] + self.dt*(23.0/12.0*PV.QT.tendency[i,j,k] - 16.0/12.0*PV.QT.now[i,j,k] + 5.0/12.0*PV.QT.old[i,j,k])
+						PV.P.values[i,j,nl]     = F_P[i,j]    + self.dt*(23.0/12.0*PV.P.tendency[i,j,nl] - 16.0/12.0*PV.P.now[i,j,nl] + 5.0/12.0*PV.P.old[i,j,nl])
 
 		DF.update(Pr, Gr, PV, self.dt)
 		self.t = self.t+self.dt
@@ -96,7 +100,7 @@ cdef class TimeStepping:
 	@cython.wraparound(False)
 	@cython.boundscheck(False)
 	@cython.nonecheck(False)
-	cpdef CFL_limiter(self, Parameters Pr, Grid Gr, DiagnosticVariables DV, namelist):
+	cpdef CFL_limiter(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
 		cdef:
 			Py_ssize_t i, j, k
 			Py_ssize_t nx = Pr.nlats
@@ -111,5 +115,5 @@ cdef class TimeStepping:
 				for j in range(ny):
 					for k in range(nl):
 						dt = fmin(dt,
-						CFL_limit*fmin(Gr.dx[i,j]/(fabs(DV.U.values[i,j,k])+ 0.1) ,Gr.dy[i,j]/(fabs(DV.V.values[i,j,k])+ 0.1)))
+						CFL_limit*fmin(Gr.dx/(fabs(PV.U.values[i,j,k])+ 0.1) ,Gr.dy/(fabs(PV.V.values[i,j,k])+ 0.1)))
 		return dt

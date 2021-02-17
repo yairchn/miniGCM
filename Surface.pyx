@@ -76,8 +76,8 @@ cdef class SurfaceBulkFormula(SurfaceBase):
                               Pr.Cd, Pr.qv_star0, Pr.eps_v, &PV.P.values[0,0,0],
                               &DV.gZ.values[0,0,0], &PV.T.values[0,0,0],
                               &PV.QT.values[0,0,0], &self.T_surf[0,0],
-                              &DV.U.values[0,0,0], &DV.V.values[0,0,0],
-                              &DV.U.SurfaceFlux[0,0], &DV.V.SurfaceFlux[0,0],
+                              &PV.U.values[0,0,0], &PV.V.values[0,0,0],
+                              &PV.U.SurfaceFlux[0,0], &PV.V.SurfaceFlux[0,0],
                               &PV.T.SurfaceFlux[0,0], &PV.QT.SurfaceFlux[0,0],
                               nx, ny, nl)
 
