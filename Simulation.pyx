@@ -33,7 +33,7 @@ class Simulation:
     def initialize(self, namelist):
         self.LF.initialize(self.Pr, namelist)
         print('initialize Held & Suarez')
-        self.Case.initialize(self.Pr, self.Gr, self.PV, namelist)
+        self.Case.initialize(self.Pr, self.Gr, self.PV, self.DV, namelist)
         self.DV.initialize(self.Pr, self.Gr,self.PV)
         #self.PV.initialize(self.Pr)
         self.Case.initialize_microphysics(self.Pr, self.PV, self.DV, namelist)
