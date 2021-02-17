@@ -71,26 +71,21 @@ cdef class HelzSuarez(ForcingBase):
 		cdef:
 			Py_ssize_t k
 			Py_ssize_t nl = Pr.n_layers
-			double [:,:] p_half
+			double [:,:] P_half
 			double [:,:] pressure_ratio
 			double [:,:] Ty
 			double [:,:] Tp
 			double [:,:] exner
-			double [:,:] Temperature_bar
 
 		for k in range(nl):
-			p_half = np.divide(np.add(PV.P.values[:,:,k],PV.P.values[:,:,k+1]),2.0)
-			pressure_ratio = np.divide(p_half,Pr.p_ref)
-			exner  = np.power(pressure_ratio,Pr.kappa*2.)
+			P_half = np.divide(np.add(PV.P.values[:,:,k],PV.P.values[:,:,k+1]),2.0)
+			pressure_ratio = np.divide(P_half,Pr.p_ref)
+			exner  = np.power(pressure_ratio,Pr.kappa)
 			Ty = np.multiply(Pr.DT_y,np.power(np.sin(Gr.lat),2))
 			Tp = np.multiply(Pr.Dtheta_z,np.log(pressure_ratio)*np.power(np.cos(Gr.lat),2))
-			# self.Tbar.base[:,:,k] = np.clip(np.multiply(np.subtract(np.subtract(Pr.T_equator,Ty),Tp),exner),
-   #                              DV.convert_temperature2theta(Pr,200.0,p_half), None)
-			Temperature_bar = np.clip(np.multiply(np.subtract(np.subtract(Pr.T_equator,Ty),Tp),exner), 200.0, None)
-			self.Tbar.base[:,:,k] = DV.convert_temperature2theta(Pr,Temperature_bar,p_half)
+			self.Tbar.base[:,:,k] = np.clip(np.multiply(np.subtract(np.subtract(Pr.T_equator,Ty),Tp),exner), 200.0, None)
 
-
-			sigma = np.divide(p_half,PV.P.values[:,:,nl])
+			sigma = np.divide(P_half,PV.P.values[:,:,nl])
 			sigma_ratio = np.clip(np.divide(sigma-Pr.sigma_b,1-Pr.sigma_b),0,None)
 			self.k_T.base[:,:,k] = np.add(Pr.k_a, np.multiply((Pr.k_s-Pr.k_a),np.multiply(sigma_ratio,np.power(np.cos(Gr.lat),4))))
 			self.k_v.base[:,:,k] = np.add(Pr.k_b, Pr.k_f*sigma_ratio)
@@ -133,16 +128,15 @@ cdef class HelzSuarezMoist(ForcingBase):
 		cdef:
 			Py_ssize_t k
 			Py_ssize_t nl = Pr.n_layers
-			double [:,:] p_half
+			double [:,:] P_half
 			double [:,:] pressure_ratio
 
 		for k in range(nl):
-			p_half = np.divide(np.add(PV.P.values[:,:,k],PV.P.values[:,:,k+1]),2.0)
-			pressure_ratio = np.divide(p_half,Pr.p_ref)
+			P_half = np.divide(np.add(PV.P.values[:,:,k],PV.P.values[:,:,k+1]),2.0)
+			pressure_ratio = np.divide(P_half,Pr.p_ref)
 			self.Tbar.base[:,:,k] = np.clip((Pr.T_equator-Pr.DT_y*np.power(np.sin(Gr.lat),2)-Pr.Dtheta_z*np.log(pressure_ratio)
-				               *np.power(np.cos(Gr.lat),2))*np.power(pressure_ratio,2.*Pr.kappa),
-                                               DV.convert_temperature2theta(Pr, 200.0, p_half), None)
-			sigma=np.divide(p_half,PV.P.values[:,:,nl])
+				               *np.power(np.cos(Gr.lat),2))*np.power(pressure_ratio,Pr.kappa), 200.0, None)
+			sigma=np.divide(P_half,PV.P.values[:,:,nl])
 			sigma_ratio=np.clip(np.divide(sigma-Pr.sigma_b,1-Pr.sigma_b),0,None)
 			self.k_T.base[:,:,k] = Pr.k_a+(Pr.k_s-Pr.k_a)*np.multiply(sigma_ratio,np.power(np.cos(Gr.lat),4))
 			self.k_v.base[:,:,k] = Pr.k_b+Pr.k_f*sigma_ratio
