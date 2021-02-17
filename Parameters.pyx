@@ -23,6 +23,12 @@ cdef class Parameters:
         self.rho1      = namelist['grid']['rho1']
         self.rho2      = namelist['grid']['rho2']
         self.rho3      = namelist['grid']['rho3']
+        self.H1        = namelist['grid']['H1']
+        self.H2        = namelist['grid']['H2']
+        self.H3        = namelist['grid']['H3']
+        self.QT1       = namelist['grid']['QT1']
+        self.QT2       = namelist['grid']['QT2']
+        self.QT3       = namelist['grid']['QT3']
         self.Omega     = namelist['planet']['Omega_rotation']
         self.g         = namelist['planet']['gravity']
 

@@ -68,9 +68,9 @@ cdef class Defualt(CaseBase):
             double [:,:] noise
             double [:,:] fr
 
-        PV.H_init   = np.array([Pr.rho1, Pr.rho1, Pr.rho1])
+        PV.H_init   = np.array([Pr.H1, Pr.H1, Pr.H1])
         PV.Rho_init = np.array([Pr.rho1, Pr.rho2, Pr.rho3])
-        PV.QT_init  = np.array([Pr.rho1, Pr.rho2, Pr.rho3])
+        PV.QT_init  = np.array([Pr.QT1, Pr.QT2, Pr.QT3])
 
         Pr.k_a = namelist['forcing']['k_a']
         Pr.k_b = namelist['forcing']['k_b']

@@ -16,6 +16,12 @@ cdef class Parameters:
         int truncation_number
         double moist_index
         double dissipation_order
+        double H1
+        double H2
+        double H3
+        double QT1
+        double QT2
+        double QT3
         double rho1
         double rho2
         double rho3

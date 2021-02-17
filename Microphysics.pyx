@@ -60,7 +60,9 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
 
     cpdef initialize(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
         cdef:
+            Py_ssize_t k
             double [:,:] P_half
+
         self.RainRate = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
         Pr.max_ss    =  namelist['microphysics']['max_supersaturation']
         Pr.rho_w     =  namelist['microphysics']['water_density']
