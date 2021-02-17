@@ -154,6 +154,7 @@ cdef class PrognosticVariables:
             Py_ssize_t k
             Py_ssize_t nl = Pr.n_layers
             double complex [:] dp_ratio32sp
+            double complex [:] dp_ratio21sp
             double complex [:] Vortical_P_flux
             double complex [:] Divergent_P_flux
             double complex [:] Vortical_momentum_flux
@@ -195,6 +196,7 @@ cdef class PrognosticVariables:
 
         PV.P.tendency.base[:,3] = np.add(Divergent_P_flux, DV.Wp.spectral[:,2])
         dp_ratio32sp = np.divide(np.subtract(PV.P.spectral[:,2],PV.P.spectral[:,1]), np.subtract(PV.P.spectral[:,3],PV.P.spectral[:,2]))
+        dp_ratio21sp = np.divide(np.subtract(PV.P.spectral[:,1],PV.P.spectral[:,0]), np.subtract(PV.P.spectral[:,2],PV.P.spectral[:,1]))
 
         for k in range(nl):
             dp.base[:,:,k] = np.subtract(PV.P.values[:,:,k+1],PV.P.values[:,:,k])
@@ -263,9 +265,9 @@ cdef class PrognosticVariables:
 
             else:
                 vrt_flux_dn = PV.Vorticity.sp_VerticalFlux[:,k]
-                vrt_flux_up = np.multiply(PV.Vorticity.sp_VerticalFlux[:,k-1],dp_ratio32sp)
+                vrt_flux_up = np.multiply(PV.Vorticity.sp_VerticalFlux[:,k-1],dp_ratio21sp)
                 div_flux_dn = PV.Divergence.sp_VerticalFlux[:,k]
-                div_flux_up = np.multiply(PV.Divergence.sp_VerticalFlux[:,k-1],dp_ratio32sp)
+                div_flux_up = np.multiply(PV.Divergence.sp_VerticalFlux[:,k-1],dp_ratio21sp)
                 T_flux_up   = np.multiply(PV.T.VerticalFlux[:,:,k-1],np.divide(dp[:,:,k-1],dp[:,:,k]))
                 QT_flux_up  = np.multiply(PV.QT.VerticalFlux[:,:,k-1],np.divide(dp[:,:,k-1],dp[:,:,k]))
                 Thermal_expension = np.divide(np.multiply(Wp_half,np.divide(
