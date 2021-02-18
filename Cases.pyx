@@ -57,10 +57,10 @@ cdef class CaseBase:
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         return
 
-cdef class HeldSuarez(CaseBase):
+cdef class MoistVortex(CaseBase):
     def __init__(self, namelist):
         # Pr.casename = namelist['meta']['casename']
-        self.Fo  = Forcing.ForcingNone()
+        self.Fo  = Forcing.ForcingBettsMiller()
         self.Sur = Surface.SurfaceNone()
         self.MP = Microphysics.MicrophysicsNone()
         return

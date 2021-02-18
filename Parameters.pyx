@@ -53,5 +53,7 @@ cdef class Parameters:
                             + self.uuid[len(self.uuid )-5:len(self.uuid)]))
         self.logfilename = self.outpath+'/'+self.casename+'.log'
 
+        self.tau  = namelist['forcing']['relaxation_timescale']
+
         return
 

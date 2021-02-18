@@ -16,9 +16,8 @@ from Parameters cimport Parameters
 from libc.math cimport pow, log, sin, cos, fmax
 
 cdef extern from "forcing_functions.h":
-	void focring_hs(double kappa, double p_ref, double sigma_b, double k_a, double k_b,
-			double k_f, double k_s, double Dtheta_z, double T_equator, double DT_y,
-			double* p, double* T, double* T_bar, double* sin_lat, double* cos_lat, double* u,
+	void focring_bm(double kappa, double p_ref, double tau,
+			double* p, double* T, double* T_bar, double* u,
 			double* v, double* u_forc, double* v_forc, double* T_forc,
 			Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
 
@@ -54,47 +53,46 @@ cdef class ForcingNone(ForcingBase):
 	cpdef stats_io(self, NetCDFIO_Stats Stats):
 		return
 
-# cdef class HelzSuarez(ForcingBase):
-# 	def __init__(self):
-# 		ForcingBase.__init__(self)
-# 		return
+cdef class ForcingBettsMiller(ForcingBase):
+	def __init__(self):
+		ForcingBase.__init__(self)
+		return
 
-# 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
-# 		cdef:
-# 			Py_ssize_t i,j
-# 			Py_ssize_t nx = Pr.nlats
-# 			Py_ssize_t ny = Pr.nlons
+	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
+		cdef:
+			Py_ssize_t i,j
+			Py_ssize_t nx = Pr.nlats
+			Py_ssize_t ny = Pr.nlons
 
-# 		return
+		return
 
-# 	cpdef initialize_io(self, NetCDFIO_Stats Stats):
-# 		Stats.add_zonal_mean('zonal_mean_T_eq')
-# 		Stats.add_meridional_mean('meridional_mean_T_eq')
-# 		return
+	cpdef initialize_io(self, NetCDFIO_Stats Stats):
+		Stats.add_zonal_mean('zonal_mean_T_eq')
+		Stats.add_meridional_mean('meridional_mean_T_eq')
+		return
 
-# 	@cython.wraparound(False)
-# 	@cython.boundscheck(False)
-# 	@cython.cdivision(True)
-# 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
-# 		cdef:
-# 			Py_ssize_t nx = Pr.nlats
-# 			Py_ssize_t ny = Pr.nlons
-# 			Py_ssize_t nl = Pr.n_layers
+	@cython.wraparound(False)
+	@cython.boundscheck(False)
+	@cython.cdivision(True)
+	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+		cdef:
+			Py_ssize_t nx = Pr.nlats
+			Py_ssize_t ny = Pr.nlons
+			Py_ssize_t nl = Pr.n_layers
 
-# 		with nogil:
-# 			focring_hs(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
-# 						Pr.Dtheta_z, Pr.T_equator, Pr.DT_y, &PV.P.values[0,0,0],
-# 						&PV.T.values[0,0,0],&self.Tbar[0,0,0], &self.sin_lat[0,0],
-# 						&self.cos_lat[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
-# 						&DV.U.forcing[0,0,0], &DV.V.forcing[0,0,0], &PV.T.forcing[0,0,0],
-# 						nx, ny, nl)
-# 		return
+		with nogil:
+			focring_bm(Pr.kappa, Pr.p_ref, Pr.tau,
+						&PV.P.values[0,0,0], &PV.T.values[0,0,0],&self.Tbar[0,0,0],
+						&PV.U.values[0,0,0], &PV.V.values[0,0,0],
+						&PV.U.forcing[0,0,0], &PV.V.forcing[0,0,0], &PV.T.forcing[0,0,0],
+						nx, ny, nl)
+		return
 
-# 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-# 		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'T_eq', self.Tbar)
-# 		return
+	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'T_eq', self.Tbar)
+		return
 
-# 	cpdef stats_io(self, NetCDFIO_Stats Stats):
-# 		Stats.write_zonal_mean('zonal_mean_T_eq', self.Tbar)
-# 		Stats.write_meridional_mean('meridional_mean_T_eq', self.Tbar)
-# 		return
+	cpdef stats_io(self, NetCDFIO_Stats Stats):
+		Stats.write_zonal_mean('zonal_mean_T_eq', self.Tbar)
+		Stats.write_meridional_mean('meridional_mean_T_eq', self.Tbar)
+		return
