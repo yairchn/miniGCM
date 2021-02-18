@@ -7,7 +7,7 @@ from PrognosticVariables cimport PrognosticVariables
 from Parameters cimport Parameters
 from libc.math cimport exp
 
-# overload exp for complex number
+# overload exp for complex numbers
 cdef extern from "complex.h" nogil:
     double complex exp(double complex z)
 
