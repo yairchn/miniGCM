@@ -13,7 +13,7 @@ cdef class DiagnosticVariable:
         double [:,:,:] values
         double [:,:,:] forcing
         double [:,:] SurfaceFlux
-        double complex [:,:] spectral
+        # double complex [:,:] spectral
         str kind
         str name
         str units
@@ -30,9 +30,9 @@ cdef class DiagnosticVariables:
         DiagnosticVariable TT
         DiagnosticVariable UV
 
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV)
+    # cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
-    cpdef physical_to_spectral(self, Parameters Pr, Grid Gr)
+    # cpdef physical_to_spectral(self, Parameters Pr, Grid Gr)
     cpdef stats_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV)

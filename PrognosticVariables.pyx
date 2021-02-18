@@ -199,6 +199,7 @@ cdef class PrognosticVariables:
             double complex [:] Dry_Energy_laplacian = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] Vortical_momentum_flux = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] Divergent_momentum_flux = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] Wp3_spectral = np.zeros((nlm), dtype = np.complex, order ='c')
 
             double [:,:] uT  = np.zeros((nx, ny),dtype=np.float64, order ='c')
             double [:,:] vT  = np.zeros((nx, ny),dtype=np.float64, order ='c')
@@ -223,10 +224,10 @@ cdef class PrognosticVariables:
             np.multiply(DV.U.values[:,:,nl-1],np.subtract(PV.P.values[:,:,nl-1],PV.P.values[:,:,nl])),
             np.multiply(DV.V.values[:,:,nl-1],np.subtract(PV.P.values[:,:,nl-1],PV.P.values[:,:,nl])))
 
-        # PV.P.tendency.base[:,nl] = np.add(Divergent_P_flux, DV.Wp.spectral[:,nl-1])
+        Wp3_spectral = Gr.SphericalGrid.grdtospec(DV.Wp.values.base[:,:,nl])
         with nogil:
             for i in range(nlm):
-                PV.P.tendency[i,nl] = Divergent_P_flux[i] + DV.Wp.spectral[i,nl-1]
+                PV.P.tendency[i,nl] = Divergent_P_flux[i] + Wp3_spectral[i]
 
         for k in range(nl):
             if k==nl-1:

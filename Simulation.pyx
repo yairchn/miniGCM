@@ -33,7 +33,7 @@ class Simulation:
     def initialize(self, namelist):
         self.LF.initialize(self.Pr, namelist)
         self.Case.initialize(self.Pr, self.Gr, self.PV, namelist)
-        self.DV.initialize(self.Pr, self.Gr,self.PV)
+        # self.DV.initialize(self.Pr, self.Gr,self.PV)
         # self.PV.initialize(self.Pr)
         self.Case.initialize_microphysics(self.Pr, self.PV, self.DV, namelist)
         self.Case.initialize_forcing(self.Pr, self.Gr, namelist)
@@ -56,9 +56,6 @@ class Simulation:
             # time0 = time.time()
             self.DV.update(self.Pr, self.Gr, self.PV)
             # print('DV.update', time.time() - time0)
-            # time0 = time.time()
-            self.DV.physical_to_spectral(self.Pr, self.Gr)
-            # print('DV.physical_to_spectral', time.time() - time0)
             # time0 = time.time()
             self.Case.update(self.Pr, self.Gr, self.PV, self.DV, self.TS)
             # print('Case.update', time.time() - time0)
