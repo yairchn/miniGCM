@@ -224,7 +224,7 @@ cdef class PrognosticVariables:
             np.multiply(DV.U.values[:,:,nl-1],np.subtract(PV.P.values[:,:,nl-1],PV.P.values[:,:,nl])),
             np.multiply(DV.V.values[:,:,nl-1],np.subtract(PV.P.values[:,:,nl-1],PV.P.values[:,:,nl])))
 
-        Wp3_spectral = Gr.SphericalGrid.grdtospec(DV.Wp.values.base[:,:,nl])
+        Wp3_spectral = Gr.SphericalGrid.grdtospec(DV.Wp.values.base[:,:,nl-1])
         with nogil:
             for i in range(nlm):
                 PV.P.tendency[i,nl] = Divergent_P_flux[i] + Wp3_spectral[i]

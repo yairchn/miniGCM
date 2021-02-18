@@ -45,26 +45,6 @@ cdef class DiagnosticVariables:
         self.UV = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'momentum_flux', 'uv','m^2/s^2' )
         return
 
-    # cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV):
-    #     cdef:
-    #         Py_ssize_t k, j
-    #     # self.VT.values.base     = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
-    #     # self.TT.values.base     = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
-    #     # self.UV.values.base     = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
-    #     for k in range(Pr.n_layers):
-    #         self.U.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(self.U.values.base[:,:,k])
-    #         self.V.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(self.V.values.base[:,:,k])
-    #         self.KE.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.KE.values.base[:,:,k])
-    #         self.QL.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.gZ.values.base[:,:,k])
-    #         self.Wp.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.Wp.values.base[:,:,k])
-    #         self.VT.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(np.multiply(self.V.values[:,:,k],PV.T.values[:,:,k]))
-    #         self.TT.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(np.multiply(PV.T.values[:,:,k],PV.T.values[:,:,k]))
-    #         self.UV.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(np.multiply(self.V.values[:,:,k],self.U.values[:,:,k]))
-    #         j = Pr.n_layers-k-1 # geopotential is computed bottom -> up
-    #         self.gZ.values.base[:,:,j] = np.add(np.multiply(np.multiply(Pr.Rd,PV.T.values[:,:,j]),np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))),self.gZ.values[:,:,j+1])
-    #         self.gZ.spectral.base[:,j] = Gr.SphericalGrid.grdtospec(self.gZ.values.base[:,:,j])
-    #     return
-
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         Stats.add_global_mean('global_mean_QL')
         Stats.add_zonal_mean('zonal_mean_QL')
@@ -86,21 +66,6 @@ cdef class DiagnosticVariables:
         Stats.add_meridional_mean('meridional_mean_TT')
         Stats.add_meridional_mean('meridional_mean_UV')
         return
-
-    # @cython.wraparound(False)
-    # @cython.boundscheck(False)
-    # cpdef physical_to_spectral(self, Parameters Pr, Grid Gr):
-    #     cdef:
-    #         Py_ssize_t k
-    #     for k in range(Pr.n_layers):
-    #         self.U.spectral.base[:,k]    = Gr.SphericalGrid.grdtospec(self.U.values.base[:,:,k])
-    #         self.V.spectral.base[:,k]    = Gr.SphericalGrid.grdtospec(self.V.values.base[:,:,k])
-    #         self.Wp.spectral.base[:,k+1] = Gr.SphericalGrid.grdtospec(self.Wp.values.base[:,:,k+1])
-    #         self.gZ.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(self.gZ.values.base[:,:,k])
-    #         self.VT.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(self.VT.values.base[:,:,k])
-    #         self.TT.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(self.TT.values.base[:,:,k])
-    #         self.UV.spectral.base[:,k]   = Gr.SphericalGrid.grdtospec(self.UV.values.base[:,:,k])
-    #     return
 
     cpdef stats_io(self, NetCDFIO_Stats Stats):
         Stats.write_global_mean('global_mean_QL', self.QL.values)
