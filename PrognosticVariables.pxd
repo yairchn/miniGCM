@@ -24,6 +24,7 @@ cdef class PrognosticVariable:
         str kind
         str name
         str units
+    cpdef set_bcs(self, Parameters Pr, Grid Gr)
 
 cdef class PrognosticVariables:
     cdef:
@@ -41,6 +42,7 @@ cdef class PrognosticVariables:
 
     cpdef initialize(self, Parameters Pr)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
+    cpdef apply_bc(self, Parameters Pr, Grid Gr)
     cpdef set_old_with_now(self)
     cpdef set_now_with_tendencies(self)
     cpdef reset_pressures_and_bcs(self, Parameters Pr, DiagnosticVariables DV)

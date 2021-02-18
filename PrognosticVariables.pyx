@@ -52,6 +52,29 @@ cdef class PrognosticVariable:
             self.mp_tendency = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
 
 
+    cpdef set_bcs(self, Parameters Pr, Grid Gr):
+        cdef:
+            Py_ssize_t i, j, k, q, p
+            Py_ssize_t nx = Pr.nx
+            Py_ssize_t ny = Pr.ny
+            Py_ssize_t nl = Pr.n_layers
+            Py_ssize_t ng = Gr.ng
+
+        with nogil:
+            for k in range(nl):
+                for i in range(nx):
+                    for j in range(0,ny):
+                        q = ny-ng+j
+                        self.values[i,j,k] = self.values[i,q,k]
+                        self.values[i,j,k] = self.values[i,q,k]
+                        self.values[j,i,k] = self.values[q,i,k]
+                        self.values[j,i,k] = self.values[q,i,k]
+                        q = ny+j+1
+                        p = ng+j
+                        self.values[i,q,k] = self.values[i,p,k]
+                        self.values[i,q,k] = self.values[i,p,k]
+                        self.values[q,i,k] = self.values[p,i,k]
+                        self.values[q,i,k] = self.values[p,i,k]
         return
 
 cdef class PrognosticVariables:
@@ -82,24 +105,15 @@ cdef class PrognosticVariables:
         Stats.add_meridional_mean('meridional_mean_QT')
         return
 
-    cpdef set_bcs(self, Parameters Pr, Grid Gr):
-        cdef:
-            Py_ssize_t i,j,k
-            Py_ssize_t nx = Pr.nx
-            Py_ssize_t ny = Pr.ny
-            Py_ssize_t nl = Pr.n_layers
-            Py_ssize_t ng = Gr.ng
-            Py_ssize_t start_low = Gr.gw - 1
-            Py_ssize_t start_high = Gr.nzg - Gr.gw - 1
-
-        for i in xrange(1,Gr.gw):
-            for j in xrange(1,Gr.gw):
-                self.values[i,start_high] = 0.0
-                self.values[i,start_low] = 0.0
-                for k in xrange(nl):
-                    self.values[i,start_high + k +1] = self.values[i,start_high  - k]
-                    self.values[i,start_low - k] = self.values[i,start_low + 1 + k]
+    # quick utility to set arrays with values in the "new" arrays
+    cpdef apply_bc(self, Parameters Pr, Grid Gr):
+        self.U.set_bcs(Pr,Gr)
+        self.V.set_bcs(Pr,Gr)
+        self.T.set_bcs(Pr,Gr)
+        self.QT.set_bcs(Pr,Gr)
+        self.P.set_bcs(Pr,Gr)
         return
+
     # quick utility to set arrays with values in the "new" arrays
     cpdef set_old_with_now(self):
         self.U.old  = self.U.now.copy()
