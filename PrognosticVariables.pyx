@@ -239,7 +239,7 @@ cdef class PrognosticVariables:
             Vortical_QT_flux, Divergent_QT_flux = Gr.SphericalGrid.getvrtdivspec(
                 np.multiply(DV.U.values[:,:,k],PV.QT.values[:,:,k]),
                 np.multiply(DV.V.values[:,:,k],PV.QT.values[:,:,k])) # Vortical_T_flux is not used
-            if k==0:
+            if k==0: # top layer
                 vrt_flux_dn = PV.Vorticity.sp_VerticalFlux[:,k]
                 vrt_flux_up = np.zeros_like(PV.Vorticity.sp_VerticalFlux[:,k])
                 div_flux_dn = PV.Divergence.sp_VerticalFlux[:,k]
@@ -248,12 +248,11 @@ cdef class PrognosticVariables:
                 QT_flux_up   = np.zeros_like(PV.QT.VerticalFlux[:,:,k])
                 Thermal_expension = np.multiply(Wp_half,np.divide(np.subtract(DV.gZ.values[:,:,k+1],
                     DV.gZ.values[:,:,k]),dp[:,:,k]))/Pr.cp
-            elif k==nl-1:
+            elif k==nl-1: # bottom layer
                 vrt_flux_dn = np.zeros_like(PV.Vorticity.sp_VerticalFlux[:,k])
                 vrt_flux_up = np.multiply(PV.Vorticity.sp_VerticalFlux[:,k-1],dp_ratio32sp)
                 div_flux_dn = np.zeros_like(PV.Divergence.sp_VerticalFlux[:,k])
                 div_flux_up = np.multiply(PV.Divergence.sp_VerticalFlux[:,k-1],dp_ratio32sp)
-                # check if you can use the dpratio here
                 T_flux_up   = np.multiply(PV.T.VerticalFlux[:,:,k-1],np.divide(np.subtract(PV.P.values[:,:,k],PV.P.values[:,:,k-1]),dp[:,:,k]))
                 QT_flux_up  = np.multiply(PV.QT.VerticalFlux[:,:,k-1],np.divide(np.subtract(PV.P.values[:,:,k],PV.P.values[:,:,k-1]),dp[:,:,k]))
                 Thermal_expension = -np.divide(np.divide(np.multiply(Wp_half,DV.gZ.values[:,:,k]),dp[:,:,k]),Pr.cp)
@@ -263,7 +262,7 @@ cdef class PrognosticVariables:
                 T_sur_flux[:,:,k] = PV.T.SurfaceFlux
                 QT_sur_flux[:,:,k] = PV.QT.SurfaceFlux
 
-            else:
+            else: # middle layer
                 vrt_flux_dn = PV.Vorticity.sp_VerticalFlux[:,k]
                 vrt_flux_up = np.multiply(PV.Vorticity.sp_VerticalFlux[:,k-1],dp_ratio21sp)
                 div_flux_dn = PV.Divergence.sp_VerticalFlux[:,k]
