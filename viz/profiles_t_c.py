@@ -13,9 +13,9 @@ def main():
     #varname = args.varname
     varname = 'zonal_mean_T'
     varname2= 'zonal_mean_T_eq'
-    runname='T_mid'
+    runname='43a10'
 
-    folder = '/home/yair/Output.HeldSuarez.c_dry/stats/'
+    folder = '/home/scoty/miniGCM/Output.HeldSuarez.'+runname+'/stats/'
     ncfile = folder + 'Stats.HeldSuarez.nc'
     data = nc.Dataset(ncfile, 'r')
 

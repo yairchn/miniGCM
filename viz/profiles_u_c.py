@@ -12,9 +12,9 @@ def main():
     #args = parser.parse_args()
     #varname = args.varname
     varname = 'zonal_mean_U'
-    runname='T_mid'
+    runname='43a10'
 
-    folder = '/home/yair/Output.HeldSuarez.c_dry/stats/'
+    folder = '/home/scoty/miniGCM/Output.HeldSuarez.'+runname+'/stats/'
     ncfile = folder + 'Stats.HeldSuarez.nc'
     data = nc.Dataset(ncfile, 'r')
 
@@ -27,11 +27,10 @@ def main():
     fig = plt.figure(varname,figsize=(3,6))
     for i in range(n):
         print('i',i)
-        print('min max np.mean(var[250:500,:,i],axis=0) ', np.amin(np.mean(var[250:500,:,i],axis=0)), np.amax(np.mean(var[250:500,:,i],axis=0)))
         print('lat_list.shape',lat_list.shape)
         print('var.shape',var.shape)
         ax1 = fig.add_subplot(n, 1, i+1)
-        im1 = ax1.plot(np.mean(var[250:500,:,i],axis=0),np.array(lat_list),'-k',label='run1')
+        im1 = ax1.plot(np.mean(var[350:400,:,i],axis=0),np.array(lat_list),'-k',label='run1')
         ax1.set_ylabel('latitude / $\circ$')
         ax1.set_xlim(-8,25)
         plt.grid(linestyle=':',alpha=0.6,linewidth=1)

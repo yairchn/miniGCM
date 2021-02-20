@@ -16,9 +16,10 @@ def main():
     runname='410k2'
     #runname='4e5k0'
     runname='310k2'
+    runname='43809'
 
     folder = '/home/scoty/miniGCM/Output.HeldSuarez.'+runname+'/stats/'
-    ncfile = folder + 'Stats.HeldSuarez.Restart_2.nc'
+    ncfile = folder + 'Stats.HeldSuarez.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
@@ -28,10 +29,12 @@ def main():
     var = np.array(data.groups['zonal_mean'].variables[varname])
     t = np.divide(data.groups['zonal_mean'].variables['t'],3600.0*24.0)
 
+    print('var.shape', var.shape) #steps of 5 days
+
     fig= plt.figure(figsize=(4,4))
-    im1 = plt.plot(savgol_filter(np.mean(var[200:1000,:,0],axis=0),5,1),np.array(lat_list),'-k',linewidth=4,alpha=0.4,label='top')
-    im2 = plt.plot(savgol_filter(np.mean(var[200:1000,:,1],axis=0),5,1),np.array(lat_list),'-k',linewidth=2,alpha=0.6,label='middle')
-    im3 = plt.plot(savgol_filter(np.mean(var[200:1000,:,2],axis=0),5,1),np.array(lat_list),'-k',linewidth=1,alpha=0.8,label='bottom')
+    im1 = plt.plot(savgol_filter(np.mean(var[50:60,:,0],axis=0),5,1),np.array(lat_list),'-k',linewidth=4,alpha=0.4,label='top')
+    im2 = plt.plot(savgol_filter(np.mean(var[50:60,:,1],axis=0),5,1),np.array(lat_list),'-k',linewidth=2,alpha=0.6,label='middle')
+    im3 = plt.plot(savgol_filter(np.mean(var[50:60,:,2],axis=0),5,1),np.array(lat_list),'-k',linewidth=1,alpha=0.8,label='bottom')
     plt.ylabel('Latitude / $\circ$')
     plt.grid(linestyle=':',alpha=0.6,linewidth=1)
     plt.title("Meridional Wind")
