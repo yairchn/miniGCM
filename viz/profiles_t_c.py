@@ -15,8 +15,8 @@ def main():
     varname2= 'zonal_mean_T_eq'
     runname='T_mid'
 
-    folder = '/home/yair/miniGCM/Output.HeldSuarezMoist.'+runname+'/stats/'
-    ncfile = folder + 'Stats.HeldSuarezMoist.nc'
+    folder = '/home/yair/Output.HeldSuarez.c_dry/stats/'
+    ncfile = folder + 'Stats.HeldSuarez.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
