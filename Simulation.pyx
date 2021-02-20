@@ -83,9 +83,9 @@ class Simulation:
         return
 
     def io(self):
-        self.DV.io(self.Pr, self.TS, self.Stats)
-        self.PV.io(self.Pr, self.TS, self.Stats)
-        self.Case.io(self.Pr, self.TS, self.Stats)
+        self.DV.io(self.Pr, self.Gr, self.TS, self.Stats)
+        self.PV.io(self.Pr, self.Gr, self.TS, self.Stats)
+        self.Case.io(self.Pr, self.Gr, self.TS, self.Stats)
         return
 
     def stats_io(self):

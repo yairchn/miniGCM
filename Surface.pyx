@@ -28,7 +28,7 @@ cdef class SurfaceBase:
         return
     cpdef stats_io(self, NetCDFIO_Stats Stats):
         return
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
 
 cdef class SurfaceNone(SurfaceBase):
@@ -42,7 +42,7 @@ cdef class SurfaceNone(SurfaceBase):
         return
     cpdef stats_io(self, NetCDFIO_Stats Stats):
         return
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
 
 cdef class SurfaceBulkFormula(SurfaceBase):
@@ -67,8 +67,8 @@ cdef class SurfaceBulkFormula(SurfaceBase):
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
         cdef:
             Py_ssize_t i,j,k
-            Py_ssize_t nx = Pr.nlats
-            Py_ssize_t ny = Pr.nlons
+            Py_ssize_t nx = Pr.nx
+            Py_ssize_t ny = Pr.ny
             Py_ssize_t nl = Pr.n_layers
 
         with nogil:
@@ -92,7 +92,7 @@ cdef class SurfaceBulkFormula(SurfaceBase):
         Stats.write_surface_zonal_mean('zonal_mean_QT_surf', np.mean(self.QT_surf, axis=1))
         return
 
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-        Stats.write_2D_variable(Pr, TS.t,  'T_surf', self.T_surf)
-        Stats.write_2D_variable(Pr, TS.t,  'QT_surf', self.QT_surf)
+    cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
+        Stats.write_2D_variable(Pr, Gr, TS.t,  'T_surf', self.T_surf)
+        Stats.write_2D_variable(Pr, Gr, TS.t,  'QT_surf', self.QT_surf)
         return

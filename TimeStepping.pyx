@@ -103,8 +103,8 @@ cdef class TimeStepping:
 	cpdef CFL_limiter(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
 		cdef:
 			Py_ssize_t i, j, k
-			Py_ssize_t nx = Pr.nlats
-			Py_ssize_t ny = Pr.nlons
+			Py_ssize_t nx = Pr.nx
+			Py_ssize_t ny = Pr.ny
 			Py_ssize_t nl = Pr.n_layers
 			double CFL_limit, dt
 

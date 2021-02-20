@@ -23,20 +23,24 @@ def main():
     namelist_defaults['forcing'] = {}
 
     namelist_defaults['diffusion'] = {}
-    namelist_defaults['diffusion']['dissipation_order'] = 8.0
-    namelist_defaults['diffusion']['truncation_order'] = 4
-    namelist_defaults['diffusion']['e_folding_timescale'] = 0.01
+    # namelist_defaults['diffusion']['e_folding_timescale'] = 0.01
 
     namelist_defaults['grid'] = {}
     namelist_defaults['grid']['dims'] = 1
     namelist_defaults['grid']['gw'] = 2
-    namelist_defaults['grid']['number_of_latitute_points'] =  256
-    namelist_defaults['grid']['number_of_longitude_points'] = 512
+    namelist_defaults['grid']['number_of_x_points'] = 100
+    namelist_defaults['grid']['number_of_y_points'] = 100
+    namelist_defaults['grid']['x_resolution'] = 10000
+    namelist_defaults['grid']['y_resolution'] = 10000
     namelist_defaults['grid']['number_of_layers'] =  3
+
+
     namelist_defaults['grid']['p3']       =  850.0*1.e2  # [pasc]
     namelist_defaults['grid']['p2']       =  500.0*1.e2  # [pasc]
     namelist_defaults['grid']['p1']       =  250.0*1.e2  # [pasc]
     namelist_defaults['grid']['p_ref']    =  1000.0*1.e2 # [pasc]
+    namelist_defaults['grid']['degree_latitute'] = 20.0
+    namelist_defaults['grid']['numerical_scheme'] = 'centeral_differneces'
 
     namelist_defaults['planet'] = {}
     namelist_defaults['planet']['planet_radius']    = 6.37122e6 # earth radius [m]
@@ -65,10 +69,12 @@ def main():
 
     namelist_defaults['meta'] = {}
 
-    if case_name == 'HeldSuarez':
-        namelist = HeldSuarez(namelist_defaults)
-    elif case_name == 'HeldSuarezMoist':
-        namelist = HeldSuarezMoist(namelist_defaults)
+    if case_name == 'DryVortex':
+        namelist = DryVortex(namelist_defaults)
+    elif case_name == 'MoistVortex':
+        namelist = MoistVortex(namelist_defaults)
+    elif case_name == 'ReedJablonowski':
+        namelist = ReedJablonowski(namelist_defaults)
     else:
         print('Not a valid case name')
         exit()
@@ -76,25 +82,25 @@ def main():
     write_file(namelist)
 
 
-def HeldSuarez(namelist_defaults):
+def DryVortex(namelist_defaults):
 
     namelist = copy.deepcopy(namelist_defaults)
 
-    namelist['meta']['simname'] = 'HeldSuarez'
-    namelist['meta']['casename'] = 'HeldSuarez'
+    namelist['meta']['simname'] = 'DryVortex'
+    namelist['meta']['casename'] = 'DryVortex'
 
-    namelist['thermodynamics']['thermodynamics_type'] = 'dry'
+    namelist['thermodynamics']['thermodynamics_type'] = 'Moist'
 
     namelist['microphysics'] = {}
     namelist['microphysics']['rain_model'] = 'None'
 
-    namelist['forcing']['forcing_type'] = 'HeldSuarez'
-    namelist['forcing']['sigma_b']      = 0.7                    # sigma coordiantes as sigma=p/ps
+    namelist['forcing']['forcing_type'] = 'BetterMiller'
+    namelist['initialize']['warm_core_width']  = 100000.0
+    namelist['initialize']['warm_core_amplitude']  = 5.0
     namelist['forcing']['k_a']          = 1./40.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_s']          =  1./4.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_f']          = 1.0/(24.0*3600.0)      # [1/sec]
     namelist['forcing']['k_b']          = 1./40.0/(24.0*3600.0)/2.0  # [1/sec]
-    namelist['forcing']['equator_to_pole_dT']         = 60.                    # Characteristic temperature change in meridional direction [K]
     namelist['forcing']['equatorial_temperature']    = 315.                   # Characteristic temperature at the equator [K]
     namelist['forcing']['lapse_rate']   = 10.0                   # Characteristic potential temperature change in vertical [K]
 
@@ -108,21 +114,64 @@ def HeldSuarez(namelist_defaults):
 
     return namelist
 
-def HeldSuarezMoist(namelist_defaults):
+def MoistVortex(namelist_defaults):
 
     namelist = copy.deepcopy(namelist_defaults)
 
-    namelist['grid']['n_layers'] = 3
-    namelist['grid']['nx'] = 3
-    namelist['grid']['ny'] = 3
+    namelist['meta']['simname'] = 'MoistVortex'
+    namelist['meta']['casename'] = 'MoistVortex'
+
+    namelist['thermodynamics']['thermodynamics_type'] = 'Moist'
+
+    namelist['microphysics'] = {}
+    namelist['microphysics']['rain_model'] = 'None'
+
+    namelist['forcing']['forcing_type'] = 'BetterMiller'
+    namelist['forcing']['relaxation_timescale'] = 3.0*3600.0
+    namelist['initialize']['warm_core_width']  = 100000.0
+    namelist['initialize']['warm_core_amplitude']  = 5.0
+    namelist['forcing']['k_a']          = 1./40.0/(24.0*3600.0)  # [1/sec]
+    namelist['forcing']['k_s']          =  1./4.0/(24.0*3600.0)  # [1/sec]
+    namelist['forcing']['k_f']          = 1.0/(24.0*3600.0)      # [1/sec]
+    namelist['forcing']['k_b']          = 1./40.0/(24.0*3600.0)/2.0  # [1/sec]
+    namelist['forcing']['equatorial_temperature']    = 315.                   # Characteristic temperature at the equator [K]
+    namelist['forcing']['lapse_rate']   = 10.0                   # Characteristic potential temperature change in vertical [K]
+
+    namelist['initialize']['T1'] = 229.0
+    namelist['initialize']['T2'] = 259.0
+    namelist['initialize']['T3'] = 291.0
+    namelist['initialize']['Tamp1'] = 0.2
+    namelist['initialize']['Tamp2'] = 1.0
+    namelist['initialize']['Tamp3'] = 0.0
+    namelist['initialize']['QT1'] = 2.5000e-04
+    namelist['initialize']['QT2'] = 0.0016
+    namelist['initialize']['QT3'] = 0.0115
+
+    namelist['microphysics']['rain_model'] = 'None'
+
+    namelist['surface'] = {}
+    namelist['surface']['surface_model'] = 'None'
+
+    namelist['diffusion']['type'] = 'hyperdiffusion'
+    namelist['diffusion']['order'] = 8.0
+
+    return namelist
+
+def ReedJablonowski(namelist_defaults):
+
+    namelist = copy.deepcopy(namelist_defaults)
+
+    namelist['grid']['number_of_layers'] = 3
+    namelist['grid']['number_of_x_points'] = 100
+    namelist['grid']['number_of_y_points'] = 100
 
     namelist['timestepping']['dt'] = 100.0 # sec
     namelist['timestepping']['t_max'] = 100.0 # days
 
-    namelist['meta']['simname'] = 'HeldSuarezMoist'
-    namelist['meta']['casename'] = 'HeldSuarezMoist'
+    namelist['meta']['simname'] = 'ReedJablonowski'
+    namelist['meta']['casename'] = 'ReedJablonowski'
 
-    namelist['forcing']['forcing_type'] = 'HeldSuarezMoist'
+    namelist['forcing']['forcing_type'] = 'ReedJablonowski'
     namelist['forcing']['sigma_b']      = 0.7                    # sigma coordiantes as sigma=p/ps
     namelist['forcing']['k_a']          = 1.0/40.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_s']          = 1.0/4.0/(24.0*3600.0)  # [1/sec]
@@ -134,12 +183,30 @@ def HeldSuarezMoist(namelist_defaults):
     namelist['forcing']['lapse_rate']             = 10.0 # Characteristic potential temperature change in vertical [K]
     namelist['forcing']['initial_profile_power'] = 3.0
     namelist['forcing']['initial_surface_qt'] = 0.018
-    namelist['forcing']['Gamma_init'] = 0.005
+
+    # # from paper
+    # namelist['initialize']['Tropopause height'] = 15000
+    # namelist['initialize']['Specific humidity at the surface'] = 21
+    # namelist['initialize']['Specific humidity of upper atmosphere'] = 1028
+    # namelist['initialize']['Constant 1 for specific humidity profile'] = 3000
+    # namelist['initialize']['Constant 2 for specific humidity profile'] = 8000
+    # namelist['initialize']['Surface temperature and sea surface temperature'] = 302.15
+    # namelist['initialize']['Background virtual temperature at the surface'] = T0(1 1 0.608q0)
+    # namelist['initialize']['Virtual temperature in upper atmosphere'] = Ty02Gzt
+    # namelist['initialize']['Virtual temperature lapse rate'] = 0.007
+    # namelist['initialize']['Background surface pressure'] = 1015
+    # namelist['initialize']['Pressure at the tropopause height zt'] = See Eq. (5)
+    # namelist['initialize']['Surface pressure difference between the background and center'] = 11.15
+    # namelist['initialize']['Constant 1 for pressure fit'] = 282
+    # namelist['initialize']['Constant 2 for pressure fit'] = 7000
+    # namelist['initialize']['Center latitude of initial vortex'] = 10
+    # namelist['initialize']['Center longitude of the initial vortex'] = 180
+    # # check these 
+    # # namelist['initialize']['Small constant to avoid division by zero'] = 2V sin(uc) 10225
+    # # namelist['initialize']['Convergence limit for fixed-point iterations'] = 2 3 10213
 
 
     namelist['thermodynamics']['thermodynamics_type'] = 'moist'
-    namelist['thermodynamics']['verical_half_width_of_the_q'] = 34000.0 # pasc
-    namelist['thermodynamics']['horizontal_half_width_of_the_q'] = 0.6981 # radians lat
 
     namelist['microphysics'] = {}
     namelist['microphysics']['rain_model'] = 'Kessler_cutoff'
@@ -152,12 +219,10 @@ def HeldSuarezMoist(namelist_defaults):
 
     namelist['surface'] = {}
     namelist['surface']['surface_model'] = 'bulk_formula'
-    namelist['surface']['momentum_transfer_coeff'] = 0.0044
+    namelist['surface']['momentum_transfer_coeff']      = 0.0044
     namelist['surface']['sensible_heat_transfer_coeff'] = 0.0044
-    namelist['surface']['latent_heat_transfer_coeff'] = 0.0044
-    namelist['surface']['surface_temp_diff'] = 29.0 # [K]
-    namelist['surface']['surface_temp_min'] = 271.0 # [K]
-    namelist['surface']['surface_temp_lat_dif'] = 26.0*3.14/180.0
+    namelist['surface']['latent_heat_transfer_coeff']   = 0.0044
+    namelist['surface']['sea_surface_temperature']      = 300.0 # [K]
 
     return namelist
 

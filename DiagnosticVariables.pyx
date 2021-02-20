@@ -21,7 +21,7 @@ cdef extern from "diagnostic_variables.h":
            Py_ssize_t k, Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
 
 cdef class DiagnosticVariable:
-    def __init__(self, nx,ny,nl,n_spec, kind, name, units):
+    def __init__(self, nx,ny, nl , kind, name, units):
         self.kind = kind
         self.name = name
         self.units = units
@@ -33,18 +33,18 @@ cdef class DiagnosticVariable:
 
 cdef class DiagnosticVariables:
     def __init__(self, Parameters Pr, Grid Gr):
-        self.KE = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'kinetic_enetry',      'Ek','m^2/s^2' )
-        self.QL = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'liquid water specific humidity', 'ql','kg/kg' )
-        self.gZ = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers+1, Gr.SphericalGrid.nlm, 'Geopotential', 'z','m^/s^2' )
-        self.Wp = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers+1, Gr.SphericalGrid.nlm, 'Wp', 'w','pasc/s' )
+        self.KE = DiagnosticVariable(Gr.nx, Gr.ny, Gr.nl,   'kinetic_enetry',      'Ek','m^2/s^2' )
+        self.QL = DiagnosticVariable(Gr.nx, Gr.ny, Gr.nl,   'liquid water specific humidity', 'ql','kg/kg' )
+        self.gZ = DiagnosticVariable(Gr.nx, Gr.ny, Gr.nl+1, 'Geopotential', 'z','m^/s^2' )
+        self.Wp = DiagnosticVariable(Gr.nx, Gr.ny, Gr.nl+1, 'Wp', 'w','pasc/s' )
         return
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV):
         cdef:
             Py_ssize_t k, j
-        # self.VT.values.base     = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
-        # self.TT.values.base     = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
-        # self.UV.values.base     = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
+        # self.VT.values.base     = np.zeros((Gr.nx, Gr.ny, Gr.nl),  dtype=np.double, order='c')
+        # self.TT.values.base     = np.zeros((Gr.nx, Gr.ny, Gr.nl),  dtype=np.double, order='c')
+        # self.UV.values.base     = np.zeros((Gr.nx, Gr.ny, Gr.nl),  dtype=np.double, order='c')
         for k in range(Pr.n_layers):
             j = Pr.n_layers-k-1 # geopotential is computed bottom -> up
             self.gZ.values.base[:,:,j] = np.add(np.multiply(np.multiply(Pr.Rd,PV.T.values[:,:,j]),np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))),self.gZ.values[:,:,j+1])
@@ -74,11 +74,11 @@ cdef class DiagnosticVariables:
         Stats.write_meridional_mean('meridional_mean_gZ',self.gZ.values[:,:,0:3])
         return
 
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Geopotential',  self.gZ.values[:,:,0:Pr.n_layers])
-        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Wp',            self.Wp.values[:,:,1:Pr.n_layers+1])
-        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'QL',            self.QL.values)
-        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Kinetic_enegry',self.KE.values)
+    cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
+        Stats.write_3D_variable(Pr, Gr, int(TS.t), Pr.n_layers, 'Geopotential',  self.gZ.values[:,:,0:Pr.n_layers])
+        Stats.write_3D_variable(Pr, Gr, int(TS.t), Pr.n_layers, 'Wp',            self.Wp.values[:,:,1:Pr.n_layers+1])
+        Stats.write_3D_variable(Pr, Gr, int(TS.t), Pr.n_layers, 'QL',            self.QL.values)
+        Stats.write_3D_variable(Pr, Gr, int(TS.t), Pr.n_layers, 'Kinetic_enegry',self.KE.values)
         return
 
     @cython.wraparound(False)
@@ -87,9 +87,9 @@ cdef class DiagnosticVariables:
         cdef:
             Py_ssize_t i, j, k
             Py_ssize_t ii = 1
-            Py_ssize_t nx = Pr.nx
-            Py_ssize_t ny = Pr.ny
-            Py_ssize_t nl = Pr.n_layers
+            Py_ssize_t nx = Gr.nx
+            Py_ssize_t ny = Gr.ny
+            Py_ssize_t nl = Gr.nl
             double dxi = 1.0/Pr.dx
             double dyi = 1.0/Pr.dy
             double Rm

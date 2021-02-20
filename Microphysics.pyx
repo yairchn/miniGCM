@@ -32,7 +32,7 @@ cdef class MicrophysicsBase:
         return
     cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
         return
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
 
 cdef class MicrophysicsNone(MicrophysicsBase):
@@ -40,9 +40,9 @@ cdef class MicrophysicsNone(MicrophysicsBase):
         MicrophysicsBase.__init__(self)
         return
     cpdef initialize(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
-        PV.QT.mp_tendency = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
-        PV.T.mp_tendency  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
-        self.RainRate = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
+        PV.QT.mp_tendency = np.zeros((Pr.nx, Pr.ny, Pr.n_layers),  dtype=np.double, order='c')
+        PV.T.mp_tendency  = np.zeros((Pr.nx, Pr.ny, Pr.n_layers),  dtype=np.double, order='c')
+        self.RainRate = np.zeros((Pr.nx, Pr.ny),  dtype=np.double, order='c')
         return
     cpdef update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         return
@@ -50,7 +50,7 @@ cdef class MicrophysicsNone(MicrophysicsBase):
         return
     cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
         return
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
 
 cdef class MicrophysicsCutoff(MicrophysicsBase):
@@ -61,7 +61,7 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
     cpdef initialize(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
         cdef:
             double [:,:] P_half
-        self.RainRate = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
+        self.RainRate = np.zeros((Pr.nx, Pr.ny),  dtype=np.double, order='c')
         Pr.max_ss    =  namelist['microphysics']['max_supersaturation']
         Pr.rho_w     =  namelist['microphysics']['water_density']
         for k in range(Pr.n_layers):
@@ -88,8 +88,8 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
     @cython.cdivision(True)
     cpdef update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         cdef:
-            Py_ssize_t nx = Pr.nlats
-            Py_ssize_t ny = Pr.nlons
+            Py_ssize_t nx = Pr.nx
+            Py_ssize_t ny = Pr.ny
             Py_ssize_t nl = Pr.n_layers
 
         with nogil:
@@ -108,6 +108,6 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
         Stats.write_surface_zonal_mean('zonal_mean_RainRate',np.mean(self.RainRate,axis=1))
         return
 
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-        Stats.write_2D_variable(Pr, int(TS.t)             , 'Rain_Rate',self.RainRate)
+    cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
+        Stats.write_2D_variable(Pr, Gr, int(TS.t)             , 'Rain_Rate',self.RainRate)
         return

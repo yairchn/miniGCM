@@ -2,8 +2,6 @@ import cython
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 cimport numpy as np
-import shtns
-import sphTrans as sph
 import os
 
 cdef class Parameters:
@@ -18,6 +16,8 @@ cdef class Parameters:
         self.case      = namelist['meta']['casename']
         self.lat       = namelist['grid']['degree_latitute']
         self.rsphere   = namelist['planet']['planet_radius']
+        self.nx  = namelist['grid']['number_of_x_points']
+        self.ny  = namelist['grid']['number_of_y_points']
         self.n_layers  = namelist['grid']['number_of_layers']
         self.p1        = namelist['grid']['p1']
         self.p2        = namelist['grid']['p2']
@@ -37,11 +37,23 @@ cdef class Parameters:
 
         self.numerical_scheme      = namelist['grid']['numerical_scheme']
 
-        self.dissipation_order = namelist['diffusion']['dissipation_order']
-        self.truncation_order  = namelist['diffusion']['truncation_order']
-        self.truncation_number = int(self.nlons/self.truncation_order)
-        self.efold             = namelist['diffusion']['e_folding_timescale']
+        # self.dissipation_order = namelist['diffusion']['dissipation_order']
+        # self.truncation_order  = namelist['diffusion']['truncation_order']
+        # self.truncation_number = int(self.nlons/self.truncation_order)
+        # self.efold             = namelist['diffusion']['e_folding_timescale']
         self.noise_amp      = namelist['initialize']['noise_amplitude']
+        self.T1        = namelist['initialize']['T1'] = 229.0
+        self.T2        = namelist['initialize']['T2'] = 259.0
+        self.T3        = namelist['initialize']['T3'] = 291.0
+        self.Tamp1        = namelist['initialize']['Tamp1'] = 0.2
+        self.Tamp2        = namelist['initialize']['Tamp2'] = 1.0
+        self.Tamp3        = namelist['initialize']['Tamp3'] = 0.0
+        self.QT1        = namelist['initialize']['QT1'] = 2.5000e-04
+        self.QT2        = namelist['initialize']['QT2'] = 0.0016
+        self.QT3        = namelist['initialize']['QT3'] = 0.0115
+        self.sigma_T = namelist['initialize']['warm_core_width']
+        self.amp_T = namelist['initialize']['warm_core_amplitude']
+
 
         self.surface_model = namelist['surface']['surface_model']
         self.inoise        = namelist['initialize']['inoise']

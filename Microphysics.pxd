@@ -16,14 +16,14 @@ cdef class MicrophysicsBase:
     cpdef update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats)
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
+    cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
 
 cdef class MicrophysicsNone(MicrophysicsBase):
     cpdef initialize(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
     cpdef update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats)
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
+    cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
 
 
 cdef class MicrophysicsCutoff(MicrophysicsBase):
@@ -33,4 +33,4 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
     cpdef update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats)
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
+    cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)

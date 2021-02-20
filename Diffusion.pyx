@@ -26,7 +26,6 @@ cdef class Diffusion:
             Py_ssize_t nx = Pr.nx
             Py_ssize_t ny = Pr.ny
             Py_ssize_t nl = Pr.n_layers
-            Py_ssize_t nlm = Gr.SphericalGrid.nlm
             int [:] shtns_l
             double diffusion_factor
             double HyperDiffusionFactor

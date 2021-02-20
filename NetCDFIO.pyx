@@ -79,37 +79,39 @@ cdef class NetCDFIO_Stats:
         return
 
     cpdef setup_stats_file(self, Parameters Pr, Grid Gr):
+        cdef:
+            Py_ssize_t imin = Gr.ng
+            Py_ssize_t imax = Gr.nx-Gr.ng
+            Py_ssize_t jmin = Gr.ng
+            Py_ssize_t jmax = Gr.ny-Gr.ng
+
         root_grp = nc.Dataset(self.path_plus_file, 'w', format='NETCDF4')
 
         # Set coordinates
         coordinate_grp = root_grp.createGroup('coordinates')
-        coordinate_grp.createDimension('lat', Pr.nlats)
-        coordinate_grp.createDimension('lon', Pr.nlons)
+        coordinate_grp.createDimension('x', Gr.nx-2.0*Gr.ng)
+        coordinate_grp.createDimension('y', Gr.ny-2.0*Gr.ng)
         coordinate_grp.createDimension('lay', 1)
 
-        latitude = coordinate_grp.createVariable('latitude', 'f8',  ('lat', 'lon'))
-        latitude[:,:] = np.array(Gr.latitude)
-        latitude_list = coordinate_grp.createVariable('latitude_list', 'f8', ('lat'))
-        latitude_list[:] = np.array(Gr.latitude_list)
-        longitude = coordinate_grp.createVariable('longitude', 'f8', ('lat', 'lon'))
-        longitude[:,:] = np.array(Gr.longitude)
-        longitude_list = coordinate_grp.createVariable('longitude_list', 'f8', ('lon'))
-        longitude_list[:] = np.array(Gr.longitude_list)
+        x = coordinate_grp.createVariable('x', 'f8', ('x'))
+        x[:] = Gr.x[imin:imax]
+        y = coordinate_grp.createVariable('y', 'f8', ('y'))
+        y[:] = Gr.y[jmin:jmax]
         layer = coordinate_grp.createVariable('layers', 'f8',('lay'))
         layer[:] = np.array(Pr.n_layers)
-        del latitude, latitude_list, longitude, longitude_list, layer
+        del x, y, layer
 
         # Set maridional mean
         meridional_mean_grp = root_grp.createGroup('meridional_mean')
         meridional_mean_grp.createDimension('time', None)
-        meridional_mean_grp.createDimension('lon', Pr.nlons)
+        meridional_mean_grp.createDimension('y', Pr.ny)
         meridional_mean_grp.createDimension('lay',  Pr.n_layers)
         t = meridional_mean_grp.createVariable('t', 'f8', ('time'))
 
         # Set zonal mean
         zonal_mean_grp = root_grp.createGroup('zonal_mean')
         zonal_mean_grp.createDimension('time', None)
-        zonal_mean_grp.createDimension('lat', Pr.nlats)
+        zonal_mean_grp.createDimension('x', Pr.nx)
         zonal_mean_grp.createDimension('lay',  Pr.n_layers)
         t = zonal_mean_grp.createVariable('t', 'f8',  ('time'))
 
@@ -122,7 +124,7 @@ cdef class NetCDFIO_Stats:
         # Set surface_zonal_mean
         surface_zonal_mean_grp = root_grp.createGroup('surface_zonal_mean')
         surface_zonal_mean_grp.createDimension('time', None)
-        surface_zonal_mean_grp.createDimension('lat', Pr.nlats)
+        surface_zonal_mean_grp.createDimension('x', Pr.nx)
         t = surface_zonal_mean_grp.createVariable('t', 'f8', ('time'))
         root_grp.close()
 
@@ -138,21 +140,21 @@ cdef class NetCDFIO_Stats:
     cpdef add_meridional_mean(self, var_name):
         root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
         meridional_mean_grp = root_grp.groups['meridional_mean']
-        new_var = meridional_mean_grp.createVariable(var_name, 'f8', ('time','lon','lay'))
+        new_var = meridional_mean_grp.createVariable(var_name, 'f8', ('time','y','lay'))
         root_grp.close()
         return
 
     cpdef add_surface_zonal_mean(self, var_name):
         root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
         surface_zonal_mean_grp = root_grp.groups['surface_zonal_mean']
-        new_var = surface_zonal_mean_grp.createVariable(var_name, 'f8', ('time','lat'))
+        new_var = surface_zonal_mean_grp.createVariable(var_name, 'f8', ('time','x'))
         root_grp.close()
         return
 
     cpdef add_zonal_mean(self, var_name):
         root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
         zonal_mean_grp = root_grp.groups['zonal_mean']
-        new_var = zonal_mean_grp.createVariable(var_name, 'f8', ('time', 'lat','lay'))
+        new_var = zonal_mean_grp.createVariable(var_name, 'f8', ('time', 'x','lay'))
         root_grp.close()
         return
 
@@ -177,22 +179,34 @@ cdef class NetCDFIO_Stats:
         var[-1, :,:] = np.array(np.mean(data,1))
         return
 
-    cpdef write_3D_variable(self, Parameters Pr, t, n_layers, var_name, data):
+    cpdef write_3D_variable(self, Parameters Pr, Grid Gr, t, n_layers, var_name, data):
+        cdef:
+            Py_ssize_t imin = Gr.ng
+            Py_ssize_t imax = Gr.nx-Gr.ng
+            Py_ssize_t jmin = Gr.ng
+            Py_ssize_t jmax = Gr.ny-Gr.ng
+
         root_grp = nc.Dataset(self.path_plus_var+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')
-        root_grp.createDimension('lat', Pr.nlats)
-        root_grp.createDimension('lon', Pr.nlons)
+        root_grp.createDimension('x', Pr.nx)
+        root_grp.createDimension('y', Pr.ny)
         root_grp.createDimension('lay', n_layers)
-        var = root_grp.createVariable(var_name, 'f8', ('lat', 'lon','lay'))
-        var[:,:,:] = np.array(data)
+        var = root_grp.createVariable(var_name, 'f8', ('x', 'y','lay'))
+        var[:,:,:] = np.array(data[imin:imax,jmin:jmax,:])
         root_grp.close()
         return
 
-    cpdef write_2D_variable(self, Parameters Pr, t, var_name, data):
+    cpdef write_2D_variable(self, Parameters Pr, Grid Gr, t, var_name, data):
+        cdef:
+            Py_ssize_t imin = Gr.ng
+            Py_ssize_t imax = Gr.nx-Gr.ng
+            Py_ssize_t jmin = Gr.ng
+            Py_ssize_t jmax = Gr.ny-Gr.ng
+
         root_grp = nc.Dataset(self.path_plus_var+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')
-        root_grp.createDimension('lat', Pr.nlats)
-        root_grp.createDimension('lon', Pr.nlons)
-        var = root_grp.createVariable(var_name, 'f8', ('lat', 'lon'))
-        var[:,:] = np.array(data)
+        root_grp.createDimension('x', Pr.nx)
+        root_grp.createDimension('y', Pr.ny)
+        var = root_grp.createVariable(var_name, 'f8', ('x', 'y'))
+        var[:,:] = np.array(data[imin:imax,jmin:jmax])
         root_grp.close()
         return
 

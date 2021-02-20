@@ -16,7 +16,7 @@ import numpy as np
 cimport numpy as np
 from Parameters cimport Parameters
 from TimeStepping cimport TimeStepping
-from UtilityFunctions import interp_weno3, roe_velocity
+# from UtilityFunctions import interp_weno3, roe_velocity
 
 cdef extern from "tendency_functions.h":
     void rhs_qt(double* p, double* qt, double* u, double* v, double* wp,
@@ -46,8 +46,8 @@ cdef class PrognosticVariable:
         self.tendency = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
         self.SurfaceFlux = np.zeros((nx,ny)   ,dtype=np.float64, order='c')
         self.VerticalFlux = np.zeros((nx,ny,nl+1),dtype=np.float64, order='c')
-        if name=='T' or name=='u' or name=='v':
-            self.forcing = np.zeros((nx,ny,nl),dtype = np.float64, order='c')
+        self.forcing = np.zeros((nx,ny,nl),dtype = np.float64, order='c')
+        # if name=='T' or name=='u' or name=='v':
         if name=='T' or name=='QT':
             self.mp_tendency = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
 
@@ -79,11 +79,11 @@ cdef class PrognosticVariable:
 
 cdef class PrognosticVariables:
     def __init__(self, Parameters Pr, Grid Gr, namelist):
-        self.U  = PrognosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   'zonal velocity'      ,'u'  ,'1/s')
-        self.V  = PrognosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   'meridionla velocity' ,'v'  ,'1/s')
-        self.T  = PrognosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   'Temperature'         ,'T'  ,'K')
-        self.QT = PrognosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   'Specific Humidity'   ,'QT' ,'K')
-        self.P  = PrognosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers+1, 'Pressure'            ,'p'  ,'pasc')
+        self.U  = PrognosticVariable(Gr.nx, Gr.ny, Gr.nl,   'zonal velocity'      ,'u'  ,'1/s')
+        self.V  = PrognosticVariable(Gr.nx, Gr.ny, Gr.nl,   'meridionla velocity' ,'v'  ,'1/s')
+        self.T  = PrognosticVariable(Gr.nx, Gr.ny, Gr.nl,   'Temperature'         ,'T'  ,'K')
+        self.QT = PrognosticVariable(Gr.nx, Gr.ny, Gr.nl,   'Specific Humidity'   ,'QT' ,'K')
+        self.P  = PrognosticVariable(Gr.nx, Gr.ny, Gr.nl+1, 'Pressure'            ,'p'  ,'pasc')
         return
 
     cpdef initialize(self, Parameters Pr):
@@ -158,15 +158,15 @@ cdef class PrognosticVariables:
         Stats.write_meridional_mean('meridional_mean_V',self.V.values)
         return
 
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
         cdef:
             Py_ssize_t nl = Pr.n_layers
-        Stats.write_3D_variable(Pr, int(TS.t),nl, 'U',                 self.U.values)
-        Stats.write_3D_variable(Pr, int(TS.t),nl, 'V',                 self.V.values)
-        Stats.write_3D_variable(Pr, int(TS.t),nl, 'Temperature',       self.T.values)
-        Stats.write_3D_variable(Pr, int(TS.t),nl, 'Specific_humidity', self.QT.values)
-        Stats.write_3D_variable(Pr, int(TS.t),nl, 'dQTdt',             self.QT.mp_tendency[:,:,0:nl])
-        Stats.write_2D_variable(Pr, int(TS.t),    'Pressure',          self.P.values[:,:,nl])
+        Stats.write_3D_variable(Pr, Gr, int(TS.t),nl, 'U',                 self.U.values)
+        Stats.write_3D_variable(Pr, Gr, int(TS.t),nl, 'V',                 self.V.values)
+        Stats.write_3D_variable(Pr, Gr, int(TS.t),nl, 'Temperature',       self.T.values)
+        Stats.write_3D_variable(Pr, Gr, int(TS.t),nl, 'Specific_humidity', self.QT.values)
+        Stats.write_3D_variable(Pr, Gr, int(TS.t),nl, 'dQTdt',             self.QT.mp_tendency[:,:,0:nl])
+        Stats.write_2D_variable(Pr, Gr, int(TS.t),    'Pressure',          self.P.values[:,:,nl])
         return
 
     @cython.wraparound(False)
@@ -175,9 +175,9 @@ cdef class PrognosticVariables:
     cpdef compute_tendencies(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
         cdef:
             Py_ssize_t i,j,k
-            Py_ssize_t nx = Pr.nx
-            Py_ssize_t ny = Pr.ny
-            Py_ssize_t nl = Pr.n_layers
+            Py_ssize_t nx = Gr.nx
+            Py_ssize_t ny = Gr.ny
+            Py_ssize_t nl = Gr.nl
             double fu, fv, duu_dx, duv_dy, dvu_dx, dvv_dy, duT_dx, dvT_dy
             double duQT_dx, dvQT_dy, dgZ_dx, dgZ_dy, Wp_dgZ_dp, T_sur_flux, QT_sur_flux,
             double U_sur_flux, V_sur_flux

@@ -2,9 +2,6 @@ import cython
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 cimport numpy as np
-import shtns
-import sphTrans as sph
-from math import *
 import os
 
 cdef class Parameters:
@@ -12,8 +9,17 @@ cdef class Parameters:
         Py_ssize_t nx
         Py_ssize_t ny
         Py_ssize_t n_layers
-        int truncation_order
-        int truncation_number
+        double T1
+        double T2
+        double T3
+        double Tamp1
+        double Tamp2
+        double Tamp3
+        double QT1
+        double QT2
+        double QT3
+        double amp_T
+        double sigma_T
         double tau
         double Coriolis
         double lat

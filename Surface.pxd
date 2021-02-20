@@ -23,7 +23,7 @@ cdef class SurfaceBase:
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef stats_io(self, NetCDFIO_Stats Stats)
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
+    cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
 
 
 cdef class SurfaceNone(SurfaceBase):
@@ -31,11 +31,11 @@ cdef class SurfaceNone(SurfaceBase):
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef stats_io(self, NetCDFIO_Stats Stats)
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
+    cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
 
 cdef class SurfaceBulkFormula(SurfaceBase):
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef stats_io(self, NetCDFIO_Stats Stats)
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
+    cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
