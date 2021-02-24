@@ -21,6 +21,8 @@ cdef class PrognosticVariable:
         double [:,:,:] old
         double [:,:,:] now
         double [:,:,:] tendency
+        double [:,:,:] Weno_dFdx
+        double [:,:,:] Weno_dFdy
         str kind
         str name
         str units

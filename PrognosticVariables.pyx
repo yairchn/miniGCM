@@ -16,7 +16,7 @@ import numpy as np
 cimport numpy as np
 from Parameters cimport Parameters
 from TimeStepping cimport TimeStepping
-from UtilityFunctions import weno3_flux_divergence
+from UtilityFunctions cimport weno3_flux_divergence
 
 cdef extern from "tendency_functions.h":
     void rhs_qt(double* p, double* qt, double* u, double* v, double* wp,
@@ -44,6 +44,8 @@ cdef class PrognosticVariable:
         self.old      = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
         self.now      = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
         self.tendency = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
+        self.Weno_dFdx = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
+        self.Weno_dFdy = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
         self.SurfaceFlux = np.zeros((nx,ny)   ,dtype=np.float64, order='c')
         self.VerticalFlux = np.zeros((nx,ny,nl+1),dtype=np.float64, order='c')
         self.forcing = np.zeros((nx,ny,nl),dtype = np.float64, order='c')
@@ -183,8 +185,8 @@ cdef class PrognosticVariables:
             double dxi = 1.0/Gr.dx
             double dyi = 1.0/Gr.dy
 
-            double [:,:] duu_dx1 = np.zeros((nx, ny), dtype = np.float64, order ='c')
-            double [:,:] duv_dy2 = np.zeros((nx, ny), dtype = np.float64, order ='c')
+            double [:,:,:] weno_fluxdivergence_x = np.zeros((nx, ny, nl), dtype = np.float64, order ='c')
+            double [:,:,:] weno_fluxdivergence_y = np.zeros((nx, ny, nl), dtype = np.float64, order ='c')
             # double [:,:] dvu_dx = np.zeros((nx, ny), dtype = np.float64, order ='c')
             # double [:,:] dvv_dy = np.zeros((nx, ny), dtype = np.float64, order ='c')
             # double [:,:] duT_dx = np.zeros((nx, ny), dtype = np.float64, order ='c')
@@ -202,8 +204,7 @@ cdef class PrognosticVariables:
             # double [:,:] V_sur_flux = np.zeros((nx, ny),dtype=np.float64, order ='c')
 
 
-        duu_dx1, dvu_dy1 = weno3_flux_divergence(Pr, Gr, &PV.U.values[0,0,0],
-                        &PV.V.values[0,0,0], &PV.U.values[0,0,0])
+        weno3_flux_divergence(Pr, Gr, PV.U, PV.V, PV.U)
         # duv_dy = weno3_flux_divergence(PV.U.values,PV.V.values, dyi, nx, ny, nl)
         # dvu_dx = weno3_flux_divergence(PV.V.values,PV.U.values, dxi, nx, ny, nl)
         # dvv_dy = weno3_flux_divergence(PV.V.values,PV.V.values, dyi, nx, ny, nl)
