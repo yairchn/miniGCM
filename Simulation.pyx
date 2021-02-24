@@ -16,6 +16,12 @@ from TimeStepping import TimeStepping
 from Microphysics import MicrophysicsBase
 from LogFile import LogFile
 
+# wishlist:
+# -1- switch to weno 5 with the correct number of ghostpoints
+# -2- see if you need diffusion at all
+# -3- compute divergence in DV in c
+# -4- correct initial conditions for a vortex
+
 class Simulation:
 
     def __init__(self, namelist):
@@ -46,28 +52,27 @@ class Simulation:
         print('run')
         start_time = time.time()
         while self.TS.t <= self.TS.t_max:
-            time0 = time.time()
+            # time0 = time.time()
             self.PV.reset_pressures_and_bcs(self.Pr, self.DV)
-            print('PV.reset_pressures_and_bcs', time.time() - time0)
-            time0 = time.time()
+            # print('PV.reset_pressures_and_bcs', time.time() - time0)
+            # time0 = time.time()
             self.PV.apply_bc(self.Pr, self.Gr)
-            print('PV.apply_bc', time.time() - time0)
-            time0 = time.time()
+            # print('PV.apply_bc', time.time() - time0)
+            # time0 = time.time()
             self.DV.update(self.Pr, self.Gr, self.PV)
-            print('DV.update', time.time() - time0)
-            time0 = time.time()
+            # print('DV.update', time.time() - time0)
+            # time0 = time.time()
             self.Case.update(self.Pr, self.Gr, self.PV, self.DV, self.TS)
-            print('Case.update', time.time() - time0)
-            time0 = time.time()
+            # print('Case.update', time.time() - time0)
+            # time0 = time.time()
             self.PV.compute_tendencies(self.Pr, self.Gr, self.PV, self.DV)
-            print('PV.compute_tendencies', time.time() - time0)
-            time0 = time.time()
+            # print('PV.compute_tendencies', time.time() - time0)
+            # time0 = time.time()
             self.TS.update(self.Pr, self.Gr, self.PV, self.DV, self.DF, namelist)
-            print('TS.update', time.time() - time0)
-            time0 = time.time()
-
-            wallclocktime = time.time() - start_time
+            # print('TS.update', time.time() - time0)
+            # time0 = time.time()
             if self.TS.t%self.Stats.stats_frequency < self.TS.dt:
+                wallclocktime = time.time() - start_time
                 self.LF.update(self.Pr, self.TS, self.DV, self.PV, wallclocktime)
                 self.stats_io()
             if self.TS.t%self.Stats.output_frequency < self.TS.dt:

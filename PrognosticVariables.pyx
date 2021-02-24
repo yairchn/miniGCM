@@ -16,7 +16,7 @@ import numpy as np
 cimport numpy as np
 from Parameters cimport Parameters
 from TimeStepping cimport TimeStepping
-# from UtilityFunctions import interp_weno3, roe_velocity
+from UtilityFunctions import weno3_flux_divergence
 
 cdef extern from "tendency_functions.h":
     void rhs_qt(double* p, double* qt, double* u, double* v, double* wp,
@@ -183,8 +183,8 @@ cdef class PrognosticVariables:
             double dxi = 1.0/Gr.dx
             double dyi = 1.0/Gr.dy
 
-            # double [:,:] duu_dx = np.zeros((nx, ny), dtype = np.float64, order ='c')
-            # double [:,:] duv_dy = np.zeros((nx, ny), dtype = np.float64, order ='c')
+            double [:,:] duu_dx1 = np.zeros((nx, ny), dtype = np.float64, order ='c')
+            double [:,:] duv_dy2 = np.zeros((nx, ny), dtype = np.float64, order ='c')
             # double [:,:] dvu_dx = np.zeros((nx, ny), dtype = np.float64, order ='c')
             # double [:,:] dvv_dy = np.zeros((nx, ny), dtype = np.float64, order ='c')
             # double [:,:] duT_dx = np.zeros((nx, ny), dtype = np.float64, order ='c')
@@ -202,7 +202,8 @@ cdef class PrognosticVariables:
             # double [:,:] V_sur_flux = np.zeros((nx, ny),dtype=np.float64, order ='c')
 
 
-        # duu_dx = weno3_flux_divergence(PV.U.values,PV.U.values, dxi, nx, ny, nl)
+        duu_dx1, dvu_dy1 = weno3_flux_divergence(Pr, Gr, &PV.U.values[0,0,0],
+                        &PV.V.values[0,0,0], &PV.U.values[0,0,0])
         # duv_dy = weno3_flux_divergence(PV.U.values,PV.V.values, dyi, nx, ny, nl)
         # dvu_dx = weno3_flux_divergence(PV.V.values,PV.U.values, dxi, nx, ny, nl)
         # dvv_dy = weno3_flux_divergence(PV.V.values,PV.V.values, dyi, nx, ny, nl)
@@ -249,62 +250,3 @@ cdef class PrognosticVariables:
                         if Pr.moist_index > 0.0:
                             PV.QT.tendency[i,j,k]  = - duQT_dx - dvQT_dy + PV.QT.mp_tendency[i,j,k] + QT_sur_flux
         return
-
-    # cpdef weno3_flux_divergence(U, Var, dxi, nx, ny, nl):
-    #     cdef:
-    #         double roe_x_velocity_m, roe_x_velocity_p, roe_y_velocity_m, roe_y_velocity_p
-    #         double phim2, phim1, phi, phip1, phip2, weno_flux_m, weno_flux_p
-    #         double [:,:,:] weno_fluxdivergence_x
-    #         double [:,:,:] weno_fluxdivergence_y
-
-    #     with nogil:
-    #         for i in range(nx):
-    #             for j in range(ny):
-    #                 for k in range(nz):
-    #                     # calcualte Roe velocity
-    #                     roe_x_velocity_m = roe_velocity(U[i,j,k]*Var[i,j,k],U[i-1,j,k]*Var[i-1,j,k],
-    #                                                     Var[i,j,k],Var[i-1,j,k])
-    #                     roe_x_velocity_p = roe_velocity(U[i+1,j,k]*Var[i+1,j,k],U[i,j,k]*Var[i,j,k],
-    #                                                     Var[i+1,j,k],Var[i,j,k])
-    #                     phip2 = U[i+2,j,k]*Var[i+2,j,k]
-    #                     phip1 = U[i+1,j,k]*Var[i+1,j,k]
-    #                     phi   = U[i  ,j,k]*Var[i  ,j,k]
-    #                     phim1 = U[i-1,j,k]*Var[i-1,j,k]
-    #                     phim2 = U[i-2,j,k]*Var[i-2,j,k]
-
-    #                     if roe_x_velocity_m>=0:
-    #                         weno_flux_m = interp_weno3(phim2, phim1, phi)
-    #                     else:
-    #                         weno_flux_m = interp_weno3(phip1, phi, phim1)
-
-    #                     if roe_x_velocity_p>=0:
-    #                         weno_flux_p = interp_weno3(phim1, phi, phip1)
-    #                     else:
-    #                         weno_flux_p = interp_weno3(phip2, phip1, phi)
-
-    #                     weno_fluxdivergence_x[i,j,k] = (weno_flux_p - weno_flux_m)*dxi
-
-    #                     roe_y_velocity_m = roe_velocity(V[i,j,k]*Var[i,j,k],V[i,j-1,k]*Var[i,j-1,k],
-    #                                                     Var[i,j,k],Var[i,j-1,k])
-    #                     roe_y_velocity_p = roe_velocity(V[i,j+1,k]*Var[i,j+1,k],V[i,j,k]*Var[i,j,k],
-    #                                                     Var[i,j+1,k],Var[i,j,k])
-    #                     phip2 = V[i,j+2,k]*Var[i,j+2,k]
-    #                     phip1 = V[i,j+1,k]*Var[i,j+1,k]
-    #                     phi   = V[i,j  ,k]*Var[i,j  ,k]
-    #                     phim1 = V[i,j-1,k]*Var[i,j-1,k]
-    #                     phim2 = V[i,j-2,k]*Var[i,j-2,k]
-
-    #                     if roe_y_velocity_m>=0:
-    #                         weno_flux_m = interp_weno3(phim2, phim1, phi)
-    #                     else:
-    #                         weno_flux_m = interp_weno3(phip1, phi, phim1)
-
-    #                     if roe_y_velocity_p>=0:
-    #                         weno_flux_p = interp_weno3(phim1, phi, phip1)
-    #                     else:
-    #                         weno_flux_p = interp_weno3(phip2, phip1, phi)
-
-    #                     weno_fluxdivergence_y[i,j,k] = (weno_flux_p - weno_flux_m)*dyi
-
-    #     return weno_fluxdivergence_x, weno_fluxdivergence_y
-
