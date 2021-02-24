@@ -95,6 +95,7 @@ def DryVortex(namelist_defaults):
     namelist['microphysics']['rain_model'] = 'None'
 
     namelist['forcing']['forcing_type'] = 'BetterMiller'
+    namelist['forcing']['relaxation_timescale'] = 3.0*3600.0
     namelist['initialize']['warm_core_width']  = 100000.0
     namelist['initialize']['warm_core_amplitude']  = 5.0
     namelist['forcing']['k_a']          = 1./40.0/(24.0*3600.0)  # [1/sec]

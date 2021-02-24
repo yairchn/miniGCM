@@ -72,19 +72,19 @@ cdef class DryVortex(CaseBase):
             double y0 = Gr.ny/2.0
             double [:,:] noise
 
-        # PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
-        # PV.T_init        = np.array([229.0, 259.0, 291.0])
-        # PV.QT_init        = np.array([2.5000e-04, 0.0016, 0.0115])
-        # Pr.amp_dTdp        = np.array([0.2, 1.0, 0.0])
+        PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
+        PV.T_init        = np.array([229.0, 259.0, 291.0])
+        PV.QT_init        = np.array([2.5000e-04, 0.0016, 0.0115])
+        Pr.amp_dTdp        = np.array([0.2, 1.0, 0.0])
 
-        # Pr.sigma_T = namelist['forcing']['sigma_T']
-        # Pr.amp_T = namelist['forcing']['amp_T']
+        Pr.sigma_T = namelist['initialize']['warm_core_width']
+        Pr.amp_T = namelist['initialize']['warm_core_amplitude']
 
-        # PV.Vorticity.values  = np.zeros((Gr.nx, Gr.ny, Gr.nl),  dtype=np.double, order='c')
-        # PV.Divergence.values = np.zeros((Gr.nx, Gr.ny, Gr.nl),  dtype=np.double, order='c')
-        # PV.QT.values         = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl),   dtype=np.double, order='c'),PV.QT_init)
-        # PV.P.values          = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl+1), dtype=np.double, order='c'),PV.P_init)
-        # PV.T.values          = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl),   dtype=np.double, order='c'),PV.T_init)
+        PV.U.values  = np.zeros((Gr.nx, Gr.ny, Gr.nl),  dtype=np.double, order='c')
+        PV.V.values  = np.zeros((Gr.nx, Gr.ny, Gr.nl),  dtype=np.double, order='c')
+        PV.QT.values = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl),   dtype=np.double, order='c'),PV.QT_init)
+        PV.P.values  = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl+1), dtype=np.double, order='c'),PV.P_init)
+        PV.T.values  = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl),   dtype=np.double, order='c'),PV.T_init)
 
         # for i in range(nx):
         #     for j in range(ny):

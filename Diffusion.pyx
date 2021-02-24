@@ -31,18 +31,18 @@ cdef class Diffusion:
             double HyperDiffusionFactor
             double [:] laplacian
 
-        shtns_l = np.copy(Gr.SphericalGrid._shtns.l)
-        laplacian  = Gr.SphericalGrid.lap
+        # shtns_l = np.copy(Gr.SphericalGrid._shtns.l)
+        # laplacian  = Gr.SphericalGrid.lap
 
-        with nogil:
-            for i in range(nx):
-                for j in range(ny):
-                    diffusion_factor = (1.0/Pr.efold*((laplacian[i]/laplacian[-1])**(Pr.dissipation_order/2.0)))
-                    HyperDiffusionFactor = 1.0
-                    for k in range(nl):
-                        PV.P.values[i,j,k]  = HyperDiffusionFactor * PV.P.values[i,j,k]
-                        PV.U.values[i,j,k]  = HyperDiffusionFactor * PV.U.values[i,j,k]
-                        PV.V.values[i,j,k]  = HyperDiffusionFactor * PV.V.values[i,j,k]
-                        PV.T.values[i,j,k]  = HyperDiffusionFactor * PV.T.values[i,j,k]
-                        PV.QT.values[i,j,k] = HyperDiffusionFactor * PV.QT.values[i,j,k]
+        # with nogil:
+        #     for i in range(nx):
+        #         for j in range(ny):
+        #             diffusion_factor = (1.0/Pr.efold*((laplacian[i]/laplacian[-1])**(Pr.dissipation_order/2.0)))
+        #             HyperDiffusionFactor = 1.0
+        #             for k in range(nl):
+        #                 PV.P.values[i,j,k]  = HyperDiffusionFactor * PV.P.values[i,j,k]
+        #                 PV.U.values[i,j,k]  = HyperDiffusionFactor * PV.U.values[i,j,k]
+        #                 PV.V.values[i,j,k]  = HyperDiffusionFactor * PV.V.values[i,j,k]
+        #                 PV.T.values[i,j,k]  = HyperDiffusionFactor * PV.T.values[i,j,k]
+        #                 PV.QT.values[i,j,k] = HyperDiffusionFactor * PV.QT.values[i,j,k]
         return

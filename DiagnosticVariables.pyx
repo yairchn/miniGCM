@@ -33,10 +33,11 @@ cdef class DiagnosticVariable:
 
 cdef class DiagnosticVariables:
     def __init__(self, Parameters Pr, Grid Gr):
-        self.KE = DiagnosticVariable(Gr.nx, Gr.ny, Gr.nl,   'kinetic_enetry',      'Ek','m^2/s^2' )
-        self.QL = DiagnosticVariable(Gr.nx, Gr.ny, Gr.nl,   'liquid water specific humidity', 'ql','kg/kg' )
-        self.gZ = DiagnosticVariable(Gr.nx, Gr.ny, Gr.nl+1, 'Geopotential', 'z','m^/s^2' )
-        self.Wp = DiagnosticVariable(Gr.nx, Gr.ny, Gr.nl+1, 'Wp', 'w','pasc/s' )
+        self.KE         = DiagnosticVariable(Gr.nx, Gr.ny, Gr.nl,   'kinetic_enetry',      'Ek','m^2/s^2' )
+        self.Divergence = DiagnosticVariable(Gr.nx, Gr.ny, Gr.nl,   'divergence',      'div','1/s' )
+        self.QL         = DiagnosticVariable(Gr.nx, Gr.ny, Gr.nl,   'liquid water specific humidity', 'ql','kg/kg' )
+        self.gZ         = DiagnosticVariable(Gr.nx, Gr.ny, Gr.nl+1, 'Geopotential', 'z','m^/s^2' )
+        self.Wp         = DiagnosticVariable(Gr.nx, Gr.ny, Gr.nl+1, 'Wp', 'w','pasc/s' )
         return
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV):
@@ -87,24 +88,25 @@ cdef class DiagnosticVariables:
         cdef:
             Py_ssize_t i, j, k
             Py_ssize_t ii = 1
+            Py_ssize_t ng = Gr.ng
             Py_ssize_t nx = Gr.nx
             Py_ssize_t ny = Gr.ny
             Py_ssize_t nl = Gr.nl
-            double dxi = 1.0/Pr.dx
-            double dyi = 1.0/Pr.dy
+            double dxi = 1.0/Gr.dx
+            double dyi = 1.0/Gr.dy
             double Rm
 
         self.Wp.values.base[:,:,0] = np.zeros_like(self.Wp.values[:,:,0])
         self.gZ.values.base[:,:,nl] = np.zeros_like(self.Wp.values[:,:,0])
         with nogil:
-            for i in range(nx):
-                for j in range(ny):
+            for i in range(ng,nx-ng-1):
+                for j in range(ng,ny-ng-1):
                     for k in range(nl):
                         self.Divergence.values[i,j,k] = ((PV.U.values[i+1,j,k]-PV.U.values[i-1,j,k])*dxi +
                                                        (PV.V.values[i,j+1,k]-PV.V.values[i,j-1,k])*dyi)
 
-                diagnostic_variables(Pr.Rd, Pr.Rv, &PV.P.values[0,0,0], &PV.T.values[0,0,0],
-                                     &PV.QT.values[0,0,0],   &self.QL.values[0,0,0], &PV.U.values[0,0,0],
-                                     &PV.V.values[0,0,0],  &self.Divergence.values[0,0,0],&self.KE.values[0,0,0],
-                                     &self.Wp.values[0,0,0], &self.gZ.values[0,0,0], k, nx, ny, nl)
+            diagnostic_variables(Pr.Rd, Pr.Rv, &PV.P.values[0,0,0], &PV.T.values[0,0,0],
+                                 &PV.QT.values[0,0,0],   &self.QL.values[0,0,0], &PV.U.values[0,0,0],
+                                 &PV.V.values[0,0,0],  &self.Divergence.values[0,0,0],&self.KE.values[0,0,0],
+                                 &self.Wp.values[0,0,0], &self.gZ.values[0,0,0], k, nx, ny, nl)
         return

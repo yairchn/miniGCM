@@ -139,7 +139,6 @@ cdef class PrognosticVariables:
         DV.Wp.values.base[:,:,0]  = np.zeros_like(self.P.values.base[:,:,nl])
         for k in range(nl):
             self.P.values.base[:,:,k] = np.add(np.zeros_like(self.P.values.base[:,:,k]),self.P_init[k])
-            self.P.spectral.base[:,k] = np.add(np.zeros_like(self.P.spectral.base[:,k]),self.P_init[k])
         return
     # this should be done in time intervals and save each time new files,not part of stats
 

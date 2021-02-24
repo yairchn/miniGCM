@@ -89,7 +89,7 @@ cdef class TimeStepping:
 							PV.QT.values[i,j,k] = F_QT[i,j,k] + self.dt*(23.0/12.0*PV.QT.tendency[i,j,k] - 16.0/12.0*PV.QT.now[i,j,k] + 5.0/12.0*PV.QT.old[i,j,k])
 						PV.P.values[i,j,nl]     = F_P[i,j]    + self.dt*(23.0/12.0*PV.P.tendency[i,j,nl] - 16.0/12.0*PV.P.now[i,j,nl] + 5.0/12.0*PV.P.old[i,j,nl])
 
-		DF.update(Pr, Gr, PV, self.dt)
+		# DF.update(Pr, Gr, PV, self.dt)
 		self.t = self.t+self.dt
 		PV.set_old_with_now()
 		PV.set_now_with_tendencies()

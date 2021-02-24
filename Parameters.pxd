@@ -9,6 +9,7 @@ cdef class Parameters:
         Py_ssize_t nx
         Py_ssize_t ny
         Py_ssize_t n_layers
+        double [:] amp_dTdp
         double T1
         double T2
         double T3
