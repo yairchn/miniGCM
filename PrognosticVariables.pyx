@@ -16,7 +16,7 @@ import numpy as np
 cimport numpy as np
 from Parameters cimport Parameters
 from TimeStepping cimport TimeStepping
-from UtilityFunctions cimport weno3_flux_divergence
+from UtilityFunctions cimport weno_flux_divergence
 
 cdef extern from "tendency_functions.h":
     void rhs_qt(double* p, double* qt, double* u, double* v, double* wp,
@@ -204,7 +204,7 @@ cdef class PrognosticVariables:
             # double [:,:] V_sur_flux = np.zeros((nx, ny),dtype=np.float64, order ='c')
 
 
-        weno3_flux_divergence(Pr, Gr, PV.U, PV.V, PV.U)
+        weno_flux_divergence(Pr, Gr, PV.U, PV.V, PV.U)
         # duv_dy = weno3_flux_divergence(PV.U.values,PV.V.values, dyi, nx, ny, nl)
         # dvu_dx = weno3_flux_divergence(PV.V.values,PV.U.values, dxi, nx, ny, nl)
         # dvv_dy = weno3_flux_divergence(PV.V.values,PV.V.values, dyi, nx, ny, nl)
