@@ -26,7 +26,7 @@ cpdef keSpectra(Grid Gr, u, v):
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
-cdef void weno_flux_divergence(Parameters Pr, Grid Gr, PrognosticVariable U,
+cdef void flux_constructor(Parameters Pr, Grid Gr, PrognosticVariable U,
                     PrognosticVariable V, PrognosticVariable Var):
     cdef:
         Py_ssize_t i, j, k
@@ -34,10 +34,8 @@ cdef void weno_flux_divergence(Parameters Pr, Grid Gr, PrognosticVariable U,
         Py_ssize_t ny = Pr.ny
         Py_ssize_t nl = Pr.n_layers
         Py_ssize_t ng = Gr.ng
-        double roe_x_velocity_m, roe_x_velocity_p, roe_y_velocity_m, roe_y_velocity_p
-        double phim2, phim1, phi, phip1, phip2, weno_flux_m, weno_flux_p, fp, fm, adv_vel
-        double dxi = 1.0/Gr.dx
-        double dyi = 1.0/Gr.dy
+        double phim3, phim2, phim1, phi, phip1, phip2, phip3, adv_vel
+
     with nogil:
         for i in xrange(ng,nx-ng-1):
             for j in xrange(ng,ny-ng-1):
@@ -54,15 +52,15 @@ cdef void weno_flux_divergence(Parameters Pr, Grid Gr, PrognosticVariable U,
                                                  U.values[i,j,k],
                                                  U.values[i+1,j,k],
                                                  U.values[i+2,j,k])
-                    interp_weno5(phim3, phim2, phim1, phi, phip1)
-
+                    # adv_vel = roe_velocity(U.values[i,j,k]*Var.values[i,j,k],
+                    #                        U.values[i+1,j,k]*Var.values[i+1,j,k],
+                    #                        Var.values[i,j,k],
+                    #                        Var.values[i+1,j,k]
+                    #                        )
                     if adv_vel>=0:
-                        Var.Weno_dFdx[i,j,k] = interp_weno5(phip2, phip1, phi, phim1, phim2)
+                        Var.ZonalFlux[i,j,k] = interp_weno5(phip2, phip1, phi, phim1, phim2)
                     else:
-                        Var.Weno_dFdx[i,j,k] = interp_weno5(phim1, phi, phip1, phip2, phip3)
-
-                    adv_vel = advection_velocity(U.values[i+2,j,k] ,U.values[i+1,j,k] ,U.values[i  ,j,k] ,U.values[i-1,j,k])
-                    Var.Weno_dFdx[i,j,k] = (weno_flux_p - weno_flux_m)*dxi
+                        Var.ZonalFlux[i,j,k] = interp_weno5(phim1, phi, phip1, phip2, phip3)
 
                     phip3 = V.values[i,j+3,k]*Var.values[i,j+3,k]
                     phip2 = V.values[i,j+2,k]*Var.values[i,j+2,k]
@@ -71,32 +69,115 @@ cdef void weno_flux_divergence(Parameters Pr, Grid Gr, PrognosticVariable U,
                     phim1 = V.values[i,j-1,k]*Var.values[i,j-1,k]
                     phim2 = V.values[i,j-2,k]*Var.values[i,j-2,k]
                     phim3 = V.values[i,j-3,k]*Var.values[i,j-3,k]
-                    # roe_y_velocity_m = roe_velocity(V.values[i,j,k]*Var.values[i,j,k],
-                    #                                 V.values[i,j-1,k]*Var.values[i,j-1,k],
-                    #                                 Var.values[i,j,k],
-                    #                                 Var.values[i,j-1,k]
-                    #                                 )
-                    # roe_y_velocity_p = roe_velocity(V.values[i,j+1,k]*Var.values[i,j+1,k],
-                    #                                 V.values[i,j,k]*Var.values[i,j,k],
-                    #                                 Var.values[i,j+1,k],
-                    #                                 Var.values[i,j,k]
-                    #                                 )
-                    # if roe_x_velocity_m>=0:
-                    #     weno_flux_m = interp_weno5(phim3, phim2, phim1, phi, phip1)
-                    # else:
-                    #     weno_flux_m = interp_weno5(phip2, phip1, phi, phim1, phim2)
-
-                    # if roe_x_velocity_p>=0:
-                    #     weno_flux_p = interp_weno5(phim2, phim1, phi, phip1, phip2)
-                    # else:
-                    #     weno_flux_p = interp_weno5(phip3, phip2, phip1, phi, phim1)
-
-                    # Var.Weno_dFdy[i,j,k] = (weno_flux_p - weno_flux_m)*dyi
-
-                    adv_vel = advection_velocity(U.values[i+2,j,k] ,U.values[i+1,j,k] ,U.values[i  ,j,k] ,U.values[i-1,j,k])
-                    Var.Weno_dFdy[i,j,k] = (weno_flux_p - weno_flux_m)*dyi
-
+                    adv_vel = advection_velocity(V.values[i-1,j,k],
+                                                 V.values[i,j,k],
+                                                 V.values[i+1,j,k],
+                                                 V.values[i+2,j,k])
+                    # adv_vel = roe_velocity(V.values[i,j,k]*Var.values[i,j,k],
+                    #                        V.values[i+1,j,k]*Var.values[i+1,j,k],
+                    #                        Var.values[i,j,k],
+                    #                        Var.values[i+1,j,k]
+                    #                        )
+                    if adv_vel>=0:
+                        Var.MeridionalFlux[i,j,k] = interp_weno5(phip2, phip1, phi, phim1, phim2)
+                    else:
+                        Var.MeridionalFlux[i,j,k] = interp_weno5(phim1, phi, phip1, phip2, phip3)
     return
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+cdef void flux_constructor_fv(Parameters Pr, Grid Gr, PrognosticVariable U,
+                    PrognosticVariable V, PrognosticVariable Var):
+    cdef:
+        Py_ssize_t i, j, k
+        Py_ssize_t nx = Pr.nx
+        Py_ssize_t ny = Pr.ny
+        Py_ssize_t nl = Pr.n_layers
+        Py_ssize_t ng = Gr.ng
+
+    with nogil:
+        for i in xrange(ng,nx-ng-1):
+            for j in xrange(ng,ny-ng-1):
+                for k in xrange(nl):
+                    Var.ZonalFlux[i,j,k] = U.values[i,j,k]*Var.values[i,j,k]
+                    Var.MeridionalFlux[i,j,k] = V.values[i,j,k]*Var.values[i,j,k]
+    return
+
+# @cython.wraparound(False)
+# @cython.boundscheck(False)
+# cdef void weno_flux_divergence(Parameters Pr, Grid Gr, PrognosticVariable U,
+#                     PrognosticVariable V, PrognosticVariable Var):
+#     cdef:
+#         Py_ssize_t i, j, k
+#         Py_ssize_t nx = Pr.nx
+#         Py_ssize_t ny = Pr.ny
+#         Py_ssize_t nl = Pr.n_layers
+#         Py_ssize_t ng = Gr.ng
+#         double roe_x_velocity_m, roe_x_velocity_p, roe_y_velocity_m, roe_y_velocity_p
+#         double phim2, phim1, phi, phip1, phip2, weno_flux_m, weno_flux_p, fp, fm, adv_vel
+#         double dxi = 1.0/Gr.dx
+#         double dyi = 1.0/Gr.dy
+#     with nogil:
+#         for i in xrange(ng,nx-ng-1):
+#             for j in xrange(ng,ny-ng-1):
+#                 for k in xrange(nl):
+#                     phip3 = U.values[i+3,j,k]*Var.values[i+3,j,k]
+#                     phip2 = U.values[i+2,j,k]*Var.values[i+2,j,k]
+#                     phip1 = U.values[i+1,j,k]*Var.values[i+1,j,k]
+#                     phi   = U.values[i  ,j,k]*Var.values[i  ,j,k]
+#                     phim1 = U.values[i-1,j,k]*Var.values[i-1,j,k]
+#                     phim2 = U.values[i-2,j,k]*Var.values[i-2,j,k]
+#                     phim3 = U.values[i-3,j,k]*Var.values[i-3,j,k]
+
+#                     adv_vel = advection_velocity(U.values[i-1,j,k],
+#                                                  U.values[i,j,k],
+#                                                  U.values[i+1,j,k],
+#                                                  U.values[i+2,j,k])
+#                     interp_weno5(phim3, phim2, phim1, phi, phip1)
+
+#                     Zonal_Flux
+#                     Meridional_Flux
+#                     if adv_vel>=0:
+#                         Var.Weno_dFdx[i,j,k] = interp_weno5(phip2, phip1, phi, phim1, phim2)
+#                     else:
+#                         Var.Weno_dFdx[i,j,k] = interp_weno5(phim1, phi, phip1, phip2, phip3)
+
+#                     adv_vel = advection_velocity(U.values[i+2,j,k] ,U.values[i+1,j,k] ,U.values[i  ,j,k] ,U.values[i-1,j,k])
+#                     Var.Weno_dFdx[i,j,k] = (weno_flux_p - weno_flux_m)*dxi
+
+#                     phip3 = V.values[i,j+3,k]*Var.values[i,j+3,k]
+#                     phip2 = V.values[i,j+2,k]*Var.values[i,j+2,k]
+#                     phip1 = V.values[i,j+1,k]*Var.values[i,j+1,k]
+#                     phi   = V.values[i,j  ,k]*Var.values[i,j  ,k]
+#                     phim1 = V.values[i,j-1,k]*Var.values[i,j-1,k]
+#                     phim2 = V.values[i,j-2,k]*Var.values[i,j-2,k]
+#                     phim3 = V.values[i,j-3,k]*Var.values[i,j-3,k]
+#                     # roe_y_velocity_m = roe_velocity(V.values[i,j,k]*Var.values[i,j,k],
+#                     #                                 V.values[i,j-1,k]*Var.values[i,j-1,k],
+#                     #                                 Var.values[i,j,k],
+#                     #                                 Var.values[i,j-1,k]
+#                     #                                 )
+#                     # roe_y_velocity_p = roe_velocity(V.values[i,j+1,k]*Var.values[i,j+1,k],
+#                     #                                 V.values[i,j,k]*Var.values[i,j,k],
+#                     #                                 Var.values[i,j+1,k],
+#                     #                                 Var.values[i,j,k]
+#                     #                                 )
+#                     # if roe_x_velocity_m>=0:
+#                     #     weno_flux_m = interp_weno5(phim3, phim2, phim1, phi, phip1)
+#                     # else:
+#                     #     weno_flux_m = interp_weno5(phip2, phip1, phi, phim1, phim2)
+
+#                     # if roe_x_velocity_p>=0:
+#                     #     weno_flux_p = interp_weno5(phim2, phim1, phi, phip1, phip2)
+#                     # else:
+#                     #     weno_flux_p = interp_weno5(phip3, phip2, phip1, phi, phim1)
+
+#                     # Var.Weno_dFdy[i,j,k] = (weno_flux_p - weno_flux_m)*dyi
+
+#                     adv_vel = advection_velocity(U.values[i+2,j,k] ,U.values[i+1,j,k] ,U.values[i  ,j,k] ,U.values[i-1,j,k])
+#                     Var.Weno_dFdy[i,j,k] = (weno_flux_p - weno_flux_m)*dyi
+
+#     return
 
 
 # @cython.wraparound(False)

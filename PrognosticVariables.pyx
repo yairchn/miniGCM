@@ -16,7 +16,7 @@ import numpy as np
 cimport numpy as np
 from Parameters cimport Parameters
 from TimeStepping cimport TimeStepping
-from UtilityFunctions cimport weno_flux_divergence
+from UtilityFunctions cimport *
 
 cdef extern from "tendency_functions.h":
     void rhs_qt(double* p, double* qt, double* u, double* v, double* wp,
@@ -44,8 +44,8 @@ cdef class PrognosticVariable:
         self.old      = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
         self.now      = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
         self.tendency = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
-        self.Weno_dFdx = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
-        self.Weno_dFdy = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
+        self.ZonalFlux = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
+        self.MeridionalFlux = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
         self.SurfaceFlux = np.zeros((nx,ny)   ,dtype=np.float64, order='c')
         self.VerticalFlux = np.zeros((nx,ny,nl+1),dtype=np.float64, order='c')
         self.forcing = np.zeros((nx,ny,nl),dtype = np.float64, order='c')
@@ -179,39 +179,17 @@ cdef class PrognosticVariables:
             Py_ssize_t nx = Gr.nx
             Py_ssize_t ny = Gr.ny
             Py_ssize_t nl = Gr.nl
-            double fu, fv, duu_dx, duv_dy, dvu_dx, dvv_dy, duT_dx, dvT_dy
-            double duQT_dx, dvQT_dy, dgZ_dx, dgZ_dy, Wp_dgZ_dp, T_sur_flux, QT_sur_flux,
-            double U_sur_flux, V_sur_flux
+            double fu, fv, dFx_dx, dFy_dy, dgZ_dx ,dgZ_dy
+            double Wp_dgZ_dp, T_sur_flux, QT_sur_flux, U_sur_flux, V_sur_flux
             double dxi = 1.0/Gr.dx
             double dyi = 1.0/Gr.dy
 
-            double [:,:,:] weno_fluxdivergence_x = np.zeros((nx, ny, nl), dtype = np.float64, order ='c')
-            double [:,:,:] weno_fluxdivergence_y = np.zeros((nx, ny, nl), dtype = np.float64, order ='c')
-            # double [:,:] dvu_dx = np.zeros((nx, ny), dtype = np.float64, order ='c')
-            # double [:,:] dvv_dy = np.zeros((nx, ny), dtype = np.float64, order ='c')
-            # double [:,:] duT_dx = np.zeros((nx, ny), dtype = np.float64, order ='c')
-            # double [:,:] dvT_dy = np.zeros((nx, ny), dtype = np.float64, order ='c')
-            # double [:,:] duQT_dx = np.zeros((nx, ny), dtype = np.float64, order ='c')
-            # double [:,:] dvQT_dy = np.zeros((nx, ny), dtype = np.float64, order ='c')
-            # double [:,:] fv = np.zeros((nx, ny), dtype = np.float64, order ='c')
-            # double [:,:] fu = np.zeros((nx, ny), dtype = np.float64, order ='c')
-            # double [:,:] dgZ_dx = np.zeros((nx, ny), dtype = np.float64, order ='c')
-            # double [:,:] dgZ_dy = np.zeros((nx, ny), dtype = np.float64, order ='c')
-            # double [:,:] Wp_dgZ_dp = np.zeros((nx, ny), dtype = np.float64, order ='c')
-            # double [:,:] T_sur_flux  = np.zeros((nx, ny),dtype=np.float64, order ='c')
-            # double [:,:] QT_sur_flux = np.zeros((nx, ny),dtype=np.float64, order ='c')
-            # double [:,:] U_sur_flux = np.zeros((nx, ny),dtype=np.float64, order ='c')
-            # double [:,:] V_sur_flux = np.zeros((nx, ny),dtype=np.float64, order ='c')
+        flux_constructor_fv(Pr, Gr, PV.U, PV.V, PV.U)
+        flux_constructor_fv(Pr, Gr, PV.U, PV.V, PV.V)
+        flux_constructor_fv(Pr, Gr, PV.U, PV.V, PV.T)
+        if Pr.moist_index > 0.0:
+            flux_constructor_fv(Pr, Gr, PV.U, PV.V, PV.QT)
 
-
-        weno_flux_divergence(Pr, Gr, PV.U, PV.V, PV.U)
-        # duv_dy = weno3_flux_divergence(PV.U.values,PV.V.values, dyi, nx, ny, nl)
-        # dvu_dx = weno3_flux_divergence(PV.V.values,PV.U.values, dxi, nx, ny, nl)
-        # dvv_dy = weno3_flux_divergence(PV.V.values,PV.V.values, dyi, nx, ny, nl)
-        # duT_dx = weno3_flux_divergence(PV.U.values,PV.T.values, dxi, nx, ny, nl)
-        # dvT_dy = weno3_flux_divergence(PV.V.values,PV.T.values, dyi, nx, ny, nl)
-        # duQT_dx = weno3_flux_divergence(PV.U.values,PV.QT.values, dxi, nx, ny, nl)
-        # dvQT_dy = weno3_flux_divergence(PV.V.values,PV.QT.values, dyi, nx, ny, nl)
         with nogil:
             for i in range(Pr.nx):
                 for j in range(Pr.ny):
@@ -224,17 +202,6 @@ cdef class PrognosticVariables:
                             T_sur_flux  = PV.T.SurfaceFlux[i,j]
                             QT_sur_flux = PV.QT.SurfaceFlux[i,j]
 
-                        duu_dx = 0.5*(PV.U.values[i+1,j,k]*PV.U.values[i+1,j,k]-PV.U.values[i-1,j,k]*PV.U.values[i-1,j,k])*dxi
-                        duv_dy = 0.5*(PV.U.values[i,j+1,k]*PV.U.values[i,j+1,k]-PV.U.values[i,j-1,k]*PV.U.values[i,j-1,k])*dyi
-                        dvu_dx = 0.5*(PV.U.values[i+1,j,k]*PV.V.values[i+1,j,k]-PV.U.values[i-1,j,k]*PV.V.values[i-1,j,k])*dxi
-                        dvv_dy = 0.5*(PV.V.values[i,j+1,k]*PV.V.values[i,j+1,k]-PV.V.values[i,j-1,k]*PV.V.values[i,j-1,k])*dyi
-                        duT_dx = 0.5*(PV.U.values[i+1,j,k]*PV.T.values[i+1,j,k]-PV.U.values[i-1,j,k]*PV.T.values[i-1,j,k])*dxi
-                        dvT_dy = 0.5*(PV.V.values[i,j+1,k]*PV.T.values[i,j+1,k]-PV.V.values[i,j-1,k]*PV.T.values[i,j-1,k])*dyi
-                        duQT_dx = 0.5*(PV.U.values[i+1,j,k]*PV.QT.values[i+1,j,k]-PV.U.values[i-1,j,k]*PV.QT.values[i-1,j,k])*dxi
-                        dvQT_dy = 0.5*(PV.V.values[i,j+1,k]*PV.QT.values[i,j+1,k]-PV.V.values[i,j-1,k]*PV.QT.values[i,j-1,k])*dyi
-                        # dgZ_dx = (DV.gZ.values[i+1,j,k]-DV.gZ.values[i-1,j,k])*dxi
-                        # dgZ_dy = (DV.gZ.values[i,j+1,k]-DV.gZ.values[i,j-1,k])*dyi
-                        # Wp_dgZ_dp = (DV.Wp.values[i,j,k+1]+DV.Wp.values[i,j,k])/2.0*(DV.gZ.values[i,j,k+1] - DV.gZ.values[i,j,k])/(PV.P.values[i,j,k+1] - PV.P.values[i,j,k])
                         fv = Pr.Coriolis*PV.V.values[i,j,k]
                         fu = Pr.Coriolis*PV.U.values[i,j,k]
                         dgZ_dx = (DV.gZ.values[i+1,j,k]-DV.gZ.values[i-1,j,k])*dxi
@@ -243,11 +210,20 @@ cdef class PrognosticVariables:
                             (DV.gZ.values[i,j,k+1]-DV.gZ.values[i,j,k-1])
                            /(PV.P.values[i,j,k+1]-PV.P.values[i,j,k-1]))
 
-                        PV.U.tendency[i,j,k]  = - duu_dx - duv_dy - fv -dgZ_dx
-                        PV.V.tendency[i,j,k]  = - dvu_dx - dvv_dy + fu -dgZ_dy
+                        dFx_dx = 0.5*(PV.U.ZonalFlux[i+1,j,k]-PV.U.ZonalFlux[i-1,j,k])*dxi
+                        dFy_dy = 0.5*(PV.U.ZonalFlux[i,j+1,k]-PV.U.ZonalFlux[i,j-1,k])*dyi
+                        PV.U.tendency[i,j,k]  = - dFx_dx - dFy_dy - fv -dgZ_dx
 
-                        PV.T.tendency[i,j,k]  = - duT_dx - dvT_dy - Wp_dgZ_dp + PV.T.mp_tendency[i,j,k] + PV.T.forcing[i,j,k] + T_sur_flux
+                        dFx_dx = 0.5*(PV.V.ZonalFlux[i+1,j,k]-PV.V.ZonalFlux[i-1,j,k])*dxi
+                        dFy_dy = 0.5*(PV.V.ZonalFlux[i,j+1,k]-PV.V.ZonalFlux[i,j-1,k])*dyi
+                        PV.V.tendency[i,j,k]  = - dFx_dx - dFy_dy + fu -dgZ_dy
+
+                        dFx_dx = 0.5*(PV.T.ZonalFlux[i+1,j,k]-PV.T.ZonalFlux[i-1,j,k])*dxi
+                        dFy_dy = 0.5*(PV.T.ZonalFlux[i,j+1,k]-PV.T.ZonalFlux[i,j-1,k])*dyi
+                        PV.T.tendency[i,j,k]  = - dFx_dx - dFy_dy - Wp_dgZ_dp + PV.T.mp_tendency[i,j,k] + PV.T.forcing[i,j,k] + T_sur_flux
 
                         if Pr.moist_index > 0.0:
-                            PV.QT.tendency[i,j,k]  = - duQT_dx - dvQT_dy + PV.QT.mp_tendency[i,j,k] + QT_sur_flux
+                            dFx_dx = 0.5*(PV.QT.ZonalFlux[i+1,j,k]-PV.QT.ZonalFlux[i-1,j,k])*dxi
+                            dFy_dy = 0.5*(PV.QT.ZonalFlux[i,j+1,k]-PV.QT.ZonalFlux[i,j-1,k])*dyi
+                            PV.QT.tendency[i,j,k]  = - dFx_dx - dFy_dy + PV.QT.mp_tendency[i,j,k] + QT_sur_flux
         return
