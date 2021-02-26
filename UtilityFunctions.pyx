@@ -318,9 +318,9 @@ cpdef axisymmetric_mean(xc, yc, data):
         Py_ssize_t r
         double [:] axi_data
 
-    y = np.arange(np.size(data,0))
-    x = np.arange(np.size(data,1))
-    nr = np.min([xc,np.arange(np.size(data,0))-xc,yc, np.arange(np.size(data,1)) - yc])-1
+    y = np.arange(np.shape(data)[0])
+    x = np.arange(np.shape(data)[1])
+    nr = (np.min([xc,np.size(data,0)-xc,yc, np.size(data,1) - yc])-1).astype(np.int)
     axi_data = np.zeros(nr)
     for r in range(nr):
         mask = np.logical_and((x-xc)**2 + (y-yc)**2 < r**2,

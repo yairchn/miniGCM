@@ -24,7 +24,9 @@ cdef class Grid:
 		for j in range(self.ny):
 			self.y[j] = self.dy*j
 
-		R = np.add(np.power(self.x,2.0),np.power(self.y,2.0))
+		X, Y = np.meshgrid(self.x, self.y)
+		R = np.add(np.power(X,2.0),np.power(Y,2.0))
+
 		self.xc = self.nx/2
 		self.yc = self.ny/2
 		self.r = axisymmetric_mean(self.xc, self.yc, R)
