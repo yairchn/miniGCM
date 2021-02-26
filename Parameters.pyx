@@ -44,6 +44,7 @@ cdef class Parameters:
         self.surface_model = namelist['surface']['surface_model']
         self.inoise        = namelist['initialize']['inoise']
         self.noise_amp        = namelist['initialize']['noise_amplitude']
+        self.noise_type     = namelist['initialize']['noise_type']
 
         self.uuid        = namelist['meta']['uuid']
         self.casename    = namelist['meta']['casename']

@@ -59,6 +59,7 @@ cdef class Parameters:
         double noise_amp
 
         str case
+        str noise_type
         str surface_model
         str uuid
         str casename
