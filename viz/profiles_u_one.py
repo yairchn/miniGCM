@@ -7,17 +7,15 @@ import os
 # command line:
 # python viz/contour_zonal_mean.py zonal_mean_P
 def main():
-    #parser = argparse.ArgumentParser(prog='miniGCM')
-    #parser.add_argument("varname")
-    #args = parser.parse_args()
-    #varname = args.varname
+    parser = argparse.ArgumentParser(prog='miniGCM')
+    parser.add_argument("varname")
+    args = parser.parse_args()
+    runname = args.varname
     varname = 'zonal_mean_U'
-    runname='410k2'
-    #runname='4e5k0'
-    runname='310k2'
+    #runname='43a13'
 
     folder = '/home/scoty/miniGCM/Output.HeldSuarez.'+runname+'/stats/'
-    ncfile = folder + 'Stats.HeldSuarez.Restart_2.nc'
+    ncfile = folder + 'Stats.HeldSuarez.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
@@ -28,9 +26,9 @@ def main():
     t = np.divide(data.groups['zonal_mean'].variables['t'],3600.0*24.0)
 
     fig= plt.figure(figsize=(4,4))
-    im1 = plt.plot(np.mean(var[200:1000,:,0],axis=0),np.array(lat_list),'-k',linewidth=4,alpha=0.4,label='top')
-    im2 = plt.plot(np.mean(var[200:1000,:,1],axis=0),np.array(lat_list),'-k',linewidth=2,alpha=0.6,label='middle')
-    im3 = plt.plot(np.mean(var[200:1000,:,2],axis=0),np.array(lat_list),'-k',linewidth=1,alpha=0.8,label='bottom')
+    im1 = plt.plot(np.mean(var[350:400,:,0],axis=0),np.array(lat_list),'-k',linewidth=4,alpha=0.4,label='top')
+    im2 = plt.plot(np.mean(var[350:400,:,1],axis=0),np.array(lat_list),'-k',linewidth=2,alpha=0.6,label='middle')
+    im3 = plt.plot(np.mean(var[350:400,:,2],axis=0),np.array(lat_list),'-k',linewidth=1,alpha=0.8,label='bottom')
     plt.ylabel('Latitude / $\circ$')
     plt.xlim(-8,25)
     plt.grid(linestyle=':',alpha=0.6,linewidth=1)

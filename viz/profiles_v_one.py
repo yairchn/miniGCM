@@ -8,15 +8,12 @@ from scipy.signal import savgol_filter
 # command line:
 # python viz/contour_zonal_mean.py zonal_mean_P
 def main():
-    #parser = argparse.ArgumentParser(prog='miniGCM')
-    #parser.add_argument("varname")
-    #args = parser.parse_args()
-    #varname = args.varname
+    parser = argparse.ArgumentParser(prog='miniGCM')
+    parser.add_argument("varname")
+    args = parser.parse_args()
+    runname = args.varname
     varname = 'zonal_mean_V'
-    runname='410k2'
-    #runname='4e5k0'
-    runname='310k2'
-    runname='43809'
+    #runname='43a12'
 
     folder = '/home/scoty/miniGCM/Output.HeldSuarez.'+runname+'/stats/'
     ncfile = folder + 'Stats.HeldSuarez.nc'
@@ -32,9 +29,9 @@ def main():
     print('var.shape', var.shape) #steps of 5 days
 
     fig= plt.figure(figsize=(4,4))
-    im1 = plt.plot(savgol_filter(np.mean(var[50:60,:,0],axis=0),5,1),np.array(lat_list),'-k',linewidth=4,alpha=0.4,label='top')
-    im2 = plt.plot(savgol_filter(np.mean(var[50:60,:,1],axis=0),5,1),np.array(lat_list),'-k',linewidth=2,alpha=0.6,label='middle')
-    im3 = plt.plot(savgol_filter(np.mean(var[50:60,:,2],axis=0),5,1),np.array(lat_list),'-k',linewidth=1,alpha=0.8,label='bottom')
+    im1 = plt.plot(savgol_filter(np.mean(var[800:1000,:,0],axis=0),5,1),np.array(lat_list),'-k',linewidth=4,alpha=0.4,label='top')
+    im2 = plt.plot(savgol_filter(np.mean(var[800:1000,:,1],axis=0),5,1),np.array(lat_list),'-k',linewidth=2,alpha=0.6,label='middle')
+    im3 = plt.plot(savgol_filter(np.mean(var[800:1000,:,2],axis=0),5,1),np.array(lat_list),'-k',linewidth=1,alpha=0.8,label='bottom')
     plt.ylabel('Latitude / $\circ$')
     plt.grid(linestyle=':',alpha=0.6,linewidth=1)
     plt.title("Meridional Wind")
