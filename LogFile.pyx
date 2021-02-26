@@ -24,12 +24,12 @@ cdef class LogFile:
                   +str(TS.t_max/(TS.t/wallclocktime)/3600.0) + '>> '+Pr.logfilename)
         os.system('echo dt [sec]' + str(TS.dt) + '>> '+Pr.logfilename)
 
-        os.system('echo u layer 1 min max ' + str(DV.U.values.base[:,:,0].min())
-        	      + ' ' + str(DV.U.values.base[:,:,0].max()) + '>> '+Pr.logfilename)
-        os.system('echo u layer 2 min max ' + str(DV.U.values.base[:,:,1].min())
-        	      + ' ' + str(DV.U.values.base[:,:,1].max()) + '>> '+Pr.logfilename)
-        os.system('echo u layer 3 min max ' + str(DV.U.values.base[:,:,2].min())
-        	      + ' ' + str(DV.U.values.base[:,:,2].max()) + '>> '+Pr.logfilename)
+        os.system('echo u layer 1 min max ' + str(PV.U.values.base[:,:,0].min())
+        	      + ' ' + str(PV.U.values.base[:,:,0].max()) + '>> '+Pr.logfilename)
+        os.system('echo u layer 2 min max ' + str(PV.U.values.base[:,:,1].min())
+        	      + ' ' + str(PV.U.values.base[:,:,1].max()) + '>> '+Pr.logfilename)
+        os.system('echo u layer 3 min max ' + str(PV.U.values.base[:,:,2].min())
+        	      + ' ' + str(PV.U.values.base[:,:,2].max()) + '>> '+Pr.logfilename)
 
         os.system('echo T layer 1 min max ' + str(PV.T.values.base[:,:,0].min())
                   + ' ' + str(PV.T.values.base[:,:,0].max()) + '>> '+Pr.logfilename)

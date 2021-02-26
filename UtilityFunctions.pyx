@@ -311,3 +311,20 @@ cdef double roe_velocity(double fp, double fm, double varp, double varm) nogil:
 
 cdef double advection_velocity(double phim1, double phi, double phip1, double phip2) nogil:
     return (7.0/12.0)*(phi + phip1 ) -(1.0/12.0)*(phim1 + phip2)
+
+
+cpdef axisymmetric_mean(xc, yc, data):
+    cdef:
+        Py_ssize_t r
+        double [:] axi_data
+
+    y = np.arange(np.size(data,0))
+    x = np.arange(np.size(data,1))
+    nr = np.min([xc,np.arange(np.size(data,0))-xc,yc, np.arange(np.size(data,1)) - yc])-1
+    axi_data = np.zeros(nr)
+    for r in range(nr):
+        mask = np.logical_and((x-xc)**2 + (y-yc)**2 < r**2,
+                              (x-xc)**2 + (y-yc)**2 > (r+1)**2)
+        axi_data[r] = np.nanmean(data[mask])
+
+    return axi_data

@@ -26,18 +26,18 @@ cdef class NetCDFIO_Stats:
         public double last_output_time
         public double stats_frequency
         public double output_frequency
+        double xc
+        double yc
 
     cpdef open_files(self)
     cpdef close_files(self)
     cpdef setup_stats_file(self, Parameters Pr, Grid Gr)
     cpdef add_global_mean(self, var_name)
-    cpdef add_meridional_mean(self, var_name)
-    cpdef add_zonal_mean(self, var_name)
-    cpdef add_surface_zonal_mean(self, var_name)
+    cpdef add_axisymmetric_mean(self, var_name)
+    cpdef add_surface_axisymmetric_mean(self, var_name)
     cpdef write_global_mean(self, var_name, data)
-    cpdef write_meridional_mean(self, var_name, data)
-    cpdef write_zonal_mean(self, var_name, data)
-    cpdef write_surface_zonal_mean(self, var_name, data)
+    cpdef write_axisymmetric_mean(self, var_name, data)
+    cpdef write_surface_axisymmetric_mean(self, var_name, data)
     cpdef write_3D_variable(self, Parameters Pr, Grid Gr, t, n_layers, var_name, data)
     cpdef write_2D_variable(self, Parameters Pr, Grid Gr, t, var_name, data)
     cpdef write_simulation_time(self, t)

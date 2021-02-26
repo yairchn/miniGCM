@@ -12,6 +12,9 @@ cdef class Grid:
 		int ng
 		double dx
 		double dy
+		double xc
+		double yc
 		double [:] x
 		double [:] y
+		double [:] r
 		double Coriolis

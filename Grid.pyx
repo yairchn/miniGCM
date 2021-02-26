@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 cimport numpy as np
 from Parameters cimport Parameters
+from UtilityFunctions import axisymmetric_mean
 
 cdef class Grid:
 	def __init__(self, Parameters Pr, namelist):
@@ -22,5 +23,10 @@ cdef class Grid:
 			self.x[i] = self.dx*i
 		for j in range(self.ny):
 			self.y[j] = self.dy*j
+
+		R = np.add(np.power(self.x,2.0),np.power(self.y,2.0))
+		self.xc = self.nx/2
+		self.yc = self.ny/2
+		self.r = axisymmetric_mean(self.xc, self.yc, R)
 		return
 
