@@ -14,8 +14,8 @@ def main():
     varname = args.varname
     mytime = args.mytime
 
-    folder = os.getcwd() + '/Output.HeldSuarezMoist.30day/stats/'
-    ncfile = folder + 'Stats.HeldSuarezMoist.nc'
+    folder = os.getcwd() + '/Output.HeldSuarez._cOG_/'
+    ncfile = folder + 'Stats.HeldSuarez.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
@@ -23,12 +23,14 @@ def main():
 
     lat_list = np.array(data.groups['coordinates'].variables['latitude_list'])
     var = np.array(data.groups['zonal_mean'].variables[varname])
-    timescale = 3600.0
+    timescale = 3600.0*24.0
     t = np.divide(data.groups['zonal_mean'].variables['t'],timescale)
 
     # t0 = numpy.where(numpy.diff(numpy.signbit(t-mytime)))[0]
     t0 = np.argmin(np.abs(np.subtract(t,mytime-0.1)))
     t1 = np.argmin(np.abs(np.subtract(t,mytime+0.1)))
+    t0 = 200
+    t1 = 260
     fig = plt.figure(varname)
     for i in range(n):
         ax1 = fig.add_subplot(n, 1, i+1)

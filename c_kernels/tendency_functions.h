@@ -152,22 +152,22 @@ void vertical_uv_fluxes(double* restrict p,
             const ssize_t ijkp = ishift_p + jshift_p + k;
             dpi = 1.0/(p[ijkp+1] - p[ijkp]);
             if (k==0){
-                wdudp_dn[ij] = wp[ijkp+1]*(u[ijk+1] - u[ijk])*dpi;
-                wdvdp_dn[ij] = wp[ijkp+1]*(v[ijk+1] - v[ijk])*dpi;
+                wdudp_dn[ij] = 0.5*wp[ijkp+1]*(u[ijk+1] - u[ijk])*dpi;
+                wdvdp_dn[ij] = 0.5*wp[ijkp+1]*(v[ijk+1] - v[ijk])*dpi;
                 wdudp_up[ij] = 0.0;
                 wdvdp_up[ij] = 0.0;
             } // end if
             else if (k==kmax-1){
                 wdudp_dn[ij] = 0.0;
                 wdvdp_dn[ij] = 0.0;
-                wdudp_up[ij] = wp[ijkp]*(u[ijk] - u[ijk-1])*dpi;
-                wdvdp_up[ij] = wp[ijkp]*(v[ijk] - v[ijk-1])*dpi;
+                wdudp_up[ij] = 0.5*wp[ijkp]*(u[ijk] - u[ijk-1])*dpi;
+                wdvdp_up[ij] = 0.5*wp[ijkp]*(v[ijk] - v[ijk-1])*dpi;
             } // end else if
             else{
-                wdudp_dn[ij] = wp[ijkp+1]*(u[ijk+1] - u[ijk])*dpi;
-                wdvdp_dn[ij] = wp[ijkp+1]*(v[ijk+1] - v[ijk])*dpi;
-                wdudp_up[ij] = wp[ijkp]*(u[ijk] - u[ijk-1])*dpi;
-                wdvdp_up[ij] = wp[ijkp]*(v[ijk] - v[ijk-1])*dpi;
+                wdudp_dn[ij] = 0.5*wp[ijkp+1]*(u[ijk+1] - u[ijk])*dpi;
+                wdvdp_dn[ij] = 0.5*wp[ijkp+1]*(v[ijk+1] - v[ijk])*dpi;
+                wdudp_up[ij] = 0.5*wp[ijkp]*(u[ijk] - u[ijk-1])*dpi;
+                wdvdp_up[ij] = 0.5*wp[ijkp]*(v[ijk] - v[ijk-1])*dpi;
             } // end else
             e_dry[ij]  = (gz[ijkp+1]+gz[ijkp])/2.0 + ke[ijk];
             u_vort[ij] = u[ijk] * (vort[ijk]+f[ij]);

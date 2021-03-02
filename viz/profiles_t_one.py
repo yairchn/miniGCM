@@ -27,8 +27,8 @@ def main():
     var = np.array(data.groups['zonal_mean'].variables[varname])
     var2= np.array(data.groups['zonal_mean'].variables[varname2])
     t = np.divide(data.groups['zonal_mean'].variables['t'],3600.0*24.0)
-    t1 = 180
-    t2 = 220
+    t1 = 300
+    t2 = 340
 
     fig= plt.figure(figsize=(4,4))
     im1 = plt.plot(np.mean(var[t1:t2,:,0],axis=0),np.array(lat_list),'-k',linewidth=4,alpha=0.4,label='top')
