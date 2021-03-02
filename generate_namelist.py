@@ -18,20 +18,20 @@ def main():
     namelist_defaults['timestepping'] = {}
     namelist_defaults['timestepping']['CFL_limit'] = 0.8
     namelist_defaults['timestepping']['dt'] = 100.0
-    namelist_defaults['timestepping']['t_max'] = 100.0 # days
+    namelist_defaults['timestepping']['t_max'] = 1000.0 # days
 
     namelist_defaults['forcing'] = {}
 
     namelist_defaults['diffusion'] = {}
-    namelist_defaults['diffusion']['dissipation_order'] = 8.0
-    namelist_defaults['diffusion']['truncation_order'] = 4
-    namelist_defaults['diffusion']['e_folding_timescale'] = 0.01
+    namelist_defaults['diffusion']['dissipation_order'] = 4.0
+    namelist_defaults['diffusion']['truncation_order'] = 3
+    namelist_defaults['diffusion']['e_folding_timescale'] = 1800
 
     namelist_defaults['grid'] = {}
     namelist_defaults['grid']['dims'] = 1
     namelist_defaults['grid']['gw'] = 2
-    namelist_defaults['grid']['number_of_latitute_points'] =  256
-    namelist_defaults['grid']['number_of_longitude_points'] = 512
+    namelist_defaults['grid']['number_of_latitute_points'] =  64
+    namelist_defaults['grid']['number_of_longitude_points'] = 128
     namelist_defaults['grid']['number_of_layers'] =  3
     namelist_defaults['grid']['p3']       =  850.0*1.e2  # [pasc]
     namelist_defaults['grid']['p2']       =  500.0*1.e2  # [pasc]
@@ -53,8 +53,8 @@ def main():
 
     namelist_defaults['initialize'] = {}
     namelist_defaults['initialize']['inoise']                   = 1 # flag for noise in initial condition
-    namelist_defaults['initialize']['noise_amplitude']          = 0.01 # amplitude of initial noise in K
-    namelist_defaults['initialize']['noise_type'] = 'white' # 'white', 'red', 'blue', or 'local' 
+    namelist_defaults['initialize']['noise_amplitude']          = 1 # amplitude of initial noise in K
+    namelist_defaults['initialize']['noise_type'] = 'red' # 'white', 'red', 'blue', or 'local' 
 
 
     namelist_defaults['output'] = {}
@@ -101,15 +101,15 @@ def HeldSuarez(namelist_defaults):
     namelist['forcing']['lapse_rate']   = 10.0                   # Characteristic potential temperature change in vertical [K]
 
     namelist['microphysics']['rain_model'] = 'None'
-    namelist['initialize']['T1']   = 229.0 # initial temperature of layer 1 [K]
-    namelist['initialize']['T2']   = 257.0 # initial temperature of layer 2 [K]
+    namelist['initialize']['T1']   = 300.0 # initial temperature of layer 1 [K]
+    namelist['initialize']['T2']   = 300.0 # initial temperature of layer 2 [K]
     namelist['initialize']['T3']   = 300.0 # initial temperature of layer 3 [K]
 
     namelist['surface'] = {}
     namelist['surface']['surface_model'] = 'None'
 
     namelist['diffusion']['type'] = 'hyperdiffusion'
-    namelist['diffusion']['order'] = 8.0
+    namelist['diffusion']['order'] = 4.0
 
     return namelist
 
