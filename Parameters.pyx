@@ -23,6 +23,9 @@ cdef class Parameters:
         self.p1        = namelist['grid']['p1']
         self.p2        = namelist['grid']['p2']
         self.p3        = namelist['grid']['p3']
+        self.T1        = namelist['initialize']['T1']
+        self.T2        = namelist['initialize']['T2']
+        self.T3        = namelist['initialize']['T3']
         self.p_ref     = namelist['grid']['p_ref']
         self.Omega     = namelist['planet']['Omega_rotation']
         self.g         = namelist['planet']['gravity']
@@ -49,7 +52,7 @@ cdef class Parameters:
         self.uuid        = namelist['meta']['uuid']
         self.casename    = namelist['meta']['casename']
         self.outpath     = str(os.path.join(namelist['output']['output_root'] + 'Output.' + namelist['meta']['simname'] + '.'
-                            + self.uuid[len(self.uuid )-5:len(self.uuid)]))
+                            + self.uuid[len(self.uuid )-12:len(self.uuid)]))
         self.logfilename = self.outpath+'/'+self.casename+'.log'
 
         return

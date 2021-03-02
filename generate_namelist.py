@@ -54,6 +54,8 @@ def main():
     namelist_defaults['initialize'] = {}
     namelist_defaults['initialize']['inoise']                   = 1 # flag for noise in initial condition
     namelist_defaults['initialize']['noise_amplitude']          = 0.01 # amplitude of initial noise in K
+    namelist_defaults['initialize']['noise_type'] = 'white' # 'white', 'red', 'blue', or 'local' 
+
 
     namelist_defaults['output'] = {}
     namelist_defaults['output']['output_root'] = './'
@@ -99,6 +101,9 @@ def HeldSuarez(namelist_defaults):
     namelist['forcing']['lapse_rate']   = 10.0                   # Characteristic potential temperature change in vertical [K]
 
     namelist['microphysics']['rain_model'] = 'None'
+    namelist['initialize']['T1']   = 229.0 # initial temperature of layer 1 [K]
+    namelist['initialize']['T2']   = 257.0 # initial temperature of layer 2 [K]
+    namelist['initialize']['T3']   = 300.0 # initial temperature of layer 3 [K]
 
     namelist['surface'] = {}
     namelist['surface']['surface_model'] = 'None'
@@ -135,6 +140,10 @@ def HeldSuarezMoist(namelist_defaults):
     namelist['forcing']['initial_profile_power'] = 3.0
     namelist['forcing']['initial_surface_qt'] = 0.018
     namelist['forcing']['Gamma_init'] = 0.005
+
+    namelist['initialize']['T1']   = 229.0 # initial temperature of layer 1 [K]
+    namelist['initialize']['T2']   = 257.0 # initial temperature of layer 2 [K]
+    namelist['initialize']['T3']   = 300.0 # initial temperature of layer 3 [K]
 
 
     namelist['thermodynamics']['thermodynamics_type'] = 'moist'

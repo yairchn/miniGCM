@@ -24,7 +24,7 @@ cdef class NetCDFIO_Stats:
 
         # Setup the statistics output path
         outpath = str(os.path.join(namelist['output']['output_root'] + 'Output.' + namelist['meta']['simname'] + '.'
-                                   + self.uuid[len(self.uuid )-5:len(self.uuid)]))
+                                   + self.uuid[len(self.uuid )-12:len(self.uuid)]))
 
         try:
             os.mkdir(outpath)
