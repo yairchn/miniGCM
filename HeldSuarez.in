@@ -1,7 +1,7 @@
 {
     "diffusion": {
         "dissipation_order": 4.0,
-        "e_folding_timescale": 1800,
+        "e_folding_timescale": 3600,
         "order": 4.0,
         "truncation_order": 3,
         "type": "hyperdiffusion"

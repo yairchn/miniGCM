@@ -1,0 +1,45 @@
+import numpy as np
+import netCDF4 as nc
+import pylab as plt
+import argparse
+import os
+
+# command line:
+# python viz/contour_zonal_mean.py zonal_mean_P
+def main():
+    #parser = argparse.ArgumentParser(prog='miniGCM')
+    #parser.add_argument("varname")
+    #args = parser.parse_args()
+    #varname = args.varname
+    varname = 'Pressure'
+    runname='43a12'
+    step=3600*24
+
+    folder = '/home/scoty/miniGCM/Output.HeldSuarez.'+runname+'/Fields/'
+    ncfile = folder + '../stats/Stats.HeldSuarez.nc'
+    data = nc.Dataset(ncfile, 'r')
+
+    lat = np.array(data.groups['coordinates'].variables['latitude'])
+    lon = np.array(data.groups['coordinates'].variables['longitude'])
+    n = int(np.multiply(data.groups['coordinates'].variables['layers'],1.0))
+
+    nt=1000
+    nt=200
+    #for it in np.arange(5,nt,2):
+    for it in [50,100,150,750]:
+        print('it =',it)
+        ncfile = folder + varname+'_'+str(step*it)+'.nc'
+        data = nc.Dataset(ncfile, 'r')
+        var = np.array(data.variables[varname][:,:])
+        X, Y = (lon,lat)
+        fig = plt.figure(varname,figsize=(6,4))
+        im1 = plt.contourf(X,Y,var[:,:]/100,cmap='viridis',levels=np.linspace(980,1020,40),extend='both')
+        plt.ylabel('latitude / $\circ$')
+        plt.title('Field $p_s$ / hPa on day '+str(it).zfill(3))
+        plt.xlabel('longitude / $\circ$')
+        fig.colorbar(im1)
+        plt.tight_layout()
+        plt.savefig(varname+'_'+runname+'_'+str(it).zfill(4)+'.png')
+        plt.clf()
+if __name__ == '__main__':
+    main()
