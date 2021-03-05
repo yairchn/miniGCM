@@ -7,7 +7,7 @@ from DiagnosticVariables cimport DiagnosticVariables, DiagnosticVariable
 from DiagnosticVariables import DiagnosticVariables, DiagnosticVariable
 from Diffusion import Diffusion
 cimport Parameters
-import Restart
+from Restart cimport Restart
 cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
 from PrognosticVariables cimport PrognosticVariables, PrognosticVariable
@@ -34,7 +34,7 @@ class Simulation:
 
     def initialize(self, namelist):
         self.LF.initialize(self.Pr, namelist)
-        self.Case.initialize(self.Pr, self.Gr, self.PV, namelist)
+        self.Case.initialize(self.RS, self.Pr, self.Gr, self.PV, self.TS, namelist)
         self.Case.initialize_microphysics(self.Pr, self.PV, self.DV, namelist)
         self.Case.initialize_forcing(self.Pr, self.Gr, namelist)
         self.Case.initialize_surface(self.Pr, self.Gr, self.PV, namelist)

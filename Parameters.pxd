@@ -65,7 +65,7 @@ cdef class Parameters:
         str noise_type
         str surface_model
         str uuid
-        str restart
+        bint restart
         str restart_folder
         str restart_type
         str casename

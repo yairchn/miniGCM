@@ -34,7 +34,10 @@
         "T3": 300.0,
         "inoise": 1,
         "noise_amplitude": 1,
-        "noise_type": "red"
+        "noise_type": "red",
+        "restart": true,
+        "restart folder": "./Output.HeldSuarez.test_restart/",
+        "restart type": "zonal_mean"
     },
     "io": {
         "output_frequency": 7.0,
@@ -44,7 +47,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "66757bdb-fda8-4039-9300-_josef_yair1"
+        "uuid": "06cb406e-5f0b-4ccf-bee4-test_restart"
     },
     "microphysics": {
         "rain_model": "None"
@@ -72,6 +75,6 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 1000.0
+        "t_max": 1.0
     }
 }

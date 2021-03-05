@@ -14,7 +14,7 @@ from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
 import time
 import sphericalForcing as spf
-from Restart import Restart
+from Restart cimport Restart
 
 def CasesFactory(namelist):
     if namelist['meta']['casename'] == 'HeldSuarez':
@@ -34,7 +34,7 @@ cdef class CaseBase:
     def __init__(self, namelist):
         return
 
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+    cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist):
         return
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
@@ -66,12 +66,12 @@ cdef class HeldSuarez(CaseBase):
         self.MP = Microphysics.MicrophysicsNone()
         return
 
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+    cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist):
         cdef:
             double [:,:] noise
 
         if Pr.restart:
-            Restart.initialize(self, Pr, Gr, PV, namelist)
+            RS.initialize(Pr, Gr, PV, TS, namelist)
         else:
             PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
             PV.T_init        = np.array([Pr.T1, Pr.T2, Pr.T3])
@@ -154,7 +154,7 @@ cdef class HeldSuarezMoist(CaseBase):
         return
 
 
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+    cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist):
         cdef:
             Py_ssize_t i, j, k
             double Gamma, T_0, B, C, H

@@ -12,7 +12,7 @@ from Microphysics cimport MicrophysicsBase
 import sys
 from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
-
+from Restart cimport Restart
 
 cdef class CaseBase:
     cdef:
@@ -27,7 +27,7 @@ cdef class CaseBase:
         ForcingBase Fo
         MicrophysicsBase MP
 
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
+    cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist)
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist)
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist)
@@ -37,7 +37,7 @@ cdef class CaseBase:
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS)
 
 cdef class HeldSuarez(CaseBase):
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
+    cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist)
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist)
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist)
@@ -48,7 +48,7 @@ cdef class HeldSuarez(CaseBase):
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS)
 
 cdef class HeldSuarezMoist(CaseBase):
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
+    cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist)
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist)
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist)
