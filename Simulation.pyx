@@ -7,6 +7,7 @@ from DiagnosticVariables cimport DiagnosticVariables, DiagnosticVariable
 from DiagnosticVariables import DiagnosticVariables, DiagnosticVariable
 from Diffusion import Diffusion
 cimport Parameters
+import Restart
 cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
 from PrognosticVariables cimport PrognosticVariables, PrognosticVariable
@@ -21,6 +22,7 @@ class Simulation:
     def __init__(self, namelist):
         self.Pr = Parameters.Parameters(namelist)
         self.LF = LogFile(namelist)
+        self.RS = Restart(self.Pr, namelist)
         self.Gr = Grid.Grid(self.Pr, namelist)
         self.Case = CasesFactory(namelist)
         self.PV = PrognosticVariables(self.Pr, self.Gr, namelist)

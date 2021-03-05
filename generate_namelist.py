@@ -29,14 +29,14 @@ def main():
 
     namelist_defaults['grid'] = {}
     namelist_defaults['grid']['dims'] = 1
-    namelist_defaults['grid']['gw'] = 2
+    namelist_defaults['grid']['gw']   = 2
     namelist_defaults['grid']['number_of_latitute_points'] =  64
     namelist_defaults['grid']['number_of_longitude_points'] = 128
     namelist_defaults['grid']['number_of_layers'] =  3
-    namelist_defaults['grid']['p3']       =  850.0*1.e2  # [pasc]
-    namelist_defaults['grid']['p2']       =  500.0*1.e2  # [pasc]
-    namelist_defaults['grid']['p1']       =  250.0*1.e2  # [pasc]
-    namelist_defaults['grid']['p_ref']    =  1000.0*1.e2 # [pasc]
+    namelist_defaults['grid']['p3']    =  850.0*1.e2  # [pasc]
+    namelist_defaults['grid']['p2']    =  500.0*1.e2  # [pasc]
+    namelist_defaults['grid']['p1']    =  250.0*1.e2  # [pasc]
+    namelist_defaults['grid']['p_ref'] =  1000.0*1.e2 # [pasc]
 
     namelist_defaults['planet'] = {}
     namelist_defaults['planet']['planet_radius']    = 6.37122e6 # earth radius [m]
@@ -52,8 +52,11 @@ def main():
     namelist_defaults['thermodynamics']['triple_point_temp']    = 273.16    # [K]
 
     namelist_defaults['initialize'] = {}
-    namelist_defaults['initialize']['inoise']                   = 1 # flag for noise in initial condition
-    namelist_defaults['initialize']['noise_amplitude']          = 1 # amplitude of initial noise in K
+    namelist_defaults['initialize']['restart']                  = False        # true requires input directory
+    namelist_defaults['initialize']['restart folder']           = './'         # input directory for restart
+    namelist_defaults['initialize']['restart type']             = 'zonal_mean' # restart from zonal mean
+    namelist_defaults['initialize']['inoise']                   = 1            # flag for noise in initial condition
+    namelist_defaults['initialize']['noise_amplitude']          = 1            # amplitude of initial noise in K
     namelist_defaults['initialize']['noise_type'] = 'red' # 'white', 'red', 'blue', or 'local' 
 
 
