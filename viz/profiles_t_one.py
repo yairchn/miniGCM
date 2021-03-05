@@ -13,10 +13,10 @@ def main():
     runname = args.varname
     varname = 'zonal_mean_T'
     varname2= 'zonal_mean_T_eq'
-    #runname='43a12'
+    runname='5de87'
 
     # folder = os.getcwd() + '/Output.HeldSuarez.'+runname+'/stats/'
-    folder = os.getcwd() + '/Output.HeldSuarez.'+runname+'/'
+    folder = '/home/scoty/miniGCM/Output.HeldSuarez.3a3e0ae'+runname+'/stats/'
     ncfile = folder + 'Stats.HeldSuarez.nc'
     data = nc.Dataset(ncfile, 'r')
 
@@ -28,7 +28,7 @@ def main():
     var2= np.array(data.groups['zonal_mean'].variables[varname2])
     t = np.divide(data.groups['zonal_mean'].variables['t'],3600.0*24.0)
     t1 = 300
-    t2 = 340
+    t2 = 500
 
     fig= plt.figure(figsize=(4,4))
     im1 = plt.plot(np.mean(var[t1:t2,:,0],axis=0),np.array(lat_list),'-k',linewidth=4,alpha=0.4,label='top')
