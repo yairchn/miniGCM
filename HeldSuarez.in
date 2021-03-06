@@ -1,7 +1,7 @@
 {
     "diffusion": {
         "dissipation_order": 4.0,
-        "e_folding_timescale": 3000,
+        "e_folding_timescale": 2400,
         "order": 4.0,
         "truncation_order": 3,
         "type": "hyperdiffusion"
@@ -21,30 +21,34 @@
         "dims": 1,
         "gw": 2,
         "number_of_latitute_points": 64,
-        "number_of_layers": 3,
+        "number_of_layers": 5,
         "number_of_longitude_points": 128,
-        "p1": 25000.0,
-        "p2": 50000.0,
-        "p3": 85000.0,
+        "p1": 12500.0,
+        "p2": 25000.0,
+        "p3": 50000.0,
+        "p4": 75000.0,
+        "p5": 85000.0,
         "p_ref": 100000.0
     },
     "initialize": {
         "T1": 300.0,
         "T2": 300.0,
         "T3": 300.0,
+        "T4": 300.0,
+        "T5": 300.0,
         "inoise": 1,
         "noise_amplitude": 1,
         "noise_type": "red"
     },
     "io": {
-        "output_frequency": 7.0,
+        "output_frequency": 1.0,
         "stats_dir": "stats",
         "stats_frequency": 1.0
     },
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "c06c2201-0c9c-4a3e-b4c5-3a3e0ae5de88"
+        "uuid": "18ff3ddd-2da0-4d01-9594-6caa490564cd"
     },
     "microphysics": {
         "rain_model": "None"

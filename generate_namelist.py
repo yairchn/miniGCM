@@ -25,17 +25,19 @@ def main():
     namelist_defaults['diffusion'] = {}
     namelist_defaults['diffusion']['dissipation_order'] = 4.0
     namelist_defaults['diffusion']['truncation_order'] = 3
-    namelist_defaults['diffusion']['e_folding_timescale'] = 1800
+    namelist_defaults['diffusion']['e_folding_timescale'] = 2400
 
     namelist_defaults['grid'] = {}
     namelist_defaults['grid']['dims'] = 1
     namelist_defaults['grid']['gw'] = 2
     namelist_defaults['grid']['number_of_latitute_points'] =  64
     namelist_defaults['grid']['number_of_longitude_points'] = 128
-    namelist_defaults['grid']['number_of_layers'] =  3
-    namelist_defaults['grid']['p3']       =  850.0*1.e2  # [pasc]
-    namelist_defaults['grid']['p2']       =  500.0*1.e2  # [pasc]
-    namelist_defaults['grid']['p1']       =  250.0*1.e2  # [pasc]
+    namelist_defaults['grid']['number_of_layers'] =  5
+    namelist_defaults['grid']['p5']       =  850.0*1.e2  # [pasc]
+    namelist_defaults['grid']['p4']       =  750.0*1.e2  # [pasc]
+    namelist_defaults['grid']['p3']       =  500.0*1.e2  # [pasc]
+    namelist_defaults['grid']['p2']       =  250.0*1.e2  # [pasc]
+    namelist_defaults['grid']['p1']       =  125.0*1.e2  # [pasc]
     namelist_defaults['grid']['p_ref']    =  1000.0*1.e2 # [pasc]
 
     namelist_defaults['planet'] = {}
@@ -63,7 +65,7 @@ def main():
     namelist_defaults['io'] = {}
     namelist_defaults['io']['stats_dir'] = 'stats'
     namelist_defaults['io']['stats_frequency'] = 1.0
-    namelist_defaults['io']['output_frequency'] = 7.0
+    namelist_defaults['io']['output_frequency'] = 1.0
 
     namelist_defaults['meta'] = {}
 
@@ -104,6 +106,8 @@ def HeldSuarez(namelist_defaults):
     namelist['initialize']['T1']   = 300.0 # initial temperature of layer 1 [K]
     namelist['initialize']['T2']   = 300.0 # initial temperature of layer 2 [K]
     namelist['initialize']['T3']   = 300.0 # initial temperature of layer 3 [K]
+    namelist['initialize']['T4']   = 300.0 # initial temperature of layer 4 [K]
+    namelist['initialize']['T5']   = 300.0 # initial temperature of layer 5 [K]
 
     namelist['surface'] = {}
     namelist['surface']['surface_model'] = 'None'
