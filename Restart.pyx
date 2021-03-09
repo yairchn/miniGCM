@@ -23,11 +23,13 @@ cdef class Restart:
         return
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV,  TimeStepping TS, namelist):
-        cdef:
-            double [:,:] noise
-        # LOAD TIME AND COMPLETE TO WHAT EVER IS IN NAMELIST
 
-        # load stats file
+        cdef:
+            Py_ssize_t i,j,k
+            Py_ssize_t nx = Pr.nlats
+            Py_ssize_t ny = Pr.nlons
+            Py_ssize_t nl = Pr.n_layers
+
         data = nc.Dataset(Pr.path_plus_file, 'r')
         TS.t = np.max(data.groups['zonal_mean'].variables['t'])
         if TS.t_max<=TS.t:
@@ -35,21 +37,21 @@ cdef class Restart:
             sys.exit("Restart simulation is not larger the original simulation")
 
         if Pr.restart_type == '3D_output':
-            filepath = os.getcwd() + Pr.restart_folder + 'Fields/'
+            filepath = os.getcwd() + Pr.restart_folder + '/Fields/'
 
-            P                    = nc.Dataset(filepath + 'Pressure_' + str(TS.t)+'.nc', 'r')
-            PV.P.values          = np.array(data.variables['P'])
-            Temperature          = nc.Dataset( filepath + 'Temperature_' + str(TS.t)+'.nc', 'r')
-            PV.T.values          = np.array(data.variables['Temperature'])
-            Vorticity            = nc.Dataset(filepath + 'Vorticity_' + str(TS.t)+'.nc', 'r')
-            PV.Vorticity.values  = np.array(data.variables['Vorticity'])
-            QT                   = nc.Dataset(filepath + 'Specific_humidity_' + str(TS.t)+'.nc', 'r')
-            PV.QT.values         = np.array(data.variables['QT'])
-            Divergence           = nc.Dataset(filepath + 'Divergence_' + str(TS.t)+'.nc', 'r')
-            PV.Divergence.values = np.array(data.variables['Divergence'])
+            timestring = str(int(TS.t))
+            Temperature          = nc.Dataset( filepath + 'Temperature_' + timestring+'.nc', 'r')
+            PV.T.values          = np.array(Temperature.variables['Temperature'])
+            Vorticity            = nc.Dataset(filepath + 'Vorticity_' + timestring+'.nc', 'r')
+            PV.Vorticity.values  = np.array(Vorticity.variables['Vorticity'])
+            Specific_humidity    = nc.Dataset(filepath + 'Specific_humidity_' + timestring+'.nc', 'r')
+            PV.QT.values         = np.array(Specific_humidity.variables['Specific_humidity'])
+            Divergence           = nc.Dataset(filepath + 'Divergence_' + timestring+'.nc', 'r')
+            PV.Divergence.values = np.array(Divergence.variables['Divergence'])
+            Pressure             = nc.Dataset(filepath + 'Pressure_' + timestring+'.nc', 'r')
+            PV.P.values.base[:,:,nl]  = np.array(Pressure.variables['Pressure'])
 
         elif Pr.restart_type == 'zonal_mean':
-            # initialize the zonal mean
             for i in range(Pr.nlats):
                 for j in range(Pr.nlons):
                     for k in range(Pr.n_layers):

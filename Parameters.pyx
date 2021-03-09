@@ -59,14 +59,5 @@ cdef class Parameters:
         self.restart_folder = namelist['initialize']['restart folder']
         self.restart_type   = namelist['initialize']['restart type']
 
-        self.sigma_b = namelist['forcing']['sigma_b']
-        self.k_a = namelist['forcing']['k_a']
-        self.k_b = namelist['forcing']['k_b']
-        self.k_s = namelist['forcing']['k_s']
-        self.k_f = namelist['forcing']['k_f']
-        self.DT_y = namelist['forcing']['equator_to_pole_dT']
-        self.Dtheta_z = namelist['forcing']['lapse_rate']
-        self.T_equator = namelist['forcing']['equatorial_temperature']
-
         return
 

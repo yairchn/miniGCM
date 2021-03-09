@@ -70,15 +70,25 @@ cdef class HeldSuarez(CaseBase):
         cdef:
             double [:,:] noise
 
+        Pr.sigma_b = namelist['forcing']['sigma_b']
+        Pr.k_a = namelist['forcing']['k_a']
+        Pr.k_b = namelist['forcing']['k_b']
+        Pr.k_s = namelist['forcing']['k_s']
+        Pr.k_f = namelist['forcing']['k_f']
+        Pr.DT_y = namelist['forcing']['equator_to_pole_dT']
+        Pr.Dtheta_z = namelist['forcing']['lapse_rate']
+        Pr.T_equator = namelist['forcing']['equatorial_temperature']
+
         PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
-        PV.T_init        = np.array([Pr.T1, Pr.T2, Pr.T3])
+        PV.P.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),PV.P_init)
+
         if Pr.restart:
             RS.initialize(Pr, Gr, PV, TS, namelist)
         else:
+            PV.T_init        = np.array([Pr.T1, Pr.T2, Pr.T3])
             PV.Vorticity.values  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
             PV.Divergence.values = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
             PV.QT.values         = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c')
-            PV.P.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),PV.P_init)
             PV.T.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),PV.T_init)
 
         PV.physical_to_spectral(Pr, Gr)

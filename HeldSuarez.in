@@ -37,7 +37,7 @@
         "noise_type": "red",
         "restart": true,
         "restart folder": "/Output.HeldSuarez.dlayer_moist",
-        "restart type": "zonal_mean"
+        "restart type": "3D_output"
     },
     "io": {
         "output_frequency": 7.0,
