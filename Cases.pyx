@@ -70,45 +70,33 @@ cdef class HeldSuarez(CaseBase):
         cdef:
             double [:,:] noise
 
+        PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
+        PV.T_init        = np.array([Pr.T1, Pr.T2, Pr.T3])
         if Pr.restart:
             RS.initialize(Pr, Gr, PV, TS, namelist)
-            PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
-            PV.T_init        = np.array([Pr.T1, Pr.T2, Pr.T3])
         else:
-            PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
-            PV.T_init        = np.array([Pr.T1, Pr.T2, Pr.T3])
-
-            Pr.sigma_b = namelist['forcing']['sigma_b']
-            Pr.k_a = namelist['forcing']['k_a']
-            Pr.k_b = namelist['forcing']['k_b']
-            Pr.k_s = namelist['forcing']['k_s']
-            Pr.k_f = namelist['forcing']['k_f']
-            Pr.DT_y = namelist['forcing']['equator_to_pole_dT']
-            Pr.Dtheta_z = namelist['forcing']['lapse_rate']
-            Pr.T_equator = namelist['forcing']['equatorial_temperature']
-
             PV.Vorticity.values  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
             PV.Divergence.values = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
             PV.QT.values         = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c')
             PV.P.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),PV.P_init)
             PV.T.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),PV.T_init)
 
-            PV.physical_to_spectral(Pr, Gr)
+        PV.physical_to_spectral(Pr, Gr)
 
-            print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
-            if Pr.inoise==1:
-                 # calculate noise
-                 F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
-                 fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0., noise_type=Pr.noise_type)
-                 noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(F0))*Pr.noise_amp
-                 # save noise here
-                 # np.save('./norm_rand_grid_noise_'+Pr.noise_type+'_.npy',noise)
-                 # load noise here
-                 # noise = np.load('./norm_rand_grid_noise_'+Pr.noise_type+'_.npy')
-                 # add noise
-                 PV.T.spectral.base[:,Pr.n_layers-1] = np.add(PV.T.spectral.base[:,Pr.n_layers-1],
-                                                            Gr.SphericalGrid.grdtospec(noise.base))
-            print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
+        print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
+        if Pr.inoise==1:
+             # calculate noise
+             F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
+             fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0., noise_type=Pr.noise_type)
+             noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(F0))*Pr.noise_amp
+             # save noise here
+             # np.save('./norm_rand_grid_noise_'+Pr.noise_type+'_.npy',noise)
+             # load noise here
+             # noise = np.load('./norm_rand_grid_noise_'+Pr.noise_type+'_.npy')
+             # add noise
+             PV.T.spectral.base[:,Pr.n_layers-1] = np.add(PV.T.spectral.base[:,Pr.n_layers-1],
+                                                        Gr.SphericalGrid.grdtospec(noise.base))
+        print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
         return
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
