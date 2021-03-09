@@ -21,8 +21,9 @@ cdef class TimeStepping:
 		self.t_max = namelist['timestepping']['t_max']*24.0*3600.0 # sec/day
 		return
 
-	cpdef initialize(self):
-		self.t = 0.0
+	cpdef initialize(self, Parameters Pr):
+		if not Pr.restart:
+			self.t = 0.0
 		self.ncycle = 0
 		return
 

@@ -46,24 +46,44 @@ cdef class NetCDFIO_Stats:
 
 
         i = 1
-        self.path_plus_file = str(self.stats_path + '/' + 'Stats.' + namelist['meta']['simname'] + '.nc')
-        if os.path.exists(self.path_plus_file):
+        Pr.path_plus_file = str(self.stats_path + '/' + 'Stats.' + namelist['meta']['simname'] + '.nc')
+        if Pr.restart:
+            # copy stats file to newname
             res_name = 'Restart_'+str(i)
             print("Here " + res_name)
-            self.path_plus_file = str(self.stats_path
-                    + '/' + 'Stats.' + namelist['meta']['simname']
-                    + '.' + res_name + '.nc')
-            while os.path.exists(self.path_plus_file):
-                i += 1
-                res_name = 'Restart_'+str(i)
+            sourcefile = Pr.path_plus_file
+            Pr.path_plus_file = str(self.stats_path
+                        + '/' + 'Stats.' + namelist['meta']['simname']
+                        + '.' + res_name + '.nc')
+            while os.path.exists(Pr.path_plus_file):
+                    i += 1
+                    res_name = 'Restart_'+str(i)
+                    print("Here " + res_name)
+                    Pr.path_plus_file = str( self.stats_path + '/' + 'Stats.' + namelist['meta']['simname']
+                               + '.' + res_name + '.nc')
+            shutil.copyfile(sourcefile,Pr.path_plus_file)
+        else:
+            if os.path.exists(Pr.path_plus_file):
+                res_name = 'Rerun_'+str(i)
                 print("Here " + res_name)
-                self.path_plus_file = str( self.stats_path + '/' + 'Stats.' + namelist['meta']['simname']
-                           + '.' + res_name + '.nc')
+                Pr.path_plus_file = str(self.stats_path
+                        + '/' + 'Stats.' + namelist['meta']['simname']
+                        + '.' + res_name + '.nc')
+                while os.path.exists(Pr.path_plus_file):
+                    i += 1
+                    res_name = 'Rerun_'+str(i)
+                    print("Here " + res_name)
+                    Pr.path_plus_file = str( self.stats_path + '/' + 'Stats.' + namelist['meta']['simname']
+                               + '.' + res_name + '.nc')
 
 
         shutil.copyfile(os.path.join( './', namelist['meta']['simname'] + '.in'),
                         os.path.join( outpath, namelist['meta']['simname'] + '.in'))
-        self.setup_stats_file(Pr, Gr)
+        self.path_plus_file = Pr.path_plus_file
+        if Pr.restart:
+            root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
+        else:
+            self.setup_stats_file(Pr, Gr)
         return
 
     cpdef open_files(self):
@@ -72,6 +92,7 @@ cdef class NetCDFIO_Stats:
         self.zonal_mean_grp = self.root_grp.groups['zonal_mean']
         self.meridional_mean_grp = self.root_grp.groups['meridional_mean']
         self.surface_zonal_mean_grp = self.root_grp.groups['surface_zonal_mean']
+        self.surface_meridional_mean_grp = self.root_grp.groups['surface_meridional_mean']
         return
 
     cpdef close_files(self):
@@ -79,6 +100,10 @@ cdef class NetCDFIO_Stats:
         return
 
     cpdef setup_stats_file(self, Parameters Pr, Grid Gr):
+
+        # if Pr.restart:
+        #     root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
+        # else:
         root_grp = nc.Dataset(self.path_plus_file, 'w', format='NETCDF4')
 
         # Set coordinates
@@ -119,6 +144,12 @@ cdef class NetCDFIO_Stats:
         global_mean_grp.createDimension('lay',  Pr.n_layers)
         t = global_mean_grp.createVariable('t', 'f8', ('time'))
 
+        # Set surface_meridional_mean
+        surface_meridional_mean_grp = root_grp.createGroup('surface_meridional_mean')
+        surface_meridional_mean_grp.createDimension('time', None)
+        surface_meridional_mean_grp.createDimension('lon', Pr.nlons)
+        t = surface_meridional_mean_grp.createVariable('t', 'f8', ('time'))
+
         # Set surface_zonal_mean
         surface_zonal_mean_grp = root_grp.createGroup('surface_zonal_mean')
         surface_zonal_mean_grp.createDimension('time', None)
@@ -149,6 +180,13 @@ cdef class NetCDFIO_Stats:
         root_grp.close()
         return
 
+    cpdef add_surface_meridional_mean(self, var_name):
+        root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
+        surface_meridional_mean_grp = root_grp.groups['surface_meridional_mean']
+        new_var = surface_meridional_mean_grp.createVariable(var_name, 'f8', ('time','lon'))
+        root_grp.close()
+        return
+
     cpdef add_zonal_mean(self, var_name):
         root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
         zonal_mean_grp = root_grp.groups['zonal_mean']
@@ -162,20 +200,32 @@ cdef class NetCDFIO_Stats:
         var[-1,:] = np.array(np.mean(np.mean(data,0),0))
         return
 
+    cpdef write_zonal_mean(self, var_name, data):
+        var = self.zonal_mean_grp.variables[var_name]
+        var[-1, :,:] = np.array(np.mean(data,1))
+        return
+
     cpdef write_meridional_mean(self, var_name, data):
         var = self.meridional_mean_grp.variables[var_name]
+        # print('np.shape(data)', np.shape(data))
+        # print('np.shape(np.mean(data,0))', np.shape(np.mean(data,0)))
+        # print('np.shape(np.mean(data,1))', np.shape(np.mean(data,1)))
+        # print('np.shape(var[-1,:,:])', np.shape(var[-1,:,:]))
         var[-1,:,:] = np.array(np.mean(data,0))
         return
 
     cpdef write_surface_zonal_mean(self, var_name, data):
         var = self.surface_zonal_mean_grp.variables[var_name]
+        var[-1,:] = np.array(np.mean(data,1))
+        return
+
+    cpdef write_surface_meridional_mean(self, var_name, data):
+        var = self.surface_meridional_mean_grp.variables[var_name]
+        print('np.shape(var) ', np.shape(var))
+        print('np.shape(np.mean(data,0)) ', np.shape(np.mean(data,0)))
         var[-1,:] = np.array(np.mean(data,0))
         return
 
-    cpdef write_zonal_mean(self, var_name, data):
-        var = self.zonal_mean_grp.variables[var_name]
-        var[-1, :,:] = np.array(np.mean(data,1))
-        return
 
     cpdef write_3D_variable(self, Parameters Pr, t, n_layers, var_name, data):
         root_grp = nc.Dataset(self.path_plus_var+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')

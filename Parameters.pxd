@@ -65,6 +65,7 @@ cdef class Parameters:
         str noise_type
         str surface_model
         str uuid
+        str path_plus_file
         bint restart
         str restart_folder
         str restart_type

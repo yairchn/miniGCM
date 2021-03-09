@@ -71,16 +71,16 @@ cdef class PrognosticVariables:
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         Stats.add_global_mean('global_mean_T')
         Stats.add_global_mean('global_mean_QT')
-        Stats.add_zonal_mean('zonal_mean_P')
         Stats.add_zonal_mean('zonal_mean_T')
         Stats.add_zonal_mean('zonal_mean_QT')
         Stats.add_zonal_mean('zonal_mean_divergence')
         Stats.add_zonal_mean('zonal_mean_vorticity')
+        Stats.add_surface_zonal_mean('zonal_mean_Ps')
         Stats.add_meridional_mean('meridional_mean_divergence')
         Stats.add_meridional_mean('meridional_mean_vorticity')
-        Stats.add_meridional_mean('meridional_mean_P')
         Stats.add_meridional_mean('meridional_mean_T')
         Stats.add_meridional_mean('meridional_mean_QT')
+        Stats.add_surface_meridional_mean('meridional_mean_Ps')
         return
 
     # convert spherical data to spectral
@@ -146,12 +146,12 @@ cdef class PrognosticVariables:
     cpdef stats_io(self, NetCDFIO_Stats Stats):
         Stats.write_global_mean('global_mean_T', self.T.values)
         Stats.write_global_mean('global_mean_QT', self.QT.values)
-        Stats.write_zonal_mean('zonal_mean_P',self.P.values[:,:,1:4])
+        Stats.write_surface_zonal_mean('zonal_mean_Ps',self.P.values[:,:,-1])
         Stats.write_zonal_mean('zonal_mean_T',self.T.values)
         Stats.write_zonal_mean('zonal_mean_QT',self.QT.values)
         Stats.write_zonal_mean('zonal_mean_divergence',self.Divergence.values)
         Stats.write_zonal_mean('zonal_mean_vorticity',self.Vorticity.values)
-        Stats.write_meridional_mean('meridional_mean_P',self.P.values[:,:,1:4])
+        # Stats.write_surface_meridional_mean('meridional_mean_Ps',self.P.values[:,:,-1])
         Stats.write_meridional_mean('meridional_mean_T',self.T.values)
         Stats.write_meridional_mean('meridional_mean_QT',self.QT.values)
         Stats.write_meridional_mean('meridional_mean_divergence',self.Divergence.values)

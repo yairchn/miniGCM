@@ -36,7 +36,7 @@
         "noise_amplitude": 1,
         "noise_type": "red",
         "restart": true,
-        "restart folder": "./Output.HeldSuarez.test_restart/",
+        "restart folder": "/Output.HeldSuarez.dlayer_moist",
         "restart type": "zonal_mean"
     },
     "io": {
@@ -47,7 +47,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "06cb406e-5f0b-4ccf-bee4-test_restart"
+        "uuid": "6ecde4aa-392a-4d7d-b837-c_midlayer_moist"
     },
     "microphysics": {
         "rain_model": "None"
@@ -75,6 +75,6 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 1.0
+        "t_max": 50.0
     }
 }

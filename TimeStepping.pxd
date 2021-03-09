@@ -17,7 +17,7 @@ cdef class TimeStepping:
 		double [:,:] dx
 		double [:,:] dy
 
-	cpdef initialize(self)
+	cpdef initialize(self, Parameters Pr)
 	cpdef update(self, Parameters Pr, Grid Gr,  PrognosticVariables PV, DiagnosticVariables DV, Diffusion DF, namelist)
 	cpdef CFL_limiter(self, Parameters Pr, Grid Gr, DiagnosticVariables DV, namelist)
 

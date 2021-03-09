@@ -14,7 +14,7 @@ def main():
     varname = args.varname
     mytime = args.mytime
 
-    folder = os.getcwd() + '/Output.HeldSuarez._cOG_/'
+    folder = os.getcwd() + '/Output.HeldSuarez.dlayer_moist/stats/'
     ncfile = folder + 'Stats.HeldSuarez.nc'
     data = nc.Dataset(ncfile, 'r')
 
@@ -32,16 +32,26 @@ def main():
     t0 = 200
     t1 = 260
     fig = plt.figure(varname)
-    for i in range(n):
-        ax1 = fig.add_subplot(n, 1, i+1)
-        im1 = ax1.plot(lat_list,np.mean(var[t0:t1,:,i],0))
-        ax1.set_ylabel(varname)
-        if i<n-1:
-            xlabels = [item.get_text() for item in ax1.get_xticklabels()]
-            xempty_string_labels = [''] * len(xlabels)
-            ax1.set_xticklabels(xempty_string_labels)
-        else:
-            ax1.set_xlabel('degree latitude')
+    fig.add_subplot(3, 1, 1)
+    plt.plot(lat_list,var[0,:,0],0)
+    plt.ylim([285,295])
+    fig.add_subplot(3, 1, 2)
+    plt.plot(lat_list,var[0,:,1],0)
+    plt.ylim([290,300])
+    fig.add_subplot(3, 1, 3)
+    plt.plot(lat_list,var[0,:,2],0)
+    plt.ylim([293,308])
+    # for i in range(n):
+    #     ax1 = fig.add_subplot(n, 1, i+1)
+    #     im1 = ax1.plot(lat_list,var[-1,:,i],0)
+    #     im1 = ax1.set_ylim([280,295])
+    #     # ax1.set_ylabel(varname)
+    #     # if i<n-1:
+    #     #     xlabels = [item.get_text() for item in ax1.get_xticklabels()]
+    #     #     xempty_string_labels = [''] * len(xlabels)
+    #     #     ax1.set_xticklabels(xempty_string_labels)
+    #     # else:
+    #     #     ax1.set_xlabel('degree latitude')
     plt.show()
 if __name__ == '__main__':
     main()

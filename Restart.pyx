@@ -10,30 +10,38 @@ import glob
 import netCDF4 as nc
 import sphericalForcing as spf
 from TimeStepping cimport TimeStepping
+import pylab as plt
 
 cdef class Restart:
 
     def __init__(self, Parameters Pr, namelist):
-        Pr.restart        = namelist['initialize']['restart']
-        Pr.restart_folder = namelist['initialize']['restart folder']
-        Pr.restart_type   = namelist['initialize']['restart type']
 
         if Pr.restart:
-            if os.path.isdir(Pr.restart_folder)==False:
+            if os.path.isdir(os.getcwd() + Pr.restart_folder)==False:
+                print('Restart folder: ', os.getcwd() + Pr.restart_folder)
                 sys.exit("Restart folder does not exists")
         return
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV,  TimeStepping TS, namelist):
-
+        cdef:
+            double [:,:] noise
         # LOAD TIME AND COMPLETE TO WHAT EVER IS IN NAMELIST
+
+        # load stats file
+        # stats_file = os.getcwd() + Pr.restart_folder + '/stats/Stats.HeldSuarez.nc'
+        stats_file = Pr.path_plus_file
+        data = nc.Dataset(stats_file, 'r')
+        TS.t = np.max(data.groups['zonal_mean'].variables['t'])
+        if TS.t_max<=TS.t:
+            # restart_stats_file = os.getcwd() + Pr.restart_folder + '/stats/'+Pr.path_plus_file
+            # os.remove(Pr.path_plus_file)
+            # shutil.copy(stats_file, restart_stats_file)
+            print(TS.t_max,TS.t)
+            sys.exit("Restart simulation is not larger the original simulation")
 
         if Pr.restart_type == '3D_output':
             # load simualtion time max from stats file and use this is the name
-            data = nc.Dataset(os.getcwd() + Pr.restart_folder + 'stats/Stats.HeldSuarez.nc', 'r')
-            t = data.groups['zonal_mean'].variables['t']
-            if TS.t_max<=t:
-                sys.exit("Restart simulation is shorter the original simulation")
-            timestring = str(t)
+            timestring = str(TS.t)
             # find the last 3D file for each needed variable
             # list_of_files = [os.path.basename(x) for x in glob.glob('Output.HeldSuarez._cOG_/Fields/*')]
             # div_files = []
@@ -62,18 +70,21 @@ cdef class Restart:
             PV.physical_to_spectral(Pr, Gr)
 
         elif Pr.restart_type == 'zonal_mean':
-            # load stats file
-            ncfile = os.getcwd() + Pr.restart_folder + 'stats/Stats.HeldSuarez.nc'
-            data = nc.Dataset(ncfile, 'r')
-            t = data.groups['zonal_mean'].variables['t']
-            if TS.t_max<=t:
-                sys.exit("Restart simulation is shorter the original simulation")
             # initialize the zonal mean
-            PV.P.values          = np.array(data.groups['zonal_mean'].variables['zonal_mean_P'])
-            PV.T.values          = np.array(data.groups['zonal_mean'].variables['zonal_mean_T'])
-            PV.QT.values         = np.array(data.groups['zonal_mean'].variables['zonal_mean_QT'])
-            PV.Vorticity.values  = np.array(data.groups['zonal_mean'].variables['zonal_mean_vorticity'])
-            PV.Divergence.values = np.array(data.groups['zonal_mean'].variables['zonal_mean_divergence'])
+            P_init = np.array([Pr.p1, Pr.p2, Pr.p3])
+            for i in range(Pr.nlats):
+                for j in range(Pr.nlons):
+                    for k in range(Pr.n_layers):
+                        PV.T.values[i,j,k]          = np.array(data.groups['zonal_mean'].variables['zonal_mean_T'])[-1,i,k]
+                        PV.QT.values[i,j,k]         = np.array(data.groups['zonal_mean'].variables['zonal_mean_QT'])[-1,i,k]
+                        PV.Vorticity.values[i,j,k]  = np.array(data.groups['zonal_mean'].variables['zonal_mean_vorticity'])[-1,i,k]
+                        PV.Divergence.values[i,j,k] = np.array(data.groups['zonal_mean'].variables['zonal_mean_divergence'])[-1,i,k]
+                        PV.P.values[i,j,k]          = P_init[k]
+                    PV.P.values[i,j,Pr.n_layers]    = np.array(data.groups['surface_zonal_mean'].variables['zonal_mean_Ps'])[-1,i]
+                    # print(np.shape(PV.P.values[i,j,0:Pr.n_layers]))
+                    # print(np.shape(np.zeros(Pr.n_layers)))
+                    # # PV.P.values[i,j,0:Pr.n_layers]= np.add(np.zeros(Pr.n_layers),([Pr.p1, Pr.p2, Pr.p3]))
+                    # PV.P.values[i,j,0:Pr.n_layers]= np.zeros(Pr.n_layers)
             PV.physical_to_spectral(Pr, Gr)
             # add noise to Temperature
             if Pr.inoise==1:
@@ -88,6 +99,7 @@ cdef class Restart:
                  # add noise
                  PV.T.spectral.base[:,Pr.n_layers-1] = np.add(PV.T.spectral.base[:,Pr.n_layers-1],
                                                             Gr.SphericalGrid.grdtospec(noise.base))
+
 
             return
 

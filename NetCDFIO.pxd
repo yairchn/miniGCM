@@ -12,10 +12,11 @@ cdef class NetCDFIO_Stats:
     cdef:
         object root_grp
         object variable_grp
-        object meridional_mean_grp
         object zonal_mean_grp
         object global_mean_grp
+        object meridional_mean_grp
         object surface_zonal_mean_grp
+        object surface_meridional_mean_grp
 
         str stats_file_name
         str stats_path
@@ -34,10 +35,12 @@ cdef class NetCDFIO_Stats:
     cpdef add_meridional_mean(self, var_name)
     cpdef add_zonal_mean(self, var_name)
     cpdef add_surface_zonal_mean(self, var_name)
+    cpdef add_surface_meridional_mean(self, var_name)
     cpdef write_global_mean(self, var_name, data)
     cpdef write_meridional_mean(self, var_name, data)
     cpdef write_zonal_mean(self, var_name, data)
     cpdef write_surface_zonal_mean(self, var_name, data)
+    cpdef write_surface_meridional_mean(self, var_name, data)
     cpdef write_3D_variable(self, Parameters Pr, t, n_layers, var_name, data)
     cpdef write_2D_variable(self, Parameters Pr, t, var_name, data)
     cpdef write_simulation_time(self, t)
