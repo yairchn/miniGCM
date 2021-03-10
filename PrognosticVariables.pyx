@@ -65,7 +65,7 @@ cdef class PrognosticVariables:
         return
 
     cpdef initialize(self, Parameters Pr):
-        self.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
+        self.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p4, Pr.p5, Pr.p_ref])
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -143,15 +143,17 @@ cdef class PrognosticVariables:
         return
     # this should be done in time intervals and save each time new files,not part of stats
 
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
+    cpdef stats_io(self, Parameters Pr, NetCDFIO_Stats Stats):
+        cdef:
+            Py_ssize_t nl = Pr.n_layers
         Stats.write_global_mean('global_mean_T', self.T.values)
         Stats.write_global_mean('global_mean_QT', self.QT.values)
-        Stats.write_zonal_mean('zonal_mean_P',self.P.values[:,:,1:4])
+        Stats.write_zonal_mean('zonal_mean_P',self.P.values[:,:,1:nl+1])
         Stats.write_zonal_mean('zonal_mean_T',self.T.values)
         Stats.write_zonal_mean('zonal_mean_QT',self.QT.values)
         Stats.write_zonal_mean('zonal_mean_divergence',self.Divergence.values)
         Stats.write_zonal_mean('zonal_mean_vorticity',self.Vorticity.values)
-        Stats.write_meridional_mean('meridional_mean_P',self.P.values[:,:,1:4])
+        Stats.write_meridional_mean('meridional_mean_P',self.P.values[:,:,1:nl+1])
         Stats.write_meridional_mean('meridional_mean_T',self.T.values)
         Stats.write_meridional_mean('meridional_mean_QT',self.QT.values)
         Stats.write_meridional_mean('meridional_mean_divergence',self.Divergence.values)
