@@ -35,8 +35,9 @@ cdef class Diffusion:
 
         with nogil:
             for i in range(nlm):
-                diffusion_factor = (1.0/Pr.efold*((laplacian[i]/laplacian[-1])**(Pr.dissipation_order/2.0)))
-                HyperDiffusionFactor = exp(-dt*diffusion_factor)
+                diffusion_factor_meso_scale = (1.0/Pr.efold*((laplacian[i]/laplacian[-1])**(Pr.dissipation_order/2.0)))
+                diffusion_factor_grid_scale= (1.0/Pr.efold*((laplacian[i]/laplacian[-1])**(Pr.dissipation_order_grid_scale/2.0)))
+                HyperDiffusionFactor = exp(-dt*(diffusion_factor_meso_scale+diffusion_factor_grid_scale))
                 if shtns_l[i]>=Pr.truncation_number:
                     HyperDiffusionFactor = 0.0
                 for k in range(nl):
