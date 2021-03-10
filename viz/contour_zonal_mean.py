@@ -12,7 +12,7 @@ def main():
     args = parser.parse_args()
     varname = args.varname
 
-    folder = os.getcwd() + '/Output.HeldSuarez._cOG2/'
+    folder = os.getcwd() + '/Output.HeldSuarez.6caa490564ce/stats/'
     ncfile = folder + 'Stats.HeldSuarez.nc'
     data = nc.Dataset(ncfile, 'r')
 
@@ -27,7 +27,7 @@ def main():
     fig = plt.figure(varname)
     for i in range(n):
         ax1 = fig.add_subplot(n, 1, i+1)
-        im1 = ax1.contourf(X,Y,np.fliplr(np.rot90(np.squeeze(var[:,:,i]), k=3)))
+        im1 = ax1.contourf(X,Y,np.fliplr(np.rot90(np.squeeze(var[:,:,i]), k=3)),levels=np.linspace(var[:,:,i].min(),var[:,:,i].max(),20))
         ax1.set_ylabel('degree latitude')
         if i<n-1:
             xlabels = [item.get_text() for item in ax1.get_xticklabels()]
@@ -36,6 +36,7 @@ def main():
         else:
             ax1.set_xlabel('time days')
         fig.colorbar(im1)
-    plt.show()
+    #plt.show()
+    plt.savefig('Hovmoeller_'+varname+'.png')
 if __name__ == '__main__':
     main()

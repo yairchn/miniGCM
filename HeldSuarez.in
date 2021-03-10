@@ -21,13 +21,12 @@
         "dims": 1,
         "gw": 2,
         "number_of_latitute_points": 64,
-        "number_of_layers": 5,
+        "number_of_layers": 4,
         "number_of_longitude_points": 128,
-        "p1": 12500.0,
-        "p2": 25000.0,
-        "p3": 50000.0,
-        "p4": 75000.0,
-        "p5": 85000.0,
+        "p1": 25000.0,
+        "p2": 50000.0,
+        "p3": 75000.0,
+        "p4": 85000.0,
         "p_ref": 100000.0
     },
     "initialize": {
@@ -35,7 +34,6 @@
         "T2": 300.0,
         "T3": 300.0,
         "T4": 300.0,
-        "T5": 300.0,
         "inoise": 1,
         "noise_amplitude": 1,
         "noise_type": "red"
@@ -48,7 +46,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "18ff3ddd-2da0-4d01-9594-6caa490564ce"
+        "uuid": "18ff3ddd-2da0-4d01-9594-6caa490564cf"
     },
     "microphysics": {
         "rain_model": "None"
