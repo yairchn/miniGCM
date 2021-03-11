@@ -23,7 +23,7 @@ cdef class LogFile:
                   +str(np.floor_divide(wallclocktime,3600.0)) + '>> '+Pr.logfilename)
         os.system('echo efficiency [simtime / wallclock] '
                   +str(TS.t/wallclocktime) + '>> '+Pr.logfilename)
-        os.system('echo estimated simulation length [hours] '
+        os.system('echo estimated simulation time [hours] '
                   +str(TS.t_max/(TS.t/wallclocktime)/3600.0) + '>> '+Pr.logfilename)
         os.system('echo dt [sec]' + str(TS.dt) + '>> '+Pr.logfilename)
 

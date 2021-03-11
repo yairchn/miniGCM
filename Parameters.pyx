@@ -28,7 +28,6 @@ cdef class Parameters:
         for i in range(self.n_layers+1):
             self.pressure_levels.base[i] = np.float(namelist['grid']['pressure_levels'][i])
         self.p_ref     = self.pressure_levels[-1]
-        # self.p_ref     = namelist['grid']['p_ref']
 
         self.T_init    = namelist['initialize']['T_init']
         self.Omega     = namelist['planet']['Omega_rotation']
