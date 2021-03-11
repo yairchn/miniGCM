@@ -9,6 +9,9 @@ import os
 cdef class Parameters:
     def __init__(self, namelist):
 
+        cdef:
+            list [:] p
+
         self.thermodynamics_type = namelist['thermodynamics']['thermodynamics_type']
         if (self.thermodynamics_type=='dry'):
             self.moist_index = 0.0
@@ -19,14 +22,20 @@ cdef class Parameters:
         self.nlats     = namelist['grid']['number_of_latitute_points']
         self.nlons     = namelist['grid']['number_of_longitude_points']
         self.rsphere   = namelist['planet']['planet_radius']
-        self.n_layers  = namelist['grid']['number_of_layers']
+
+        self.n_layers  = np.shape(namelist['grid']['pressure_levels'])[0] - 1
+        self.pressure_levels = np.zeros((self.n_layers+1),dtype=np.float64, order='c')
+        for i in range(self.n_layers+1):
+            self.pressure_levels.base[i] = np.float(namelist['grid']['pressure_levels'][i])
+        self.p_ref     = self.pressure_levels[-1]
+        # self.p_ref     = namelist['grid']['p_ref']
+
         self.p1        = namelist['grid']['p1']
         self.p2        = namelist['grid']['p2']
         self.p3        = namelist['grid']['p3']
-        self.T1        = namelist['initialize']['T1']
-        self.T2        = namelist['initialize']['T2']
-        self.T3        = namelist['initialize']['T3']
-        self.p_ref     = namelist['grid']['p_ref']
+        self.T_init    = namelist['initialize']['T_init']
+        # self.T2        = namelist['initialize']['T2']
+        # self.T3        = namelist['initialize']['T3']
         self.Omega     = namelist['planet']['Omega_rotation']
         self.g         = namelist['planet']['gravity']
         self.cp        = namelist['thermodynamics']['heat_capacity']

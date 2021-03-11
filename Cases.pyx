@@ -79,17 +79,17 @@ cdef class HeldSuarez(CaseBase):
         Pr.Dtheta_z = namelist['forcing']['lapse_rate']
         Pr.T_equator = namelist['forcing']['equatorial_temperature']
 
-        PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
-        PV.P.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),PV.P_init)
+        PV.P_init = Pr.pressure_levels
+        PV.P.values      = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),PV.P_init)
 
         if Pr.restart:
             RS.initialize(Pr, Gr, PV, TS, namelist)
         else:
-            PV.T_init        = np.array([Pr.T1, Pr.T2, Pr.T3])
+            # PV.T_init            = Pr.T_init
             PV.Vorticity.values  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
             PV.Divergence.values = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
             PV.QT.values         = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c')
-            PV.T.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),PV.T_init)
+            PV.T.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),Pr.T_init)
 
         PV.physical_to_spectral(Pr, Gr)
 
@@ -194,11 +194,11 @@ cdef class HeldSuarezMoist(CaseBase):
         Pr.init_k    = namelist['forcing']['initial_profile_power']
         z            = np.linspace(0,20000,200)
 
+        PV.P_init = Pr.pressure_levels
+        PV.P.values = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),PV.P_init)
         if Pr.restart:
             RS.initialize(Pr, Gr, PV, TS, namelist)
         else:
-            PV.P_init            = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
-            # PV.T_init            = np.array([245.0, 282.0, 303.0])
             Tv_                  = np.zeros((len(Gr.lat[:,0]), len(z), Pr.n_layers),  dtype=np.double, order='c')
             QT_                  = np.zeros((len(Gr.lat[:,0]), len(z), Pr.n_layers),  dtype=np.double, order='c')
             qv_star_             = np.zeros((len(Gr.lat[:,0]), len(z), Pr.n_layers),  dtype=np.double, order='c')

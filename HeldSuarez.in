@@ -26,18 +26,28 @@
         "p1": 25000.0,
         "p2": 50000.0,
         "p3": 85000.0,
-        "p_ref": 100000.0
+        "p_ref": 100000.0,
+        "pressure_levels": [
+            10000.0,
+            20000.0,
+            30000.0,
+            40000.0,
+            50000.0,
+            60000.0,
+            70000.0,
+            80000.0,
+            90000.0,
+            100000.0
+        ]
     },
     "initialize": {
-        "T1": 300.0,
-        "T2": 300.0,
-        "T3": 300.0,
+        "T_init": 300.0,
         "inoise": 1,
         "noise_amplitude": 1,
         "noise_type": "red",
-        "restart": true,
-        "restart folder": "/Output.HeldSuarez.dlayer_moist",
-        "restart type": "3D_output"
+        "restart": false,
+        "restart folder": "./",
+        "restart type": "zonal_mean"
     },
     "io": {
         "output_frequency": 7.0,
@@ -47,7 +57,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "6ecde4aa-392a-4d7d-b837-c_midlayer_moist"
+        "uuid": "c880c538-7ddb-43d0-941a-444b45ef523b"
     },
     "microphysics": {
         "rain_model": "None"
@@ -75,6 +85,6 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 50.0
+        "t_max": 1000.0
     }
 }

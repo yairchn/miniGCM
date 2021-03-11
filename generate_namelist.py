@@ -36,6 +36,7 @@ def main():
     namelist_defaults['grid']['p3']    =  850.0*1.e2  # [pasc]
     namelist_defaults['grid']['p2']    =  500.0*1.e2  # [pasc]
     namelist_defaults['grid']['p1']    =  250.0*1.e2  # [pasc]
+    namelist_defaults['grid']['pressure_levels']    =  [250.0*1.e2,500.0*1.e2,850.0*1.e2, 1000.0*1.e2]  # [pasc]
     namelist_defaults['grid']['p_ref'] =  1000.0*1.e2 # [pasc]
 
     namelist_defaults['planet'] = {}

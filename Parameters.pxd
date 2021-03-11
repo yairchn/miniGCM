@@ -14,12 +14,13 @@ cdef class Parameters:
         Py_ssize_t n_layers
         int truncation_order
         int truncation_number
+        double [:] pressure_levels
         double moist_index
         double dissipation_order
         double p1
         double p2
         double p3
-        double T1
+        double T_init
         double T2
         double T3
         double p_ref
