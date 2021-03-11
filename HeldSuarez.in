@@ -23,20 +23,10 @@
         "number_of_latitute_points": 64,
         "number_of_layers": 3,
         "number_of_longitude_points": 128,
-        "p1": 25000.0,
-        "p2": 50000.0,
-        "p3": 85000.0,
-        "p_ref": 100000.0,
         "pressure_levels": [
-            10000.0,
-            20000.0,
-            30000.0,
-            40000.0,
+            25000.0,
             50000.0,
-            60000.0,
-            70000.0,
-            80000.0,
-            90000.0,
+            85000.0,
             100000.0
         ]
     },
@@ -57,7 +47,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "c880c538-7ddb-43d0-941a-444b45ef523b"
+        "uuid": "93b5c8a1-27cb-4761-a20a-22e84d665d9e"
     },
     "microphysics": {
         "rain_model": "None"

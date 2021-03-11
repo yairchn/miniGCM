@@ -44,21 +44,23 @@ cdef class Restart:
             PV.T.values          = np.array(Temperature.variables['Temperature'])
             Vorticity            = nc.Dataset(filepath + 'Vorticity_' + timestring+'.nc', 'r')
             PV.Vorticity.values  = np.array(Vorticity.variables['Vorticity'])
-            Specific_humidity    = nc.Dataset(filepath + 'Specific_humidity_' + timestring+'.nc', 'r')
-            PV.QT.values         = np.array(Specific_humidity.variables['Specific_humidity'])
             Divergence           = nc.Dataset(filepath + 'Divergence_' + timestring+'.nc', 'r')
             PV.Divergence.values = np.array(Divergence.variables['Divergence'])
             Pressure             = nc.Dataset(filepath + 'Pressure_' + timestring+'.nc', 'r')
             PV.P.values.base[:,:,nl]  = np.array(Pressure.variables['Pressure'])
+            if Pr.moist_index > 0.0:
+                Specific_humidity    = nc.Dataset(filepath + 'Specific_humidity_' + timestring+'.nc', 'r')
+                PV.QT.values         = np.array(Specific_humidity.variables['Specific_humidity'])
 
         elif Pr.restart_type == 'zonal_mean':
             for i in range(Pr.nlats):
                 for j in range(Pr.nlons):
+                    PV.P.values[i,j,Pr.n_layers]    = np.array(data.groups['surface_zonal_mean'].variables['zonal_mean_Ps'])[-1,i]
                     for k in range(Pr.n_layers):
+                        PV.P.values[i,j,k]          = PV.P_init[k]
                         PV.T.values[i,j,k]          = np.array(data.groups['zonal_mean'].variables['zonal_mean_T'])[-1,i,k]
-                        PV.QT.values[i,j,k]         = np.array(data.groups['zonal_mean'].variables['zonal_mean_QT'])[-1,i,k]
                         PV.Vorticity.values[i,j,k]  = np.array(data.groups['zonal_mean'].variables['zonal_mean_vorticity'])[-1,i,k]
                         PV.Divergence.values[i,j,k] = np.array(data.groups['zonal_mean'].variables['zonal_mean_divergence'])[-1,i,k]
-                        PV.P.values[i,j,k]          = PV.P_init[k]
-                    PV.P.values[i,j,Pr.n_layers]    = np.array(data.groups['surface_zonal_mean'].variables['zonal_mean_Ps'])[-1,i]
+                        if Pr.moist_index > 0.0:
+                            PV.QT.values[i,j,k]         = np.array(data.groups['zonal_mean'].variables['zonal_mean_QT'])[-1,i,k]
         return

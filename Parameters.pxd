@@ -17,12 +17,7 @@ cdef class Parameters:
         double [:] pressure_levels
         double moist_index
         double dissipation_order
-        double p1
-        double p2
-        double p3
         double T_init
-        double T2
-        double T3
         double p_ref
         double rsphere
         double omega

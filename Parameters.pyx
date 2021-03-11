@@ -30,12 +30,7 @@ cdef class Parameters:
         self.p_ref     = self.pressure_levels[-1]
         # self.p_ref     = namelist['grid']['p_ref']
 
-        self.p1        = namelist['grid']['p1']
-        self.p2        = namelist['grid']['p2']
-        self.p3        = namelist['grid']['p3']
         self.T_init    = namelist['initialize']['T_init']
-        # self.T2        = namelist['initialize']['T2']
-        # self.T3        = namelist['initialize']['T3']
         self.Omega     = namelist['planet']['Omega_rotation']
         self.g         = namelist['planet']['gravity']
         self.cp        = namelist['thermodynamics']['heat_capacity']

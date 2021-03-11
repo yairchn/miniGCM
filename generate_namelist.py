@@ -33,11 +33,7 @@ def main():
     namelist_defaults['grid']['number_of_latitute_points'] =  64
     namelist_defaults['grid']['number_of_longitude_points'] = 128
     namelist_defaults['grid']['number_of_layers'] =  3
-    namelist_defaults['grid']['p3']    =  850.0*1.e2  # [pasc]
-    namelist_defaults['grid']['p2']    =  500.0*1.e2  # [pasc]
-    namelist_defaults['grid']['p1']    =  250.0*1.e2  # [pasc]
     namelist_defaults['grid']['pressure_levels']    =  [250.0*1.e2,500.0*1.e2,850.0*1.e2, 1000.0*1.e2]  # [pasc]
-    namelist_defaults['grid']['p_ref'] =  1000.0*1.e2 # [pasc]
 
     namelist_defaults['planet'] = {}
     namelist_defaults['planet']['planet_radius']    = 6.37122e6 # earth radius [m]
@@ -105,9 +101,7 @@ def HeldSuarez(namelist_defaults):
     namelist['forcing']['lapse_rate']   = 10.0                   # Characteristic potential temperature change in vertical [K]
 
     namelist['microphysics']['rain_model'] = 'None'
-    namelist['initialize']['T1']   = 300.0 # initial temperature of layer 1 [K]
-    namelist['initialize']['T2']   = 300.0 # initial temperature of layer 2 [K]
-    namelist['initialize']['T3']   = 300.0 # initial temperature of layer 3 [K]
+    namelist['initialize']['T_init']   = 300.0 # initial temperature of layer 1 [K]
 
     namelist['surface'] = {}
     namelist['surface']['surface_model'] = 'None'
