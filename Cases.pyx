@@ -86,10 +86,12 @@ cdef class DryVortex(CaseBase):
         PV.P.values  = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl+1), dtype=np.double, order='c'),PV.P_init)
         PV.T.values  = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl),   dtype=np.double, order='c'),PV.T_init)
 
+        print('Gr.x[Gr.xc]',Gr.x[Gr.xc])
+        print('Gr.Y[Gr.yc]',Gr.y[Gr.yc])
         for i in range(nx):
             for j in range(ny):
                 for k in range(nl):
-                    PV.T.values[i,j,k] += Pr.amp_T*Pr.amp_dTdp[k]*np.exp(-((Gr.x[i] - Gr.x[Gr.xc])**2.0+(Gr.y[j] - Gr.y[Gr.yc])**2.0)/(2.0*Pr.amp_T**2.0))
+                    PV.T.values[i,j,k] += Pr.amp_T*Pr.amp_dTdp[k]*np.exp(-(((Gr.x[i] - Gr.x[Gr.xc])**2.0+(Gr.y[j] - Gr.y[Gr.yc])**2.0))/(2.0*Pr.amp_T**2.0))
 
         plt.figure('1')
         plt.contourf(PV.T.values[:,:,0])
