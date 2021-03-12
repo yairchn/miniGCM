@@ -53,26 +53,24 @@ cdef class DiagnosticVariables:
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         Stats.add_global_mean('global_mean_QL')
-        Stats.add_zonal_mean('zonal_mean_QL')
-        Stats.add_meridional_mean('meridional_mean_QL')
         Stats.add_global_mean('global_mean_KE')
         Stats.add_global_mean('global_mean_gZ')
-        Stats.add_zonal_mean('zonal_mean_gZ')
-        Stats.add_zonal_mean('zonal_mean_Wp')
-        Stats.add_meridional_mean('meridional_mean_gZ')
-        Stats.add_meridional_mean('meridional_mean_Wp')
+        Stats.add_global_mean('global_mean_Wp')
+        Stats.add_axisymmetric_mean('axisymmetric_mean_QL')
+        Stats.add_axisymmetric_mean('axisymmetric_mean_KE')
+        Stats.add_axisymmetric_mean('axisymmetric_mean_gZ')
+        Stats.add_axisymmetric_mean('axisymmetric_mean_Wp')
         return
 
     cpdef stats_io(self, NetCDFIO_Stats Stats):
         Stats.write_global_mean('global_mean_QL', self.QL.values)
-        Stats.write_zonal_mean('zonal_mean_QL',self.QL.values)
-        Stats.write_meridional_mean('meridional_mean_QL',self.QL.values)
         Stats.write_global_mean('global_mean_KE', self.KE.values)
         Stats.write_global_mean('global_mean_gZ', self.gZ.values[:,:,0:3])
-        Stats.write_zonal_mean('zonal_mean_Wp',self.Wp.values[:,:,1:4])
-        Stats.write_zonal_mean('zonal_mean_gZ',self.gZ.values[:,:,0:3])
-        Stats.write_meridional_mean('meridional_mean_Wp',self.Wp.values[:,:,1:4])
-        Stats.write_meridional_mean('meridional_mean_gZ',self.gZ.values[:,:,0:3])
+        Stats.write_global_mean('global_mean_Wp', self.Wp.values[:,:,1:4])
+        Stats.write_axisymmetric_mean('axisymmetric_mean_QL',self.QL.values)
+        Stats.write_axisymmetric_mean('axisymmetric_mean_KE',self.KE.values)
+        Stats.write_axisymmetric_mean('axisymmetric_mean_gZ',self.gZ.values[:,:,0:3])
+        Stats.write_axisymmetric_mean('axisymmetric_mean_Wp',self.Wp.values[:,:,1:4])
         return
 
     cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):

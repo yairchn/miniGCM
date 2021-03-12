@@ -8,12 +8,13 @@ cdef class Grid:
 	cdef:
 		int nx
 		int ny
+		int nr
 		int nl
 		int ng
 		double dx
 		double dy
-		double xc
-		double yc
+		int xc
+		int yc
 		double [:] x
 		double [:] y
 		double [:] r

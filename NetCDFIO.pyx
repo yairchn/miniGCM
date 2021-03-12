@@ -14,12 +14,12 @@ cdef class NetCDFIO_Stats:
     def __init__(self, Parameters Pr, Grid Gr, namelist):
         self.xc = Gr.xc
         self.yc = Gr.yc
+        self.nl = Gr.nl
         self.root_grp = None
         self.variable_grp = None
-        self.meridional_mean_grp = None
-        self.zonal_mean_grp = None
+        self.axisymmetric_mean_grp = None
         self.global_mean_grp = None
-        self.surface_zonal_mean_grp = None
+        self.surface_axisymmetric_mean_grp = None
 
         self.last_output_time = 0.0
         self.uuid = str(namelist['meta']['uuid'])
@@ -102,7 +102,7 @@ cdef class NetCDFIO_Stats:
         y = coordinate_grp.createVariable('y', 'f8', ('y'))
         y[:] = Gr.y[jmin:jmax]
         r = coordinate_grp.createVariable('r', 'f8', ('r'))
-        r[:] = Gr.r[Gr.nr]
+        r[:] = Gr.r
         layer = coordinate_grp.createVariable('layers', 'f8',('lay'))
         layer[:] = np.array(Pr.n_layers)
         del x, y, layer
@@ -110,7 +110,7 @@ cdef class NetCDFIO_Stats:
         # Set axisymmetric mean
         axisymmetric_mean_grp = root_grp.createGroup('axisymmetric_mean')
         axisymmetric_mean_grp.createDimension('time', None)
-        axisymmetric_mean_grp.createDimension('r', Pr.nr)
+        axisymmetric_mean_grp.createDimension('r', Gr.nr)
         axisymmetric_mean_grp.createDimension('lay',  Pr.n_layers)
         t = axisymmetric_mean_grp.createVariable('t', 'f8',  ('time'))
 
@@ -158,12 +158,13 @@ cdef class NetCDFIO_Stats:
 
     cpdef write_axisymmetric_mean(self, var_name, data):
         var = self.axisymmetric_mean_grp.variables[var_name]
-        var[-1,:,:] = np.array(axisymmetric_mean(self.xc, self.yc, data))
+        for k in range (self.nl):
+            var[-1,:,k] = np.array(axisymmetric_mean(self.xc, self.yc, data.base[:,:,k]))
         return
 
     cpdef write_surface_axisymmetric_mean(self, var_name, data):
         var = self.surface_axisymmetric_mean_grp.variables[var_name]
-        var[-1,:] = np.array(axisymmetric_mean(self.xc, self.yc, data))
+        var[-1,:] = np.array(axisymmetric_mean(self.xc, self.yc, data.base))
         return
 
     cpdef write_3D_variable(self, Parameters Pr, Grid Gr, t, n_layers, var_name, data):
@@ -202,14 +203,11 @@ cdef class NetCDFIO_Stats:
         global_mean_t = self.global_mean_grp.variables['t']
         global_mean_t[global_mean_t.shape[0]] = t
 
-        # Write to zonal mean group
-        zonal_mean_t = self.zonal_mean_grp.variables['t']
-        zonal_mean_t[zonal_mean_t.shape[0]] = t
+        # Write to axisymmetric mean group
+        axisymmetric_mean_t = self.axisymmetric_mean_grp.variables['t']
+        axisymmetric_mean_t[axisymmetric_mean_t.shape[0]] = t
 
-        # Write to meridional mean group
-        meridional_mean_t = self.meridional_mean_grp.variables['t']
-        meridional_mean_t[meridional_mean_t.shape[0]] = t
-
-        surface_zonal_mean_grp_t = self.surface_zonal_mean_grp.variables['t']
-        surface_zonal_mean_grp_t[surface_zonal_mean_grp_t.shape[0]] = t
+        # Write to axisymmetric surface mean group
+        surface_axisymmetric_mean_grp_t = self.surface_axisymmetric_mean_grp.variables['t']
+        surface_axisymmetric_mean_grp_t[surface_axisymmetric_mean_grp_t.shape[0]] = t
         return

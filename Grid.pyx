@@ -4,6 +4,7 @@ import numpy as np
 cimport numpy as np
 from Parameters cimport Parameters
 from UtilityFunctions import axisymmetric_mean
+import pylab as plt
 
 cdef class Grid:
 	def __init__(self, Parameters Pr, namelist):
@@ -24,11 +25,10 @@ cdef class Grid:
 		for j in range(self.ny):
 			self.y[j] = self.dy*j
 
+		self.xc = int(self.nx/2)
+		self.yc = int(self.ny/2)
 		X, Y = np.meshgrid(self.x, self.y)
-		R = np.add(np.power(X,2.0),np.power(Y,2.0))
-
-		self.xc = self.nx/2
-		self.yc = self.ny/2
+		R = np.add(np.power(np.subtract(X,self.x[self.xc]),2.0),np.power(np.subtract(Y,self.y[self.yc]),2.0))
 		self.r = axisymmetric_mean(self.xc, self.yc, R)
+		self.nr = len(self.r)
 		return
-

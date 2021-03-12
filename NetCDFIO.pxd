@@ -12,10 +12,9 @@ cdef class NetCDFIO_Stats:
     cdef:
         object root_grp
         object variable_grp
-        object meridional_mean_grp
-        object zonal_mean_grp
+        object axisymmetric_mean_grp
         object global_mean_grp
-        object surface_zonal_mean_grp
+        object surface_axisymmetric_mean_grp
 
         str stats_file_name
         str stats_path
@@ -26,8 +25,9 @@ cdef class NetCDFIO_Stats:
         public double last_output_time
         public double stats_frequency
         public double output_frequency
-        double xc
-        double yc
+        int xc
+        int yc
+        int nl
 
     cpdef open_files(self)
     cpdef close_files(self)

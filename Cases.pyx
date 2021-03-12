@@ -86,10 +86,10 @@ cdef class DryVortex(CaseBase):
         PV.P.values  = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl+1), dtype=np.double, order='c'),PV.P_init)
         PV.T.values  = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl),   dtype=np.double, order='c'),PV.T_init)
 
-        # for i in range(nx):
-        #     for j in range(ny):
-        #         for k in range(nl):
-        #             PV.T.values[i,j,k] += Pr.amp_T*Pr.amp_dTdp[k]*np.exp(-((Gr.x[i] - x0)**2.0+(Gr.y[j] - y0)**2.0)/(2.0*Pr.amp_T**2.0))
+        for i in range(nx):
+            for j in range(ny):
+                for k in range(nl):
+                    PV.T.values[i,j,k] += Pr.amp_T*Pr.amp_dTdp[k]*np.exp(-((Gr.x[i] - Gr.x[Gr.xc])**2.0+(Gr.y[j] - Gr.y[Gr.yc])**2.0)/(2.0*Pr.amp_T**2.0))
 
 
         # if Pr.inoise==1: # load the random noise to grid space

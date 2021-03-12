@@ -6,6 +6,7 @@ cimport numpy as np
 from Parameters cimport Parameters
 from PrognosticVariables cimport PrognosticVariables, PrognosticVariable
 from libc.math cimport fmax, fmin, fabs, floor
+import pylab as plt 
 
 # make sure that total moisture content is non-negative
 cpdef set_min_vapour(qp,qbar):
@@ -99,8 +100,15 @@ cdef void flux_constructor_fv(Parameters Pr, Grid Gr, PrognosticVariable U,
         for i in xrange(ng,nx-ng-1):
             for j in xrange(ng,ny-ng-1):
                 for k in xrange(nl):
-                    Var.ZonalFlux[i,j,k] = U.values[i,j,k]*Var.values[i,j,k]
-                    Var.MeridionalFlux[i,j,k] = V.values[i,j,k]*Var.values[i,j,k]
+                    if Var.name == 'u':
+                        Var.ZonalFlux[i,j,k] = U.values[i,j,k]*Var.values[i,j,k]
+                    else:
+                        Var.ZonalFlux[i,j,k] = U.values[i,j,k]*(Var.values[i,j,k]+Var.values[i-1,j,k])
+
+                    if Var.name == 'v':
+                        Var.MeridionalFlux[i,j,k] = V.values[i,j,k]*Var.values[i,j,k]
+                    else:
+                        Var.MeridionalFlux[i,j,k] = V.values[i,j,k]*(Var.values[i,j,k]+Var.values[i,j-1,k])
     return
 
 # @cython.wraparound(False)
@@ -320,11 +328,13 @@ cpdef axisymmetric_mean(xc, yc, data):
 
     y = np.arange(np.shape(data)[0])
     x = np.arange(np.shape(data)[1])
+    X, Y = np.meshgrid(x,y)
     nr = (np.min([xc,np.size(data,0)-xc,yc, np.size(data,1) - yc])-1).astype(np.int)
-    axi_data = np.zeros(nr)
+    axi_data = np.zeros(nr+1)
+    axi_data[0] = data[xc, yc]
     for r in range(nr):
-        mask = np.logical_and((x-xc)**2 + (y-yc)**2 < r**2,
-                              (x-xc)**2 + (y-yc)**2 > (r+1)**2)
-        axi_data[r] = np.nanmean(data[mask])
+        mask = np.logical_and((X-xc)**2 + (Y-yc)**2 > r**2,
+                              (X-xc)**2 + (Y-yc)**2 <= (r+1)**2)
+        axi_data[r+1] = np.nanmean(data[mask])
 
     return axi_data

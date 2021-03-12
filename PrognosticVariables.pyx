@@ -62,49 +62,42 @@ cdef class PrognosticVariable:
             Py_ssize_t nl = Pr.n_layers
             Py_ssize_t ng = Gr.ng
 
-        with nogil:
-            for k in range(nl):
-                for i in range(nx):
+        if self.name == 'u':
+            with nogil:
+                for k in range(nl):
                     for j in range(0,ny):
-                        q = ny-ng+j
-                        self.values[i,j,k] = self.values[i,q,k]
-                        self.values[i,j,k] = self.values[i,q,k]
-                        self.values[j,i,k] = self.values[q,i,k]
-                        self.values[j,i,k] = self.values[q,i,k]
-                        q = ny+j+1
-                        p = ng+j
-                        self.values[i,q,k] = self.values[i,p,k]
-                        self.values[i,q,k] = self.values[i,p,k]
-                        self.values[q,i,k] = self.values[p,i,k]
-                        self.values[q,i,k] = self.values[p,i,k]
+                        self.values[ng,j,k] = self.values[nx-ng,j,k]
+
+        elif self.name == 'v':
+            with nogil:
+                for k in range(nl):
+                    for i in range(nx):
+                        self.values[i,ng,k] = self.values[i,ny-ng,k]
         return
 
 cdef class PrognosticVariables:
     def __init__(self, Parameters Pr, Grid Gr, namelist):
-        self.U  = PrognosticVariable(Gr.nx, Gr.ny, Gr.nl,   'zonal velocity'      ,'u'  ,'1/s')
-        self.V  = PrognosticVariable(Gr.nx, Gr.ny, Gr.nl,   'meridionla velocity' ,'v'  ,'1/s')
-        self.T  = PrognosticVariable(Gr.nx, Gr.ny, Gr.nl,   'Temperature'         ,'T'  ,'K')
-        self.QT = PrognosticVariable(Gr.nx, Gr.ny, Gr.nl,   'Specific Humidity'   ,'QT' ,'K')
-        self.P  = PrognosticVariable(Gr.nx, Gr.ny, Gr.nl+1, 'Pressure'            ,'p'  ,'pasc')
+        self.U  = PrognosticVariable(Gr.nx+1, Gr.ny,   Gr.nl,   'zonal velocity'      ,'u'  ,'1/s')
+        self.V  = PrognosticVariable(Gr.nx,   Gr.ny+1, Gr.nl,   'meridionla velocity' ,'v'  ,'1/s')
+        self.T  = PrognosticVariable(Gr.nx,   Gr.ny,   Gr.nl,   'Temperature'         ,'T'  ,'K')
+        self.QT = PrognosticVariable(Gr.nx,   Gr.ny,   Gr.nl,   'Specific Humidity'   ,'QT' ,'K')
+        self.P  = PrognosticVariable(Gr.nx,   Gr.ny,   Gr.nl+1, 'Pressure'            ,'p'  ,'pasc')
         return
 
     cpdef initialize(self, Parameters Pr):
-        self.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
+        self.P_init = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
+        Stats.add_global_mean('global_mean_U')
+        Stats.add_global_mean('global_mean_V')
         Stats.add_global_mean('global_mean_T')
         Stats.add_global_mean('global_mean_QT')
-        Stats.add_zonal_mean('zonal_mean_P')
-        Stats.add_zonal_mean('zonal_mean_T')
-        Stats.add_zonal_mean('zonal_mean_QT')
-        Stats.add_zonal_mean('zonal_mean_U')
-        Stats.add_zonal_mean('zonal_mean_V')
-        Stats.add_meridional_mean('meridional_mean_U')
-        Stats.add_meridional_mean('meridional_mean_V')
-        Stats.add_meridional_mean('meridional_mean_P')
-        Stats.add_meridional_mean('meridional_mean_T')
-        Stats.add_meridional_mean('meridional_mean_QT')
+        Stats.add_axisymmetric_mean('axisymmetric_mean_U')
+        Stats.add_axisymmetric_mean('axisymmetric_mean_V')
+        Stats.add_axisymmetric_mean('axisymmetric_mean_T')
+        Stats.add_axisymmetric_mean('axisymmetric_mean_QT')
+        return
         return
 
     # quick utility to set arrays with values in the "new" arrays
@@ -145,18 +138,14 @@ cdef class PrognosticVariables:
     # this should be done in time intervals and save each time new files,not part of stats
 
     cpdef stats_io(self, NetCDFIO_Stats Stats):
+        Stats.write_global_mean('global_mean_U', self.U.values)
+        Stats.write_global_mean('global_mean_V', self.V.values)
         Stats.write_global_mean('global_mean_T', self.T.values)
         Stats.write_global_mean('global_mean_QT', self.QT.values)
-        Stats.write_zonal_mean('zonal_mean_P',self.P.values[:,:,1:4])
-        Stats.write_zonal_mean('zonal_mean_T',self.T.values)
-        Stats.write_zonal_mean('zonal_mean_QT',self.QT.values)
-        Stats.write_zonal_mean('zonal_mean_U',self.U.values)
-        Stats.write_zonal_mean('zonal_mean_V',self.V.values)
-        Stats.write_meridional_mean('meridional_mean_P',self.P.values[:,:,1:4])
-        Stats.write_meridional_mean('meridional_mean_T',self.T.values)
-        Stats.write_meridional_mean('meridional_mean_QT',self.QT.values)
-        Stats.write_meridional_mean('meridional_mean_U',self.U.values)
-        Stats.write_meridional_mean('meridional_mean_V',self.V.values)
+        Stats.write_axisymmetric_mean('axisymmetric_mean_U',self.U.values)
+        Stats.write_axisymmetric_mean('axisymmetric_mean_V',self.V.values)
+        Stats.write_axisymmetric_mean('axisymmetric_mean_T',self.T.values)
+        Stats.write_axisymmetric_mean('axisymmetric_mean_QT',self.QT.values)
         return
 
     cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
