@@ -13,7 +13,7 @@ import sys
 from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
 import time
-
+import pylab as plt
 def CasesFactory(namelist):
     if namelist['meta']['casename'] == 'DryVortex':
         return DryVortex(namelist)
@@ -91,7 +91,16 @@ cdef class DryVortex(CaseBase):
                 for k in range(nl):
                     PV.T.values[i,j,k] += Pr.amp_T*Pr.amp_dTdp[k]*np.exp(-((Gr.x[i] - Gr.x[Gr.xc])**2.0+(Gr.y[j] - Gr.y[Gr.yc])**2.0)/(2.0*Pr.amp_T**2.0))
 
-
+        plt.figure('1')
+        plt.contourf(PV.T.values[:,:,0])
+        plt.colorbar()
+        plt.figure('2')
+        plt.contourf(PV.T.values[:,:,1])
+        plt.colorbar()
+        plt.figure('3')
+        plt.contourf(PV.T.values[:,:,2])
+        plt.colorbar()
+        plt.show()
         # if Pr.inoise==1: # load the random noise to grid space
         #      noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
         #      PV.T.values.base[:,:,Pr.n_layers-1] = np.add(PV.T.values.base[:,:,Pr.n_layers-1],noise.base)

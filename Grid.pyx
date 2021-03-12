@@ -4,7 +4,6 @@ import numpy as np
 cimport numpy as np
 from Parameters cimport Parameters
 from UtilityFunctions import axisymmetric_mean
-import pylab as plt
 
 cdef class Grid:
 	def __init__(self, Parameters Pr, namelist):
