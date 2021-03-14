@@ -61,7 +61,8 @@ cdef class Parameters:
         double dT_s
         double T_min
         double dphi_s
-        double efold
+        double efold_meso
+        double efold_grid
         double inoise
         double noise_amp
 

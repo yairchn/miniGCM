@@ -65,7 +65,7 @@ cdef class PrognosticVariables:
         return
 
     cpdef initialize(self, Parameters Pr):
-        self.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p4, Pr.p_ref])
+        self.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p4, Pr.p5, Pr.p_ref])
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):

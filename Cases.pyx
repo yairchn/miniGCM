@@ -69,8 +69,8 @@ cdef class HeldSuarez(CaseBase):
         cdef:
             double [:,:] noise
 
-        PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p4, Pr.p_ref])
-        PV.T_init        = np.array([Pr.T1, Pr.T2, Pr.T3, Pr.T4])
+        PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p4, Pr.p5, Pr.p_ref])
+        PV.T_init        = np.array([Pr.T1, Pr.T2, Pr.T3, Pr.T4, Pr.T5])
 
         Pr.sigma_b = namelist['forcing']['sigma_b']
         Pr.k_a = namelist['forcing']['k_a']
