@@ -65,8 +65,7 @@ cdef class ForcingBettsMiller(ForcingBase):
 		return
 
 	cpdef initialize_io(self, NetCDFIO_Stats Stats):
-		Stats.add_zonal_mean('zonal_mean_T_eq')
-		Stats.add_meridional_mean('meridional_mean_T_eq')
+		Stats.add_axisymmetric_mean('axisymmetric_mean_T_eq')
 		return
 
 	@cython.wraparound(False)
@@ -92,6 +91,5 @@ cdef class ForcingBettsMiller(ForcingBase):
 		return
 
 	cpdef stats_io(self, NetCDFIO_Stats Stats):
-		Stats.write_zonal_mean('zonal_mean_T_eq', self.Tbar)
-		Stats.write_meridional_mean('meridional_mean_T_eq', self.Tbar)
+		Stats.write_axisymmetric_mean('axisymmetric_mean_T_eq', self.Tbar)
 		return

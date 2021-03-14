@@ -13,7 +13,7 @@ import sys
 from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
 import time
-import pylab as plt
+
 def CasesFactory(namelist):
     if namelist['meta']['casename'] == 'DryVortex':
         return DryVortex(namelist)
@@ -65,9 +65,10 @@ cdef class DryVortex(CaseBase):
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         cdef:
-            Py_ssize_t nx = Pr.nx
-            Py_ssize_t ny = Pr.ny
-            Py_ssize_t nl = Pr.n_layers
+            Py_ssize_t ng = Gr.ng
+            Py_ssize_t nx = Gr.nx
+            Py_ssize_t ny = Gr.ny
+            Py_ssize_t nl = Gr.nl
             double x0 = Gr.nx/2.0
             double y0 = Gr.ny/2.0
             double [:,:] noise
@@ -80,29 +81,16 @@ cdef class DryVortex(CaseBase):
         Pr.sigma_T = namelist['initialize']['warm_core_width']
         Pr.amp_T = namelist['initialize']['warm_core_amplitude']
 
-        PV.U.values  = np.zeros((Gr.nx, Gr.ny, Gr.nl),  dtype=np.double, order='c')
-        PV.V.values  = np.zeros((Gr.nx, Gr.ny, Gr.nl),  dtype=np.double, order='c')
-        PV.QT.values = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl),   dtype=np.double, order='c'),PV.QT_init)
-        PV.P.values  = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl+1), dtype=np.double, order='c'),PV.P_init)
-        PV.T.values  = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl),   dtype=np.double, order='c'),PV.T_init)
+        PV.U.values  = np.zeros((nx+2*ng+1, ny+2*ng,   nl,),  dtype=np.double, order='c')
+        PV.V.values  = np.zeros((nx+2*ng,   ny+2*ng+1, nl,),  dtype=np.double, order='c')
+        PV.QT.values = np.multiply(np.ones((nx+2*ng,ny+2*ng,nl),   dtype=np.double, order='c'),PV.QT_init)
+        PV.T.values  = np.multiply(np.ones((nx+2*ng,ny+2*ng,nl),   dtype=np.double, order='c'),PV.T_init)
+        PV.P.values  = np.multiply(np.ones((nx+2*ng,ny+2*ng,nl+1), dtype=np.double, order='c'),PV.P_init)
 
-        print('Gr.x[Gr.xc]',Gr.x[Gr.xc])
-        print('Gr.Y[Gr.yc]',Gr.y[Gr.yc])
-        for i in range(nx):
-            for j in range(ny):
+        for i in range(ng,nx+ng):
+            for j in range(ng,ny+ng):
                 for k in range(nl):
-                    PV.T.values[i,j,k] += Pr.amp_T*Pr.amp_dTdp[k]*np.exp(-(((Gr.x[i] - Gr.x[Gr.xc])**2.0+(Gr.y[j] - Gr.y[Gr.yc])**2.0))/(2.0*Pr.amp_T**2.0))
-
-        plt.figure('1')
-        plt.contourf(PV.T.values[:,:,0])
-        plt.colorbar()
-        plt.figure('2')
-        plt.contourf(PV.T.values[:,:,1])
-        plt.colorbar()
-        plt.figure('3')
-        plt.contourf(PV.T.values[:,:,2])
-        plt.colorbar()
-        plt.show()
+                    PV.T.values[i,j,k] += Pr.amp_T*Pr.amp_dTdp[k]*np.exp(-((Gr.x[i-ng] - Gr.x[Gr.xc])**2.0+(Gr.y[j-ng] - Gr.y[Gr.yc])**2.0)/(2.0*Pr.sigma_T**2.0))
         # if Pr.inoise==1: # load the random noise to grid space
         #      noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
         #      PV.T.values.base[:,:,Pr.n_layers-1] = np.add(PV.T.values.base[:,:,Pr.n_layers-1],noise.base)
@@ -120,6 +108,40 @@ cdef class DryVortex(CaseBase):
         # print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
         return
 
+    cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+        self.Sur.initialize(Pr, Gr, PV, namelist)
+        return
+
+    cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
+        self.Fo.initialize(Pr, Gr, namelist)
+        return
+
+    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist):
+        return
+
+    cpdef initialize_io(self, NetCDFIO_Stats Stats):
+        # CaseBase.initialize_io(self, Stats)
+        # self.Fo.initialize_io(Stats)
+        # self.Sur.initialize_io(Stats)
+        return
+
+    cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
+        # CaseBase.io(self, Pr, Gr, TS, Stats)
+        # self.Fo.io(Pr, Gr, TS, Stats)
+        # self.Sur.io(Pr, Gr, TS, Stats)
+        return
+
+    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
+        # CaseBase.stats_io(self, PV, Stats)
+        # self.Fo.stats_io(Stats)
+        # self.Sur.stats_io(Stats)
+        return
+
+    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
+        # self.Sur.update(Pr, Gr, PV, DV)
+        # self.Fo.update(Pr, Gr, PV, DV)
+        return
+
 
 cdef class MoistVortex(CaseBase):
     def __init__(self, namelist):
@@ -134,6 +156,7 @@ cdef class MoistVortex(CaseBase):
             Py_ssize_t nx = Gr.nx
             Py_ssize_t ny = Gr.ny
             Py_ssize_t nl = Gr.nl
+            Py_ssize_t ng = Gr.ng
             double x0 = Gr.nx/2.0 + Gr.ng
             double y0 = Gr.ny/2.0 + Gr.ng
             double [:,:] noise
@@ -149,8 +172,8 @@ cdef class MoistVortex(CaseBase):
         PV.P.values          = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl+1), dtype=np.double, order='c'),PV.P_init)
         PV.T.values          = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl),   dtype=np.double, order='c'),PV.T_init)
 
-        for i in range(nx):
-            for j in range(ny):
+        for i in range(ng,nx+ng):
+            for j in range(ng,ny+ng):
                 for k in range(nl):
                     PV.T.values[i,j,k] += (Pr.amp_T*PV.amp_dTdp[k]
                                           *np.exp(-((Gr.x[i] - x0)**2.0+(Gr.y[j] - y0)**2.0)/

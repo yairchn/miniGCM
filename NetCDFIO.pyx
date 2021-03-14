@@ -84,16 +84,16 @@ cdef class NetCDFIO_Stats:
     cpdef setup_stats_file(self, Parameters Pr, Grid Gr):
         cdef:
             Py_ssize_t imin = Gr.ng
-            Py_ssize_t imax = Gr.nx-Gr.ng
+            Py_ssize_t imax = Gr.nx+Gr.ng
             Py_ssize_t jmin = Gr.ng
-            Py_ssize_t jmax = Gr.ny-Gr.ng
+            Py_ssize_t jmax = Gr.ny+Gr.ng
 
         root_grp = nc.Dataset(self.path_plus_file, 'w', format='NETCDF4')
 
         # Set coordinates
         coordinate_grp = root_grp.createGroup('coordinates')
-        coordinate_grp.createDimension('x', Gr.nx-2.0*Gr.ng)
-        coordinate_grp.createDimension('y', Gr.ny-2.0*Gr.ng)
+        coordinate_grp.createDimension('x', Gr.nx)
+        coordinate_grp.createDimension('y', Gr.ny)
         coordinate_grp.createDimension('r', Gr.nr)
         coordinate_grp.createDimension('lay', 1)
 
@@ -170,14 +170,14 @@ cdef class NetCDFIO_Stats:
     cpdef write_3D_variable(self, Parameters Pr, Grid Gr, t, n_layers, var_name, data):
         cdef:
             Py_ssize_t imin = Gr.ng
-            Py_ssize_t imax = Gr.nx-Gr.ng
+            Py_ssize_t imax = Gr.nx+Gr.ng
             Py_ssize_t jmin = Gr.ng
-            Py_ssize_t jmax = Gr.ny-Gr.ng
+            Py_ssize_t jmax = Gr.ny+Gr.ng
 
         root_grp = nc.Dataset(self.path_plus_var+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')
-        root_grp.createDimension('x', Pr.nx)
-        root_grp.createDimension('y', Pr.ny)
-        root_grp.createDimension('lay', n_layers)
+        root_grp.createDimension('x', Gr.nx)
+        root_grp.createDimension('y', Gr.ny)
+        root_grp.createDimension('lay', Gr.nl)
         var = root_grp.createVariable(var_name, 'f8', ('x', 'y','lay'))
         var[:,:,:] = np.array(data[imin:imax,jmin:jmax,:])
         root_grp.close()
@@ -186,9 +186,9 @@ cdef class NetCDFIO_Stats:
     cpdef write_2D_variable(self, Parameters Pr, Grid Gr, t, var_name, data):
         cdef:
             Py_ssize_t imin = Gr.ng
-            Py_ssize_t imax = Gr.nx-Gr.ng
+            Py_ssize_t imax = Gr.nx+Gr.ng
             Py_ssize_t jmin = Gr.ng
-            Py_ssize_t jmax = Gr.ny-Gr.ng
+            Py_ssize_t jmax = Gr.ny+Gr.ng
 
         root_grp = nc.Dataset(self.path_plus_var+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')
         root_grp.createDimension('x', Pr.nx)

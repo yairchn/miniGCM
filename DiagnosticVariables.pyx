@@ -13,6 +13,7 @@ from NetCDFIO import NetCDFIO_Stats
 from PrognosticVariables import PrognosticVariables
 from TimeStepping import TimeStepping
 from Parameters cimport Parameters
+from libc.math cimport pow, log, fabs
 
 cdef extern from "diagnostic_variables.h":
     void diagnostic_variables(double Rd, double Rv,
@@ -33,11 +34,15 @@ cdef class DiagnosticVariable:
 
 cdef class DiagnosticVariables:
     def __init__(self, Parameters Pr, Grid Gr):
-        self.KE         = DiagnosticVariable(Gr.nx, Gr.ny, Gr.nl,   'kinetic_enetry',      'Ek','m^2/s^2' )
-        self.Divergence = DiagnosticVariable(Gr.nx, Gr.ny, Gr.nl,   'divergence',      'div','1/s' )
-        self.QL         = DiagnosticVariable(Gr.nx, Gr.ny, Gr.nl,   'liquid water specific humidity', 'ql','kg/kg' )
-        self.gZ         = DiagnosticVariable(Gr.nx, Gr.ny, Gr.nl+1, 'Geopotential', 'z','m^/s^2' )
-        self.Wp         = DiagnosticVariable(Gr.nx, Gr.ny, Gr.nl+1, 'Wp', 'w','pasc/s' )
+        cdef:
+            Py_ssize_t ng = Gr.ng
+        
+        self.Vel        = DiagnosticVariable(Gr.nx+2*ng, Gr.ny+2*ng, Gr.nl,   'windspeed',                      'Vel', 'm/s')
+        self.KE         = DiagnosticVariable(Gr.nx+2*ng, Gr.ny+2*ng, Gr.nl,   'kinetic_enetry',                 'Ek',  'm^2/s^2')
+        self.Divergence = DiagnosticVariable(Gr.nx+2*ng, Gr.ny+2*ng, Gr.nl,   'divergence',                     'div', '1/s')
+        self.QL         = DiagnosticVariable(Gr.nx+2*ng, Gr.ny+2*ng, Gr.nl,   'liquid water specific humidity', 'ql',  'kg/kg')
+        self.gZ         = DiagnosticVariable(Gr.nx+2*ng, Gr.ny+2*ng, Gr.nl+1, 'Geopotential',                   'z',   'm^/s^2')
+        self.Wp         = DiagnosticVariable(Gr.nx+2*ng, Gr.ny+2*ng, Gr.nl+1, 'Pressure vertical velocity',     'w',   'pasc/s')
         return
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV):
@@ -74,18 +79,17 @@ cdef class DiagnosticVariables:
         return
 
     cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
-        Stats.write_3D_variable(Pr, Gr, int(TS.t), Pr.n_layers, 'Geopotential',  self.gZ.values[:,:,0:Pr.n_layers])
-        Stats.write_3D_variable(Pr, Gr, int(TS.t), Pr.n_layers, 'Wp',            self.Wp.values[:,:,1:Pr.n_layers+1])
-        Stats.write_3D_variable(Pr, Gr, int(TS.t), Pr.n_layers, 'QL',            self.QL.values)
-        Stats.write_3D_variable(Pr, Gr, int(TS.t), Pr.n_layers, 'Kinetic_enegry',self.KE.values)
+        Stats.write_3D_variable(Pr, Gr, int(TS.t), Gr.nl, 'Geopotential',  self.gZ.values.base[:,:,0:Gr.nl])
+        Stats.write_3D_variable(Pr, Gr, int(TS.t), Gr.nl, 'Wp',            self.Wp.values.base[:,:,1:Gr.nl+1])
+        Stats.write_3D_variable(Pr, Gr, int(TS.t), Gr.nl, 'QL',            self.QL.values)
+        Stats.write_3D_variable(Pr, Gr, int(TS.t), Gr.nl, 'Kinetic_enegry',self.KE.values)
         return
 
     @cython.wraparound(False)
     @cython.boundscheck(False)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV):
         cdef:
-            Py_ssize_t i, j, k
-            Py_ssize_t ii = 1
+            Py_ssize_t i, j, k, k1
             Py_ssize_t ng = Gr.ng
             Py_ssize_t nx = Gr.nx
             Py_ssize_t ny = Gr.ny
@@ -97,14 +101,22 @@ cdef class DiagnosticVariables:
         self.Wp.values.base[:,:,0] = np.zeros_like(self.Wp.values[:,:,0])
         self.gZ.values.base[:,:,nl] = np.zeros_like(self.Wp.values[:,:,0])
         with nogil:
-            for i in range(ng,nx-ng-1):
-                for j in range(ng,ny-ng-1):
+            for i in range(ng,nx+1+ng):
+                for j in range(ng,ny+1+ng):
                     for k in range(nl):
+                        self.Vel.values[i,j,k] = fabs(PV.U.values[i,j,k]) + fabs(PV.V.values[i,j,k])
                         self.Divergence.values[i,j,k] = ((PV.U.values[i+1,j,k]-PV.U.values[i-1,j,k])*dxi +
                                                        (PV.V.values[i,j+1,k]-PV.V.values[i,j-1,k])*dyi)
-
-            diagnostic_variables(Pr.Rd, Pr.Rv, &PV.P.values[0,0,0], &PV.T.values[0,0,0],
-                                 &PV.QT.values[0,0,0],   &self.QL.values[0,0,0], &PV.U.values[0,0,0],
-                                 &PV.V.values[0,0,0],  &self.Divergence.values[0,0,0],&self.KE.values[0,0,0],
-                                 &self.Wp.values[0,0,0], &self.gZ.values[0,0,0], k, nx, ny, nl)
+        for k in range(nl):
+            k1 = nl-k-1 # geopotential is computed bottom -> up
+            # with nogil:
+            for i in range(ng,nx+1+ng):
+                for j in range(ng,ny+1+ng):
+                    self.KE.values.base[i,j,k]    = 0.5*(pow(PV.U.values[i,j,k],2.0) + pow(PV.V.values[i,j,k],2.0))
+                    self.Wp.values.base[i,j,k+1]  = self.Wp.values[i,j,k] - (PV.P.values[i,j,k+1]-PV.P.values[i,j,k])*self.Divergence.values[i,j,k]
+                    self.gZ.values.base[i,j,k1]   = Pr.Rd*PV.T.values[i,j,k1]*log(PV.P.values[i,j,k1+1]/PV.P.values[i,j,k1]) + self.gZ.values[i,j,k1+1]
+            # diagnostic_variables(Pr.Rd, Pr.Rv, &PV.P.values[0,0,0], &PV.T.values[0,0,0],
+            #                      &PV.QT.values[0,0,0],   &self.QL.values[0,0,0], &PV.U.values[0,0,0],
+            #                      &PV.V.values[0,0,0],  &self.Divergence.values[0,0,0],&self.KE.values[0,0,0],
+            #                      &self.Wp.values[0,0,0], &self.gZ.values[0,0,0], k, nx, ny, nl)
         return

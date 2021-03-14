@@ -13,15 +13,15 @@ cdef class Grid:
 		if Pr.numerical_scheme == 'weno_5':
 			self.ng = 5 # 5 ghost points on each side
 		if Pr.numerical_scheme == 'centeral_differneces':
-			self.ng = 2 # 2 ghost points on each side
-		self.nx = namelist['grid']['number_of_x_points'] + 2*self.ng
-		self.ny = namelist['grid']['number_of_y_points'] + 2*self.ng
+			self.ng = 1 # 2 ghost points on each side
+		self.nx = namelist['grid']['number_of_x_points']# + 2*self.ng
+		self.ny = namelist['grid']['number_of_y_points']# + 2*self.ng
 
-		self.x = np.zeros(self.nx,dtype=np.float64, order='c')
-		self.y = np.zeros(self.ny,dtype=np.float64, order='c')
-		for i in range(self.nx):
+		self.x = np.zeros(self.nx+2*self.ng,dtype=np.float64, order='c')
+		self.y = np.zeros(self.ny+2*self.ng,dtype=np.float64, order='c')
+		for i in range(self.nx+2*self.ng):
 			self.x[i] = self.dx*i
-		for j in range(self.ny):
+		for j in range(self.ny+2*self.ng):
 			self.y[j] = self.dy*j
 
 		self.xc = int(self.nx/2)
