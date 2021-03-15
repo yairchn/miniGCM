@@ -14,6 +14,7 @@ from TimeStepping cimport TimeStepping
 cdef class PrognosticVariable:
     cdef:
         double [:,:,:] values
+        double [:,:,:] HyperDiffusion
         double [:,:,:] VerticalFlux
         double [:,:] SurfaceFlux
         double [:,:,:] forcing

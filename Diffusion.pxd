@@ -9,12 +9,12 @@ from Parameters cimport Parameters
 cdef class Diffusion:
 	cdef:
 		Py_ssize_t i,j,k
+		Py_ssize_t ng
+		Py_ssize_t nx
+		Py_ssize_t ny
 		Py_ssize_t nl
-		Py_ssize_t nlm
-		int [:] shtns_l
-		double complex diffusion_factor
-		double complex HyperDiffusionFactor
-		double complex [:] laplacian
+		double dxi_4
+		double dyi_4
 
 
 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist)

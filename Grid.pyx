@@ -13,7 +13,7 @@ cdef class Grid:
 		if Pr.numerical_scheme == 'weno_5':
 			self.ng = 5 # 5 ghost points on each side
 		if Pr.numerical_scheme == 'centeral_differneces':
-			self.ng = 1 # 2 ghost points on each side
+			self.ng = 2 # 2 ghost points on each side
 		self.nx = namelist['grid']['number_of_x_points']# + 2*self.ng
 		self.ny = namelist['grid']['number_of_y_points']# + 2*self.ng
 

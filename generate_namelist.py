@@ -23,7 +23,7 @@ def main():
     namelist_defaults['forcing'] = {}
 
     namelist_defaults['diffusion'] = {}
-    # namelist_defaults['diffusion']['e_folding_timescale'] = 0.01
+    namelist_defaults['diffusion']['e_folding_timescale'] = 600
 
     namelist_defaults['grid'] = {}
     namelist_defaults['grid']['dims'] = 1
