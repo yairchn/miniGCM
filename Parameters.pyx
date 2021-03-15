@@ -9,9 +9,6 @@ import os
 cdef class Parameters:
     def __init__(self, namelist):
 
-        cdef:
-            list [:] p
-
         self.thermodynamics_type = namelist['thermodynamics']['thermodynamics_type']
         if (self.thermodynamics_type=='dry'):
             self.moist_index = 0.0
