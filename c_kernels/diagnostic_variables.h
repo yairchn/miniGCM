@@ -9,6 +9,8 @@
 void diagnostic_variables(
            double Rd,
            double Rv,
+           double kappa,
+           double p_ref,
            double* restrict p,
            double* restrict T,
            double* restrict qt,
@@ -33,6 +35,8 @@ void diagnostic_variables(
     const ssize_t kmin = 0;
     const ssize_t k_rev = kmax-k-1;
     double Rm;
+    double p_half;
+    double Temperature;
 
     for(ssize_t i=imin;i<imax;i++){
         const ssize_t ishift_2d = i*jmax;
@@ -48,8 +52,11 @@ void diagnostic_variables(
             const ssize_t ijkp_rev = ishift_p + jshift_p + k_rev;
             ke[ijk]      = 0.5*(u[ijk]*u[ijk] + v[ijk]*v[ijk]);
             wp[ijkp+1]   = wp[ijkp] - (p[ijkp+1]-p[ijkp])*div[ijk];
+            p_half = (p[ijkp_rev]+p[ijkp_rev+1])/2.0;
+            Temperature = T[ijk_rev]*pow(p_half/p_ref, kappa);
             Rm           = Rd*(1.0-qt[ijk_rev]) + Rv*(qt[ijk_rev] - ql[ijk_rev]);
-            gz[ijkp_rev] = Rm*T[ijk_rev]*log(p[ijkp_rev+1]/p[ijkp_rev]) + gz[ijkp_rev+1];
+            gz[ijkp_rev] = Rm*Temperature*log(p[ijkp_rev+1]/p[ijkp_rev]) + gz[ijkp_rev+1];
+            // gz[ijkp_rev] = Rm*T[ijk_rev]*log(p[ijkp_rev+1]/p[ijkp_rev]) + gz[ijkp_rev+1];
             vT[ijk]      = v[ijk] * T[ijk];
             TT[ijk]      = T[ijk] * T[ijk];
             uv[ijk]      = v[ijk] * u[ijk];
