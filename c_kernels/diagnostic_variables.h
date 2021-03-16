@@ -56,7 +56,6 @@ void diagnostic_variables(
             Temperature = T[ijk_rev]*pow(p_half/p_ref, kappa);
             Rm           = Rd*(1.0-qt[ijk_rev]) + Rv*(qt[ijk_rev] - ql[ijk_rev]);
             gz[ijkp_rev] = Rm*Temperature*log(p[ijkp_rev+1]/p[ijkp_rev]) + gz[ijkp_rev+1];
-            // gz[ijkp_rev] = Rm*T[ijk_rev]*log(p[ijkp_rev+1]/p[ijkp_rev]) + gz[ijkp_rev+1];
             vT[ijk]      = v[ijk] * T[ijk];
             TT[ijk]      = T[ijk] * T[ijk];
             uv[ijk]      = v[ijk] * u[ijk];

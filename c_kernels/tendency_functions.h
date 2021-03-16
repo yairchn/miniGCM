@@ -52,7 +52,6 @@ void rhs_T(double cp,
                 rhs_T[ij] += 0.5*wp[ijkp]  *(T[ijk]   + T[ijk-1])*dpi;
                 rhs_T[ij] -= 0.5*wp[ijkp+1]*(T[ijk+1] + T[ijk])*dpi;
             } // end else
-            // rhs_T[ij] -= 0.5*(wp[ijkp+1]+wp[ijkp])*(gz[ijkp+1]-gz[ijkp])*dpi/cp;
             rhs_T[ij] += T_mp[ijk];
             rhs_T[ij] += T_forc[ijk];
             rhs_T[ij] += T_sur[ij];
