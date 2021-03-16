@@ -31,7 +31,8 @@ cdef class Restart:
             Py_ssize_t nl = Pr.n_layers
 
         data = nc.Dataset(Pr.path_plus_file, 'r')
-        TS.t = np.max(data.groups['zonal_mean'].variables['t'])
+        # TS.t = np.max(data.groups['zonal_mean'].variables['t'])
+        TS.t = 47174400.0
         if TS.t_max<=TS.t:
             print(TS.t_max,TS.t)
             sys.exit("Restart simulation is not larger the original simulation")
