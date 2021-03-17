@@ -56,6 +56,7 @@ cdef class Parameters:
         self.logfilename = self.outpath+'/'+self.casename+'.log'
 
         self.restart        = namelist['initialize']['restart']
+        self.restart_time   = namelist['initialize']['restart time']
         self.restart_folder = namelist['initialize']['restart folder']
         self.restart_type   = namelist['initialize']['restart type']
 

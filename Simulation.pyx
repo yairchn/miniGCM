@@ -67,9 +67,9 @@ class Simulation:
             # print('TS.update', time.time() - time0)
             # time0 = time.time()
 
-            wallclocktime = time.time() - start_time
-            self.LF.update(self.Pr, self.TS, self.DV, self.PV, wallclocktime)
             if (self.TS.t%self.Stats.stats_frequency < self.TS.dt or self.TS.t == self.TS.t_max):
+                wallclocktime = time.time() - start_time
+                self.LF.update(self.Pr, self.TS, self.DV, self.PV, wallclocktime)
                 self.stats_io()
             if (self.TS.t%self.Stats.output_frequency < self.TS.dt or self.TS.t == self.TS.t_max):
                 self.io()

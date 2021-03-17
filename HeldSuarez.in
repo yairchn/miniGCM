@@ -45,6 +45,7 @@
         "noise_amplitude": 1,
         "noise_type": "red",
         "restart": false,
+        "restart time": "none",
         "restart folder": "./",
         "restart type": "zonal_mean"
     },
@@ -56,7 +57,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "c880c538-7ddb-43d0-941a-HSdry8layers"
+        "uuid": "c880c538-7ddb-43d0-941a-test_theta"
     },
     "microphysics": {
         "rain_model": "None"
@@ -84,6 +85,6 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 1000.0
+        "t_max": 100.0
     }
 }

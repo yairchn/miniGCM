@@ -246,10 +246,10 @@ cdef class PrognosticVariables:
                            &DV.V.values[0,0,0], &DV.Wp.values[0,0,0], &PV.T.mp_tendency[0,0,0], &T_sur_flux[0,0],
                            &PV.T.forcing[0,0,0], &RHS_grid_T[0,0], &uT[0,0], &vT[0,0], nx, ny, nl, k)
 
-            if Pr.moist_index > 0.0:
-                rhs_qt(&PV.P.values[0,0,0], &PV.QT.values[0,0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
-                       &DV.Wp.values[0,0,0], &PV.QT.mp_tendency[0,0,0], &QT_sur_flux[0,0],
-                       &RHS_grid_QT[0,0], &uQT[0,0], &vQT[0,0], nx, ny, nl, k)
+                if Pr.moist_index > 0.0:
+                    rhs_qt(&PV.P.values[0,0,0], &PV.QT.values[0,0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
+                           &DV.Wp.values[0,0,0], &PV.QT.mp_tendency[0,0,0], &QT_sur_flux[0,0],
+                           &RHS_grid_QT[0,0], &uQT[0,0], &vQT[0,0], nx, ny, nl, k)
 
             Dry_Energy_laplacian = Gr.laplacian*Gr.SphericalGrid.grdtospec(Dry_Energy.base)
             Vortical_momentum_flux, Divergent_momentum_flux = Gr.SphericalGrid.getvrtdivspec(u_vorticity.base, v_vorticity.base)

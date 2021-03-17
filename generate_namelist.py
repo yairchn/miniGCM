@@ -49,6 +49,7 @@ def main():
 
     namelist_defaults['initialize'] = {}
     namelist_defaults['initialize']['restart']                  = False        # true requires input directory
+    namelist_defaults['initialize']['restart time']             = 'none'         # input directory for restart
     namelist_defaults['initialize']['restart folder']           = './'         # input directory for restart
     namelist_defaults['initialize']['restart type']             = 'zonal_mean' # restart from zonal mean
     namelist_defaults['initialize']['inoise']                   = 1            # flag for noise in initial condition
