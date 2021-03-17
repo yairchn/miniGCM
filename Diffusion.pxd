@@ -12,7 +12,8 @@ cdef class Diffusion:
 		Py_ssize_t nl
 		Py_ssize_t nlm
 		int [:] shtns_l
-		double complex diffusion_factor
+		double complex diffusion_factor_meso_scale
+		double complex diffusion_factor_grid_scale
 		double complex HyperDiffusionFactor
 		double complex [:] laplacian
 

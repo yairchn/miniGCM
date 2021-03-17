@@ -68,5 +68,5 @@ cdef class Restart:
                         PV.Vorticity.values[i,j,k]  = np.array(data.groups['zonal_mean'].variables['zonal_mean_vorticity'])[-1,i,k]
                         PV.Divergence.values[i,j,k] = np.array(data.groups['zonal_mean'].variables['zonal_mean_divergence'])[-1,i,k]
                         if Pr.moist_index > 0.0:
-                            PV.QT.values[i,j,k]         = np.array(data.groups['zonal_mean'].variables['zonal_mean_QT'])[-1,i,k]
+                            PV.QT.values[i,j,k]     = np.array(data.groups['zonal_mean'].variables['zonal_mean_QT'])[-1,i,k]
         return
