@@ -35,6 +35,7 @@
         "noise_amplitude": 1,
         "noise_type": "red",
         "restart": true,
+        "restart time": "none",
         "restart folder": "/Output.HeldSuarez.c_Theta_1000/",
         "restart type": "3D_output"
     },

@@ -63,6 +63,7 @@ cdef class Parameters:
         str uuid
         str path_plus_file
         bint restart
+        str restart_time
         str restart_folder
         str restart_type
         str casename
