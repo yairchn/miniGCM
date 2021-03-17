@@ -92,7 +92,7 @@ class Simulation:
         self.Stats.open_files()
         self.Stats.write_simulation_time(self.TS.t)
         self.DV.stats_io(self.Stats)
-        self.PV.stats_io(self.Stats)
+        self.PV.stats_io(self.Pr, self.Stats)
         self.Case.stats_io(self.PV, self.Stats)
         self.Stats.close_files()
         return

@@ -25,7 +25,9 @@ def main():
     namelist_defaults['diffusion'] = {}
     namelist_defaults['diffusion']['dissipation_order'] = 4.0
     namelist_defaults['diffusion']['truncation_order'] = 3
-    namelist_defaults['diffusion']['e_folding_timescale'] = 600
+    namelist_defaults['diffusion']['e_folding_timescale_grid_scale'] = 600
+    namelist_defaults['diffusion']['e_folding_timescale_meso_scale'] = 600
+
 
     namelist_defaults['grid'] = {}
     namelist_defaults['grid']['dims'] = 1

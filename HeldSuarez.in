@@ -1,7 +1,8 @@
 {
     "diffusion": {
         "dissipation_order": 4.0,
-        "e_folding_timescale": 1800,
+        "e_folding_timescale_grid_scale": 600,
+        "e_folding_timescale_meso_scale": 600,
         "order": 4.0,
         "truncation_order": 3,
         "type": "hyperdiffusion"
@@ -34,20 +35,20 @@
         "inoise": 1,
         "noise_amplitude": 1,
         "noise_type": "red",
-        "restart": true,
-        "restart time": "47174400",
-        "restart folder": "/Output.HeldSuarez.c_Theta_1000/",
-        "restart type": "3D_output"
+        "restart": false,
+        "restart folder": "./",
+        "restart time": "none",
+        "restart type": "zonal_mean"
     },
     "io": {
-        "output_frequency": 14.0,
+        "output_frequency": 7.0,
         "stats_dir": "stats",
         "stats_frequency": 1.0
     },
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "5805b619-42c2-4887-a701-c_Theta_1000"
+        "uuid": "ca477312-1b0a-4b35-9547-d5228a4a64fe"
     },
     "microphysics": {
         "rain_model": "None"

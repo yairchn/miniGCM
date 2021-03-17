@@ -16,6 +16,7 @@ cdef class LogFile:
     cpdef update(self, Parameters Pr, TimeStepping TS, DiagnosticVariables DV, PrognosticVariables PV, wallclocktime):
         cdef:
             Py_ssize_t i
+            Py_ssize_t nl = Pr.n_layers
 
         os.system('echo elapsed time [days] about '
         	      +str(np.floor_divide(TS.t,(24.0*3600.0))) + '>> '+Pr.logfilename)
@@ -26,6 +27,9 @@ cdef class LogFile:
         os.system('echo estimated simulation time [hours] '
                   +str(TS.t_max/(TS.t/wallclocktime)/3600.0) + '>> '+Pr.logfilename)
         os.system('echo dt [sec]' + str(TS.dt) + '>> '+Pr.logfilename)
+
+        os.system('echo p_surface min max ' + str(PV.P.values.base[:,:,nl].min())
+                      + ' ' + str(PV.P.values.base[:,:,nl].max()) + '>> '+Pr.logfilename)
 
         for i in range(Pr.n_layers):
             os.system('echo u layer '+str(i+1)+' min max ' + str(DV.U.values.base[:,:,i].min())

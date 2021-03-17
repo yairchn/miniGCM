@@ -41,7 +41,8 @@ cdef class Parameters:
         self.dissipation_order = namelist['diffusion']['dissipation_order']
         self.truncation_order  = namelist['diffusion']['truncation_order']
         self.truncation_number = int(self.nlons/self.truncation_order)
-        self.efold             = namelist['diffusion']['e_folding_timescale']
+        self.efold_meso        = namelist['diffusion']['e_folding_timescale_meso_scale']
+        self.efold_grid        = namelist['diffusion']['e_folding_timescale_grid_scale']
         self.noise_amp      = namelist['initialize']['noise_amplitude']
 
         self.surface_model = namelist['surface']['surface_model']
@@ -56,7 +57,7 @@ cdef class Parameters:
         self.logfilename = self.outpath+'/'+self.casename+'.log'
 
         self.restart        = namelist['initialize']['restart']
-        self.restart_time = namelist['initialize']['restart time']
+        self.restart_time   = namelist['initialize']['restart time']
         self.restart_folder = namelist['initialize']['restart folder']
         self.restart_type   = namelist['initialize']['restart type']
 
