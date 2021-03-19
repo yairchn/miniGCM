@@ -90,7 +90,8 @@ cdef class DryVortex(CaseBase):
         for i in range(ng,nx+ng):
             for j in range(ng,ny+ng):
                 for k in range(nl):
-                    PV.T.values[i,j,k] += Pr.amp_T*Pr.amp_dTdp[k]*np.exp(-((Gr.x[i-ng] - Gr.x[Gr.xc])**2.0+(Gr.y[j-ng] - Gr.y[Gr.yc])**2.0)/(2.0*Pr.sigma_T**2.0))
+                    # PV.T.values[i,j,k] += Pr.amp_T*Pr.amp_dTdp[k]*np.exp(-((Gr.x[i-ng] - Gr.x[Gr.xc])**2.0+(Gr.y[j-ng] - Gr.y[Gr.yc])**2.0)/(2.0*Pr.sigma_T**2.0))
+                    PV.T.values[i,j,k] += Pr.amp_T*Pr.amp_dTdp[k]*np.sin(np.pi*(Gr.y[j-ng] - Gr.y[Gr.yc])/(6.0*Pr.sigma_T))
         # if Pr.inoise==1: # load the random noise to grid space
         #      noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
         #      PV.T.values.base[:,:,Pr.n_layers-1] = np.add(PV.T.values.base[:,:,Pr.n_layers-1],noise.base)
@@ -120,26 +121,26 @@ cdef class DryVortex(CaseBase):
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
-        # CaseBase.initialize_io(self, Stats)
-        # self.Fo.initialize_io(Stats)
-        # self.Sur.initialize_io(Stats)
+        CaseBase.initialize_io(self, Stats)
+        self.Fo.initialize_io(Stats)
+        self.Sur.initialize_io(Stats)
         return
 
     cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
-        # CaseBase.io(self, Pr, Gr, TS, Stats)
-        # self.Fo.io(Pr, Gr, TS, Stats)
-        # self.Sur.io(Pr, Gr, TS, Stats)
+        CaseBase.io(self, Pr, Gr, TS, Stats)
+        self.Fo.io(Pr, Gr, TS, Stats)
+        self.Sur.io(Pr, Gr, TS, Stats)
         return
 
     cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
-        # CaseBase.stats_io(self, PV, Stats)
-        # self.Fo.stats_io(Stats)
-        # self.Sur.stats_io(Stats)
+        CaseBase.stats_io(self, PV, Stats)
+        self.Fo.stats_io(Stats)
+        self.Sur.stats_io(Stats)
         return
 
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
-        # self.Sur.update(Pr, Gr, PV, DV)
-        # self.Fo.update(Pr, Gr, PV, DV)
+        self.Sur.update(Pr, Gr, PV, DV)
+        self.Fo.update(Pr, Gr, PV, DV)
         return
 
 

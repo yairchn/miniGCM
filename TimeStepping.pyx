@@ -58,12 +58,14 @@ cdef class TimeStepping:
 			for i in range(ng,nx+1+ng):
 				for j in range(ng,ny+ng):
 					for k in range(nl):
+						# print('U', PV.U.values[i,j,k], F_U[i,j,k], PV.U.tendency[i,j,k], PV.U.old[i,j,k])
 						# Euler
 						# new                   old                      tendency
 						PV.U.values[i,j,k]  = F_U[i,j,k]  + self.dt*PV.U.tendency[i,j,k]
 			for i in range(ng,nx+ng):
 				for j in range(ng,ny+1+ng):
 					for k in range(nl):
+						# print('V', PV.V.values[i,j,k], F_V[i,j,k], PV.V.tendency[i,j,k], PV.V.old[i,j,k])
 						# Euler
 						# new                   old                      tendency
 						PV.V.values[i,j,k]  = F_V[i,j,k]  + self.dt*PV.V.tendency[i,j,k]
@@ -71,6 +73,7 @@ cdef class TimeStepping:
 			for i in range(ng,nx+ng):
 				for j in range(ng,ny+ng):
 					for k in range(nl):
+						# print('T', PV.T.values[i,j,k], F_T[i,j,k], PV.T.tendency[i,j,k], PV.T.old[i,j,k])
 						# Euler
 						# new                   old                      tendency
 						PV.T.values[i,j,k]  = F_T[i,j,k]  + self.dt*PV.T.tendency[i,j,k]
@@ -82,18 +85,21 @@ cdef class TimeStepping:
 			for i in range(ng,nx+1+ng):
 				for j in range(ng,ny+ng):
 					for k in range(nl):
+						# print('U', PV.U.values[i,j,k], F_U[i,j,k], PV.U.tendency[i,j,k], PV.U.old[i,j,k])
 						#2nd order AB
 						#           new        old                        tendency                tendency now
 						PV.U.values[i,j,k]  = F_U[i,j,k]  + self.dt*(1.5*PV.U.tendency[i,j,k]  - 0.5*PV.U.now[i,j,k])
 			for i in range(ng,nx+ng):
 				for j in range(ng,ny+1+ng):
 					for k in range(nl):
+						# print('V', PV.V.values[i,j,k], F_V[i,j,k], PV.V.tendency[i,j,k], PV.V.old[i,j,k])
 						#2nd order AB
 						#           new        old                        tendency                tendency now
 						PV.V.values[i,j,k]  = F_V[i,j,k]  + self.dt*(1.5*PV.V.tendency[i,j,k]  - 0.5*PV.V.now[i,j,k])
 			for i in range(ng,nx+ng):
 				for j in range(ng,ny+1+ng):
 					for k in range(nl):
+						# print('T', PV.T.values[i,j,k], F_T[i,j,k], PV.T.tendency[i,j,k], PV.T.old[i,j,k])
 						#2nd order AB
 						#           new        old                        tendency                tendency now
 						PV.T.values[i,j,k]  = F_T[i,j,k]  + self.dt*(1.5*PV.T.tendency[i,j,k]  - 0.5*PV.T.now[i,j,k])
@@ -104,25 +110,28 @@ cdef class TimeStepping:
 			for i in range(ng,nx+1+ng):
 				for j in range(ng,ny+ng):
 					for k in range(nl):
+						# print('U', PV.U.values[i,j,k], F_U[i,j,k], PV.U.tendency[i,j,k], PV.U.old[i,j,k])
 						#3nd order AB
 						#   new                old                               tendency                      tendency now              tendency old
 						PV.U.values[i,j,k]  = F_U[i,j,k]  + self.dt*(23.0/12.0*PV.U.tendency[i,j,k]  - 16.0/12.0*PV.U.now[i,j,k]  + 5.0/12.0*PV.U.old[i,j,k] )
 			for i in range(ng,nx+ng):
 				for j in range(ng,ny+1+ng):
 					for k in range(nl):
+						# print('V', PV.V.values[i,j,k], F_V[i,j,k], PV.V.tendency[i,j,k], PV.V.old[i,j,k])
 						#3nd order AB
 						#   new                old                               tendency                      tendency now              tendency old
 						PV.V.values[i,j,k]  = F_V[i,j,k]  + self.dt*(23.0/12.0*PV.V.tendency[i,j,k]  - 16.0/12.0*PV.V.now[i,j,k]  + 5.0/12.0*PV.V.old[i,j,k] )
 			for i in range(ng,nx+ng):
 				for j in range(ng,ny+1+ng):
 					for k in range(nl):
+						# print('T', PV.T.values[i,j,k], F_T[i,j,k], PV.T.tendency[i,j,k], PV.T.old[i,j,k])
 						#3nd order AB
 						#   new                old                               tendency                      tendency now              tendency old
 						PV.T.values[i,j,k]  = F_T[i,j,k]  + self.dt*(23.0/12.0*PV.T.tendency[i,j,k]  - 16.0/12.0*PV.T.now[i,j,k]  + 5.0/12.0*PV.T.old[i,j,k] )
-						PV.QT.values[i,j,k] = F_QT[i,j,k] + self.dt*(23.0/12.0*PV.QT.tendency[i,j,k] - 16.0/12.0*PV.QT.now[i,j,k] + 5.0/12.0*PV.QT.old[i,j,k])
+						if Pr.moist_index >0.0:
+							PV.QT.values[i,j,k] = F_QT[i,j,k] + self.dt*(23.0/12.0*PV.QT.tendency[i,j,k] - 16.0/12.0*PV.QT.now[i,j,k] + 5.0/12.0*PV.QT.old[i,j,k])
 					PV.P.values[i,j,nl]     = F_P[i,j]    + self.dt*(23.0/12.0*PV.P.tendency[i,j,nl] - 16.0/12.0*PV.P.now[i,j,nl] + 5.0/12.0*PV.P.old[i,j,nl])
 
-		# DF.update(Pr, Gr, PV, self.dt)
 		self.t = self.t+self.dt
 		PV.set_old_with_now()
 		PV.set_now_with_tendencies()

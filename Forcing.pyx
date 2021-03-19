@@ -59,9 +59,11 @@ cdef class ForcingBettsMiller(ForcingBase):
 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
 		cdef:
 			Py_ssize_t i,j
-			Py_ssize_t nx = Pr.nx
-			Py_ssize_t ny = Pr.ny
-		self.Tbar = np.zeros((Gr.nx, Gr.ny, Gr.nl), dtype=np.float64, order='c')
+			Py_ssize_t nx = Gr.nx
+			Py_ssize_t ny = Gr.ny
+			Py_ssize_t nl = Gr.nl
+			Py_ssize_t ng = Gr.ng
+		self.Tbar = np.zeros((nx+2*ng, ny+2*ng, nl), dtype=np.float64, order='c')
 		return
 
 	cpdef initialize_io(self, NetCDFIO_Stats Stats):

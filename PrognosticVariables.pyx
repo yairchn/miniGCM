@@ -65,18 +65,37 @@ cdef class PrognosticVariable:
 
         if self.name == 'u':
             for i in range(ng):
-                self.values.base[i,:,:] = self.values.base[nx+i,:,:]
-                self.values.base[:,i,:] = self.values.base[:,ny+i-1,:]
+                # full
+                self.values.base[i,:,:]         = self.values.base[nx+i,:,:]
+                self.values.base[ng+nx+1+i,:,:] = self.values.base[ng+i+1,:,:]
+                # half
+                self.values.base[:,i,:]       = self.values.base[:,ny+i,:]
+                self.values.base[:,ng+ny+i,:] = self.values.base[:,ng+i,:]
 
         elif self.name == 'v':
             for i in range(ng):
-                self.values.base[i,:,:] = self.values.base[nx+i-1,:,:]
-                self.values.base[:,i,:] = self.values.base[:,ny+i,:]
+                # full
+                self.values.base[:,i,:]         = self.values.base[:,ny+i,:]
+                self.values.base[:,ng+ny+1+i,:] = self.values.base[:,ng+i+1,:]
+                # half
+                self.values.base[i,:,:]       = self.values.base[nx+i,:,:]
+                self.values.base[ng+nx+i,:,:] = self.values.base[ng+i,:,:]
 
         elif self.name == 'QT' or self.name == 'T':
             for i in range(ng):
-                self.values.base[i,:,:] = self.values.base[nx+i-1,:,:]
-                self.values.base[:,i,:] = self.values.base[:,ny+i-1,:]
+                # half
+                self.values.base[i,:,:]       = self.values.base[nx+i,:,:]
+                self.values.base[ng+nx+i,:,:] = self.values.base[ng+i,:,:]
+                self.values.base[:,i,:]       = self.values.base[:,ny+i,:]
+                self.values.base[:,ng+ny+i,:] = self.values.base[:,ng+i,:]
+
+        elif self.name == 'P':
+            for i in range(ng):
+                # half
+                self.values.base[i,:,nl]       = self.values.base[nx+i,:,nl]
+                self.values.base[ng+nx+i,:,nl] = self.values.base[ng+i,:,nl]
+                self.values.base[:,i,nl]      = self.values.base[:,ny+i,nl]
+                self.values.base[:,ng+ny+i,nl] = self.values.base[:,ng+i,nl]
         return
 
 cdef class PrognosticVariables:
@@ -186,23 +205,43 @@ cdef class PrognosticVariables:
         #     flux_constructor_fv(Pr, Gr, PV.U, PV.V, PV.QT)
         # with nogil:
         # for T
+
         for i in range(ng,nx+ng):
             for j in range(ng,ny+ng):
                 PV.P.tendency[i,j,nl] = (DV.Wp.values[i,j,nl-1]
-                           + (PV.P.values[i,j,nl]-PV.P.values[i,j,nl-1])*DV.Divergence.values[i,j,nl-1])
+                        + (PV.P.values[i,j,nl-1]-PV.P.values[i,j,nl])*DV.Divergence.values[i,j,nl-1]
+                   - 0.25*(PV.U.values[i+1,j,nl-1]+PV.U.values[i,j,nl-1])*(PV.P.values[i+1,j,nl]-PV.P.values[i-1,j,nl])*dxi
+                   - 0.25*(PV.V.values[i,j+1,nl-1]+PV.V.values[i,j,nl-1])*(PV.P.values[i,j+1,nl]-PV.P.values[i,j-1,nl])*dyi)
                 for k in range(nl):
                     if k==nl-1:
                         T_sur_flux  = PV.T.SurfaceFlux[i,j]
                         QT_sur_flux = PV.QT.SurfaceFlux[i,j]
-                    Wp_dgZ_dp = ((DV.Wp.values[i,j,k+1]+DV.Wp.values[i,j,k])/2.0*
-                        (DV.gZ.values[i,j,k+1]-DV.gZ.values[i,j,k-1])
-                       /(PV.P.values[i,j,k+1]-PV.P.values[i,j,k-1]))
+                    Wp_dgZ_dp = ((DV.Wp.values[i,j,k+1]+DV.Wp.values[i,j,k])/2.0/Pr.cp*
+                        (DV.gZ.values[i,j,k+1]-DV.gZ.values[i,j,k])
+                       /(PV.P.values[i,j,k+1]-PV.P.values[i,j,k]))
+                    # Wp_dgZ_dp = (DV.Wp.values[i,j,k+1]/Pr.cp*
+                    #     (DV.gZ.values[i,j,k+1]-DV.gZ.values[i,j,k])
+                    #    /(PV.P.values[i,j,k+1]-PV.P.values[i,j,k]))
                     duT_dx = 0.5*((PV.T.values[i+1,j,k]+ PV.T.values[i,j,k])   * PV.U.values[i+1,j,k]-
                                   (PV.T.values[i,j,k]  + PV.T.values[i-1,j,k]) * PV.U.values[i-1,j,k])*dxi
                     dvT_dy = 0.5*((PV.T.values[i,j+1,k]+ PV.T.values[i,j,k])   * PV.V.values[i,j+1,k]-
                                   (PV.T.values[i,j,k]  + PV.T.values[i,j-1,k]) * PV.V.values[i,j-1,k])*dyi
-                    PV.T.tendency[i,j,k]  = (- duT_dx - dvT_dy - Wp_dgZ_dp + PV.T.mp_tendency[i,j,k] 
-                                             + PV.T.forcing[i,j,k] + T_sur_flux + PV.T.HyperDiffusion[i,j,k])
+                    if k==0:
+                        dwT_dp_dn = -0.5*DV.Wp.values[i,j,k+1]*((PV.T.values[i,j,k+1]+PV.T.values[i,j,k])
+                        dwT_dp_up =  0.0
+                                                               (PV.P.values[i,j,k+1]-PV.P.values[i,j,k]))
+                    elif k==nl-1:
+                        dwT_dp_dn = -0.5*DV.Wp.values[i,j,k+1]*((PV.T.values[i,j,k]  +PV.T.values[i,j,k])
+                                                               (PV.P.values[i,j,k+1]-PV.P.values[i,j,k]))
+                        dwT_dp_up = +0.5*DV.Wp.values[i,j,k]*((PV.T.values[i,j,k]  +PV.T.values[i,j,k-1])
+                                                               (PV.P.values[i,j,k+1]-PV.P.values[i,j,k]))
+                    else:
+                        dwT_dp_dn = -0.5*DV.Wp.values[i,j,k+1]*((PV.T.values[i,j,k+1] + PV.T.values[i,j,k])
+                                                               (PV.P.values[i,j,k+1] - PV.P.values[i,j,k]))
+                        dwT_dp_up = +0.5*DV.Wp.values[i,j,k]*((PV.T.values[i,j,k]     + PV.T.values[i,j,k-1])
+                                                               (PV.P.values[i,j,k+1] - PV.P.values[i,j,k]))
+                    PV.T.tendency[i,j,k]  = (- duT_dx - dvT_dy -dwT_dp_dn -dwT_dp_up- Wp_dgZ_dp + PV.T.mp_tendency[i,j,k] 
+                                             + PV.T.forcing[i,j,k] + T_sur_flux)
 
                     if Pr.moist_index > 0.0:
                         duQT_dx = 0.5*((PV.QT.values[i+1,j,k]+ PV.QT.values[i,j,k])   * PV.U.values[i+1,j,k]-
@@ -221,19 +260,22 @@ cdef class PrognosticVariables:
                 for k in range(nl):
                     if k==nl-1:
                         U_sur_flux  = PV.U.SurfaceFlux[i,j]
-                    
+
                     fv = Pr.Coriolis*(PV.V.values[i-1,j,k]+
                                       PV.V.values[i-1,j+1,k]+
                                       PV.V.values[i,j,k]+
                                       PV.V.values[i,j+1,k])*0.25
-                    dgZ_dx = (DV.gZ.values[i,j,k]-DV.gZ.values[i-1,j,k])*dxi
+                    dgZ_dx = ((DV.gZ.values[i,j,k]+DV.gZ.values[i,j,k+1])
+                             -(DV.gZ.values[i-1,j,k]+DV.gZ.values[i-1,j,k+1]))*dxi/2.0
                     duu_dx = 0.5*(PV.U.values[i+1,j,k] * PV.U.values[i+1,j,k]-
                                   PV.U.values[i-1,j,k] * PV.U.values[i-1,j,k])*dxi
-                    dvu_dy = 0.25*((PV.V.values[i,j+1,k] - PV.V.values[i-1,j+1,k])* 
+                    dvu_dy = 0.25*((PV.V.values[i,j+1,k] - PV.V.values[i-1,j+1,k])*
                                    (PV.U.values[i,j+1,k] - PV.U.values[i,j,k]) -
                                    (PV.V.values[i,j,k]   - PV.V.values[i-1,j,k])*
                                    (PV.U.values[i,j,k]   + PV.U.values[i,j-1,k]))*dyi
-                    PV.U.tendency[i,j,k]  = (- duu_dx - dvu_dy - fv  -dgZ_dx + PV.U.HyperDiffusion[i,j,k])
+
+                    # PV.U.tendency[i,j,k]  = (- duu_dx - dvu_dy + fv  -dgZ_dx + PV.U.HyperDiffusion[i,j,k])
+                    PV.U.tendency[i,j,k]  = (fv  -dgZ_dx + PV.U.HyperDiffusion[i,j,k])
 
 
         # for v
@@ -247,13 +289,33 @@ cdef class PrognosticVariables:
                                       PV.U.values[i+1,j-1,k]+
                                       PV.U.values[i,j,k]+
                                       PV.U.values[i+1,j,k])*0.25
-                    dgZ_dy = (DV.gZ.values[i,j,k]-DV.gZ.values[i,j-1,k])*dyi
-                    duv_dx = 0.25*((PV.U.values[i+1,j,k] - PV.U.values[i+1,j-1,k])* 
+                    dgZ_dy = ((DV.gZ.values[i,j,k]+DV.gZ.values[i,j,k+1])
+                             -(DV.gZ.values[i,j-1,k]+DV.gZ.values[i,j-1,k+1]))*dyi/2.0
+                    duv_dx = 0.25*((PV.U.values[i+1,j,k] - PV.U.values[i+1,j-1,k])*
                                    (PV.V.values[i,j+1,k] - PV.V.values[i,j,k]) -
                                    (PV.U.values[i,j,k]   - PV.U.values[i,j-1,k])*
                                    (PV.V.values[i,j,k]   + PV.V.values[i-1,j,k]))*dxi
                     dvv_dy = 0.5*(PV.V.values[i,j+1,k] * PV.V.values[i,j+1,k]-
                                   PV.V.values[i,j-1,k] * PV.V.values[i,j-1,k])*dyi
-                    PV.V.tendency[i,j,k]  = (- duv_dx - dvv_dy + fu  -dgZ_dy + PV.V.HyperDiffusion[i,j,k])
 
+                    PV.V.tendency[i,j,k]  = (- duv_dx - dvv_dy - fu  -dgZ_dy)
+                    # PV.V.tendency[i,j,k]  = (- duv_dx - dvv_dy - fu  -dgZ_dy + PV.V.HyperDiffusion[i,j,k])
+
+        import pylab as plt
+        plt.figure('T tendency')
+        plt.contourf(PV.T.tendency[:,:,1])
+        plt.colorbar()
+        plt.figure('U tendency')
+        plt.contourf(PV.U.tendency[:,:,1])
+        plt.colorbar()
+        plt.figure('V tendency')
+        plt.contourf(PV.V.tendency[:,:,1])
+        plt.colorbar()
+        plt.figure('ps tendency')
+        plt.contourf(PV.P.tendency[:,:,nl])
+        plt.colorbar()
+        plt.figure('Wp')
+        plt.contourf(DV.Wp.values[:,:,2])
+        plt.colorbar()
+        plt.show()
         return

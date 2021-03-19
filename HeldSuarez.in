@@ -1,9 +1,10 @@
 {
     "diffusion": {
-        "dissipation_order": 8.0,
-        "e_folding_timescale": 600.0,
-        "order": 8.0,
-        "truncation_order": 4,
+        "dissipation_order": 4.0,
+        "e_folding_timescale_grid_scale": 1,
+        "e_folding_timescale_meso_scale": 1200,
+        "order": 4.0,
+        "truncation_order": 3,
         "type": "hyperdiffusion"
     },
     "forcing": {
@@ -11,7 +12,7 @@
         "equatorial_temperature": 315.0,
         "forcing_type": "HeldSuarez",
         "k_a": 2.8935185185185185e-07,
-        "k_b": 1.4467592592592592e-07,
+        "k_b": 2.8935185185185185e-07,
         "k_f": 1.1574074074074073e-05,
         "k_s": 2.8935185185185184e-06,
         "lapse_rate": 10.0,
@@ -20,16 +21,24 @@
     "grid": {
         "dims": 1,
         "gw": 2,
-        "number_of_latitute_points": 256,
-        "number_of_layers": 3,
-        "number_of_longitude_points": 512,
-        "p1": 25000.0,
-        "p2": 50000.0,
-        "p3": 85000.0,
-        "p_ref": 100000.0
+        "number_of_latitute_points": 64,
+        "number_of_longitude_points": 128,
+        "pressure_levels": [
+            25000.0,
+            50000.0,
+            85000.0,
+            100000.0
+        ]
     },
     "initialize": {
-        "inoise": 1
+        "T_init": 300.0,
+        "inoise": 1,
+        "noise_amplitude": 1,
+        "noise_type": "red",
+        "restart": false,
+        "restart folder": "./",
+        "restart time": "none",
+        "restart type": "zonal_mean"
     },
     "io": {
         "output_frequency": 7.0,
@@ -39,7 +48,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "e2d417ea-f2d7-4f3e-abd9-4e78e9dc_dry"
+        "uuid": "ca477312-1b0a-4b35-9547-theta_2efold"
     },
     "microphysics": {
         "rain_model": "None"
@@ -67,6 +76,6 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 100.0
+        "t_max": 1000.0
     }
 }

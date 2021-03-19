@@ -18,4 +18,4 @@ cdef class Diffusion:
 
 
 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
-	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, double dt)
+	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV)

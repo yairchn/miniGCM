@@ -98,17 +98,15 @@ cdef class DiagnosticVariables:
             double dyi = 1.0/Gr.dy
             double Rm
 
-        self.Wp.values.base[:,:,0] = np.zeros_like(self.Wp.values[:,:,0])
+        self.Wp.values.base[:,:,0]  = np.zeros_like(self.Wp.values[:,:,0])
         self.gZ.values.base[:,:,nl] = np.zeros_like(self.Wp.values[:,:,0])
         # with nogil:
         for i in range(ng,nx+ng):
             for j in range(ng,ny+ng):
                 for k in range(nl):
 
-                    self.Vel.values[i,j,k] = 0.5*(fabs(PV.U.values[i,j,k]+
-                                                   PV.U.values[i+1,j,k]) 
-                                            + fabs(PV.V.values[i,j,k]+
-                                                   PV.V.values[i,j+1,k]))
+                    self.Vel.values[i,j,k] = 0.5*(pow(PV.U.values[i,j,k]+PV.U.values[i+1,j,k],2.0)
+                                                 +pow(PV.V.values[i,j,k]+PV.V.values[i,j+1,k],2.0))
                     self.Divergence.values[i,j,k] = ((PV.U.values[i+1,j,k]-PV.U.values[i,j,k])*dxi +
                                                      (PV.V.values[i,j+1,k]-PV.V.values[i,j,k])*dyi)
         for k in range(nl):
@@ -116,10 +114,10 @@ cdef class DiagnosticVariables:
             # with nogil:
             for i in range(ng,nx+ng):
                 for j in range(ng,ny+ng):
-                    self.KE.values.base[i,j,k]    = 0.5*(pow((PV.U.values[i,j,k]+PV.U.values[i+1,j,k])/2.0,2.0) 
-                                                       + pow((PV.V.values[i,j,k]+PV.V.values[i,j+1,k])/2.0,2.0))
-                    self.Wp.values.base[i,j,k+1]  = self.Wp.values[i,j,k] - (PV.P.values[i,j,k+1]-PV.P.values[i,j,k])*self.Divergence.values[i,j,k]
-                    self.gZ.values.base[i,j,k1]   = Pr.Rd*PV.T.values[i,j,k1]*log(PV.P.values[i,j,k1+1]/PV.P.values[i,j,k1]) + self.gZ.values[i,j,k1+1]
+                    self.KE.values.base[i,j,k] = 0.5*(pow((PV.U.values[i,j,k]+PV.U.values[i+1,j,k])/2.0,2.0) 
+                                                    + pow((PV.V.values[i,j,k]+PV.V.values[i,j+1,k])/2.0,2.0))
+                    self.Wp.values.base[i,j,k+1] = self.Wp.values[i,j,k] - (PV.P.values[i,j,k+1]-PV.P.values[i,j,k])*self.Divergence.values[i,j,k]
+                    self.gZ.values.base[i,j,k1]  = Pr.Rd*PV.T.values[i,j,k1]*log(PV.P.values[i,j,k1+1]/PV.P.values[i,j,k1]) + self.gZ.values[i,j,k1+1]
             # diagnostic_variables(Pr.Rd, Pr.Rv, &PV.P.values[0,0,0], &PV.T.values[0,0,0],
             #                      &PV.QT.values[0,0,0],   &self.QL.values[0,0,0], &PV.U.values[0,0,0],
             #                      &PV.V.values[0,0,0],  &self.Divergence.values[0,0,0],&self.KE.values[0,0,0],

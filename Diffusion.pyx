@@ -22,7 +22,7 @@ cdef class Diffusion:
         return
     #@cython.wraparound(False)
     @cython.boundscheck(False)
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, double dt):
+    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV):
         cdef:
             Py_ssize_t i,j,k
             Py_ssize_t ng = Gr.ng
@@ -31,6 +31,7 @@ cdef class Diffusion:
             Py_ssize_t nl = Gr.nl
             double HyperDiffusionFactor = -(1.0/Pr.efold)
 
+        
         # with nogil:
         for i in range(ng,nx+1+ng):
             for j in range(ng,ny+ng):

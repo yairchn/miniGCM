@@ -14,34 +14,39 @@ cdef class LogFile:
         return
 
     cpdef update(self, Parameters Pr, TimeStepping TS, DiagnosticVariables DV, PrognosticVariables PV, wallclocktime):
+        cdef:
+            Py_ssize_t i
+            Py_ssize_t nl = Pr.n_layers
+
+
         os.system('echo elapsed time [days] about '
         	      +str(np.floor_divide(TS.t,(24.0*3600.0))) + '>> '+Pr.logfilename)
         os.system('echo wall-clock time [hours] about '
                   +str(np.floor_divide(wallclocktime,3600.0)) + '>> '+Pr.logfilename)
         os.system('echo efficiency [simtime / wallclock] '
                   +str(TS.t/wallclocktime) + '>> '+Pr.logfilename)
-        os.system('echo estimated simulation length [hours] '
+        os.system('echo estimated simulation time [hours] '
                   +str(TS.t_max/(TS.t/wallclocktime)/3600.0) + '>> '+Pr.logfilename)
         os.system('echo dt [sec]' + str(TS.dt) + '>> '+Pr.logfilename)
 
-        os.system('echo velocity layer 1 min max ' + str(DV.Vel.values.base[:,:,0].min())
-        	      + ' ' + str(DV.Vel.values.base[:,:,0].max()) + '>> '+Pr.logfilename)
-        os.system('echo velocity layer 2 min max ' + str(DV.Vel.values.base[:,:,1].min())
-        	      + ' ' + str(DV.Vel.values.base[:,:,1].max()) + '>> '+Pr.logfilename)
-        os.system('echo velocity layer 3 min max ' + str(DV.Vel.values.base[:,:,2].min())
-        	      + ' ' + str(DV.Vel.values.base[:,:,2].max()) + '>> '+Pr.logfilename)
+        os.system('echo p_surface min max ' + str(PV.P.values.base[:,:,nl].min())
+                      + ' ' + str(PV.P.values.base[:,:,nl].max()) + '>> '+Pr.logfilename)
 
-        os.system('echo T layer 1 min max ' + str(PV.T.values.base[:,:,0].min())
-                  + ' ' + str(PV.T.values.base[:,:,0].max()) + '>> '+Pr.logfilename)
-        os.system('echo T layer 2 min max ' + str(PV.T.values.base[:,:,1].min())
-                  + ' ' + str(PV.T.values.base[:,:,1].max()) + '>> '+Pr.logfilename)
-        os.system('echo T layer 3 min max ' + str(PV.T.values.base[:,:,2].min())
-                  + ' ' + str(PV.T.values.base[:,:,2].max()) + '>> '+Pr.logfilename)
+        for i in range(Pr.n_layers):
+            os.system('echo velocity layer '+str(i+1)+' min max ' + str(DV.Vel.values.base[:,:,i].min())
+            	      + ' ' + str(DV.Vel.values.base[:,:,i].max()) + '>> '+Pr.logfilename)
 
-        os.system('echo dTdt_mp layer 1 min max ' + str(PV.T.mp_tendency.base[:,:,0].min())
-                  + ' ' + str(PV.T.mp_tendency.base[:,:,0].max()) + '>> '+Pr.logfilename)
-        os.system('echo dTdt_mp layer 2 min max ' + str(PV.T.mp_tendency.base[:,:,1].min())
-                  + ' ' + str(PV.T.mp_tendency.base[:,:,1].max()) + '>> '+Pr.logfilename)
-        os.system('echo dTdt_mp layer 3 min max ' + str(PV.T.mp_tendency.base[:,:,2].min())
-                  + ' ' + str(PV.T.mp_tendency.base[:,:,2].max()) + '>> '+Pr.logfilename)
+        import pylab as plt
+        for i in range(Pr.n_layers):
+            os.system('echo T layer '+str(i+1)+' min max ' + str(PV.T.values.base[:,:,i].min())
+                      + ' ' + str(PV.T.values.base[:,:,i].max()) + '>> '+Pr.logfilename)
+            # plt.figure('T')
+            # plt.contourf(PV.T.values[:,:,i])
+            # plt.colorbar()
+            # plt.show()
+
+        for i in range(Pr.n_layers):
+            if Pr.moist_index > 0.0:
+                os.system('echo dTdt_mp layer '+str(i+1)+' min max ' + str(PV.T.mp_tendency.base[:,:,i].min())
+                          + ' ' + str(PV.T.mp_tendency.base[:,:,i].max()) + '>> '+Pr.logfilename)
         return
