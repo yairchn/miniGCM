@@ -90,8 +90,8 @@ cdef class DryVortex(CaseBase):
         for i in range(ng,nx+ng):
             for j in range(ng,ny+ng):
                 for k in range(nl):
-                    # PV.T.values[i,j,k] += Pr.amp_T*Pr.amp_dTdp[k]*np.exp(-((Gr.x[i-ng] - Gr.x[Gr.xc])**2.0+(Gr.y[j-ng] - Gr.y[Gr.yc])**2.0)/(2.0*Pr.sigma_T**2.0))
-                    PV.T.values[i,j,k] += Pr.amp_T*Pr.amp_dTdp[k]*np.sin(np.pi*(Gr.y[j-ng] - Gr.y[Gr.yc])/(6.0*Pr.sigma_T))
+                    PV.T.values[i,j,k] += Pr.amp_T*Pr.amp_dTdp[k]*np.exp(-((Gr.x[i-ng] - Gr.x[Gr.xc])**2.0+(Gr.y[j-ng] - Gr.y[Gr.yc])**2.0)/(2.0*Pr.sigma_T**2.0))
+                    # PV.T.values[i,j,k] += Pr.amp_T*Pr.amp_dTdp[k]*np.sin(np.pi*(Gr.y[j-ng] - Gr.y[Gr.yc])/(6.0*Pr.sigma_T))
         # if Pr.inoise==1: # load the random noise to grid space
         #      noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
         #      PV.T.values.base[:,:,Pr.n_layers-1] = np.add(PV.T.values.base[:,:,Pr.n_layers-1],noise.base)

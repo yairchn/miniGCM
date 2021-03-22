@@ -65,7 +65,7 @@ class Simulation:
             self.Case.update(self.Pr, self.Gr, self.PV, self.DV, self.TS)
             # print('Case.update', time.time() - time0)
             # time0 = time.time()
-            # self.DF.update(self.Pr, self.Gr, self.PV)
+            self.DF.update(self.Pr, self.Gr, self.PV)
             # print('DF.update', time.time() - time0)
             # time0 = time.time()
             self.PV.compute_tendencies(self.Pr, self.Gr, self.PV, self.DV)

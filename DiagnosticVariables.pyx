@@ -112,8 +112,8 @@ cdef class DiagnosticVariables:
         for k in range(nl):
             k1 = nl-k-1 # geopotential is computed bottom -> up
             # with nogil:
-            for i in range(ng,nx+ng):
-                for j in range(ng,ny+ng):
+            for i in range(nx+2*ng):
+                for j in range(ny+2*ng):
                     self.KE.values.base[i,j,k] = 0.5*(pow((PV.U.values[i,j,k]+PV.U.values[i+1,j,k])/2.0,2.0) 
                                                     + pow((PV.V.values[i,j,k]+PV.V.values[i,j+1,k])/2.0,2.0))
                     self.Wp.values.base[i,j,k+1] = self.Wp.values[i,j,k] - (PV.P.values[i,j,k+1]-PV.P.values[i,j,k])*self.Divergence.values[i,j,k]
