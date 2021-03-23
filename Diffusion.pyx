@@ -29,6 +29,7 @@ cdef class Diffusion:
             double complex diffusion_factor_meso_scale
             double complex diffusion_factor_grid_scale
             double complex HyperDiffusionFactor
+            double complex HyperDiffusionFactor_ps
             double complex [:] laplacian
 
         shtns_l = np.copy(Gr.SphericalGrid._shtns.l)
@@ -37,14 +38,15 @@ cdef class Diffusion:
         with nogil:
             for i in range(nlm):
                 diffusion_factor_meso_scale = (1.0/Pr.efold_meso*((laplacian[i]/laplacian[-1])**(Pr.dissipation_order/2.0)))
-                diffusion_factor_grid_scale= (1.0/Pr.efold_grid*((laplacian[i]/laplacian[-1])**Pr.dissipation_order))
-                HyperDiffusionFactor = exp(-dt*(diffusion_factor_meso_scale+diffusion_factor_grid_scale))
+                diffusion_factor_grid_scale = (1.0/Pr.efold_grid*((laplacian[i]/laplacian[-1])**Pr.dissipation_order))
+                HyperDiffusionFactor    = exp(-dt*(diffusion_factor_meso_scale))
+                HyperDiffusionFactor_ps = exp(-dt*(diffusion_factor_meso_scale+diffusion_factor_grid_scale))
                 if shtns_l[i]>=Pr.truncation_number:
                     HyperDiffusionFactor = 0.0
                 for k in range(nl):
-                    PV.P.spectral[i,k]          = HyperDiffusionFactor * PV.P.spectral[i,k]
                     PV.Vorticity.spectral[i,k]  = HyperDiffusionFactor * PV.Vorticity.spectral[i,k]
                     PV.Divergence.spectral[i,k] = HyperDiffusionFactor * PV.Divergence.spectral[i,k]
                     PV.T.spectral[i,k]          = HyperDiffusionFactor * PV.T.spectral[i,k]
                     PV.QT.spectral[i,k]         = HyperDiffusionFactor * PV.QT.spectral[i,k]
+                PV.P.spectral[i,nl]             = HyperDiffusionFactor_ps * PV.P.spectral[i,nl]
         return
