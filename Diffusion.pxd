@@ -13,6 +13,8 @@ cdef class Diffusion:
 		Py_ssize_t nx
 		Py_ssize_t ny
 		Py_ssize_t nl
+		double dxi_2
+		double dyi_2
 		double dxi_4
 		double dyi_4
 
