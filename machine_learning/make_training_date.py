@@ -23,31 +23,54 @@ def main():
             A = data.variables['Pressure']
             C = A.reshape(-1,np.shape(A)[2])
             if I==0:
-                E=C
+                P=C
             else:
-                E=np.vstack([C, C])
+                P=np.vstack([C, C])
             I += 1
 
-            # reshape file and append to larger matrix 
-
+    for filename in os.listdir(directory):
         if fnmatch.fnmatch(file, 'Specific_humidity'):
-            # open file 
-            # reshape file and append to larger matrix 
+            data = nc.Dataset(directory+filename, 'r')
+            A = data.variables['Specific_humidity']
+            C = A.reshape(-1,np.shape(A)[2])
+            if I==0:
+                QT=C
+            else:
+                QT=np.vstack([C, C])
+            I += 1
 
+    for filename in os.listdir(directory):
         if fnmatch.fnmatch(file, 'Temperature'):
-            # open file 
-            # reshape file and append to larger matrix 
+            data = nc.Dataset(directory+filename, 'r')
+            A = data.variables['Temperature']
+            C = A.reshape(-1,np.shape(A)[2])
+            if I==0:
+                T=C
+            else:
+                T=np.vstack([C, C])
+            I += 1
 
+    for filename in os.listdir(directory):
         if fnmatch.fnmatch(file, 'U_'):
-            # open file 
-            # reshape file and append to larger matrix 
+            data = nc.Dataset(directory+filename, 'r')
+            A = data.variables['U_']
+            C = A.reshape(-1,np.shape(A)[2])
+            if I==0:
+                U=C
+            else:
+                U=np.vstack([C, C])
+            I += 1
 
+    for filename in os.listdir(directory):
         if fnmatch.fnmatch(file, 'V_'):
-            # open file 
-            # reshape file and append to larger matrix 
-
-
-    data = nc.Dataset(ncfile, 'r')
+            data = nc.Dataset(directory+filename, 'r')
+            A = data.variables['V_']
+            C = A.reshape(-1,np.shape(A)[2])
+            if I==0:
+                V=C
+            else:
+                V=np.vstack([C, C])
+            I += 1
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
     n = int(np.multiply(data.groups['coordinates'].variables['layers'],1.0))
@@ -70,5 +93,6 @@ def main():
             ax1.set_xlabel('time days')
         fig.colorbar(im1)
     plt.show()
+
 if __name__ == '__main__':
     main()
