@@ -4,7 +4,7 @@ import json
 
 def main():
     # Parse information from the command line
-    parser = argparse.ArgumentParser(prog='TropicLayers')
+    parser = argparse.ArgumentParser(prog='miniGCM')
     parser.add_argument("namelist")
     args = parser.parse_args()
 

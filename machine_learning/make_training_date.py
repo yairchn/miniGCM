@@ -1,98 +1,59 @@
 import numpy as np
 import netCDF4 as nc
-import pylab as plt
 import argparse
 import os
+import json
 import fnmatch
 
-
 # command line:
-# python machine_learning/make_training_date.py /Output.HeldSuarez.theta_grid_efold10/Fields/
+# python machine_learning/make_training_date.py Output.HeldSuarez.theta7_efold/HeldSuarez.in
 def main():
     parser = argparse.ArgumentParser(prog='miniGCM')
-    parser.add_argument("folder")
+    parser.add_argument("namelist")
     args = parser.parse_args()
-    folder = args.folder
 
-    directory = os.getcwd() + folder
+    file_namelist = open(args.namelist).read()
+    namelist = json.loads(file_namelist)
+    del file_namelist
 
-    I = 0
-    for filename in os.listdir(directory):
-        if fnmatch.fnmatch(file, 'Pressure'):
-            data = nc.Dataset(directory+filename, 'r')
-            A = data.variables['Pressure']
-            C = A.reshape(-1,np.shape(A)[2])
-            if I==0:
-                P=C
-            else:
-                P=np.vstack([C, C])
-            I += 1
+    # Setup the training output path
+    uuid = str(namelist['meta']['uuid'])
+    simulation_path = str(os.path.join(namelist['output']['output_root'] + 'Output.' + namelist['meta']['simname'] + '.'
+                               + uuid[len(uuid )-12:len(uuid)],'Fields/'))
+    output_path = str(os.path.join(namelist['output']['output_root'] + 'Output.' + namelist['meta']['simname'] + '.'
+                               + uuid[len(uuid )-12:len(uuid)],'training/'))
+    try:
+        os.mkdir(output_path)
+    except:
+        pass
 
-    for filename in os.listdir(directory):
-        if fnmatch.fnmatch(file, 'Specific_humidity'):
-            data = nc.Dataset(directory+filename, 'r')
-            A = data.variables['Specific_humidity']
-            C = A.reshape(-1,np.shape(A)[2])
-            if I==0:
-                QT=C
-            else:
-                QT=np.vstack([C, C])
-            I += 1
+    varlist = {'Pressure', 'Vorticity', 'Divergence', 'Temperature', 'Specific_humidity'}
+    # define n_layers
+    n_layers = np.shape(namelist['grid']['pressure_levels'])[0] - 1
+    # open netdcf file
+    root_grp = nc.Dataset(output_path+'Training_data.nc', 'w', format='NETCDF4')
+    root_grp.createDimension('time', None)
+    root_grp.createDimension('layer', n_layers)
+    # root_grp.close()
 
-    for filename in os.listdir(directory):
-        if fnmatch.fnmatch(file, 'Temperature'):
-            data = nc.Dataset(directory+filename, 'r')
-            A = data.variables['Temperature']
-            C = A.reshape(-1,np.shape(A)[2])
-            if I==0:
-                T=C
-            else:
-                T=np.vstack([C, C])
-            I += 1
-
-    for filename in os.listdir(directory):
-        if fnmatch.fnmatch(file, 'U_'):
-            data = nc.Dataset(directory+filename, 'r')
-            A = data.variables['U_']
-            C = A.reshape(-1,np.shape(A)[2])
-            if I==0:
-                U=C
-            else:
-                U=np.vstack([C, C])
-            I += 1
-
-    for filename in os.listdir(directory):
-        if fnmatch.fnmatch(file, 'V_'):
-            data = nc.Dataset(directory+filename, 'r')
-            A = data.variables['V_']
-            C = A.reshape(-1,np.shape(A)[2])
-            if I==0:
-                V=C
-            else:
-                V=np.vstack([C, C])
-            I += 1
-
-    lat = np.array(data.groups['coordinates'].variables['latitude'])
-    n = int(np.multiply(data.groups['coordinates'].variables['layers'],1.0))
-
-    lat_list = np.array(data.groups['coordinates'].variables['latitude_list'])
-    var = np.array(data.groups['zonal_mean'].variables[varname])
-    t = np.divide(data.groups['zonal_mean'].variables['t'],3600.0*24.0)
-
-    X, Y = np.meshgrid(t,lat_list)
-    fig = plt.figure(varname)
-    for i in range(n):
-        ax1 = fig.add_subplot(n, 1, i+1)
-        im1 = ax1.contourf(X,Y,np.fliplr(np.rot90(np.squeeze(var[:,:,i]), k=3)))
-        ax1.set_ylabel('degree latitude')
-        if i<n-1:
-            xlabels = [item.get_text() for item in ax1.get_xticklabels()]
-            xempty_string_labels = [''] * len(xlabels)
-            ax1.set_xticklabels(xempty_string_labels)
-        else:
-            ax1.set_xlabel('time days')
-        fig.colorbar(im1)
-    plt.show()
+    for varname in varlist:
+        var = root_grp.createVariable(varname, 'f8', ('time','layer'))
+        I = 0
+        for filename in os.listdir(simulation_path):
+            if filename.startswith(varname):
+                print(filename, varname)
+            # if fnmatch.fnmatch(filename, varname):
+                data = nc.Dataset(simulation_path+filename, 'r')
+                var_values = np.array(data.variables[varname])
+                var_1D = var_values.reshape(-1,np.shape(var_values)[2])
+                if I==0:
+                    var_collecated=var_1D
+                else:
+                    var_collecated=np.vstack([var_1D, var_1D])
+                I += 1
+                print(np.shape(var_collecated))
+        var[:, :] = np.array(var_collecated)
+    root_grp.close()
 
 if __name__ == '__main__':
     main()
