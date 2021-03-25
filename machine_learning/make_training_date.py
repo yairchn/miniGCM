@@ -3,17 +3,50 @@ import netCDF4 as nc
 import pylab as plt
 import argparse
 import os
+import fnmatch
+
 
 # command line:
-# python viz/contour_zonal_mean.py zonal_mean_U
+# python machine_learning/make_training_date.py /Output.HeldSuarez.theta_grid_efold10/Fields/
 def main():
     parser = argparse.ArgumentParser(prog='miniGCM')
-    parser.add_argument("varname")
+    parser.add_argument("folder")
     args = parser.parse_args()
-    varname = args.varname
+    folder = args.folder
 
-    folder = os.getcwd() + '/Output.HeldSuarez.heta13_efold/stats/'
-    ncfile = folder + 'Stats.HeldSuarez.nc'
+    directory = os.getcwd() + folder
+
+    I = 0
+    for filename in os.listdir(directory):
+        if fnmatch.fnmatch(file, 'Pressure'):
+            data = nc.Dataset(directory+filename, 'r')
+            A = data.variables['Pressure']
+            C = A.reshape(-1,np.shape(A)[2])
+            if I==0:
+                E=C
+            else:
+                E=np.vstack([C, C])
+            I += 1
+
+            # reshape file and append to larger matrix 
+
+        if fnmatch.fnmatch(file, 'Specific_humidity'):
+            # open file 
+            # reshape file and append to larger matrix 
+
+        if fnmatch.fnmatch(file, 'Temperature'):
+            # open file 
+            # reshape file and append to larger matrix 
+
+        if fnmatch.fnmatch(file, 'U_'):
+            # open file 
+            # reshape file and append to larger matrix 
+
+        if fnmatch.fnmatch(file, 'V_'):
+            # open file 
+            # reshape file and append to larger matrix 
+
+
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
