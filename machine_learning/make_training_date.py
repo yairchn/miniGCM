@@ -27,7 +27,7 @@ def main():
     except:
         pass
 
-    varlist = {'Pressure', 'Vorticity', 'Divergence', 'Temperature', 'Specific_humidity'}
+    varlist = {'Vorticity', 'Divergence', 'Temperature', 'Specific_humidity'}
     # define n_layers
     n_layers = np.shape(namelist['grid']['pressure_levels'])[0] - 1
     # open netdcf file
@@ -41,8 +41,6 @@ def main():
         I = 0
         for filename in os.listdir(simulation_path):
             if filename.startswith(varname):
-                print(filename, varname)
-            # if fnmatch.fnmatch(filename, varname):
                 data = nc.Dataset(simulation_path+filename, 'r')
                 var_values = np.array(data.variables[varname])
                 var_1D = var_values.reshape(-1,np.shape(var_values)[2])
@@ -51,8 +49,27 @@ def main():
                 else:
                     var_collecated=np.vstack([var_1D, var_1D])
                 I += 1
-                print(np.shape(var_collecated))
+
         var[:, :] = np.array(var_collecated)
+        del var_collecated, var_values, data, var_1D
+
+    varname = 'Pressure'
+    root_grp.createDimension('s', 1)
+    var_p = root_grp.createVariable(varname, 'f8', ('time','s'))
+    J = 0
+    for filename in os.listdir(simulation_path):
+        if filename.startswith(varname):
+            data = nc.Dataset(simulation_path+filename, 'r')
+            var_values = np.array(data.variables[varname])
+            var_1D = var_values.reshape(-1)
+            if J==0:
+                var_collecated=var_1D
+            else:
+                var_collecated=np.hstack([var_1D, var_1D])
+            J += 1
+    var_p[:] = np.array(var_collecated)
+    del var_collecated
+
     root_grp.close()
 
 if __name__ == '__main__':
