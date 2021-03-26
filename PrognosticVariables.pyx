@@ -26,8 +26,8 @@ cdef extern from "tendency_functions.h":
                double* H_forc, double* rhs_H, double* u_H, double* v_H,
                Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax, Py_ssize_t k) nogil
 
-    void RHS_momentum(double g, double* H, double* vort, double* f,double* u, double* v,
-                      double* ke, double* e_dry, double* u_vort, double* v_vort,
+    void RHS_momentum(double* gH_tot, double* vort, double* f,double* u, double* v,
+                      double* e_dry, double* u_vort, double* v_vort,
                       ssize_t imax, ssize_t jmax, ssize_t kmax, ssize_t k) nogil
 
 
@@ -60,7 +60,7 @@ cdef class PrognosticVariables:
         return
 
     cpdef initialize(self, Parameters Pr):
-        self.H_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
+        self.H_init        = np.array([Pr.H1, Pr.H2, Pr.H3])
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -87,10 +87,10 @@ cdef class PrognosticVariables:
             Py_ssize_t k
             Py_ssize_t nl = Pr.n_layers
         for k in range(nl):
-            self.Vorticity.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.Vorticity.values.base[:,:,k])
+            self.Vorticity.spectral.base[:,k]  = Gr.SphericalGrid.grdtospec(self.Vorticity.values.base[:,:,k])
             self.Divergence.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.Divergence.values.base[:,:,k])
-            self.H.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.H.values.base[:,:,k])
-            self.QT.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.QT.values.base[:,:,k])
+            self.H.spectral.base[:,k]          = Gr.SphericalGrid.grdtospec(self.H.values.base[:,:,k])
+            self.QT.spectral.base[:,k]         = Gr.SphericalGrid.grdtospec(self.QT.values.base[:,:,k])
         return
 
     @cython.wraparound(False)
@@ -194,8 +194,8 @@ cdef class PrognosticVariables:
                 QT_sur_flux = PV.QT.SurfaceFlux
 
             with nogil:
-                RHS_momentum(Pr.g, &PV.H.values[0,0,0], &PV.Vorticity.values[0,0,0], &Gr.Coriolis[0,0],
-                            &DV.U.values[0,0,0], &DV.V.values[0,0,0], &DV.KE.values[0,0,0], &Dry_Energy[0,0],
+                RHS_momentum(&DV.gH.values[0,0,0], &PV.Vorticity.values[0,0,0], &Gr.Coriolis[0,0],
+                            &DV.U.values[0,0,0], &DV.V.values[0,0,0], &Dry_Energy[0,0],
                             &u_vorticity[0,0], &v_vorticity[0,0], nx, ny, nl, k)
 
                 rhs_H(&PV.H.values[0,0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0], &PV.H.mp_tendency[0,0,0],
@@ -210,7 +210,7 @@ cdef class PrognosticVariables:
             Vortical_momentum_flux, Divergent_momentum_flux = Gr.SphericalGrid.getvrtdivspec(u_vorticity.base, v_vorticity.base)
             Vortical_H_flux, Divergent_H_flux = Gr.SphericalGrid.getvrtdivspec(uH.base, vH.base) # Vortical_H_flux is not used
             Vort_forc ,Div_forc = Gr.SphericalGrid.getvrtdivspec(DV.U.forcing.base[:,:,k],DV.V.forcing.base[:,:,k])
-            RHS_T  = Gr.SphericalGrid.grdtospec(RHS_grid_H.base)
+            RHS_H  = Gr.SphericalGrid.grdtospec(RHS_grid_H.base)
 
             for i in range(nlm):
                 Vortical_QT_flux, Divergent_QT_flux = Gr.SphericalGrid.getvrtdivspec(uQT.base, vQT.base) # Vortical_T_flux is not used

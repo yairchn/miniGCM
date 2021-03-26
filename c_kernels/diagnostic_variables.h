@@ -9,7 +9,8 @@
 void diagnostic_variables(
            double g,
            double* restrict rho,
-           double* restrict p,
+           double* restrict rho_gH_k,
+           double* restrict gH_k,
            double* restrict h,
            double* restrict qt,
            double* restrict ql,
@@ -36,11 +37,12 @@ void diagnostic_variables(
             const ssize_t jshift = j*kmax;
             const ssize_t ij = i*jmax + j;
             const ssize_t ijk = ishift + jshift + k;
-            ke[ijk]      = 0.5*(u[ijk]*u[ijk] + v[ijk]*v[ijk]);
-            p[ijk]       = rho[k]*g*h[ijk];
-            vh[ijk]      = v[ijk]*h[ijk];
-            hh[ijk]      = h[ijk]*h[ijk];
-            uv[ijk]      = v[ijk]*u[ijk];
+            ke[ijk]       = 0.5*(u[ijk]*u[ijk] + v[ijk]*v[ijk]);
+            gH_k[ijk]     =  g*h[ijk];
+            rho_gH_k[ijk] =  rho[k]*g*h[ijk];
+            vh[ijk]       = v[ijk]*h[ijk];
+            hh[ijk]       = h[ijk]*h[ijk];
+            uv[ijk]       = v[ijk]*u[ijk];
         } // end j loop
     } // end i loop
     return;

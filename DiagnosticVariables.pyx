@@ -15,7 +15,7 @@ from TimeStepping import TimeStepping
 from Parameters cimport Parameters
 
 cdef extern from "diagnostic_variables.h":
-    void diagnostic_variables(double g, double* rho, double* p, double* h, double* qt, double* ql,
+    void diagnostic_variables(double g, double* rho, double* gH_k, double* rho_gH_k, double* h, double* qt, double* ql,
            double* u, double* v, double* div, double* ke, double* uv, double* hh,
            double* vh, Py_ssize_t k, Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
 
@@ -131,14 +131,19 @@ cdef class DiagnosticVariables:
             Py_ssize_t ny = Pr.nlons
             Py_ssize_t nl = Pr.n_layers
             double Rm
+            double [:,:,:] gH_k     = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
+            double [:,:,:] rho_gH_k = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
 
         for k in range(nl):
             self.U.values.base[:,:,k], self.V.values.base[:,:,k] = Gr.SphericalGrid.getuv(
                          PV.Vorticity.spectral.base[:,k],PV.Divergence.spectral.base[:,k])
             with nogil:
-                diagnostic_variables(Pr.g, &Pr.rho[0], &self.P.values[0,0,0], &PV.H.values[0,0,0], &PV.QT.values[0,0,0],
+                diagnostic_variables(Pr.g, &Pr.rho[0], &gH_k[0,0,0], &rho_gH_k[0,0,0], &PV.H.values[0,0,0], &PV.QT.values[0,0,0],
                                      &self.QL.values[0,0,0], &self.U.values[0,0,0], &self.V.values[0,0,0],
                                      &PV.Divergence.values[0,0,0],&self.KE.values[0,0,0],
                                      &self.UV.values[0,0,0], &self.HH.values[0,0,0], &self.VH.values[0,0,0],
                                      k, nx, ny, nl)
+
+            self.gH.values[:,:,k] = np.sum(gH_k[:,:,0:k],axis=2)
+            self.P.values[:,:,k]  = np.sum(rho_gH_k[:,:,0:k],axis=2)
         return
