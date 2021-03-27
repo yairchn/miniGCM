@@ -48,7 +48,6 @@ cdef class TimeStepping:
 		F_Vorticity  = PV.Vorticity.spectral
 		F_H          = PV.H.spectral
 		F_QT         = PV.QT.spectral
-		F_P          = PV.P.spectral[:,nl]
 
 		if self.ncycle==0:
 			PV.set_now_with_tendencies()

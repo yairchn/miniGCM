@@ -54,7 +54,7 @@ cdef class ForcingNone(ForcingBase):
 	cpdef stats_io(self, NetCDFIO_Stats Stats):
 		return
 
-cdef class Defualt(ForcingBase):
+cdef class Default(ForcingBase):
 	def __init__(self):
 		ForcingBase.__init__(self)
 		return

@@ -24,24 +24,16 @@ cdef class LogFile:
                   +str(TS.t_max/(TS.t/wallclocktime)/3600.0) + '>> '+Pr.logfilename)
         os.system('echo dt [sec]' + str(TS.dt) + '>> '+Pr.logfilename)
 
-        os.system('echo u layer 1 min max ' + str(DV.U.values.base[:,:,0].min())
-        	      + ' ' + str(DV.U.values.base[:,:,0].max()) + '>> '+Pr.logfilename)
-        os.system('echo u layer 2 min max ' + str(DV.U.values.base[:,:,1].min())
-        	      + ' ' + str(DV.U.values.base[:,:,1].max()) + '>> '+Pr.logfilename)
-        os.system('echo u layer 3 min max ' + str(DV.U.values.base[:,:,2].min())
-        	      + ' ' + str(DV.U.values.base[:,:,2].max()) + '>> '+Pr.logfilename)
+        for i in range(Pr.n_layers):
+            os.system('echo u layer '+str(i+1)+' min max ' + str(DV.U.values.base[:,:,i].min())
+          	       + ' ' + str(DV.U.values.base[:,:,i].max()) + '>> '+Pr.logfilename)
 
-        os.system('echo T layer 1 min max ' + str(PV.H.values.base[:,:,0].min())
-                  + ' ' + str(PV.H.values.base[:,:,0].max()) + '>> '+Pr.logfilename)
-        os.system('echo T layer 2 min max ' + str(PV.H.values.base[:,:,1].min())
-                  + ' ' + str(PV.H.values.base[:,:,1].max()) + '>> '+Pr.logfilename)
-        os.system('echo T layer 3 min max ' + str(PV.H.values.base[:,:,2].min())
-                  + ' ' + str(PV.H.values.base[:,:,2].max()) + '>> '+Pr.logfilename)
+        for i in range(Pr.n_layers):
+            os.system('echo H layer '+str(i+1)+' min max ' + str(PV.H.values.base[:,:,i].min())
+                      + ' ' + str(PV.H.values.base[:,:,i].max()) + '>> '+Pr.logfilename)
 
-        os.system('echo dTdt_mp layer 1 min max ' + str(PV.H.mp_tendency.base[:,:,0].min())
-                  + ' ' + str(PV.H.mp_tendency.base[:,:,0].max()) + '>> '+Pr.logfilename)
-        os.system('echo dTdt_mp layer 2 min max ' + str(PV.H.mp_tendency.base[:,:,1].min())
-                  + ' ' + str(PV.H.mp_tendency.base[:,:,1].max()) + '>> '+Pr.logfilename)
-        os.system('echo dTdt_mp layer 3 min max ' + str(PV.H.mp_tendency.base[:,:,2].min())
-                  + ' ' + str(PV.H.mp_tendency.base[:,:,2].max()) + '>> '+Pr.logfilename)
+        if Pr.moist_index >0.0:
+            for i in range(Pr.n_layers):
+                os.system('echo dQTdt_mp layer '+str(i+1)+' min max ' + str(PV.QT.mp_tendency.base[:,:,i].min())
+                          + ' ' + str(PV.QT.mp_tendency.base[:,:,i].max()) + '>> '+Pr.logfilename)
         return

@@ -34,6 +34,7 @@ cdef class DiagnosticVariable:
 
 cdef class DiagnosticVariables:
     def __init__(self, Parameters Pr, Grid Gr):
+        self.gH = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers, Gr.SphericalGrid.nlm, 'geopotential'     , 'gH','m/s' )
         self.U  = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers, Gr.SphericalGrid.nlm, 'zonal_velocity'     , 'u','m/s' )
         self.V  = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers, Gr.SphericalGrid.nlm, 'meridional_velocity', 'v','m/s' )
         self.KE = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers, Gr.SphericalGrid.nlm, 'kinetic_enetry',      'Ek','m^2/s^2' )
@@ -60,25 +61,30 @@ cdef class DiagnosticVariables:
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
-        Stats.add_global_mean('global_mean_QL')
-        Stats.add_zonal_mean('zonal_mean_QL')
-        Stats.add_meridional_mean('meridional_mean_QL')
+        Stats.add_global_mean('global_mean_U')
+        Stats.add_global_mean('global_mean_V')
         Stats.add_global_mean('global_mean_KE')
-        Stats.add_global_mean('global_mean_gZ')
+        Stats.add_global_mean('global_mean_QL')
+        Stats.add_global_mean('global_mean_VH')
+        Stats.add_global_mean('global_mean_HH')
+        Stats.add_global_mean('global_mean_UV')
+        Stats.add_global_mean('global_mean_P')
         Stats.add_zonal_mean('zonal_mean_U')
         Stats.add_zonal_mean('zonal_mean_V')
-        Stats.add_zonal_mean('zonal_mean_gZ')
-        Stats.add_zonal_mean('zonal_mean_Wp')
-        Stats.add_zonal_mean('zonal_mean_VT')
-        Stats.add_zonal_mean('zonal_mean_TT')
+        Stats.add_zonal_mean('zonal_mean_KE')
+        Stats.add_zonal_mean('zonal_mean_QL')
+        Stats.add_zonal_mean('zonal_mean_VH')
+        Stats.add_zonal_mean('zonal_mean_HH')
         Stats.add_zonal_mean('zonal_mean_UV')
+        Stats.add_zonal_mean('zonal_mean_P')
         Stats.add_meridional_mean('meridional_mean_U')
         Stats.add_meridional_mean('meridional_mean_V')
-        Stats.add_meridional_mean('meridional_mean_gZ')
-        Stats.add_meridional_mean('meridional_mean_Wp')
-        Stats.add_meridional_mean('meridional_mean_VT')
-        Stats.add_meridional_mean('meridional_mean_TT')
+        Stats.add_meridional_mean('meridional_mean_KE')
+        Stats.add_meridional_mean('meridional_mean_QL')
+        Stats.add_meridional_mean('meridional_mean_VH')
+        Stats.add_meridional_mean('meridional_mean_HH')
         Stats.add_meridional_mean('meridional_mean_UV')
+        Stats.add_meridional_mean('meridional_mean_P')
         return
 
     @cython.wraparound(False)
@@ -94,23 +100,30 @@ cdef class DiagnosticVariables:
         return
 
     cpdef stats_io(self, NetCDFIO_Stats Stats):
-        Stats.write_global_mean('global_mean_QL', self.QL.values)
-        Stats.write_zonal_mean('zonal_mean_QL',self.QL.values)
-        Stats.write_meridional_mean('meridional_mean_QL',self.QL.values)
+        Stats.write_global_mean('global_mean_U', self.U.values)
+        Stats.write_global_mean('global_mean_V', self.V.values)
         Stats.write_global_mean('global_mean_KE', self.KE.values)
-        Stats.write_global_mean('global_mean_gZ', self.P.values)
+        Stats.write_global_mean('global_mean_QL', self.QL.values)
+        Stats.write_global_mean('global_mean_VH', self.VH.values)
+        Stats.write_global_mean('global_mean_HH', self.HH.values)
+        Stats.write_global_mean('global_mean_UV', self.UV.values)
+        Stats.write_global_mean('global_mean_P', self.P.values)
         Stats.write_zonal_mean('zonal_mean_U',self.U.values)
         Stats.write_zonal_mean('zonal_mean_V',self.V.values)
-        Stats.write_zonal_mean('zonal_mean_gZ',self.P.values)
-        Stats.write_zonal_mean('zonal_mean_UV',self.UV.values.base)
-        Stats.write_zonal_mean('zonal_mean_VT',self.VT.values.base)
-        Stats.write_zonal_mean('zonal_mean_TT',self.TT.values.base)
+        Stats.write_zonal_mean('zonal_mean_KE',self.KE.values)
+        Stats.write_zonal_mean('zonal_mean_QL',self.QL.values)
+        Stats.write_zonal_mean('zonal_mean_VH',self.VH.values)
+        Stats.write_zonal_mean('zonal_mean_HH',self.HH.values)
+        Stats.write_zonal_mean('zonal_mean_UV',self.UV.values)
+        Stats.write_zonal_mean('zonal_mean_P',self.P.values)
         Stats.write_meridional_mean('meridional_mean_U',self.U.values)
         Stats.write_meridional_mean('meridional_mean_V',self.V.values)
-        Stats.write_meridional_mean('meridional_mean_gZ',self.P.values)
+        Stats.write_meridional_mean('meridional_mean_KE',self.KE.values)
+        Stats.write_meridional_mean('meridional_mean_QL',self.QL.values)
+        Stats.write_meridional_mean('meridional_mean_VH',self.VH.values)
+        Stats.write_meridional_mean('meridional_mean_HH',self.HH.values)
         Stats.write_meridional_mean('meridional_mean_UV',self.UV.values)
-        Stats.write_meridional_mean('meridional_mean_VT',self.VT.values)
-        Stats.write_meridional_mean('meridional_mean_TT',self.TT.values)
+        Stats.write_meridional_mean('meridional_mean_P',self.P.values)
         return
 
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
@@ -144,6 +157,6 @@ cdef class DiagnosticVariables:
                                      &self.UV.values[0,0,0], &self.HH.values[0,0,0], &self.VH.values[0,0,0],
                                      k, nx, ny, nl)
 
-            self.gH.values[:,:,k] = np.sum(gH_k[:,:,0:k],axis=2)
-            self.P.values[:,:,k]  = np.sum(rho_gH_k[:,:,0:k],axis=2)
+            self.gH.values.base[:,:,k] = np.sum(gH_k[:,:,0:k],axis=2)
+            self.P.values.base[:,:,k]  = np.sum(rho_gH_k[:,:,0:k],axis=2)
         return

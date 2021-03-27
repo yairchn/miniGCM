@@ -62,8 +62,8 @@ def main():
 
     namelist_defaults['meta'] = {}
 
-    if case_name == 'Defualt':
-        namelist = Defualt(namelist_defaults)
+    if case_name == 'Default':
+        namelist = Default(namelist_defaults)
     else:
         print('Not a valid case name')
         exit()
@@ -71,12 +71,12 @@ def main():
     write_file(namelist)
 
 
-def Defualt(namelist_defaults):
+def Default(namelist_defaults):
 
     namelist = copy.deepcopy(namelist_defaults)
 
-    namelist['meta']['simname'] = 'Defualt'
-    namelist['meta']['casename'] = 'Defualt'
+    namelist['meta']['simname'] = 'Default'
+    namelist['meta']['casename'] = 'Default'
 
     namelist['thermodynamics'] = {}
     namelist['thermodynamics']['thermodynamics_type'] = 'dry'

@@ -36,7 +36,7 @@ cdef class CaseBase:
     cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS)
 
-cdef class Defualt(CaseBase):
+cdef class Default(CaseBase):
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
     cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist)

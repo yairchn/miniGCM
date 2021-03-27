@@ -64,16 +64,16 @@ cdef class PrognosticVariables:
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
+        Stats.add_global_mean('global_mean_Vorticity')
+        Stats.add_global_mean('global_mean_Divergence')
         Stats.add_global_mean('global_mean_H')
         Stats.add_global_mean('global_mean_QT')
-        Stats.add_zonal_mean('zonal_mean_P')
+        Stats.add_zonal_mean('zonal_mean_Vorticity')
+        Stats.add_zonal_mean('zonal_mean_Divergence')
         Stats.add_zonal_mean('zonal_mean_H')
         Stats.add_zonal_mean('zonal_mean_QT')
-        Stats.add_zonal_mean('zonal_mean_divergence')
-        Stats.add_zonal_mean('zonal_mean_vorticity')
-        Stats.add_meridional_mean('meridional_mean_divergence')
-        Stats.add_meridional_mean('meridional_mean_vorticity')
-        Stats.add_meridional_mean('meridional_mean_P')
+        Stats.add_meridional_mean('meridional_mean_Vorticity')
+        Stats.add_meridional_mean('meridional_mean_Divergence')
         Stats.add_meridional_mean('meridional_mean_H')
         Stats.add_meridional_mean('meridional_mean_QT')
         return
@@ -124,16 +124,18 @@ cdef class PrognosticVariables:
 
 
     cpdef stats_io(self, NetCDFIO_Stats Stats):
-        Stats.write_global_mean('global_mean_T', self.T.values)
+        Stats.write_global_mean('global_mean_Vorticity', self.Vorticity.values)
+        Stats.write_global_mean('global_mean_Divergence', self.Divergence.values)
+        Stats.write_global_mean('global_mean_H', self.H.values)
         Stats.write_global_mean('global_mean_QT', self.QT.values)
-        Stats.write_zonal_mean('zonal_mean_T',self.T.values)
+        Stats.write_zonal_mean('zonal_mean_Vorticity',self.Vorticity.values)
+        Stats.write_zonal_mean('zonal_mean_Divergence',self.Divergence.values)
+        Stats.write_zonal_mean('zonal_mean_H',self.H.values)
         Stats.write_zonal_mean('zonal_mean_QT',self.QT.values)
-        Stats.write_zonal_mean('zonal_mean_divergence',self.Divergence.values)
-        Stats.write_zonal_mean('zonal_mean_vorticity',self.Vorticity.values)
-        Stats.write_meridional_mean('meridional_mean_T',self.T.values)
+        Stats.write_meridional_mean('meridional_mean_Vorticity',self.Vorticity.values)
+        Stats.write_meridional_mean('meridional_mean_Divergence',self.Divergence.values)
+        Stats.write_meridional_mean('meridional_mean_H',self.H.values)
         Stats.write_meridional_mean('meridional_mean_QT',self.QT.values)
-        Stats.write_meridional_mean('meridional_mean_divergence',self.Divergence.values)
-        Stats.write_meridional_mean('meridional_mean_vorticity',self.Vorticity.values)
         return
 
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):

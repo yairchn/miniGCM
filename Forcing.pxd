@@ -27,7 +27,7 @@ cdef class ForcingNone(ForcingBase):
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
 	cpdef stats_io(self, NetCDFIO_Stats Stats)
 
-cdef class Defualt(ForcingBase):
+cdef class Default(ForcingBase):
 	cdef:
 		Py_ssize_t nx
 		Py_ssize_t ny

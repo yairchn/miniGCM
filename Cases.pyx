@@ -16,8 +16,8 @@ import time
 import sphericalForcing as spf
 
 def CasesFactory(namelist):
-    if namelist['meta']['casename'] == 'Defualt':
-        return Defualt(namelist)
+    if namelist['meta']['casename'] == 'Default':
+        return Default(namelist)
     # anthoer example
     # elif namelist['meta']['casename'] == 'Stochastic_Forcing':
     #     return Stochastic_Frorcing(paramlist)
@@ -55,10 +55,10 @@ cdef class CaseBase:
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         return
 
-cdef class Defualt(CaseBase):
+cdef class Default(CaseBase):
     def __init__(self, namelist):
         # Pr.casename = namelist['meta']['casename']
-        self.Fo  = Forcing.Defualt()
+        self.Fo  = Forcing.Default()
         self.Sur = Surface.SurfaceBulkFormula()
         self.MP = Microphysics.MicrophysicsNone()
         return
@@ -85,11 +85,11 @@ cdef class Defualt(CaseBase):
         PV.QT.values         = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),PV.QT_init)
         PV.H.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),PV.H_init)
 
-        if Pr.inoise==1: # load the random noise to grid space
-             noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
-             PV.H.values.base[:,:,Pr.n_layers-1] = np.add(PV.H.values.base[:,:,Pr.n_layers-1],noise.base)
-        PV.physical_to_spectral(Pr, Gr)
-        print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.H.spectral.base[:,Pr.n_layers-1]).min())
+        # if Pr.inoise==1: # load the random noise to grid space
+        #      noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
+        #      PV.H.values.base[:,:,Pr.n_layers-1] = np.add(PV.H.values.base[:,:,Pr.n_layers-1],noise.base)
+        # PV.physical_to_spectral(Pr, Gr)
+        # print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.H.spectral.base[:,Pr.n_layers-1]).min())
         # if Pr.inoise==1:
         #      # load the random noise to grid space
         #      #noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')*Pr.noise_amp
