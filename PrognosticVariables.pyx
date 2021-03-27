@@ -203,10 +203,10 @@ cdef class PrognosticVariables:
                 rhs_H(&PV.H.values[0,0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0], &PV.H.mp_tendency[0,0,0],
                       &H_sur_flux[0,0], &PV.H.forcing[0,0,0], &RHS_grid_H[0,0], &uH[0,0], &vH[0,0], nx, ny, nl, k)
 
-            if Pr.moist_index > 0.0:
-                rhs_qt(&PV.QT.values[0,0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
-                       &PV.QT.mp_tendency[0,0,0], &QT_sur_flux[0,0], &RHS_grid_QT[0,0],
-                       &uQT[0,0], &vQT[0,0], nx, ny, nl, k)
+                if Pr.moist_index > 0.0:
+                    rhs_qt(&PV.QT.values[0,0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
+                           &PV.QT.mp_tendency[0,0,0], &QT_sur_flux[0,0], &RHS_grid_QT[0,0],
+                           &uQT[0,0], &vQT[0,0], nx, ny, nl, k)
 
             Dry_Energy_laplacian = Gr.laplacian*Gr.SphericalGrid.grdtospec(Dry_Energy.base)
             Vortical_momentum_flux, Divergent_momentum_flux = Gr.SphericalGrid.getvrtdivspec(u_vorticity.base, v_vorticity.base)
@@ -214,9 +214,10 @@ cdef class PrognosticVariables:
             Vort_forc ,Div_forc = Gr.SphericalGrid.getvrtdivspec(DV.U.forcing.base[:,:,k],DV.V.forcing.base[:,:,k])
             RHS_H  = Gr.SphericalGrid.grdtospec(RHS_grid_H.base)
 
-            for i in range(nlm):
-                Vortical_QT_flux, Divergent_QT_flux = Gr.SphericalGrid.getvrtdivspec(uQT.base, vQT.base) # Vortical_T_flux is not used
-                RHS_QT = Gr.SphericalGrid.grdtospec(RHS_grid_QT.base)
+            if Pr.moist_index > 0.0:
+                for i in range(nlm):
+                    Vortical_QT_flux, Divergent_QT_flux = Gr.SphericalGrid.getvrtdivspec(uQT.base, vQT.base) # Vortical_T_flux is not used
+                    RHS_QT = Gr.SphericalGrid.grdtospec(RHS_grid_QT.base)
 
             with nogil:
                 for i in range(nlm):

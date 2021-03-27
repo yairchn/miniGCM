@@ -14,7 +14,7 @@ from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
 import time
 import sphericalForcing as spf
-
+import pylab as plt
 def CasesFactory(namelist):
     if namelist['meta']['casename'] == 'Default':
         return Default(namelist)
@@ -65,6 +65,10 @@ cdef class Default(CaseBase):
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         cdef:
+            Py_ssize_t i,j,k
+            Py_ssize_t nx = Pr.nlats
+            Py_ssize_t ny = Pr.nlons
+            Py_ssize_t nl = Pr.n_layers
             double [:,:] noise
             double [:,:] fr
 
@@ -84,6 +88,20 @@ cdef class Default(CaseBase):
         PV.Divergence.values = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         PV.QT.values         = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),PV.QT_init)
         PV.H.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),PV.H_init)
+        for i  in range(nx):
+            for j  in range(ny):
+                PV.H.values[i,j,2] -= 10.0*np.exp(-((Gr.lat[i,j] - np.max(Gr.lat))**2.0)/(2.0*100000.0)**2.0)
+                PV.H.values[i,j,1] += 10.0*np.exp(-((Gr.lat[i,j] - np.max(Gr.lat))**2.0)/(2.0*100000.0)**2.0)
+        plt.figure('H3')
+        plt.contourf(PV.H.values[:,:,2])
+        plt.colorbar()
+        plt.figure('H2')
+        plt.contourf(PV.H.values[:,:,1])
+        plt.colorbar()
+        plt.figure('H2+H3')
+        plt.contourf(np.add(PV.H.values[:,:,1],PV.H.values[:,:,2]))
+        plt.colorbar()
+        plt.show()
 
         # if Pr.inoise==1: # load the random noise to grid space
         #      noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
