@@ -37,10 +37,12 @@ cdef class Parameters:
         self.truncation_number = int(self.nlons/self.truncation_order)
         self.efold             = namelist['diffusion']['e_folding_timescale']
         self.noise_amp      = namelist['initialize']['noise_amplitude']
+        self.noise_type     = namelist['initialize']['noise_type']
 
         self.surface_model = namelist['surface']['surface_model']
         self.inoise        = namelist['initialize']['inoise']
-        self.noise_amp        = namelist['initialize']['noise_amplitude']
+        self.noise_amp     = namelist['initialize']['noise_amplitude']
+        self.noise_type    = namelist['initialize']['noise_type']
         self.Rd        = namelist['thermodynamics']['dry_air_gas_constant']
         self.Rv        = namelist['thermodynamics']['vapor_gas_constant']
         self.Lv        = namelist['thermodynamics']['latent_heat_evap']

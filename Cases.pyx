@@ -93,17 +93,20 @@ cdef class Default(CaseBase):
                 PV.H.values[i,j,2] -= 1.0*np.exp(-((Gr.lat[i,j] - Gr.lat[-1,j])**2.0)/(2.0*0.3)**2.0)
                 PV.H.values[i,j,1] += 1.0*np.exp(-((Gr.lat[i,j] - Gr.lat[-1,j])**2.0)/(2.0*0.3)**2.0)
         PV.physical_to_spectral(Pr, Gr)
-        print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.H.spectral.base[:,Pr.n_layers-1]).min())
+        print('layer 3 Depth min',Gr.SphericalGrid.spectogrd(PV.H.spectral.base[:,Pr.n_layers-1]).min())
         if Pr.inoise==1:
-             # load the random noise to grid space
-             #noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')*Pr.noise_amp
              # calculate noise
-             spec_zeros = np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
-             fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0.)
-             noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(spec_zeros))*Pr.noise_amp
+             F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
+             fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0., noise_type=Pr.noise_type)
+             noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(F0))*Pr.noise_amp
+             # save noise here
+             # np.save('./norm_rand_grid_noise_'+Pr.noise_type+'_.npy',noise)
+             # load noise here
+             # noise = np.load('./norm_rand_grid_noise_'+Pr.noise_type+'_.npy')
              # add noise
              PV.H.spectral.base[:,Pr.n_layers-1] = np.add(PV.H.spectral.base[:,Pr.n_layers-1],
                                                         Gr.SphericalGrid.grdtospec(noise.base))
+        print('layer 3 Depth min',Gr.SphericalGrid.spectogrd(PV.H.spectral.base[:,Pr.n_layers-1]).min())
         return
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):

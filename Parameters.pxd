@@ -62,6 +62,7 @@ cdef class Parameters:
         double T_0
         double eps_v
 
+        str noise_type
         str case
         str surface_model
         str uuid
