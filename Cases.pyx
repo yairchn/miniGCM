@@ -14,7 +14,7 @@ from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
 import time
 import sphericalForcing as spf
-import pylab as plt
+
 def CasesFactory(namelist):
     if namelist['meta']['casename'] == 'Default':
         return Default(namelist)
@@ -90,35 +90,20 @@ cdef class Default(CaseBase):
         PV.H.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),PV.H_init)
         for i  in range(nx):
             for j  in range(ny):
-                PV.H.values[i,j,2] -= 10.0*np.exp(-((Gr.lat[i,j] - np.max(Gr.lat))**2.0)/(2.0*100000.0)**2.0)
-                PV.H.values[i,j,1] += 10.0*np.exp(-((Gr.lat[i,j] - np.max(Gr.lat))**2.0)/(2.0*100000.0)**2.0)
-        plt.figure('H3')
-        plt.contourf(PV.H.values[:,:,2])
-        plt.colorbar()
-        plt.figure('H2')
-        plt.contourf(PV.H.values[:,:,1])
-        plt.colorbar()
-        plt.figure('H2+H3')
-        plt.contourf(np.add(PV.H.values[:,:,1],PV.H.values[:,:,2]))
-        plt.colorbar()
-        plt.show()
-
-        # if Pr.inoise==1: # load the random noise to grid space
-        #      noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
-        #      PV.H.values.base[:,:,Pr.n_layers-1] = np.add(PV.H.values.base[:,:,Pr.n_layers-1],noise.base)
-        # PV.physical_to_spectral(Pr, Gr)
-        # print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.H.spectral.base[:,Pr.n_layers-1]).min())
-        # if Pr.inoise==1:
-        #      # load the random noise to grid space
-        #      #noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')*Pr.noise_amp
-        #      # calculate noise
-        #      spec_zeros = np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
-        #      fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0.)
-        #      noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(spec_zeros))*Pr.noise_amp
-        #      # add noise
-        #      PV.H.spectral.base[:,Pr.n_layers-1] = np.add(PV.H.spectral.base[:,Pr.n_layers-1],
-                                                        # Gr.SphericalGrid.grdtospec(noise.base))
+                PV.H.values[i,j,2] -= 1.0*np.exp(-((Gr.lat[i,j] - Gr.lat[-1,j])**2.0)/(2.0*0.3)**2.0)
+                PV.H.values[i,j,1] += 1.0*np.exp(-((Gr.lat[i,j] - Gr.lat[-1,j])**2.0)/(2.0*0.3)**2.0)
+        PV.physical_to_spectral(Pr, Gr)
         print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.H.spectral.base[:,Pr.n_layers-1]).min())
+        if Pr.inoise==1:
+             # load the random noise to grid space
+             #noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')*Pr.noise_amp
+             # calculate noise
+             spec_zeros = np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
+             fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0.)
+             noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(spec_zeros))*Pr.noise_amp
+             # add noise
+             PV.H.spectral.base[:,Pr.n_layers-1] = np.add(PV.H.spectral.base[:,Pr.n_layers-1],
+                                                        Gr.SphericalGrid.grdtospec(noise.base))
         return
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, namelist):

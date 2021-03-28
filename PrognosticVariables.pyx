@@ -212,7 +212,7 @@ cdef class PrognosticVariables:
             Vortical_momentum_flux, Divergent_momentum_flux = Gr.SphericalGrid.getvrtdivspec(u_vorticity.base, v_vorticity.base)
             Vortical_H_flux, Divergent_H_flux = Gr.SphericalGrid.getvrtdivspec(uH.base, vH.base) # Vortical_H_flux is not used
             Vort_forc ,Div_forc = Gr.SphericalGrid.getvrtdivspec(DV.U.forcing.base[:,:,k],DV.V.forcing.base[:,:,k])
-            RHS_H  = Gr.SphericalGrid.grdtospec(RHS_grid_H.base)
+            RHS_H = Gr.SphericalGrid.grdtospec(RHS_grid_H.base)
 
             if Pr.moist_index > 0.0:
                 for i in range(nlm):
