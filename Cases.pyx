@@ -97,8 +97,8 @@ cdef class Default(CaseBase):
         if Pr.inoise==1:
              # calculate noise
              F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
-             fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0., noise_type=Pr.noise_type)
-             noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(F0))*Pr.noise_amp
+             H_noise = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0., noise_type=Pr.noise_type)
+             noise = Gr.SphericalGrid.spectogrd(H_noise.forcingFn(F0))*Pr.noise_amp
              # save noise here
              # np.save('./norm_rand_grid_noise_'+Pr.noise_type+'_.npy',noise)
              # load noise here

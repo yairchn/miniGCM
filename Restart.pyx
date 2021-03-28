@@ -30,7 +30,6 @@ cdef class Restart:
             Py_ssize_t ny = Pr.nlons
             Py_ssize_t nl = Pr.n_layers
 
-        
         data = nc.Dataset(Pr.path_plus_file, 'r')
 
         if Pr.restart_type == '3D_output':
@@ -42,14 +41,12 @@ cdef class Restart:
             else:
                 sys.exit("Restart files do not match exiting files: " + filepath + 'Temperature_' + timestring+'.nc')
 
-            Temperature          = nc.Dataset( filepath + 'Temperature_' + timestring+'.nc', 'r')
-            PV.T.values          = np.array(Temperature.variables['Temperature'])
+            Depth                = nc.Dataset( filepath + 'Temperature_' + timestring+'.nc', 'r')
+            PV.H.values          = np.array(Depth.variables['H'])
             Vorticity            = nc.Dataset(filepath + 'Vorticity_' + timestring+'.nc', 'r')
             PV.Vorticity.values  = np.array(Vorticity.variables['Vorticity'])
             Divergence           = nc.Dataset(filepath + 'Divergence_' + timestring+'.nc', 'r')
             PV.Divergence.values = np.array(Divergence.variables['Divergence'])
-            Pressure             = nc.Dataset(filepath + 'Pressure_' + timestring+'.nc', 'r')
-            PV.P.values.base[:,:,nl]  = np.array(Pressure.variables['Pressure'])
             if Pr.moist_index > 0.0:
                 Specific_humidity    = nc.Dataset(filepath + 'Specific_humidity_' + timestring+'.nc', 'r')
                 PV.QT.values         = np.array(Specific_humidity.variables['Specific_humidity'])
@@ -61,10 +58,8 @@ cdef class Restart:
                 sys.exit("Restart simulation is not longer the original simulation")
             for i in range(Pr.nlats):
                 for j in range(Pr.nlons):
-                    PV.P.values[i,j,Pr.n_layers]    = np.array(data.groups['surface_zonal_mean'].variables['zonal_mean_Ps'])[-1,i]
                     for k in range(Pr.n_layers):
-                        PV.P.values[i,j,k]          = PV.P_init[k]
-                        PV.T.values[i,j,k]          = np.array(data.groups['zonal_mean'].variables['zonal_mean_T'])[-1,i,k]
+                        PV.H.values[i,j,k]          = np.array(data.groups['zonal_mean'].variables['zonal_mean_H'])[-1,i,k]
                         PV.Vorticity.values[i,j,k]  = np.array(data.groups['zonal_mean'].variables['zonal_mean_vorticity'])[-1,i,k]
                         PV.Divergence.values[i,j,k] = np.array(data.groups['zonal_mean'].variables['zonal_mean_divergence'])[-1,i,k]
                         if Pr.moist_index > 0.0:
