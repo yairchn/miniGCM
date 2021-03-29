@@ -10,9 +10,9 @@ cdef class Parameters:
         Py_ssize_t ny
         Py_ssize_t n_layers
         double [:] amp_dHdp
-        double T1
-        double T2
-        double T3
+        double H1
+        double H2
+        double H3
         double Hamp1
         double Hamp2
         double Hamp3
@@ -26,10 +26,6 @@ cdef class Parameters:
         double lat
         double moist_index
         double dissipation_order
-        double p1
-        double p2
-        double p3
-        double p_ref
         double rsphere
         double omega
         double g

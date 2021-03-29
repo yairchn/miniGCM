@@ -29,9 +29,6 @@ cdef class LogFile:
                   +str(TS.t_max/(TS.t/wallclocktime)/3600.0) + '>> '+Pr.logfilename)
         os.system('echo dt [sec]' + str(TS.dt) + '>> '+Pr.logfilename)
 
-        os.system('echo p_surface min max ' + str(PV.P.values.base[:,:,nl].min())
-                      + ' ' + str(PV.P.values.base[:,:,nl].max()) + '>> '+Pr.logfilename)
-
         for i in range(Pr.n_layers):
             os.system('echo velocity layer '+str(i+1)+' min max ' + str(DV.Vel.values.base[:,:,i].min())
             	      + ' ' + str(DV.Vel.values.base[:,:,i].max()) + '>> '+Pr.logfilename)
@@ -40,10 +37,6 @@ cdef class LogFile:
         for i in range(Pr.n_layers):
             os.system('echo H layer '+str(i+1)+' min max ' + str(PV.H.values.base[:,:,i].min())
                       + ' ' + str(PV.H.values.base[:,:,i].max()) + '>> '+Pr.logfilename)
-            # plt.figure('T')
-            # plt.contourf(PV.T.values[:,:,i])
-            # plt.colorbar()
-            # plt.show()
 
         for i in range(Pr.n_layers):
             if Pr.moist_index > 0.0:

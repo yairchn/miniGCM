@@ -272,18 +272,18 @@ cdef class PrognosticVariables:
 
                     PV.V.tendency[i,j,k]  = (- duv_dx[i,j,k] - dvv_dy[i,j,k] - fu  - dgZ_dy[i,j,k] + PV.V.HyperDiffusion[i,j,k])
 
-        import pylab as plt
-        plt.figure('V tendency')
-        plt.subplot(3,1,1)
-        plt.contourf(PV.V.tendency[:,:,0])
-        plt.colorbar()
-        plt.subplot(3,1,2)
-        plt.contourf(PV.V.tendency[:,:,1])
-        plt.colorbar()
-        plt.subplot(3,1,3)
-        plt.contourf(PV.V.tendency[:,:,2])
-        plt.colorbar()
-        plt.show(block=False)
-        plt.pause(1)
-        plt.close()
+        # import pylab as plt
+        # plt.figure('H')
+        # plt.subplot(3,1,1)
+        # plt.contourf(PV.H.values[:,:,0])
+        # plt.colorbar()
+        # plt.subplot(3,1,2)
+        # plt.contourf(PV.H.values[:,:,1])
+        # plt.colorbar()
+        # plt.subplot(3,1,3)
+        # plt.contourf(PV.H.values[:,:,2])
+        # plt.colorbar()
+        # plt.show(block=False)
+        # plt.pause(0.3)
+        # plt.close()
         return

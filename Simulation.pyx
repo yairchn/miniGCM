@@ -39,7 +39,7 @@ class Simulation:
     def initialize(self, namelist):
         self.LF.initialize(self.Pr, namelist)
         self.Case.initialize(self.Pr, self.Gr, self.PV, namelist)
-        self.DV.initialize(self.Pr, self.Gr,self.PV)
+        # self.DV.initialize(self.Pr, self.Gr,self.PV)
         self.Case.initialize_microphysics(self.Pr, self.PV, self.DV, namelist)
         self.Case.initialize_forcing(self.Pr, self.Gr, namelist)
         self.Case.initialize_surface(self.Pr, self.Gr, self.PV, namelist)

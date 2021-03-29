@@ -27,7 +27,7 @@ cdef class ForcingBettsMiller(ForcingBase):
 		Py_ssize_t nx
 		Py_ssize_t ny
 		Py_ssize_t nl
-		double [:,:,:] Tbar
+		double [:,:,:] Hbar
 
 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)

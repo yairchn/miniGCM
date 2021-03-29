@@ -19,8 +19,6 @@ cdef class CaseBase:
         str casename
         double tau
         double dTdy
-        double T_lapserate
-        double p_ref
         double foring_type
         double [:] Tinit
         SurfaceBase Sur

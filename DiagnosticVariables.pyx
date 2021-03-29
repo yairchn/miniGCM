@@ -71,8 +71,6 @@ cdef class DiagnosticVariables:
             double dyi = 1.0/Gr.dy
             double Rm
 
-        self.Wp.values.base[:,:,0]  = np.zeros_like(self.Wp.values[:,:,0])
-        self.gZ.values.base[:,:,nl] = np.zeros_like(self.Wp.values[:,:,0])
         # with nogil:
         for k in range(nl):
             # with nogil:

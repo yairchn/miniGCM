@@ -73,7 +73,6 @@ cdef class DryVortex(CaseBase):
             double y0 = Gr.ny/2.0
             double [:,:] noise
 
-        PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
         PV.H_init        = np.array([229.0, 259.0, 291.0])
         PV.QT_init        = np.array([2.5000e-04, 0.0016, 0.0115])
         Pr.amp_dHdp        = np.array([0.2, 1.0, 0.0])
@@ -243,8 +242,7 @@ cdef class ReedJablonowski(CaseBase):
         cdef:
             double [:,:] noise
 
-        # PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
-        # PV.H_init        = np.array([229.0, 259.0, 291.0])
+        # PV.H_init        = np.array([Pr.H1, Pr.H2, Pr.H3])
         # PV.QT_init        = np.array([2.5000e-04, 0.0016, 0.0115])
 
         # Pr.sigma_H = namelist['forcing']['sigma_H']

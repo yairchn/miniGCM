@@ -19,10 +19,6 @@ cdef class Parameters:
         self.nx        = namelist['grid']['number_of_x_points']
         self.ny        = namelist['grid']['number_of_y_points']
         self.n_layers  = namelist['grid']['number_of_layers']
-        self.p1        = namelist['grid']['p1']
-        self.p2        = namelist['grid']['p2']
-        self.p3        = namelist['grid']['p3']
-        self.p_ref     = namelist['grid']['p_ref']
         self.Omega     = namelist['planet']['Omega_rotation']
         self.g         = namelist['planet']['gravity']
         self.cp        = namelist['thermodynamics']['heat_capacity']
@@ -39,9 +35,9 @@ cdef class Parameters:
 
         self.efold        = namelist['diffusion']['e_folding_timescale']
         self.noise_amp    = namelist['initialize']['noise_amplitude']
-        self.T1           = namelist['initialize']['T1'] = 229.0
-        self.T2           = namelist['initialize']['T2'] = 259.0
-        self.T3           = namelist['initialize']['T3'] = 291.0
+        self.H1           = namelist['initialize']['H1'] = 30.0
+        self.H2           = namelist['initialize']['H2'] = 30.0
+        self.H3           = namelist['initialize']['H3'] = 30.0
         self.Hamp1        = namelist['initialize']['Tamp1'] = 0.2
         self.Hamp2        = namelist['initialize']['Tamp2'] = 1.0
         self.Hamp3        = namelist['initialize']['Tamp3'] = 0.0

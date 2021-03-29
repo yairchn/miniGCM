@@ -35,10 +35,9 @@ def main():
     namelist_defaults['grid']['number_of_layers'] =  3
 
 
-    namelist_defaults['grid']['p3']       =  850.0*1.e2  # [pasc]
-    namelist_defaults['grid']['p2']       =  500.0*1.e2  # [pasc]
-    namelist_defaults['grid']['p1']       =  250.0*1.e2  # [pasc]
-    namelist_defaults['grid']['p_ref']    =  1000.0*1.e2 # [pasc]
+    namelist_defaults['grid']['H3']       =  30.0  # [pasc]
+    namelist_defaults['grid']['H2']       =  30.0  # [pasc]
+    namelist_defaults['grid']['H1']       =  30.0  # [pasc]
     namelist_defaults['grid']['degree_latitute'] = 20.0
     namelist_defaults['grid']['numerical_scheme'] = 'centeral_differneces'
 
@@ -138,12 +137,9 @@ def MoistVortex(namelist_defaults):
     namelist['forcing']['equatorial_temperature']    = 315.                   # Characteristic temperature at the equator [K]
     namelist['forcing']['lapse_rate']   = 10.0                   # Characteristic potential temperature change in vertical [K]
 
-    namelist['initialize']['T1'] = 229.0
-    namelist['initialize']['T2'] = 259.0
-    namelist['initialize']['T3'] = 291.0
-    namelist['initialize']['Tamp1'] = 0.2
-    namelist['initialize']['Tamp2'] = 1.0
-    namelist['initialize']['Tamp3'] = 0.0
+    namelist['initialize']['Hamp1'] = 0.2
+    namelist['initialize']['Hamp2'] = 1.0
+    namelist['initialize']['Hamp3'] = 0.0
     namelist['initialize']['QT1'] = 2.5000e-04
     namelist['initialize']['QT2'] = 0.0016
     namelist['initialize']['QT3'] = 0.0115

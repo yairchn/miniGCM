@@ -25,7 +25,7 @@ cdef class ForcingBase:
 	def __init__(self):
 		return
 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
-		self.Tbar = np.zeros((Gr.nx, Gr.ny, Gr.nl), dtype=np.float64, order='c')
+		self.Hbar = np.zeros((Gr.nx, Gr.ny, Gr.nl), dtype=np.float64, order='c')
 		return
 	cpdef initialize_io(self, NetCDFIO_Stats Stats):
 		return
@@ -63,11 +63,11 @@ cdef class ForcingBettsMiller(ForcingBase):
 			Py_ssize_t ny = Gr.ny
 			Py_ssize_t nl = Gr.nl
 			Py_ssize_t ng = Gr.ng
-		self.Tbar = np.zeros((nx+2*ng, ny+2*ng, nl), dtype=np.float64, order='c')
+		self.Hbar = np.zeros((nx+2*ng, ny+2*ng, nl), dtype=np.float64, order='c')
 		return
 
 	cpdef initialize_io(self, NetCDFIO_Stats Stats):
-		Stats.add_axisymmetric_mean('axisymmetric_mean_T_eq')
+		Stats.add_axisymmetric_mean('axisymmetric_mean_H_eq')
 		return
 
 	@cython.wraparound(False)
@@ -78,7 +78,7 @@ cdef class ForcingBettsMiller(ForcingBase):
 			Py_ssize_t nx = Gr.nx
 			Py_ssize_t ny = Gr.ny
 			Py_ssize_t nl = Gr.nl
-			double [:,:] T_surf = np.zeros((Gr.nx, Gr.ny), dtype=np.float64, order='c')
+			double [:,:] H_surf = np.zeros((Gr.nx, Gr.ny), dtype=np.float64, order='c')
 
 		# with nogil:
 		# 	focring_bm(Pr.kappa, Pr.p_ref, Pr.tau,
@@ -89,9 +89,9 @@ cdef class ForcingBettsMiller(ForcingBase):
 		return
 
 	cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
-		Stats.write_3D_variable(Pr, Gr, int(TS.t), Pr.n_layers, 'T_eq', self.Tbar)
+		Stats.write_3D_variable(Pr, Gr, int(TS.t), Pr.n_layers, 'H_eq', self.Hbar)
 		return
 
 	cpdef stats_io(self, NetCDFIO_Stats Stats):
-		Stats.write_axisymmetric_mean('axisymmetric_mean_T_eq', self.Tbar)
+		Stats.write_axisymmetric_mean('axisymmetric_mean_H_eq', self.Hbar)
 		return
