@@ -194,7 +194,7 @@ cdef class PrognosticVariables:
             Py_ssize_t nl = Gr.nl
             Py_ssize_t ng = Gr.ng
             double fu, fv, dFx_dx, dFy_dy
-            double dwT_dp_dn, dwT_dp_up, dwQT_dp_dn, dwQT_dp_up
+            double dwTdp_dn, dwTdp_up, dwQTdp_dn, dwQTdp_up
             # double wu_dn, wu_up, wv_dn, wv_up
             double Wp_dgZ_dp, T_sur_flux, QT_sur_flux, U_sur_flux, V_sur_flux
             double dxi = 1.0/Gr.dx
@@ -225,9 +225,9 @@ cdef class PrognosticVariables:
                 ps_v_m = 0.5*(PV.P.values[i,j,nl]+PV.P.values[i,j-1,nl])
                 ps_v_p = 0.5*(PV.P.values[i,j,nl]+PV.P.values[i,j+1,nl])
                 dpudx = (PV.U.values[i+1,j,nl-1]*(ps_u_p - PV.P.values[i,j,nl-1]) -
-                         PV.U.values[i,j,nl-1]  *(ps_u_m - PV.P.values[i,j,nl-1]))
+                         PV.U.values[i,j,nl-1]  *(ps_u_m - PV.P.values[i,j,nl-1]))*dxi
                 dpvdx = (PV.V.values[i,j+1,nl-1]*(ps_v_p - PV.P.values[i,j,nl-1]) -
-                         PV.V.values[i,j,nl-1]  *(ps_v_m - PV.P.values[i,j,nl-1]))
+                         PV.V.values[i,j,nl-1]  *(ps_v_m - PV.P.values[i,j,nl-1]))*dyi
 
                 PV.P.tendency[i,j,nl] = (DV.Wp.values[i,j,nl-1] - dpudx - dpvdx)
 
@@ -246,48 +246,48 @@ cdef class PrognosticVariables:
                     #     (DV.gZ.values[i,j,k+1]-DV.gZ.values[i,j,k])
                     #    /(PV.P.values[i,j,k+1]-PV.P.values[i,j,k]))
                     duT_dx = 0.5*((PV.T.values[i+1,j,k]+ PV.T.values[i,j,k])   * PV.U.values[i+1,j,k]-
-                                  (PV.T.values[i,j,k]  + PV.T.values[i-1,j,k]) * PV.U.values[i-1,j,k])*dxi
+                                  (PV.T.values[i,j,k]  + PV.T.values[i-1,j,k]) * PV.U.values[i,j,k])*dxi
                     dvT_dy = 0.5*((PV.T.values[i,j+1,k]+ PV.T.values[i,j,k])   * PV.V.values[i,j+1,k]-
-                                  (PV.T.values[i,j,k]  + PV.T.values[i,j-1,k]) * PV.V.values[i,j-1,k])*dyi
+                                  (PV.T.values[i,j,k]  + PV.T.values[i,j-1,k]) * PV.V.values[i,j,k])*dyi
                     if k==0:
-                        dwT_dp_dn = 0.5*DV.Wp.values[i,j,k+1]*((PV.T.values[i,j,k+1] + PV.T.values[i,j,k])/
+                        dwTdp_dn = 0.5*DV.Wp.values[i,j,k+1]*((PV.T.values[i,j,k+1] + PV.T.values[i,j,k])/
                                                                 (PV.P.values[i,j,k+1] - PV.P.values[i,j,k]))
-                        dwT_dp_up =  0.0
+                        dwTdp_up =  0.0
                     elif k==nl-1:
-                        dwT_dp_dn = 0.5*DV.Wp.values[i,j,k+1]*((PV.T.values[i,j,k]  + PV.T.values[i,j,k])/
+                        dwTdp_dn = 0.5*DV.Wp.values[i,j,k+1]*((PV.T.values[i,j,k]  + PV.T.values[i,j,k])/
                                                                (PV.P.values[i,j,k+1] - PV.P.values[i,j,k]))
-                        dwT_dp_up = 0.5*DV.Wp.values[i,j,k]*((PV.T.values[i,j,k]    + PV.T.values[i,j,k-1])/
+                        dwTdp_up = 0.5*DV.Wp.values[i,j,k]*((PV.T.values[i,j,k]    + PV.T.values[i,j,k-1])/
                                                               (PV.P.values[i,j,k+1]  - PV.P.values[i,j,k]))
                     else:
-                        dwT_dp_dn = 0.5*DV.Wp.values[i,j,k+1]*((PV.T.values[i,j,k+1] + PV.T.values[i,j,k])/
+                        dwTdp_dn = 0.5*DV.Wp.values[i,j,k+1]*((PV.T.values[i,j,k+1] + PV.T.values[i,j,k])/
                                                                (PV.P.values[i,j,k+1]  - PV.P.values[i,j,k]))
-                        dwT_dp_up = 0.5*DV.Wp.values[i,j,k]*((PV.T.values[i,j,k]    + PV.T.values[i,j,k-1])/
+                        dwTdp_up = 0.5*DV.Wp.values[i,j,k]*((PV.T.values[i,j,k]    + PV.T.values[i,j,k-1])/
                                                              (PV.P.values[i,j,k+1]  - PV.P.values[i,j,k]))
 
-                    PV.T.tendency[i,j,k]  = ( - duT_dx - dvT_dy + dwT_dp_dn - dwT_dp_up - Wp_dgZ_dp + PV.T.mp_tendency[i,j,k]
+                    PV.T.tendency[i,j,k]  = ( - duT_dx - dvT_dy + dwTdp_dn - dwTdp_up - Wp_dgZ_dp + PV.T.mp_tendency[i,j,k]
                                              + PV.T.forcing[i,j,k] + T_sur_flux)
 
                     if Pr.moist_index > 0.0:
                         if k==0:
-                            dwQT_dp_dn = 0.5*DV.Wp.values[i,j,k+1]*((PV.QT.values[i,j,k+1] + PV.QT.values[i,j,k])/
+                            dwQTdp_dn = 0.5*DV.Wp.values[i,j,k+1]*((PV.QT.values[i,j,k+1] + PV.QT.values[i,j,k])/
                                                                     (PV.P.values[i,j,k+1] - PV.P.values[i,j,k]))
-                            dwQT_dp_up =  0.0
+                            dwQTdp_up =  0.0
                         elif k==nl-1:
-                            dwQT_dp_dn = 0.5*DV.Wp.values[i,j,k+1]*((PV.QT.values[i,j,k]  + PV.QT.values[i,j,k])/
+                            dwQTdp_dn = 0.5*DV.Wp.values[i,j,k+1]*((PV.QT.values[i,j,k]  + PV.QT.values[i,j,k])/
                                                                    (PV.P.values[i,j,k+1] - PV.P.values[i,j,k]))
-                            dwQT_dp_up = 0.5*DV.Wp.values[i,j,k]*((PV.QT.values[i,j,k]    + PV.QT.values[i,j,k-1])/
+                            dwQTdp_up = 0.5*DV.Wp.values[i,j,k]*((PV.QT.values[i,j,k]    + PV.QT.values[i,j,k-1])/
                                                                   (PV.P.values[i,j,k+1]  - PV.P.values[i,j,k]))
                         else:
-                            dwQT_dp_dn = 0.5*DV.Wp.values[i,j,k+1]*((PV.QT.values[i,j,k+1] + PV.QT.values[i,j,k])/
+                            dwQTdp_dn = 0.5*DV.Wp.values[i,j,k+1]*((PV.QT.values[i,j,k+1] + PV.QT.values[i,j,k])/
                                                                    (PV.P.values[i,j,k+1]  - PV.P.values[i,j,k]))
-                            dwQT_dp_up = 0.5*DV.Wp.values[i,j,k]*( (PV.QT.values[i,j,k]    + PV.QT.values[i,j,k-1])/
+                            dwQTdp_up = 0.5*DV.Wp.values[i,j,k]*( (PV.QT.values[i,j,k]    + PV.QT.values[i,j,k-1])/
                                                                    (PV.P.values[i,j,k+1]  - PV.P.values[i,j,k]))
 
                         duQT_dx = 0.5*((PV.QT.values[i+1,j,k]+ PV.QT.values[i,j,k])   * PV.U.values[i+1,j,k]-
-                                       (PV.QT.values[i,j,k]  + PV.QT.values[i-1,j,k]) * PV.U.values[i-1,j,k])*dxi
+                                       (PV.QT.values[i,j,k]  + PV.QT.values[i-1,j,k]) * PV.U.values[i,j,k])*dxi
                         dvQT_dy = 0.5*((PV.QT.values[i,j+1,k]+ PV.QT.values[i,j,k])   * PV.V.values[i,j+1,k]-
-                                       (PV.QT.values[i,j,k]  + PV.QT.values[i,j-1,k]) * PV.V.values[i,j-1,k])*dyi
-                        PV.QT.tendency[i,j,k]  = (- duQT_dx - dvQT_dy + dwQT_dp_dn - dwQT_dp_up + PV.QT.mp_tendency[i,j,k] + QT_sur_flux 
+                                       (PV.QT.values[i,j,k]  + PV.QT.values[i,j-1,k]) * PV.V.values[i,j,k])*dyi
+                        PV.QT.tendency[i,j,k]  = (- duQT_dx - dvQT_dy + dwQTdp_dn - dwQTdp_up + PV.QT.mp_tendency[i,j,k] + QT_sur_flux 
                                                   + PV.QT.HyperDiffusion[i,j,k])
 
 
@@ -318,19 +318,18 @@ cdef class PrognosticVariables:
                     w_kp = 0.25*(DV.Wp.values[i,j,k+1]   + DV.Wp.values[i-1,j,k+1] +
                                  DV.Wp.values[i,j-1,k+1] + DV.Wp.values[i-1,j-1,k+1])
                     if k==0:
-                        wu_dn[i,j,k] = 0.5*DV.Wp.values[i,j,k+1]*((PV.U.values[i,j,k+1] + PV.U.values[i,j,k])/
-                                                                (PV.P.values[i,j,k+1] - PV.P.values[i,j,k]))
+                        wu_dn[i,j,k] = 0.5*w_kp*((PV.U.values[i,j,k+1] - PV.U.values[i,j,k])/
+                                                 (PV.P.values[i,j,k+1] - PV.P.values[i,j,k]))
                         wu_up[i,j,k] =  0.0
                     elif k==nl-1:
-                        wu_dn[i,j,k] = 0.5*w_kp*((PV.U.values[i,j,k]  + PV.U.values[i,j,k])/
-                                          (PV.P.values[i,j,k+1] - PV.P.values[i,j,k]))
-                        wu_up[i,j,k] = 0.5*w_k*((PV.U.values[i,j,k]    + PV.U.values[i,j,k-1])/
-                                         (PV.P.values[i,j,k+1]  - PV.P.values[i,j,k]))
+                        wu_dn[i,j,k] = 0.0
+                        wu_up[i,j,k] = 0.5*w_k*((PV.U.values[i,j,k]    - PV.U.values[i,j,k-1])/
+                                                (PV.P.values[i,j,k+1]  - PV.P.values[i,j,k]))
                     else:
-                        wu_dn[i,j,k] = 0.5*w_kp*((PV.U.values[i,j,k+1] + PV.U.values[i,j,k])/
-                                          (PV.P.values[i,j,k+1]  - PV.P.values[i,j,k]))
-                        wu_up[i,j,k] = 0.5*w_k*( (PV.U.values[i,j,k]    + PV.U.values[i,j,k-1])/
-                                          (PV.P.values[i,j,k+1]  - PV.P.values[i,j,k]))
+                        wu_dn[i,j,k] = 0.5*w_kp*((PV.U.values[i,j,k+1] - PV.U.values[i,j,k])/
+                                                (PV.P.values[i,j,k+1]  - PV.P.values[i,j,k]))
+                        wu_up[i,j,k] = 0.5*w_k*((PV.U.values[i,j,k]    - PV.U.values[i,j,k-1])/
+                                                (PV.P.values[i,j,k+1]  - PV.P.values[i,j,k]))
 
 
                     PV.U.tendency[i,j,k]  = ( fv - dgZ_dx[i,j,k])
@@ -365,19 +364,18 @@ cdef class PrognosticVariables:
                     w_kp = 0.25*(DV.Wp.values[i,j,k+1]   + DV.Wp.values[i-1,j,k+1] +
                                  DV.Wp.values[i,j-1,k+1] + DV.Wp.values[i-1,j-1,k+1])
                     if k==0:
-                        wv_dn[i,j,k] = 0.5*DV.Wp.values[i,j,k+1]*((PV.V.values[i,j,k+1] + PV.V.values[i,j,k])/
-                                                                (PV.P.values[i,j,k+1] - PV.P.values[i,j,k]))
+                        wv_dn[i,j,k] = 0.5*w_kp*((PV.V.values[i,j,k+1] - PV.V.values[i,j,k])/
+                                                 (PV.P.values[i,j,k+1] - PV.P.values[i,j,k]))
                         wv_up[i,j,k] =  0.0
                     elif k==nl-1:
-                        wv_dn[i,j,k] = 0.5*w_kp*((PV.V.values[i,j,k]  + PV.V.values[i,j,k])/
-                                          (PV.P.values[i,j,k+1] - PV.P.values[i,j,k]))
-                        wv_up[i,j,k] = 0.5*w_k*((PV.V.values[i,j,k]    + PV.V.values[i,j,k-1])/
-                                         (PV.P.values[i,j,k+1]  - PV.P.values[i,j,k]))
+                        wv_dn[i,j,k] = 0.0
+                        wv_up[i,j,k] = 0.5*w_k*((PV.V.values[i,j,k]   - PV.V.values[i,j,k-1])/
+                                                (PV.P.values[i,j,k+1] - PV.P.values[i,j,k]))
                     else:
-                        wv_dn[i,j,k] = 0.5*w_kp*((PV.V.values[i,j,k+1] + PV.V.values[i,j,k])/
-                                          (PV.P.values[i,j,k+1]  - PV.P.values[i,j,k]))
-                        wv_up[i,j,k] = 0.5*w_k*( (PV.V.values[i,j,k]    + PV.V.values[i,j,k-1])/
-                                          (PV.P.values[i,j,k+1]  - PV.P.values[i,j,k]))
+                        wv_dn[i,j,k] = 0.5*w_kp*((PV.V.values[i,j,k+1] - PV.V.values[i,j,k])/
+                                                 (PV.P.values[i,j,k+1] - PV.P.values[i,j,k]))
+                        wv_up[i,j,k] = 0.5*w_k*((PV.V.values[i,j,k]   - PV.V.values[i,j,k-1])/
+                                                (PV.P.values[i,j,k+1] - PV.P.values[i,j,k]))
 
                     PV.V.tendency[i,j,k]  = (  - fu  - dgZ_dy[i,j,k])
                     # PV.V.tendency[i,j,k]  = (- duv_dx[i,j,k] - dvv_dy[i,j,k] - wv_dn[i,j,k] - wv_up[i,j,k] - fu  - dgZ_dy[i,j,k] + PV.V.HyperDiffusion[i,j,k])
