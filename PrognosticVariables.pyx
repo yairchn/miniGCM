@@ -332,8 +332,8 @@ cdef class PrognosticVariables:
                                                 (PV.P.values[i,j,k+1]  - PV.P.values[i,j,k]))
 
 
-                    PV.U.tendency[i,j,k]  = ( fv - dgZ_dx[i,j,k])
-                    # PV.U.tendency[i,j,k]  = (- duu_dx[i,j,k] - dvu_dy[i,j,k] - wu_dn[i,j,k] - wu_up[i,j,k] + fv - dgZ_dx[i,j,k] + PV.U.HyperDiffusion[i,j,k])
+                    # PV.U.tendency[i,j,k]  = ( fv - dgZ_dx[i,j,k])
+                    PV.U.tendency[i,j,k]  = (- duu_dx[i,j,k] - dvu_dy[i,j,k] - wu_dn[i,j,k] - wu_up[i,j,k] + fv - dgZ_dx[i,j,k] + PV.U.HyperDiffusion[i,j,k])
 
 
         # for v
@@ -377,15 +377,19 @@ cdef class PrognosticVariables:
                         wv_up[i,j,k] = 0.5*w_k*((PV.V.values[i,j,k]   - PV.V.values[i,j,k-1])/
                                                 (PV.P.values[i,j,k+1] - PV.P.values[i,j,k]))
 
-                    PV.V.tendency[i,j,k]  = (  - fu  - dgZ_dy[i,j,k])
-                    # PV.V.tendency[i,j,k]  = (- duv_dx[i,j,k] - dvv_dy[i,j,k] - wv_dn[i,j,k] - wv_up[i,j,k] - fu  - dgZ_dy[i,j,k] + PV.V.HyperDiffusion[i,j,k])
+                    # PV.V.tendency[i,j,k]  = (  - fu  - dgZ_dy[i,j,k])
+                    PV.V.tendency[i,j,k]  = (- duv_dx[i,j,k] - dvv_dy[i,j,k] - wv_dn[i,j,k] - wv_up[i,j,k] - fu  - dgZ_dy[i,j,k] + PV.V.HyperDiffusion[i,j,k])
 
         import pylab as plt
-        plt.figure('gZ')
-        plt.contourf(DV.gZ.values[:,:,1])
-        plt.colorbar()
         plt.figure('V tendency')
+        plt.subplot(3,1,1)
+        plt.contourf(PV.V.tendency[:,:,0])
+        plt.colorbar()
+        plt.subplot(3,1,2)
         plt.contourf(PV.V.tendency[:,:,1])
+        plt.colorbar()
+        plt.subplot(3,1,3)
+        plt.contourf(PV.V.tendency[:,:,2])
         plt.colorbar()
         plt.show(block=False)
         plt.pause(1)
