@@ -17,8 +17,8 @@ from NetCDFIO cimport NetCDFIO_Stats
 
 cdef extern from "microphysics_functions.h":
     void microphysics_cutoff(double cp, double dt, double Rv, double Lv, double T_0, double rho_w,
-           double g, double max_ss, double qv_star0, double eps_v, double* p, double* T,
-           double* qt, double* ql, double* T_mp, double* qt_mp, double* rain_rate,
+           double g, double max_ss, double qv_star0, double eps_v, double* H,
+           double* qt, double* ql, double* H_mp, double* qt_mp, double* rain_rate,
            Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
 
 cdef class MicrophysicsBase:
@@ -92,12 +92,12 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
             Py_ssize_t ny = Pr.ny
             Py_ssize_t nl = Pr.n_layers
 
-        with nogil:
-            microphysics_cutoff(Pr.cp, TS.dt, Pr.Rv, Pr.Lv, Pr.T_0, Pr.rho_w,
-                                Pr.g, Pr.max_ss, Pr.qv_star0, Pr.eps_v, &PV.P.values[0,0,0],
-                                &PV.T.values[0,0,0], &PV.QT.values[0,0,0], &DV.QL.values[0,0,0],
-                                &PV.T.mp_tendency[0,0,0], &PV.QT.mp_tendency[0,0,0], &self.RainRate[0,0],
-                                nx, ny, nl)
+        # with nogil:
+        #     microphysics_cutoff(Pr.cp, TS.dt, Pr.Rv, Pr.Lv, Pr.T_0, Pr.rho_w,
+        #                         Pr.g, Pr.max_ss, Pr.qv_star0, Pr.eps_v,
+        #                         &PV.H.values[0,0,0], &PV.QT.values[0,0,0], &DV.QL.values[0,0,0],
+        #                         &PV.H.mp_tendency[0,0,0], &PV.QT.mp_tendency[0,0,0], &self.RainRate[0,0],
+        #                         nx, ny, nl)
 
         return
 

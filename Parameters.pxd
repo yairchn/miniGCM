@@ -9,18 +9,18 @@ cdef class Parameters:
         Py_ssize_t nx
         Py_ssize_t ny
         Py_ssize_t n_layers
-        double [:] amp_dTdp
+        double [:] amp_dHdp
         double T1
         double T2
         double T3
-        double Tamp1
-        double Tamp2
-        double Tamp3
+        double Hamp1
+        double Hamp2
+        double Hamp3
         double QT1
         double QT2
         double QT3
-        double amp_T
-        double sigma_T
+        double amp_H
+        double sigma_H
         double tau
         double Coriolis
         double lat

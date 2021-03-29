@@ -38,8 +38,8 @@ cdef class LogFile:
 
         import pylab as plt
         for i in range(Pr.n_layers):
-            os.system('echo T layer '+str(i+1)+' min max ' + str(PV.T.values.base[:,:,i].min())
-                      + ' ' + str(PV.T.values.base[:,:,i].max()) + '>> '+Pr.logfilename)
+            os.system('echo H layer '+str(i+1)+' min max ' + str(PV.H.values.base[:,:,i].min())
+                      + ' ' + str(PV.H.values.base[:,:,i].max()) + '>> '+Pr.logfilename)
             # plt.figure('T')
             # plt.contourf(PV.T.values[:,:,i])
             # plt.colorbar()
@@ -47,6 +47,6 @@ cdef class LogFile:
 
         for i in range(Pr.n_layers):
             if Pr.moist_index > 0.0:
-                os.system('echo dTdt_mp layer '+str(i+1)+' min max ' + str(PV.T.mp_tendency.base[:,:,i].min())
-                          + ' ' + str(PV.T.mp_tendency.base[:,:,i].max()) + '>> '+Pr.logfilename)
+                os.system('echo dTdt_mp layer '+str(i+1)+' min max ' + str(PV.QT.mp_tendency.base[:,:,i].min())
+                          + ' ' + str(PV.QT.mp_tendency.base[:,:,i].max()) + '>> '+Pr.logfilename)
         return

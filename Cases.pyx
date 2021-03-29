@@ -74,28 +74,27 @@ cdef class DryVortex(CaseBase):
             double [:,:] noise
 
         PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
-        PV.T_init        = np.array([229.0, 259.0, 291.0])
+        PV.H_init        = np.array([229.0, 259.0, 291.0])
         PV.QT_init        = np.array([2.5000e-04, 0.0016, 0.0115])
-        Pr.amp_dTdp        = np.array([0.2, 1.0, 0.0])
+        Pr.amp_dHdp        = np.array([0.2, 1.0, 0.0])
 
-        Pr.sigma_T = namelist['initialize']['warm_core_width']
-        Pr.amp_T = namelist['initialize']['warm_core_amplitude']
+        Pr.sigma_H = namelist['initialize']['warm_core_width']
+        Pr.amp_H = namelist['initialize']['warm_core_amplitude']
 
         PV.U.values  = np.zeros((nx+2*ng+1, ny+2*ng,   nl,),  dtype=np.double, order='c')
         PV.V.values  = np.zeros((nx+2*ng,   ny+2*ng+1, nl,),  dtype=np.double, order='c')
         PV.QT.values = np.multiply(np.ones((nx+2*ng,ny+2*ng,nl),   dtype=np.double, order='c'),PV.QT_init)
-        PV.T.values  = np.multiply(np.ones((nx+2*ng,ny+2*ng,nl),   dtype=np.double, order='c'),PV.T_init)
-        PV.P.values  = np.multiply(np.ones((nx+2*ng,ny+2*ng,nl+1), dtype=np.double, order='c'),PV.P_init)
+        PV.H.values  = np.multiply(np.ones((nx+2*ng,ny+2*ng,nl),   dtype=np.double, order='c'),PV.H_init)
 
         for i in range(ng,nx+ng):
             for j in range(ng,ny+ng):
                 for k in range(nl):
-                    PV.T.values[i,j,k] += Pr.amp_T*Pr.amp_dTdp[k]*np.exp(-((Gr.x[i-ng] - Gr.x[Gr.xc])**2.0+(Gr.y[j-ng] - Gr.y[Gr.yc])**2.0)/(2.0*Pr.sigma_T**2.0))
-                    # PV.T.values[i,j,k] += Pr.amp_T*Pr.amp_dTdp[k]*np.sin(np.pi*(Gr.y[j-ng] - Gr.y[Gr.yc])/(6.0*Pr.sigma_T))
+                    PV.H.values[i,j,k] += Pr.amp_H*Pr.amp_dHdp[k]*np.exp(-((Gr.x[i-ng] - Gr.x[Gr.xc])**2.0+(Gr.y[j-ng] - Gr.y[Gr.yc])**2.0)/(2.0*Pr.sigma_H**2.0))
+                    # PV.H.values[i,j,k] += Pr.amp_H*Pr.amp_dHdp[k]*np.sin(np.pi*(Gr.y[j-ng] - Gr.y[Gr.yc])/(6.0*Pr.sigma_H))
         # if Pr.inoise==1: # load the random noise to grid space
         #      noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
-        #      PV.T.values.base[:,:,Pr.n_layers-1] = np.add(PV.T.values.base[:,:,Pr.n_layers-1],noise.base)
-        # print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
+        #      PV.H.values.base[:,:,Pr.n_layers-1] = np.add(PV.H.values.base[:,:,Pr.n_layers-1],noise.base)
+        # print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.H.spectral.base[:,Pr.n_layers-1]).min())
         # if Pr.inoise==1:
         #      # load the random noise to grid space
         #      #noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')*Pr.noise_amp
@@ -104,9 +103,9 @@ cdef class DryVortex(CaseBase):
         #      fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0.)
         #      noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(spec_zeros))*Pr.noise_amp
         #      # add noise
-        #      PV.T.spectral.base[:,Pr.n_layers-1] = np.add(PV.T.spectral.base[:,Pr.n_layers-1],
+        #      PV.H.spectral.base[:,Pr.n_layers-1] = np.add(PV.H.spectral.base[:,Pr.n_layers-1],
         #                                                 Gr.SphericalGrid.grdtospec(noise.base))
-        # print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
+        # print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.H.spectral.base[:,Pr.n_layers-1]).min())
         return
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
@@ -162,29 +161,27 @@ cdef class MoistVortex(CaseBase):
             double y0 = Gr.ny/2.0 + Gr.ng
             double [:,:] noise
 
-        PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
-        PV.T_init        = np.array([229.0, 259.0, 291.0])
+        PV.H_init        = np.array([229.0, 259.0, 291.0])
         PV.QT_init        = np.array([2.5000e-04, 0.0016, 0.0115])
-        PV.amp_dTdp        = np.array([0.2, 1.0, 0.0])
+        PV.amp_dHdp        = np.array([0.2, 1.0, 0.0])
 
         PV.U.values  = np.zeros((Gr.nx, Gr.ny, Gr.nl),  dtype=np.double, order='c')
         PV.V.values = np.zeros((Gr.nx, Gr.ny, Gr.nl),  dtype=np.double, order='c')
         PV.QT.values         = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl),   dtype=np.double, order='c'),PV.QT_init)
-        PV.P.values          = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl+1), dtype=np.double, order='c'),PV.P_init)
-        PV.T.values          = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl),   dtype=np.double, order='c'),PV.T_init)
+        PV.H.values          = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl),   dtype=np.double, order='c'),PV.H_init)
 
         for i in range(ng,nx+ng):
             for j in range(ng,ny+ng):
                 for k in range(nl):
-                    PV.T.values[i,j,k] += (Pr.amp_T*PV.amp_dTdp[k]
+                    PV.H.values[i,j,k] += (Pr.amp_H*PV.amp_dHdp[k]
                                           *np.exp(-((Gr.x[i] - x0)**2.0+(Gr.y[j] - y0)**2.0)/
-                                            (2.0*Pr.amp_T**2.0)))
+                                            (2.0*Pr.amp_H**2.0)))
 
 
         # if Pr.inoise==1: # load the random noise to grid space
         #      noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
-        #      PV.T.values.base[:,:,Pr.n_layers-1] = np.add(PV.T.values.base[:,:,Pr.n_layers-1],noise.base)
-        # print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
+        #      PV.H.values.base[:,:,Pr.n_layers-1] = np.add(PV.H.values.base[:,:,Pr.n_layers-1],noise.base)
+        # print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.H.spectral.base[:,Pr.n_layers-1]).min())
         # if Pr.inoise==1:
         #      # load the random noise to grid space
         #      #noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')*Pr.noise_amp
@@ -193,9 +190,9 @@ cdef class MoistVortex(CaseBase):
         #      fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0.)
         #      noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(spec_zeros))*Pr.noise_amp
         #      # add noise
-        #      PV.T.spectral.base[:,Pr.n_layers-1] = np.add(PV.T.spectral.base[:,Pr.n_layers-1],
+        #      PV.H.spectral.base[:,Pr.n_layers-1] = np.add(PV.H.spectral.base[:,Pr.n_layers-1],
         #                                                 Gr.SphericalGrid.grdtospec(noise.base))
-        # print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
+        # print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.H.spectral.base[:,Pr.n_layers-1]).min())
         return
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
@@ -247,17 +244,17 @@ cdef class ReedJablonowski(CaseBase):
             double [:,:] noise
 
         # PV.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
-        # PV.T_init        = np.array([229.0, 259.0, 291.0])
+        # PV.H_init        = np.array([229.0, 259.0, 291.0])
         # PV.QT_init        = np.array([2.5000e-04, 0.0016, 0.0115])
 
-        # Pr.sigma_T = namelist['forcing']['sigma_T']
-        # Pr.amp_T = namelist['forcing']['amp_T']
+        # Pr.sigma_H = namelist['forcing']['sigma_H']
+        # Pr.amp_H = namelist['forcing']['amp_H']
 
         # PV.Vorticity.values  = np.zeros((Gr.nx, Gr.ny, Gr.nl),  dtype=np.double, order='c')
         # PV.Divergence.values = np.zeros((Gr.nx, Gr.ny, Gr.nl),  dtype=np.double, order='c')
         # PV.QT.values         = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl),   dtype=np.double, order='c'),PV.QT_init)
         # PV.P.values          = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl+1), dtype=np.double, order='c'),PV.P_init)
-        # PV.T.values          = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl),   dtype=np.double, order='c'),PV.T_init)
+        # PV.H.values          = np.multiply(np.ones((Gr.nx, Gr.ny, Gr.nl),   dtype=np.double, order='c'),PV.H_init)
         # for i in range(nx):
         #     for j in range(ny):
         #         for k in range(nl):
@@ -270,8 +267,8 @@ cdef class ReedJablonowski(CaseBase):
 
         # if Pr.inoise==1: # load the random noise to grid space
         #      noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
-        #      PV.T.values.base[:,:,Pr.n_layers-1] = np.add(PV.T.values.base[:,:,Pr.n_layers-1],noise.base)
-        # print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
+        #      PV.H.values.base[:,:,Pr.n_layers-1] = np.add(PV.H.values.base[:,:,Pr.n_layers-1],noise.base)
+        # print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.H.spectral.base[:,Pr.n_layers-1]).min())
         # if Pr.inoise==1:
         #      # load the random noise to grid space
         #      #noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')*Pr.noise_amp
@@ -280,9 +277,9 @@ cdef class ReedJablonowski(CaseBase):
         #      fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0.)
         #      noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(spec_zeros))*Pr.noise_amp
         #      # add noise
-        #      PV.T.spectral.base[:,Pr.n_layers-1] = np.add(PV.T.spectral.base[:,Pr.n_layers-1],
+        #      PV.H.spectral.base[:,Pr.n_layers-1] = np.add(PV.H.spectral.base[:,Pr.n_layers-1],
         #                                                 Gr.SphericalGrid.grdtospec(noise.base))
-        # print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
+        # print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.H.spectral.base[:,Pr.n_layers-1]).min())
         return
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):

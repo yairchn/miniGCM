@@ -22,11 +22,7 @@ cdef class DiagnosticVariables:
         DiagnosticVariable QL
         DiagnosticVariable Vel
         DiagnosticVariable KE
-        DiagnosticVariable gZ
-        DiagnosticVariable Wp
-        DiagnosticVariable Divergence
 
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef stats_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)

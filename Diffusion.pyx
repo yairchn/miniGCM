@@ -64,16 +64,16 @@ cdef class Diffusion:
     #     for i in range(ng,nx+ng):
     #         for j in range(ng,ny+ng):
     #             for k in range(nl):
-    #                 PV.T.HyperDiffusion[i,j,k] = HyperDiffusionFactor * ((PV.T.values[i+2,j,k]
-    #                                                                  -4.0*PV.T.values[i+1,j,k]
-    #                                                                  +6.0*PV.T.values[i,j,k]
-    #                                                                  -4.0*PV.T.values[i-1,j,k]
-    #                                                                      +PV.T.values[i-2,j,k])*self.dxi_4
-    #                                                                     +(PV.T.values[i,j+2,k]
-    #                                                                  -4.0*PV.T.values[i,j+1,k]
-    #                                                                  +6.0*PV.T.values[i,j,k]
-    #                                                                  -4.0*PV.T.values[i,j-1,k]
-    #                                                                      +PV.T.values[i,j-2,k])*self.dyi_4)
+    #                 PV.H.HyperDiffusion[i,j,k] = HyperDiffusionFactor * ((PV.H.values[i+2,j,k]
+    #                                                                  -4.0*PV.H.values[i+1,j,k]
+    #                                                                  +6.0*PV.H.values[i,j,k]
+    #                                                                  -4.0*PV.H.values[i-1,j,k]
+    #                                                                      +PV.H.values[i-2,j,k])*self.dxi_4
+    #                                                                     +(PV.H.values[i,j+2,k]
+    #                                                                  -4.0*PV.H.values[i,j+1,k]
+    #                                                                  +6.0*PV.H.values[i,j,k]
+    #                                                                  -4.0*PV.H.values[i,j-1,k]
+    #                                                                      +PV.H.values[i,j-2,k])*self.dyi_4)
     #                 PV.QT.HyperDiffusion[i,j,k] = HyperDiffusionFactor * ((PV.QT.values[i+2,j,k]
     #                                                                   -4.0*PV.QT.values[i+1,j,k]
     #                                                                   +6.0*PV.QT.values[i,j,k]
@@ -84,16 +84,6 @@ cdef class Diffusion:
     #                                                                   +6.0*PV.QT.values[i,j,k]
     #                                                                   -4.0*PV.QT.values[i,j-1,k]
     #                                                                       +PV.QT.values[i,j-2,k])*self.dyi_4)
-    #             PV.P.HyperDiffusion[i,j,nl]  = HyperDiffusionFactor * ((PV.P.values[i+2,j,nl]
-    #                                                                -4.0*PV.P.values[i+1,j,nl]
-    #                                                                +6.0*PV.P.values[i,j,nl]
-    #                                                                -4.0*PV.P.values[i-1,j,nl]
-    #                                                                    +PV.P.values[i-2,j,nl])*self.dxi_4
-    #                                                                   +(PV.P.values[i,j+2,nl]
-    #                                                                -4.0*PV.P.values[i,j+1,nl]
-    #                                                                +6.0*PV.P.values[i,j,nl]
-    #                                                                -4.0*PV.P.values[i,j-1,nl]
-    #                                                                    +PV.P.values[i,j-2,nl])*self.dyi_4)
     #     return
     @cython.boundscheck(False)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV):
@@ -127,22 +117,16 @@ cdef class Diffusion:
         for i in range(ng,nx+ng):
             for j in range(ng,ny+ng):
                 for k in range(nl):
-                    PV.T.HyperDiffusion[i,j,k] = HyperDiffusionFactor * ((PV.T.values[i+1,j,k]
-                                                                     -2.0*PV.T.values[i,j,k]
-                                                                         +PV.T.values[i-1,j,k])*self.dxi_2
-                                                                        +(PV.T.values[i,j+1,k]
-                                                                     -2.0*PV.T.values[i,j,k]
-                                                                         +PV.T.values[i,j-1,k])*self.dyi_2)
+                    PV.H.HyperDiffusion[i,j,k] = HyperDiffusionFactor * ((PV.H.values[i+1,j,k]
+                                                                     -2.0*PV.H.values[i,j,k]
+                                                                         +PV.H.values[i-1,j,k])*self.dxi_2
+                                                                        +(PV.H.values[i,j+1,k]
+                                                                     -2.0*PV.H.values[i,j,k]
+                                                                         +PV.H.values[i,j-1,k])*self.dyi_2)
                     PV.QT.HyperDiffusion[i,j,k] = HyperDiffusionFactor * ((PV.QT.values[i+1,j,k]
                                                                       -2.0*PV.QT.values[i,j,k]
                                                                           +PV.QT.values[i-1,j,k])*self.dxi_2
                                                                          +(PV.QT.values[i,j+1,k]
                                                                       -2.0*PV.QT.values[i,j,k]
                                                                           +PV.QT.values[i,j-1,k])*self.dyi_2)
-                PV.P.HyperDiffusion[i,j,nl]  = HyperDiffusionFactor * ((PV.P.values[i+1,j,nl]
-                                                                   -2.0*PV.P.values[i,j,nl]
-                                                                       +PV.P.values[i-1,j,nl])*self.dxi_2
-                                                                      +(PV.P.values[i,j+1,nl]
-                                                                   -2.0*PV.P.values[i,j,nl]
-                                                                       +PV.P.values[i,j-1,nl])*self.dyi_2)
         return

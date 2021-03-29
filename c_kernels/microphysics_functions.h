@@ -16,11 +16,10 @@ void microphysics_cutoff(
            double max_ss,
            double qv_star0,
            double eps_v,
-           double* restrict p,
-           double* restrict T,
+           double* restrict H,
            double* restrict qt,
            double* restrict ql,
-           double* restrict T_mp,
+           double* restrict H_mp,
            double* restrict qt_mp,
            double* restrict rain_rate,
            ssize_t imax,
@@ -54,13 +53,13 @@ void microphysics_cutoff(
             for(ssize_t k=kmin;k<kmax;k++){
                 const ssize_t ijk = ishift + jshift + k;
                 const ssize_t ijkp = ishift_p + jshift_p + k;
-                p_half = 0.5*(p[ijkp]+p[ijkp+1]);
-                qv_star = (qv0epsv/p_half)*exp(-Lv_Rv*(1.0/T[ijk]-T_0_inv));
-                denom = (1.0+Lv_cpRv*qv_star/(T[ijk]*T[ijk]))*dt;
-                ql[ijk] = fmax(qt[ijk] - qv_star,0.0);
-                T_mp[ijk] = Lv_cp*ql[ijk]/denom;
-                qt_mp[ijk] = -fmax((qt[ijk] - (1.0+max_ss)*qv_star), 0.0)/denom;
-                rain_rate[ij] = rain_rate[ij] - (qt_mp[ijk]/rho_w*g*(p[ijkmax_p]-p[0,0,0]))/(kmax);
+                // p_half = 0.5*(p[ijkp]+p[ijkp+1]);
+                // qv_star = (qv0epsv/p_half)*exp(-Lv_Rv*(1.0/T[ijk]-T_0_inv));
+                // denom = (1.0+Lv_cpRv*qv_star/(H[ijk]*H[ijk]))*dt;
+                // ql[ijk] = fmax(qt[ijk] - qv_star,0.0);
+                // H_mp[ijk] = Lv_cp*ql[ijk]/denom;
+                // qt_mp[ijk] = -fmax((qt[ijk] - (1.0+max_ss)*qv_star), 0.0)/denom;
+                // rain_rate[ij] = rain_rate[ij] - (qt_mp[ijk]/rho_w*g*(p[ijkmax_p]-p[0,0,0]))/(kmax);
             } // end k loop
         } // end j loop
     } // end i loop

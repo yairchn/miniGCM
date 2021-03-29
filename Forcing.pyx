@@ -17,8 +17,8 @@ from libc.math cimport pow, log, sin, cos, fmax
 
 cdef extern from "forcing_functions.h":
 	void focring_bm(double kappa, double p_ref, double tau,
-			double* p, double* T, double* T_bar, double* u,
-			double* v, double* u_forc, double* v_forc, double* T_forc,
+			double* H, double* H_bar, double* u,
+			double* v, double* u_forc, double* v_forc, double* H_forc,
 			Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
 
 cdef class ForcingBase:
@@ -80,12 +80,12 @@ cdef class ForcingBettsMiller(ForcingBase):
 			Py_ssize_t nl = Gr.nl
 			double [:,:] T_surf = np.zeros((Gr.nx, Gr.ny), dtype=np.float64, order='c')
 
-		with nogil:
-			focring_bm(Pr.kappa, Pr.p_ref, Pr.tau, &PV.T.values[0,0,0],
-						&PV.T.values[0,0,0], &self.Tbar[0,0,0],
-						&PV.U.values[0,0,0], &PV.V.values[0,0,0],
-						&PV.U.forcing[0,0,0], &PV.V.forcing[0,0,0], &PV.T.forcing[0,0,0],
-						nx, ny, nl)
+		# with nogil:
+		# 	focring_bm(Pr.kappa, Pr.p_ref, Pr.tau,
+		# 				&PV.H.values[0,0,0], &self.Tbar[0,0,0],
+		# 				&PV.U.values[0,0,0], &PV.V.values[0,0,0],
+		# 				&PV.U.forcing[0,0,0], &PV.V.forcing[0,0,0], &PV.H.forcing[0,0,0],
+		# 				nx, ny, nl)
 		return
 
 	cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):

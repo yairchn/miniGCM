@@ -34,13 +34,11 @@ cdef class PrognosticVariables:
         Py_ssize_t k
         PrognosticVariable U
         PrognosticVariable V
-        PrognosticVariable T
+        PrognosticVariable H
         PrognosticVariable QT
-        PrognosticVariable P
-        double [:] T_init
-        double [:] P_init
+        double [:] H_init
         double [:] QT_init
-        double [:] amp_dTdp
+        double [:] amp_dHdp
         object MP
 
 
@@ -49,7 +47,6 @@ cdef class PrognosticVariables:
     cpdef apply_bc(self, Parameters Pr, Grid Gr)
     cpdef set_old_with_now(self)
     cpdef set_now_with_tendencies(self)
-    cpdef reset_pressures_and_bcs(self, Parameters Pr, DiagnosticVariables DV)
     cpdef stats_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
     cpdef compute_tendencies(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)

@@ -8,14 +8,13 @@ void focring_bm(
            double kappa,
            double p_ref,
            double tau,
-           double* restrict p,
-           double* restrict T,
-           double* restrict T_bar,
+           double* restrict H,
+           double* restrict H_bar,
            double* restrict u,
            double* restrict v,
            double* restrict u_forc,
            double* restrict v_forc,
-           double* restrict T_forc,
+           double* restrict H_forc,
            ssize_t imax,
            ssize_t jmax,
            ssize_t kmax)
@@ -42,7 +41,7 @@ void focring_bm(
             for(ssize_t k=kmin;k<kmax;k++){
                 const ssize_t ijk = ishift + jshift + k;
                 const ssize_t ijkp = ishift_p + jshift_p + k;
-                p_half = (p[ijkp]+p[ijkp+1])/2.0;
+                // p_half = (p[ijkp]+p[ijkp+1])/2.0;
                 // T_bar[ijk] = fmax(((T_equator - DT_y*sin_lat[ij]*sin_lat[ij] -
                 //                 Dtheta_z*log(p_half/p_ref)*cos_lat[ij]*cos_lat[ij])*
                 //                 pow(p_half/p_ref, kappa)),200.0);

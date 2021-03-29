@@ -13,9 +13,9 @@ cdef class SurfaceBase:
     cdef:
         double [:,:] U_flux
         double [:,:] V_flux
-        double [:,:] T_flux
+        double [:,:] H_flux
         double [:,:] QT_flux
-        double [:,:] T_surf
+        double [:,:] H_surf
         double [:,:] U_abs
         double [:,:] QT_surf
 

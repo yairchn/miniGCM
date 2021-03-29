@@ -42,14 +42,14 @@ cdef class Parameters:
         self.T1           = namelist['initialize']['T1'] = 229.0
         self.T2           = namelist['initialize']['T2'] = 259.0
         self.T3           = namelist['initialize']['T3'] = 291.0
-        self.Tamp1        = namelist['initialize']['Tamp1'] = 0.2
-        self.Tamp2        = namelist['initialize']['Tamp2'] = 1.0
-        self.Tamp3        = namelist['initialize']['Tamp3'] = 0.0
+        self.Hamp1        = namelist['initialize']['Tamp1'] = 0.2
+        self.Hamp2        = namelist['initialize']['Tamp2'] = 1.0
+        self.Hamp3        = namelist['initialize']['Tamp3'] = 0.0
         self.QT1          = namelist['initialize']['QT1'] = 2.5000e-04
         self.QT2          = namelist['initialize']['QT2'] = 0.0016
         self.QT3          = namelist['initialize']['QT3'] = 0.0115
-        self.sigma_T      = namelist['initialize']['warm_core_width']
-        self.amp_T        = namelist['initialize']['warm_core_amplitude']
+        self.sigma_H      = namelist['initialize']['warm_core_width']
+        self.amp_H        = namelist['initialize']['warm_core_amplitude']
 
 
         self.surface_model = namelist['surface']['surface_model']

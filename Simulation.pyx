@@ -53,9 +53,6 @@ class Simulation:
         start_time = time.time()
         while self.TS.t <= self.TS.t_max:
             # time0 = time.time()
-            self.PV.reset_pressures_and_bcs(self.Pr, self.DV)
-            # print('PV.reset_pressures_and_bcs', time.time() - time0)
-            # time0 = time.time()
             self.PV.apply_bc(self.Pr, self.Gr)
             # print('PV.apply_bc', time.time() - time0)
             # time0 = time.time()
