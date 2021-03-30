@@ -1,8 +1,8 @@
 {
     "diffusion": {
         "dissipation_order": 4.0,
-        "e_folding_timescale_grid_scale": 10,
-        "e_folding_timescale_meso_scale": 1200,
+        "e_folding_timescale_grid_scale": 1200,
+        "e_folding_timescale_meso_scale": 100000000,
         "order": 4.0,
         "truncation_order": 3,
         "type": "hyperdiffusion"
@@ -26,7 +26,7 @@
         "pressure_levels": [
             25000.0,
             50000.0,
-            85000.0,
+            75000.0,
             100000.0
         ]
     },
@@ -48,7 +48,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "ca477312-1b0a-4b35-9547-theta15efold"
+        "uuid": "ca477312-1b0a-4b35-9547-test_T750hpa"
     },
     "microphysics": {
         "rain_model": "None"
