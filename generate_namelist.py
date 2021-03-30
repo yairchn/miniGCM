@@ -140,10 +140,7 @@ def HeldSuarezMoist(namelist_defaults):
     namelist['forcing']['initial_surface_qt'] = 0.018
     namelist['forcing']['Gamma_init'] = 0.005
 
-    namelist['initialize']['T1']   = 229.0 # initial temperature of layer 1 [K]
-    namelist['initialize']['T2']   = 257.0 # initial temperature of layer 2 [K]
-    namelist['initialize']['T3']   = 300.0 # initial temperature of layer 3 [K]
-
+    namelist['initialize']['T_init']   = 300.0 # initial temperature of layer 1 [K]
 
     namelist['thermodynamics']['thermodynamics_type'] = 'moist'
     namelist['thermodynamics']['verical_half_width_of_the_q'] = 34000.0 # pasc

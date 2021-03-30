@@ -27,11 +27,12 @@ def main():
     except:
         pass
 
-    varlist = {'Vorticity', 'Divergence', 'Temperature', 'Specific_humidity'}
+    ## PREPARE INPUT
+    varlist = {'U', 'V', 'Temperature', 'Specific_humidity'}
     # define n_layers
     n_layers = np.shape(namelist['grid']['pressure_levels'])[0] - 1
     # open netdcf file
-    root_grp = nc.Dataset(output_path+'Training_data.nc', 'w', format='NETCDF4')
+    root_grp = nc.Dataset(output_path+'stacked_inputs_and_kua.nc', 'w', format='NETCDF4')
     root_grp.createDimension('time', None)
     root_grp.createDimension('layer', n_layers)
     # root_grp.close()
@@ -68,6 +69,37 @@ def main():
                 var_collecated=np.hstack([var_1D, var_1D])
             J += 1
     var_p[:] = np.array(var_collecated)
+    del var_collecated
+
+    root_grp.close()
+
+    ## PREPARE OUTPUT
+    varlist = {'U_forcing', 'V_forcing', 'Temperature_forcing', 'Specific_humidity_forcing'}
+    # define n_layers
+    n_layers = np.shape(namelist['grid']['pressure_levels'])[0] - 1
+    # open netdcf file
+    root_grp = nc.Dataset(output_path+'stacked_outputs_and_kua.nc', 'w', format='NETCDF4')
+    root_grp.createDimension('time', None)
+    root_grp.createDimension('layer', n_layers)
+    # root_grp.close()
+
+    for varname in varlist:
+        var = root_grp.createVariable(varname, 'f8', ('time','layer'))
+        I = 0
+        for filename in os.listdir(simulation_path):
+            if filename.startswith(varname):
+                data = nc.Dataset(simulation_path+filename, 'r')
+                var_values = np.array(data.variables[varname])
+                var_1D = var_values.reshape(-1,np.shape(var_values)[2])
+                if I==0:
+                    var_collecated=var_1D
+                else:
+                    var_collecated=np.vstack([var_1D, var_1D])
+                I += 1
+
+        var[:, :] = np.array(var_collecated)
+        del var_collecated, var_values, data, var_1D
+
     del var_collecated
 
     root_grp.close()

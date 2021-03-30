@@ -1,8 +1,8 @@
 {
     "diffusion": {
         "dissipation_order": 4.0,
-        "e_folding_timescale_grid_scale": 3000,
-        "e_folding_timescale_meso_scale": 3000,
+        "e_folding_timescale_grid_scale": 600,
+        "e_folding_timescale_meso_scale": 600,
         "order": 4.0,
         "truncation_order": 3,
         "type": "hyperdiffusion"
@@ -48,7 +48,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "ca477312-1b0a-4b35-9547-theta15_efold"
+        "uuid": "c1b95425-2012-49f6-91df-8ff9106adec0"
     },
     "microphysics": {
         "rain_model": "None"

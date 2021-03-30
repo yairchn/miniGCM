@@ -164,12 +164,12 @@ cdef class PrognosticVariables:
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         cdef:
             Py_ssize_t nl = Pr.n_layers
-        Stats.write_3D_variable(Pr, int(TS.t),nl, 'Vorticity',         self.Vorticity.values)
-        Stats.write_3D_variable(Pr, int(TS.t),nl, 'Divergence',        self.Divergence.values)
-        Stats.write_3D_variable(Pr, int(TS.t),nl, 'Temperature',       self.T.values)
-        Stats.write_3D_variable(Pr, int(TS.t),nl, 'Specific_humidity', self.QT.values)
-        Stats.write_3D_variable(Pr, int(TS.t),nl, 'dQTdt',             self.QT.mp_tendency[:,:,0:nl])
-        Stats.write_2D_variable(Pr, int(TS.t),    'Pressure',          self.P.values[:,:,nl])
+        Stats.write_3D_variable(Pr, int(TS.t),nl, 'Vorticity',                 self.Vorticity.values)
+        Stats.write_3D_variable(Pr, int(TS.t),nl, 'Divergence',                self.Divergence.values)
+        Stats.write_3D_variable(Pr, int(TS.t),nl, 'Temperature',               self.T.values)
+        Stats.write_3D_variable(Pr, int(TS.t),nl, 'Specific_humidity',         self.QT.values)
+        Stats.write_3D_variable(Pr, int(TS.t),nl, 'dQTdt',                     self.QT.mp_tendency[:,:,0:nl])
+        Stats.write_2D_variable(Pr, int(TS.t),    'Pressure',                  self.P.values[:,:,nl])
         return
 
     @cython.wraparound(False)

@@ -34,7 +34,7 @@ cdef class ForcingBase:
 		return
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
 		return
-	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats, PrognosticVariables PV, DiagnosticVariables DV):
 		return
 	cpdef stats_io(self, NetCDFIO_Stats Stats):
 		return
@@ -49,7 +49,7 @@ cdef class ForcingNone(ForcingBase):
 		return
 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
 		return
-	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats, PrognosticVariables PV, DiagnosticVariables DV):
 		return
 	cpdef stats_io(self, NetCDFIO_Stats Stats):
 		return
@@ -98,8 +98,11 @@ cdef class HelzSuarez(ForcingBase):
 						nx, ny, nl)
 		return
 
-	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats, PrognosticVariables PV, DiagnosticVariables DV):
 		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'T_eq', self.Tbar)
+		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'U_forcing', DV.U.forcing)
+		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'V_forcing', DV.V.forcing)
+		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Temperature_forcing', PV.T.forcing)
 		return
 
 	cpdef stats_io(self, NetCDFIO_Stats Stats):
@@ -150,8 +153,11 @@ cdef class HelzSuarezMoist(ForcingBase):
 						nx, ny, nl)
 		return
 
-	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats, PrognosticVariables PV, DiagnosticVariables DV):
 		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'T_eq', self.Tbar)
+		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'U_forcing', DV.U.forcing)
+		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'V_forcing', DV.V.forcing)
+		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Temperature_forcing', PV.T.forcing)
 		return
 
 	cpdef stats_io(self, NetCDFIO_Stats Stats):
