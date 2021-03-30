@@ -6,7 +6,7 @@ import json
 import fnmatch
 
 # command line:
-# python machine_learning/make_training_date.py Output.HeldSuarez.theta7_efold/HeldSuarez.in
+# python machine_learning/make_training_data.py Output.HeldSuarezMoist.machineLearn/HeldSuarezMoist.in
 def main():
     parser = argparse.ArgumentParser(prog='miniGCM')
     parser.add_argument("namelist")
@@ -41,7 +41,7 @@ def main():
         var = root_grp.createVariable(varname, 'f8', ('time','layer'))
         I = 0
         for filename in os.listdir(simulation_path):
-            if filename.startswith(varname):
+            if filename.startswith(varname+'_'):
                 data = nc.Dataset(simulation_path+filename, 'r')
                 var_values = np.array(data.variables[varname])
                 var_1D = var_values.reshape(-1,np.shape(var_values)[2])
@@ -87,7 +87,7 @@ def main():
         var = root_grp.createVariable(varname, 'f8', ('time','layer'))
         I = 0
         for filename in os.listdir(simulation_path):
-            if filename.startswith(varname):
+            if filename.startswith(varname+'_'):
                 data = nc.Dataset(simulation_path+filename, 'r')
                 var_values = np.array(data.variables[varname])
                 var_1D = var_values.reshape(-1,np.shape(var_values)[2])

@@ -129,7 +129,7 @@ cdef class HeldSuarez(CaseBase):
 
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats, PrognosticVariables PV, DiagnosticVariables DV):
         CaseBase.io(self, Pr, TS, Stats, PV, DV)
-        self.Fo.io(Pr, TS, PV, DV, Stats)
+        self.Fo.io(Pr, TS,  Stats, PV, DV)
         self.Sur.io(Pr, TS, Stats)
         return
 
@@ -281,7 +281,7 @@ cdef class HeldSuarezMoist(CaseBase):
 
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats, PrognosticVariables PV, DiagnosticVariables DV):
         CaseBase.io(self, Pr, TS, Stats, PV, DV)
-        self.Fo.io(Pr, TS, PV, DV, Stats)
+        self.Fo.io(Pr, TS,  Stats, PV, DV)
         self.Sur.io(Pr, TS, Stats)
         self.MP.io(Pr, TS, Stats)
         return
