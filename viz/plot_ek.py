@@ -12,7 +12,7 @@ warnings.filterwarnings("ignore")
 
 hres_scaling=1
 
-nlons  = hres_scaling*512  # number of longitudes
+nlons  = hres_scaling*256  # number of longitudes
 ntrunc = int(nlons/3)  # spectral truncation (for alias-free computations)
 nlats  = int(nlons/2)   # number of lats for gaussian grid.
 
@@ -62,19 +62,24 @@ latDeg = np.degrees(lats)
 lonDeg = np.degrees(lons)
 
 
-path='../Output.HeldSuarez.410k2/Fields/'
+runname='ftpgne60n256'
+#runname='ftpgne.1n256'
+#runname='f2800e.1n256'
+path = '/home/suhas/miniGCM/Output.HeldSuarez.'+runname+'/Fields/'
 
 
 
-for it in np.arange(10,101,20):
+for it in np.arange(200,801,20):
+    print('it ',it)
 
-    for Layer in np.arange(0,3):
+    for Layer in np.arange(0,5):
         print("day ", it," Layer ",Layer)
-        u=netCDF4.Dataset(path+'u_'+str(it*3600*24)+'.nc').variables['u'][:,:,Layer]
-        v=netCDF4.Dataset(path+'v_'+str(it*3600*24)+'.nc').variables['v'][:,:,Layer]
-        T=netCDF4.Dataset(path+'T_'+str(it*3600*24)+'.nc').variables['T'][:,:,Layer]
+        u=netCDF4.Dataset(path+'U_'+str(it*3600*24)+'.nc').variables['U'][:,:,Layer]
+        v=netCDF4.Dataset(path+'V_'+str(it*3600*24)+'.nc').variables['V'][:,:,Layer]
+        T=netCDF4.Dataset(path+'Temperature_'+str(it*3600*24)+'.nc').variables['Temperature'][:,:,Layer]
 
-        #print('u', u.shape)
+        print('u', u.shape)
+        print('v', v.shape)
 
         iplot_mean=0
         if (iplot_mean==1):
@@ -116,7 +121,7 @@ for it in np.arange(10,101,20):
            plt.savefig('ekin_zonalmean_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
            #
 
-        iplot_ctr=1
+        iplot_ctr=0
         if (iplot_ctr==1):
            #
            # c o n t o u r s
@@ -165,7 +170,7 @@ for it in np.arange(10,101,20):
            plt.savefig('T_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
 
 
-        iplot_spctr=0
+        iplot_spctr=1
         if (iplot_spctr==1):
            #
            # Energy Spectra
