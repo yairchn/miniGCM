@@ -6,7 +6,7 @@ import json
 import fnmatch
 
 # command line:
-# python machine_learning/make_training_data.py Output.HeldSuarezMoist.machineLearn/HeldSuarezMoist.in
+# python machine_learning/make_training_data.py Output.HeldSuarez.MachineLearn/HeldSuarez.in
 def main():
     parser = argparse.ArgumentParser(prog='miniGCM')
     parser.add_argument("namelist")
@@ -28,7 +28,10 @@ def main():
         pass
 
     ## PREPARE INPUT
-    varlist = {'U', 'V', 'Temperature', 'Specific_humidity'}
+    if namelist['thermodynamics']['thermodynamics_type']=='dry':
+        varlist = {'U', 'V', 'Temperature'}
+    else:
+        varlist = {'U', 'V', 'Temperature', 'Specific_humidity'}
     # define n_layers
     n_layers = np.shape(namelist['grid']['pressure_levels'])[0] - 1
     # open netdcf file
@@ -41,18 +44,19 @@ def main():
         var = root_grp.createVariable(varname, 'f8', ('time','layer'))
         I = 0
         for filename in os.listdir(simulation_path):
-            if filename.startswith(varname+'_'):
-                data = nc.Dataset(simulation_path+filename, 'r')
-                var_values = np.array(data.variables[varname])
-                var_1D = var_values.reshape(-1,np.shape(var_values)[2])
-                if I==0:
-                    var_collecated=var_1D
-                else:
-                    var_collecated=np.vstack([var_1D, var_1D])
-                I += 1
+            if not filename.startswith(varname+'_forcing'):
+                if filename.startswith(varname+'_'):
+                    data = nc.Dataset(simulation_path+filename, 'r')
+                    var_values = np.array(data.variables[varname])
+                    var_1D = var_values.reshape(-1,np.shape(var_values)[2])
+                    if I==0:
+                        var_collecated=var_1D
+                    else:
+                        var_collecated=np.vstack([var_1D, var_1D])
+                    I += 1
 
         var[:, :] = np.array(var_collecated)
-        del var_collecated, var_values, data, var_1D
+        del var_values, data, var_1D
 
     varname = 'Pressure'
     root_grp.createDimension('s', 1)
@@ -74,7 +78,7 @@ def main():
     root_grp.close()
 
     ## PREPARE OUTPUT
-    varlist = {'U_forcing', 'V_forcing', 'Temperature_forcing', 'Specific_humidity_forcing'}
+    varlist = {'U_forcing', 'V_forcing', 'Temperature_forcing'}
     # define n_layers
     n_layers = np.shape(namelist['grid']['pressure_levels'])[0] - 1
     # open netdcf file
@@ -98,7 +102,7 @@ def main():
                 I += 1
 
         var[:, :] = np.array(var_collecated)
-        del var_collecated, var_values, data, var_1D
+        del var_values, data, var_1D
 
     del var_collecated
 

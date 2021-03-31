@@ -48,7 +48,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "c1b95425-2012-49f6-91df-8ff9106adec0"
+        "uuid": "c1b95425-2012-49f6-91df-MachineLearn"
     },
     "microphysics": {
         "rain_model": "None"
@@ -76,6 +76,6 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 1000.0
+        "t_max": 100.0
     }
 }
