@@ -88,8 +88,8 @@ cdef class SurfaceBulkFormula(SurfaceBase):
         return
 
     cpdef stats_io(self, NetCDFIO_Stats Stats):
-        Stats.write_surface_zonal_mean('zonal_mean_QT_surf', np.mean(self.T_surf, axis=1))
-        Stats.write_surface_zonal_mean('zonal_mean_QT_surf', np.mean(self.QT_surf, axis=1))
+        Stats.write_surface_zonal_mean('zonal_mean_QT_surf', self.T_surf)
+        Stats.write_surface_zonal_mean('zonal_mean_QT_surf', self.QT_surf)
         return
 
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
