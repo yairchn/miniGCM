@@ -9,6 +9,9 @@
 void diagnostic_variables(
            double Rd,
            double Rv,
+           double Omega,
+           double a,
+           double* restrict lat,
            double* restrict p,
            double* restrict T,
            double* restrict qt,
@@ -22,6 +25,7 @@ void diagnostic_variables(
            double* restrict uv,
            double* restrict TT,
            double* restrict vT,
+           double* restrict M,
            ssize_t k,
            ssize_t imax,
            ssize_t jmax,
@@ -53,6 +57,7 @@ void diagnostic_variables(
             vT[ijk]      = v[ijk] * T[ijk];
             TT[ijk]      = T[ijk] * T[ijk];
             uv[ijk]      = v[ijk] * u[ijk];
+            M[ijk]       = a*cos(lat[ij])*(a*Omega*cos(lat[ij]) + u[ijk]);
         } // end j loop
     } // end i loop
     return;
