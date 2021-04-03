@@ -15,9 +15,10 @@ from TimeStepping import TimeStepping
 from Parameters cimport Parameters
 
 cdef extern from "diagnostic_variables.h":
-    void diagnostic_variables(double g, double* rho, double* gH_k, double* rho_gH_k, double* h, double* qt, double* ql,
-           double* u, double* v, double* div, double* ke, double* uv, double* hh,
-           double* vh, Py_ssize_t k, Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
+    void diagnostic_variables(double g, double Omega, double a, double* lat, double* rho, double* gH_k,
+            double* rho_gH_k, double* h, double* qt, double* ql, double* u, double* v,
+            double* div, double* ke, double* uv, double* hh, double* vh, double* M,
+            Py_ssize_t k, Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
 
 
 cdef class DiagnosticVariable:
@@ -43,6 +44,7 @@ cdef class DiagnosticVariables:
         self.VH = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers, Gr.SphericalGrid.nlm, 'Depth_flux', 'vH','m^2/s' )
         self.HH = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers, Gr.SphericalGrid.nlm, 'Depth_variance', 'HH','m^2' )
         self.UV = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers, Gr.SphericalGrid.nlm, 'momentum_flux', 'uv','m^2/s^2' )
+        self.M  = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers, Gr.SphericalGrid.nlm, 'angular_momentum', 'M','m^2/s' )
         return
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV):
@@ -69,6 +71,7 @@ cdef class DiagnosticVariables:
         Stats.add_global_mean('global_mean_HH')
         Stats.add_global_mean('global_mean_UV')
         Stats.add_global_mean('global_mean_P')
+        Stats.add_global_mean('global_mean_M')
         Stats.add_zonal_mean('zonal_mean_U')
         Stats.add_zonal_mean('zonal_mean_V')
         Stats.add_zonal_mean('zonal_mean_KE')
@@ -77,6 +80,7 @@ cdef class DiagnosticVariables:
         Stats.add_zonal_mean('zonal_mean_HH')
         Stats.add_zonal_mean('zonal_mean_UV')
         Stats.add_zonal_mean('zonal_mean_P')
+        Stats.add_zonal_mean('zonal_mean_M')
         Stats.add_meridional_mean('meridional_mean_U')
         Stats.add_meridional_mean('meridional_mean_V')
         Stats.add_meridional_mean('meridional_mean_KE')
@@ -85,6 +89,7 @@ cdef class DiagnosticVariables:
         Stats.add_meridional_mean('meridional_mean_HH')
         Stats.add_meridional_mean('meridional_mean_UV')
         Stats.add_meridional_mean('meridional_mean_P')
+        Stats.add_meridional_mean('meridional_mean_M')
         return
 
     @cython.wraparound(False)
@@ -108,6 +113,7 @@ cdef class DiagnosticVariables:
         Stats.write_global_mean('global_mean_HH', self.HH.values)
         Stats.write_global_mean('global_mean_UV', self.UV.values)
         Stats.write_global_mean('global_mean_P', self.P.values)
+        Stats.write_global_mean('global_mean_M', self.M.values)
         Stats.write_zonal_mean('zonal_mean_U',self.U.values)
         Stats.write_zonal_mean('zonal_mean_V',self.V.values)
         Stats.write_zonal_mean('zonal_mean_KE',self.KE.values)
@@ -116,6 +122,7 @@ cdef class DiagnosticVariables:
         Stats.write_zonal_mean('zonal_mean_HH',self.HH.values)
         Stats.write_zonal_mean('zonal_mean_UV',self.UV.values)
         Stats.write_zonal_mean('zonal_mean_P',self.P.values)
+        Stats.write_zonal_mean('zonal_mean_M',self.M.values)
         Stats.write_meridional_mean('meridional_mean_U',self.U.values)
         Stats.write_meridional_mean('meridional_mean_V',self.V.values)
         Stats.write_meridional_mean('meridional_mean_KE',self.KE.values)
@@ -124,14 +131,16 @@ cdef class DiagnosticVariables:
         Stats.write_meridional_mean('meridional_mean_HH',self.HH.values)
         Stats.write_meridional_mean('meridional_mean_UV',self.UV.values)
         Stats.write_meridional_mean('meridional_mean_P',self.P.values)
+        Stats.write_meridional_mean('meridional_mean_M',self.M.values)
         return
 
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Pressure',      self.P.values)
-        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'QL',            self.QL.values)
-        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'U',             self.U.values)
-        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'V',             self.V.values)
-        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Kinetic_enegry',self.KE.values)
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Pressure',        self.P.values)
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'QL',              self.QL.values)
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'U',               self.U.values)
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'V',               self.V.values)
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Kinetic_enegry',  self.KE.values)
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'angular_momentum',self.M.values)
         return
 
     @cython.wraparound(False)
@@ -151,11 +160,11 @@ cdef class DiagnosticVariables:
             self.U.values.base[:,:,k], self.V.values.base[:,:,k] = Gr.SphericalGrid.getuv(
                          PV.Vorticity.spectral.base[:,k],PV.Divergence.spectral.base[:,k])
             with nogil:
-                diagnostic_variables(Pr.g, &Pr.rho[0], &gH_k[0,0,0], &rho_gH_k[0,0,0], &PV.H.values[0,0,0], &PV.QT.values[0,0,0],
+                diagnostic_variables(Pr.g, Pr.Omega, Pr.rsphere, &Gr.lat[0,0], &Pr.rho[0], &gH_k[0,0,0], &rho_gH_k[0,0,0], &PV.H.values[0,0,0], &PV.QT.values[0,0,0],
                                      &self.QL.values[0,0,0], &self.U.values[0,0,0], &self.V.values[0,0,0],
                                      &PV.Divergence.values[0,0,0],&self.KE.values[0,0,0],
                                      &self.UV.values[0,0,0], &self.HH.values[0,0,0], &self.VH.values[0,0,0],
-                                     k, nx, ny, nl)
+                                     &self.M.values[0,0,0], k, nx, ny, nl)
 
             self.gH.values.base[:,:,k] = np.sum(gH_k[:,:,0:k],axis=2)
             self.P.values.base[:,:,k]  = np.sum(rho_gH_k[:,:,0:k],axis=2)

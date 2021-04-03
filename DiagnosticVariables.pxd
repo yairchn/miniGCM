@@ -29,6 +29,7 @@ cdef class DiagnosticVariables:
         DiagnosticVariable VH
         DiagnosticVariable HH
         DiagnosticVariable UV
+        DiagnosticVariable M
 
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
