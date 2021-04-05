@@ -96,7 +96,7 @@ cdef class Diffusion:
             double HyperDiffusionFactor = -(1.0/Pr.efold)
 
         # with nogil:
-        for i in range(ng,nx+1+ng):
+        for i in range(ng,nx+ng):
             for j in range(ng,ny+ng):
                 for k in range(nl):
                     PV.U.HyperDiffusion[i,j,k] = HyperDiffusionFactor * ((PV.U.values[i+1,j,k]
@@ -105,18 +105,6 @@ cdef class Diffusion:
                                                                         +(PV.U.values[i,j+1,k]
                                                                      -2.0*PV.U.values[i,j,k]
                                                                          +PV.U.values[i,j-1,k])*self.dyi_2)
-        for i in range(ng,nx+ng):
-            for j in range(ng,ny+1+ng):
-                for k in range(nl):
-                    PV.V.HyperDiffusion[i,j,k] = HyperDiffusionFactor * ((PV.V.values[i+1,j,k]
-                                                                     -2.0*PV.V.values[i,j,k]
-                                                                         +PV.V.values[i-1,j,k])*self.dxi_2
-                                                                        +(PV.V.values[i,j+1,k]
-                                                                     -2.0*PV.V.values[i,j,k]
-                                                                         +PV.V.values[i,j-1,k])*self.dyi_2)
-        for i in range(ng,nx+ng):
-            for j in range(ng,ny+ng):
-                for k in range(nl):
                     PV.H.HyperDiffusion[i,j,k] = HyperDiffusionFactor * ((PV.H.values[i+1,j,k]
                                                                      -2.0*PV.H.values[i,j,k]
                                                                          +PV.H.values[i-1,j,k])*self.dxi_2
