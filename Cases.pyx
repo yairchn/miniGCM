@@ -137,8 +137,8 @@ cdef class DryVortex(CaseBase):
         return
 
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
-        self.Sur.update(Pr, Gr, PV, DV)
-        self.Fo.update(Pr, Gr, PV, DV)
+        # self.Sur.update(Pr, Gr, PV, DV)
+        # self.Fo.update(Pr, Gr, PV, DV)
         return
 
 

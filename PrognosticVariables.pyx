@@ -202,8 +202,8 @@ cdef class PrognosticVariables:
                     dvu_dy[i,j,k] = 0.5*(PV.U.values[i,j+1,k] * PV.V.values[i,j+1,k]-
                                          PV.U.values[i,j-1,k] * PV.V.values[i,j-1,k])*dyi
 
-                    PV.U.tendency[i,j,k]  = (fv - dgZ_dx[i,j,k] + PV.U.HyperDiffusion[i,j,k])
-                    # PV.U.tendency[i,j,k]  = (- duu_dx[i,j,k] - dvu_dy[i,j,k] + fv - dgZ_dx[i,j,k] + PV.U.HyperDiffusion[i,j,k])
+                    # PV.U.tendency[i,j,k]  = (fv - dgZ_dx[i,j,k] + PV.U.HyperDiffusion[i,j,k])
+                    PV.U.tendency[i,j,k]  = (- duu_dx[i,j,k] - dvu_dy[i,j,k] + fv - dgZ_dx[i,j,k] )# + PV.U.HyperDiffusion[i,j,k])
 
                     if k==nl-1:
                         V_sur_flux  = PV.V.SurfaceFlux[i,j]
@@ -216,21 +216,21 @@ cdef class PrognosticVariables:
                     dvv_dy[i,j,k] = 0.5*(PV.V.values[i,j+1,k] * PV.V.values[i,j+1,k]-
                                          PV.V.values[i,j-1,k] * PV.V.values[i,j-1,k])*dyi
 
-                    PV.V.tendency[i,j,k]  = ( - fu  - dgZ_dy[i,j,k] + PV.V.HyperDiffusion[i,j,k])
-                    # PV.V.tendency[i,j,k]  = (- duv_dx[i,j,k] - dvv_dy[i,j,k] - fu  - dgZ_dy[i,j,k] + PV.V.HyperDiffusion[i,j,k])
+                    # PV.V.tendency[i,j,k]  = ( - fu  - dgZ_dy[i,j,k] + PV.V.HyperDiffusion[i,j,k])
+                    PV.V.tendency[i,j,k]  = (- duv_dx[i,j,k] - dvv_dy[i,j,k] - fu  - dgZ_dy[i,j,k])# + PV.V.HyperDiffusion[i,j,k])
 
-        # import pylab as plt
-        # plt.figure('H')
-        # plt.subplot(3,1,1)
-        # plt.contourf(np.power(PV.V.values[:,1:,0],2.0)+np.power(PV.U.values[1:,:,0],2.0))
-        # plt.colorbar()
-        # plt.subplot(3,1,2)
-        # plt.contourf(np.power(PV.V.values[:,1:,1],2.0)+np.power(PV.U.values[1:,:,1],2.0))
-        # plt.colorbar()
-        # plt.subplot(3,1,3)
-        # plt.contourf(np.power(PV.V.values[:,1:,2],2.0)+np.power(PV.U.values[1:,:,2],2.0))
-        # plt.colorbar()
-        # plt.show(block=False)
-        # plt.pause(0.3)
-        # plt.close()
+        import pylab as plt
+        plt.figure('H')
+        plt.subplot(3,1,1)
+        plt.contourf(np.power(PV.V.values[:,1:,0],2.0)+np.power(PV.U.values[1:,:,0],2.0))
+        plt.colorbar()
+        plt.subplot(3,1,2)
+        plt.contourf(np.power(PV.V.values[:,1:,1],2.0)+np.power(PV.U.values[1:,:,1],2.0))
+        plt.colorbar()
+        plt.subplot(3,1,3)
+        plt.contourf(np.power(PV.V.values[:,1:,2],2.0)+np.power(PV.U.values[1:,:,2],2.0))
+        plt.colorbar()
+        plt.show(block=False)
+        plt.pause(0.3)
+        plt.close()
         return

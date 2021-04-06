@@ -111,10 +111,11 @@ cdef class Diffusion:
                                                                         +(PV.H.values[i,j+1,k]
                                                                      -2.0*PV.H.values[i,j,k]
                                                                          +PV.H.values[i,j-1,k])*self.dyi_2)
-                    PV.QT.HyperDiffusion[i,j,k] = HyperDiffusionFactor * ((PV.QT.values[i+1,j,k]
-                                                                      -2.0*PV.QT.values[i,j,k]
-                                                                          +PV.QT.values[i-1,j,k])*self.dxi_2
-                                                                         +(PV.QT.values[i,j+1,k]
-                                                                      -2.0*PV.QT.values[i,j,k]
-                                                                          +PV.QT.values[i,j-1,k])*self.dyi_2)
+                    if Pr.moist_index > 0.0:
+                        PV.QT.HyperDiffusion[i,j,k] = HyperDiffusionFactor * ((PV.QT.values[i+1,j,k]
+                                                                          -2.0*PV.QT.values[i,j,k]
+                                                                              +PV.QT.values[i-1,j,k])*self.dxi_2
+                                                                             +(PV.QT.values[i,j+1,k]
+                                                                          -2.0*PV.QT.values[i,j,k]
+                                                                              +PV.QT.values[i,j-1,k])*self.dyi_2)
         return
