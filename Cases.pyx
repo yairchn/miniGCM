@@ -73,23 +73,29 @@ cdef class DryVortex(CaseBase):
             double y0 = Gr.ny/2.0
             double [:,:] noise
 
-        PV.H_init        = np.array([229.0, 259.0, 291.0])
-        PV.QT_init        = np.array([2.5000e-04, 0.0016, 0.0115])
         Pr.amp_dHdp        = np.array([0.2, 1.0, 0.0])
 
         Pr.sigma_H = namelist['initialize']['warm_core_width']
         Pr.amp_H = namelist['initialize']['warm_core_amplitude']
 
-        PV.U.values  = np.zeros((nx+2*ng+1, ny+2*ng,   nl,),  dtype=np.double, order='c')
-        PV.V.values  = np.zeros((nx+2*ng,   ny+2*ng+1, nl,),  dtype=np.double, order='c')
-        PV.QT.values = np.multiply(np.ones((nx+2*ng,ny+2*ng,nl),   dtype=np.double, order='c'),PV.QT_init)
-        PV.H.values  = np.multiply(np.ones((nx+2*ng,ny+2*ng,nl),   dtype=np.double, order='c'),PV.H_init)
+        PV.U.values  = np.zeros((nx+2*ng, ny+2*ng, nl,), dtype=np.double, order='c')
+        PV.V.values  = np.zeros((nx+2*ng, ny+2*ng, nl,), dtype=np.double, order='c')
+        PV.QT.values = np.multiply(np.ones((nx+2*ng,ny+2*ng,nl),   dtype=np.double, order='c'),Pr.QT_init)
+        PV.H.values  = np.multiply(np.ones((nx+2*ng,ny+2*ng,nl),   dtype=np.double, order='c'),Pr.H_init)
 
         for i in range(ng,nx+ng):
             for j in range(ng,ny+ng):
                 for k in range(nl):
-                    PV.H.values[i,j,k] += Pr.amp_H*Pr.amp_dHdp[k]*np.exp(-((Gr.x[i-ng] - Gr.x[Gr.xc])**2.0+(Gr.y[j-ng] - Gr.y[Gr.yc])**2.0)/(2.0*Pr.sigma_H**2.0))
-                    # PV.H.values[i,j,k] += Pr.amp_H*Pr.amp_dHdp[k]*np.sin(np.pi*(Gr.y[j-ng] - Gr.y[Gr.yc])/(6.0*Pr.sigma_H))
+                    # PV.H.values[i,j,k] += Pr.amp_H*Pr.amp_dHdp[k]*np.exp(-((Gr.x[i-ng] - Gr.x[Gr.xc])**2.0+(Gr.y[j-ng] - Gr.y[Gr.yc])**2.0)/(2.0*Pr.sigma_H**2.0))
+                    PV.H.values[i,j,k] += Pr.amp_H*Pr.amp_dHdp[k]*np.exp(-((Gr.y[j-ng] - Gr.y[Gr.yc])**2.0)/(2.0*Pr.sigma_H**2.0))
+        import pylab as plt
+        plt.figure('H1')
+        plt.contourf(PV.H.values[400:600,400:600,0])
+        plt.figure('H2')
+        plt.contourf(PV.H.values[400:600,400:600,1])
+        plt.figure('H3')
+        plt.contourf(PV.H.values[400:600,400:600,2])
+        plt.show()
         # if Pr.inoise==1: # load the random noise to grid space
         #      noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0
         #      PV.H.values.base[:,:,Pr.n_layers-1] = np.add(PV.H.values.base[:,:,Pr.n_layers-1],noise.base)

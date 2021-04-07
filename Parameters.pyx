@@ -35,18 +35,19 @@ cdef class Parameters:
 
         self.efold        = namelist['diffusion']['e_folding_timescale']
         self.noise_amp    = namelist['initialize']['noise_amplitude']
-        self.H1           = namelist['initialize']['H1'] = 30.0
-        self.H2           = namelist['initialize']['H2'] = 30.0
-        self.H3           = namelist['initialize']['H3'] = 30.0
-        self.Hamp1        = namelist['initialize']['Tamp1'] = 0.2
-        self.Hamp2        = namelist['initialize']['Tamp2'] = 1.0
-        self.Hamp3        = namelist['initialize']['Tamp3'] = 0.0
+        self.rho      = np.zeros((self.n_layers),dtype=np.float64, order='c')
+        self.QT_init  = np.zeros((self.n_layers),dtype=np.float64, order='c')
+        self.H_init   = np.zeros((self.n_layers),dtype=np.float64, order='c')
+        for i in range(self.n_layers):
+            self.rho.base[i]     = np.float(namelist['grid']['densities'][i])
+            self.QT_init.base[i] = np.float(namelist['grid']['depths'][i])
+            self.H_init.base[i]  = np.float(namelist['grid']['humidities'][i])
+
         self.QT1          = namelist['initialize']['QT1'] = 2.5000e-04
         self.QT2          = namelist['initialize']['QT2'] = 0.0016
         self.QT3          = namelist['initialize']['QT3'] = 0.0115
         self.sigma_H      = namelist['initialize']['warm_core_width']
         self.amp_H        = namelist['initialize']['warm_core_amplitude']
-
 
         self.surface_model = namelist['surface']['surface_model']
         self.inoise        = namelist['initialize']['inoise']

@@ -35,9 +35,9 @@ def main():
     namelist_defaults['grid']['number_of_layers'] =  3
 
 
-    namelist_defaults['grid']['H3']       =  30.0  # [pasc]
-    namelist_defaults['grid']['H2']       =  30.0  # [pasc]
-    namelist_defaults['grid']['H1']       =  30.0  # [pasc]
+    namelist_defaults['grid']['densities']  =  [0.9,0.95,1.0]    # [kg/m^2]
+    namelist_defaults['grid']['depths']     =  [30.0,30.0,30.0]  # [m]
+    namelist_defaults['grid']['humidities'] =  [0.00001,0.00001,0.00001]  # [kg/kg]
     namelist_defaults['grid']['degree_latitute'] = 20.0
     namelist_defaults['grid']['numerical_scheme'] = 'centeral_differneces'
 
@@ -110,7 +110,6 @@ def DryVortex(namelist_defaults):
     namelist['surface']['surface_model'] = 'None'
 
     namelist['diffusion']['type'] = 'hyperdiffusion'
-    namelist['diffusion']['order'] = 8.0
 
     return namelist
 

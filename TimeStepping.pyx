@@ -53,78 +53,38 @@ cdef class TimeStepping:
 		if self.ncycle==0:
 			PV.set_now_with_tendencies()
 			# with nogil:
-			for i in range(ng,nx+1+ng):
+			for i in range(ng,nx+ng):
 				for j in range(ng,ny+ng):
 					for k in range(nl):
-						# print('U', PV.U.values[i,j,k], F_U[i,j,k], PV.U.tendency[i,j,k], PV.U.old[i,j,k])
 						# Euler
 						# new                   old                      tendency
 						PV.U.values[i,j,k]  = F_U[i,j,k]  + self.dt*PV.U.tendency[i,j,k]
-			for i in range(ng,nx+ng):
-				for j in range(ng,ny+1+ng):
-					for k in range(nl):
-						# print('V', PV.V.values[i,j,k], F_V[i,j,k], PV.V.tendency[i,j,k], PV.V.old[i,j,k])
-						# Euler
-						# new                   old                      tendency
 						PV.V.values[i,j,k]  = F_V[i,j,k]  + self.dt*PV.V.tendency[i,j,k]
-
-			for i in range(ng,nx+ng):
-				for j in range(ng,ny+ng):
-					for k in range(nl):
-						# print('T', PV.H.values[i,j,k], F_H[i,j,k], PV.H.tendency[i,j,k], PV.H.old[i,j,k])
-						# Euler
-						# new                   old                      tendency
 						PV.H.values[i,j,k]  = F_H[i,j,k]  + self.dt*PV.H.tendency[i,j,k]
 						if Pr.moist_index >0.0:
 							PV.QT.values[i,j,k] = F_QT[i,j,k] + self.dt*PV.QT.tendency[i,j,k]
 
 		elif self.ncycle==1:
 			# with nogil:
-			for i in range(ng,nx+1+ng):
+			for i in range(ng,nx+ng):
 				for j in range(ng,ny+ng):
 					for k in range(nl):
-						# print('U', PV.U.values[i,j,k], F_U[i,j,k], PV.U.tendency[i,j,k], PV.U.old[i,j,k])
 						#2nd order AB
 						#           new        old                        tendency                tendency now
 						PV.U.values[i,j,k]  = F_U[i,j,k]  + self.dt*(1.5*PV.U.tendency[i,j,k]  - 0.5*PV.U.now[i,j,k])
-			for i in range(ng,nx+ng):
-				for j in range(ng,ny+1+ng):
-					for k in range(nl):
-						# print('V', PV.V.values[i,j,k], F_V[i,j,k], PV.V.tendency[i,j,k], PV.V.old[i,j,k])
-						#2nd order AB
-						#           new        old                        tendency                tendency now
 						PV.V.values[i,j,k]  = F_V[i,j,k]  + self.dt*(1.5*PV.V.tendency[i,j,k]  - 0.5*PV.V.now[i,j,k])
-			for i in range(ng,nx+ng):
-				for j in range(ng,ny+1+ng):
-					for k in range(nl):
-						# print('T', PV.H.values[i,j,k], F_H[i,j,k], PV.H.tendency[i,j,k], PV.H.old[i,j,k])
-						#2nd order AB
-						#           new        old                        tendency                tendency now
 						PV.H.values[i,j,k]  = F_H[i,j,k]  + self.dt*(1.5*PV.H.tendency[i,j,k]  - 0.5*PV.H.now[i,j,k])
 						if Pr.moist_index >0.0:
 							PV.QT.values[i,j,k] = F_QT[i,j,k] + self.dt*(1.5*PV.QT.tendency[i,j,k] - 0.5*PV.QT.now[i,j,k])
 		else:
 			# with nogil:
-			for i in range(ng,nx+1+ng):
+			for i in range(ng,nx+ng):
 				for j in range(ng,ny+ng):
 					for k in range(nl):
-						# print('U', PV.U.values[i,j,k], F_U[i,j,k], PV.U.tendency[i,j,k], PV.U.old[i,j,k])
 						#3nd order AB
 						#   new                old                               tendency                      tendency now              tendency old
 						PV.U.values[i,j,k]  = F_U[i,j,k]  + self.dt*(23.0/12.0*PV.U.tendency[i,j,k]  - 16.0/12.0*PV.U.now[i,j,k]  + 5.0/12.0*PV.U.old[i,j,k] )
-			for i in range(ng,nx+ng):
-				for j in range(ng,ny+1+ng):
-					for k in range(nl):
-						# print('V', PV.V.values[i,j,k], F_V[i,j,k], PV.V.tendency[i,j,k], PV.V.old[i,j,k])
-						#3nd order AB
-						#   new                old                               tendency                      tendency now              tendency old
 						PV.V.values[i,j,k]  = F_V[i,j,k]  + self.dt*(23.0/12.0*PV.V.tendency[i,j,k]  - 16.0/12.0*PV.V.now[i,j,k]  + 5.0/12.0*PV.V.old[i,j,k] )
-			for i in range(ng,nx+ng):
-				for j in range(ng,ny+1+ng):
-					for k in range(nl):
-						# print('T', PV.H.values[i,j,k], F_H[i,j,k], PV.H.tendency[i,j,k], PV.H.old[i,j,k])
-						#3nd order AB
-						#   new                old                               tendency                      tendency now              tendency old
 						PV.H.values[i,j,k]  = F_H[i,j,k]  + self.dt*(23.0/12.0*PV.H.tendency[i,j,k]  - 16.0/12.0*PV.H.now[i,j,k]  + 5.0/12.0*PV.H.old[i,j,k] )
 						if Pr.moist_index >0.0:
 							PV.QT.values[i,j,k] = F_QT[i,j,k] + self.dt*(23.0/12.0*PV.QT.tendency[i,j,k] - 16.0/12.0*PV.QT.now[i,j,k] + 5.0/12.0*PV.QT.old[i,j,k])

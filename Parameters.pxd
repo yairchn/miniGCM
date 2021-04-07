@@ -10,15 +10,9 @@ cdef class Parameters:
         Py_ssize_t ny
         Py_ssize_t n_layers
         double [:] amp_dHdp
-        double H1
-        double H2
-        double H3
-        double Hamp1
-        double Hamp2
-        double Hamp3
-        double QT1
-        double QT2
-        double QT3
+        double [:] rho
+        double [:] QT_init
+        double [:] H_init
         double amp_H
         double sigma_H
         double tau

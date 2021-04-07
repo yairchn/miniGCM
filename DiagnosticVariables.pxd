@@ -22,6 +22,7 @@ cdef class DiagnosticVariables:
         DiagnosticVariable QL
         DiagnosticVariable Vel
         DiagnosticVariable KE
+        DiagnosticVariable P
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef stats_io(self, NetCDFIO_Stats Stats)

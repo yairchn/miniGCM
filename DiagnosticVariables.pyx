@@ -34,6 +34,7 @@ cdef class DiagnosticVariables:
         cdef:
             Py_ssize_t ng = Gr.ng
 
+        self.P          = DiagnosticVariable(Gr.nx+2*ng, Gr.ny+2*ng, Gr.nl,   'pressure',                       'p',   'kgm/s^2')
         self.Vel        = DiagnosticVariable(Gr.nx+2*ng, Gr.ny+2*ng, Gr.nl,   'windspeed',                      'Vel', 'm/s')
         self.KE         = DiagnosticVariable(Gr.nx+2*ng, Gr.ny+2*ng, Gr.nl,   'kinetic_enetry',                 'Ek',  'm^2/s^2')
         self.QL         = DiagnosticVariable(Gr.nx+2*ng, Gr.ny+2*ng, Gr.nl,   'liquid water specific humidity', 'ql',  'kg/kg')
@@ -76,10 +77,14 @@ cdef class DiagnosticVariables:
             # with nogil:
             for i in range(nx+2*ng):
                 for j in range(ny+2*ng):
-                    self.Vel.values[i,j,k] = 0.5*(pow(PV.U.values[i,j,k]+PV.U.values[i+1,j,k],2.0)
-                                                 +pow(PV.V.values[i,j,k]+PV.V.values[i,j+1,k],2.0))
-                    self.KE.values.base[i,j,k] = 0.5*(pow((PV.U.values[i,j,k]+PV.U.values[i+1,j,k])/2.0,2.0)
-                                                    + pow((PV.V.values[i,j,k]+PV.V.values[i,j+1,k])/2.0,2.0))
+                    self.Vel.values[i,j,k] = 0.5*(pow(PV.U.values[i,j,k]+PV.U.values[i,j,k],2.0)
+                                                 +pow(PV.V.values[i,j,k]+PV.V.values[i,j,k],2.0))
+                    self.KE.values.base[i,j,k] = 0.5*(pow((PV.U.values[i,j,k]+PV.U.values[i,j,k])/2.0,2.0)
+                                                    + pow((PV.V.values[i,j,k]+PV.V.values[i,j,k])/2.0,2.0))
+                    if k==0:
+                        self.P.values.base[i,j,0] = Pr.rho[0]*Pr.g*PV.H.values[i,j,0]
+                    if k<0:
+                        self.P.values.base[i,j,k] = self.P.values.base[i,j,k-1] + (Pr.rho[k]-Pr.rho[k-1])*Pr.g*PV.H.values[i,j,k]
             # diagnostic_variables(Pr.Rd, Pr.Rv, &PV.P.values[0,0,0], &PV.T.values[0,0,0],
             #                      &PV.QT.values[0,0,0],   &self.QL.values[0,0,0], &PV.U.values[0,0,0],
             #                      &PV.V.values[0,0,0],  &self.Divergence.values[0,0,0],&self.KE.values[0,0,0],
