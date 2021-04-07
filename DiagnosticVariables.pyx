@@ -71,8 +71,22 @@ cdef class DiagnosticVariables:
             double dxi = 1.0/Gr.dx
             double dyi = 1.0/Gr.dy
             double Rm
+            double [:,:,:] H_tot = np.zeros((nx+2*ng,ny+2*ng,nl),dtype=np.float64, order='c')
+
+        # ============| Note on pressure formualtion |============
+        # in a model with i=1:n layers we define the sum of all underlying depthes (hᵢ) as:
+        # Hᵢ = Σᵢⁿ(hᵢ);
+        # the top layer pressure is: p₀ = gρ₀H₀
+        # and for i>0 the pressure at the i'th layer is:
+        # pᵢ = pᵢ₋₁ + g(ρᵢ-ρᵢ₋₁)Hᵢ
 
         # with nogil:
+        for i in range(nx+2*ng):
+            for j in range(ny+2*ng):
+                for k in range(nl):
+                    for kk in range(k,nl):
+                        H_tot[i,j,k] += PV.H.values[i,j,kk]
+
         for k in range(nl):
             # with nogil:
             for i in range(nx+2*ng):
@@ -82,9 +96,11 @@ cdef class DiagnosticVariables:
                     self.KE.values.base[i,j,k] = 0.5*(pow((PV.U.values[i,j,k]+PV.U.values[i,j,k])/2.0,2.0)
                                                     + pow((PV.V.values[i,j,k]+PV.V.values[i,j,k])/2.0,2.0))
                     if k==0:
-                        self.P.values.base[i,j,0] = Pr.rho[0]*Pr.g*PV.H.values[i,j,0]
-                    if k<0:
-                        self.P.values.base[i,j,k] = self.P.values.base[i,j,k-1] + (Pr.rho[k]-Pr.rho[k-1])*Pr.g*PV.H.values[i,j,k]
+                        self.P.values.base[i,j,k] = Pr.rho[k]*Pr.g*H_tot[i,j,k]
+                    if k>0:
+                        self.P.values.base[i,j,k] = (self.P.values.base[i,j,k-1]
+                                                    + Pr.g*(Pr.rho[k]-Pr.rho[k-1])*H_tot[i,j,k])
+
             # diagnostic_variables(Pr.Rd, Pr.Rv, &PV.P.values[0,0,0], &PV.T.values[0,0,0],
             #                      &PV.QT.values[0,0,0],   &self.QL.values[0,0,0], &PV.U.values[0,0,0],
             #                      &PV.V.values[0,0,0],  &self.Divergence.values[0,0,0],&self.KE.values[0,0,0],

@@ -83,18 +83,21 @@ cdef class DryVortex(CaseBase):
         PV.QT.values = np.multiply(np.ones((nx+2*ng,ny+2*ng,nl),   dtype=np.double, order='c'),Pr.QT_init)
         PV.H.values  = np.multiply(np.ones((nx+2*ng,ny+2*ng,nl),   dtype=np.double, order='c'),Pr.H_init)
 
-        for i in range(ng,nx+ng):
-            for j in range(ng,ny+ng):
+        for i in range(nx+2*ng):
+            for j in range(ny+2*ng):
                 for k in range(nl):
                     # PV.H.values[i,j,k] += Pr.amp_H*Pr.amp_dHdp[k]*np.exp(-((Gr.x[i-ng] - Gr.x[Gr.xc])**2.0+(Gr.y[j-ng] - Gr.y[Gr.yc])**2.0)/(2.0*Pr.sigma_H**2.0))
                     PV.H.values[i,j,k] += Pr.amp_H*Pr.amp_dHdp[k]*np.exp(-((Gr.y[j-ng] - Gr.y[Gr.yc])**2.0)/(2.0*Pr.sigma_H**2.0))
         import pylab as plt
         plt.figure('H1')
         plt.contourf(PV.H.values[400:600,400:600,0])
+        plt.colorbar()
         plt.figure('H2')
         plt.contourf(PV.H.values[400:600,400:600,1])
+        plt.colorbar()
         plt.figure('H3')
         plt.contourf(PV.H.values[400:600,400:600,2])
+        plt.colorbar()
         plt.show()
         # if Pr.inoise==1: # load the random noise to grid space
         #      noise = np.load('./Initial_conditions/norm_rand_grid_noise_white.npy')/10.0

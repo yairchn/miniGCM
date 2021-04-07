@@ -40,12 +40,12 @@ cdef class Parameters:
         self.H_init   = np.zeros((self.n_layers),dtype=np.float64, order='c')
         for i in range(self.n_layers):
             self.rho.base[i]     = np.float(namelist['grid']['densities'][i])
-            self.QT_init.base[i] = np.float(namelist['grid']['depths'][i])
-            self.H_init.base[i]  = np.float(namelist['grid']['humidities'][i])
+            self.H_init.base[i]  = np.float(namelist['grid']['depths'][i])
+            self.QT_init.base[i] = np.float(namelist['grid']['humidities'][i])
 
-        self.QT1          = namelist['initialize']['QT1'] = 2.5000e-04
-        self.QT2          = namelist['initialize']['QT2'] = 0.0016
-        self.QT3          = namelist['initialize']['QT3'] = 0.0115
+        # self.QT1          = namelist['initialize']['QT1'] = 2.5000e-04
+        # self.QT2          = namelist['initialize']['QT2'] = 0.0016
+        # self.QT3          = namelist['initialize']['QT3'] = 0.0115
         self.sigma_H      = namelist['initialize']['warm_core_width']
         self.amp_H        = namelist['initialize']['warm_core_amplitude']
 
