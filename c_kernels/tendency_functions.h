@@ -75,7 +75,8 @@ void rhs_qt(double* restrict qt,
 }
 
 
-void RHS_momentum(double* restrict gH_tot,
+void RHS_momentum(double rho,
+                  double* restrict p,
                   double* restrict vort,
                   double* restrict f,
                   double* restrict u,
@@ -99,7 +100,7 @@ void RHS_momentum(double* restrict gH_tot,
             const ssize_t ij = i*jmax + j;
             const ssize_t ijk = ishift + jshift + k;
             // dry energy should have the term that appears in the pressure gradient in SW
-            e_dry[ij]  = gH_tot[ijk] + 0.5*(u[ijk]*u[ijk]+v[ijk]*v[ijk]);
+            e_dry[ij]  = p[ijk]/rho + 0.5*(u[ijk]*u[ijk]+v[ijk]*v[ijk]);
             u_vort[ij] = u[ijk] * (vort[ijk]+f[ij]);
             v_vort[ij] = v[ijk] * (vort[ijk]+f[ij]);
         } // end j loop

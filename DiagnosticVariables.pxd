@@ -24,7 +24,6 @@ cdef class DiagnosticVariables:
         DiagnosticVariable V
         DiagnosticVariable KE
         DiagnosticVariable QL
-        DiagnosticVariable gH
         DiagnosticVariable P
         DiagnosticVariable VH
         DiagnosticVariable HH

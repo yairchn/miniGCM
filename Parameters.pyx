@@ -20,15 +20,13 @@ cdef class Parameters:
         self.nlons     = namelist['grid']['number_of_longitude_points']
         self.rsphere   = namelist['planet']['planet_radius']
         self.n_layers  = namelist['grid']['number_of_layers']
-        self.rho1      = namelist['grid']['rho1']
-        self.rho2      = namelist['grid']['rho2']
-        self.rho3      = namelist['grid']['rho3']
-        self.H1        = namelist['grid']['H1']
-        self.H2        = namelist['grid']['H2']
-        self.H3        = namelist['grid']['H3']
-        self.QT1       = namelist['grid']['QT1']
-        self.QT2       = namelist['grid']['QT2']
-        self.QT3       = namelist['grid']['QT3']
+        self.rho       = np.zeros((self.n_layers),dtype=np.float64, order='c')
+        self.QT_init   = np.zeros((self.n_layers),dtype=np.float64, order='c')
+        self.H_init    = np.zeros((self.n_layers),dtype=np.float64, order='c')
+        for i in range(self.n_layers):
+            self.rho.base[i]     = np.float(namelist['grid']['densities'][i])
+            self.H_init.base[i]  = np.float(namelist['grid']['depths'][i])
+            self.QT_init.base[i] = np.float(namelist['grid']['humidities'][i])
         self.Omega     = namelist['planet']['Omega_rotation']
         self.g         = namelist['planet']['gravity']
 
@@ -55,8 +53,6 @@ cdef class Parameters:
         self.outpath     = str(os.path.join(namelist['output']['output_root'] + 'Output.' + namelist['meta']['simname'] + '.'
                             + self.uuid[len(self.uuid )-5:len(self.uuid)]))
         self.logfilename = self.outpath+'/'+self.casename+'.log'
-
-        self.rho = np.array([self.rho1 ,self.rho2 ,self.rho3])
 
         return
 

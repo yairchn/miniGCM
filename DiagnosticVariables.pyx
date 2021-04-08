@@ -20,6 +20,9 @@ cdef extern from "diagnostic_variables.h":
             double* div, double* ke, double* uv, double* hh, double* vh, double* M,
             Py_ssize_t k, Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
 
+    void total_depth(double* H_tot, double* h, Py_ssize_t kk,
+            Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
+
 
 cdef class DiagnosticVariable:
     def __init__(self, nx,ny,nl,n_spec, kind, name, units):
@@ -35,7 +38,6 @@ cdef class DiagnosticVariable:
 
 cdef class DiagnosticVariables:
     def __init__(self, Parameters Pr, Grid Gr):
-        self.gH = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers, Gr.SphericalGrid.nlm, 'geopotential'     , 'gH','m/s' )
         self.U  = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers, Gr.SphericalGrid.nlm, 'zonal_velocity'     , 'u','m/s' )
         self.V  = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers, Gr.SphericalGrid.nlm, 'meridional_velocity', 'v','m/s' )
         self.KE = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers, Gr.SphericalGrid.nlm, 'kinetic_enetry',      'Ek','m^2/s^2' )
@@ -147,25 +149,32 @@ cdef class DiagnosticVariables:
     @cython.boundscheck(False)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV):
         cdef:
-            Py_ssize_t k, k_rev
-            Py_ssize_t ii = 1
+            Py_ssize_t k
             Py_ssize_t nx = Pr.nlats
             Py_ssize_t ny = Pr.nlons
             Py_ssize_t nl = Pr.n_layers
-            double Rm
-            double [:,:,:] gH_k     = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
-            double [:,:,:] rho_gH_k = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
+            double [:,:,:] H_tot = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
+
+        # ============| Note on pressure formualtion |============
+        # in a model with i=1:n layers we define the sum of all underlying
+        # depthes (hᵢ) as: Hᵢ = Σᵢⁿ(hᵢ).
+        # The top layer pressure is: p₀ = gρ₀H₀
+        # and for i>0 the pressure at the i'th layer is:
+        # pᵢ = pᵢ₋₁ + g(ρᵢ-ρᵢ₋₁)Hᵢ
+
+        for kk in range(nl):
+            with nogil:
+                total_depth(&H_tot[0,0,0], &PV.H.values[0,0,0],kk, nx, ny, nl)
 
         for k in range(nl):
             self.U.values.base[:,:,k], self.V.values.base[:,:,k] = Gr.SphericalGrid.getuv(
                          PV.Vorticity.spectral.base[:,k],PV.Divergence.spectral.base[:,k])
             with nogil:
-                diagnostic_variables(Pr.g, Pr.Omega, Pr.rsphere, &Gr.lat[0,0], &Pr.rho[0], &gH_k[0,0,0], &rho_gH_k[0,0,0], &PV.H.values[0,0,0], &PV.QT.values[0,0,0],
+                diagnostic_variables(Pr.g, Pr.Omega, Pr.rsphere, &Gr.lat[0,0], &Pr.rho[0], &H_tot[0,0,0],
+                                     &self.P.values[0,0,0], &PV.H.values[0,0,0], &PV.QT.values[0,0,0],
                                      &self.QL.values[0,0,0], &self.U.values[0,0,0], &self.V.values[0,0,0],
                                      &PV.Divergence.values[0,0,0],&self.KE.values[0,0,0],
                                      &self.UV.values[0,0,0], &self.HH.values[0,0,0], &self.VH.values[0,0,0],
                                      &self.M.values[0,0,0], k, nx, ny, nl)
 
-            self.gH.values.base[:,:,k] = np.sum(gH_k[:,:,0:k],axis=2)
-            self.P.values.base[:,:,k]  = np.sum(rho_gH_k[:,:,0:k],axis=2)
         return

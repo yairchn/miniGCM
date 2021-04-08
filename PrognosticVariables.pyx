@@ -26,7 +26,7 @@ cdef extern from "tendency_functions.h":
                double* H_forc, double* rhs_H, double* u_H, double* v_H,
                Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax, Py_ssize_t k) nogil
 
-    void RHS_momentum(double* gH_tot, double* vort, double* f,double* u, double* v,
+    void RHS_momentum(double rho, double* p, double* vort, double* f,double* u, double* v,
                       double* e_dry, double* u_vort, double* v_vort,
                       ssize_t imax, ssize_t jmax, ssize_t kmax, ssize_t k) nogil
 
@@ -196,7 +196,7 @@ cdef class PrognosticVariables:
                 QT_sur_flux = PV.QT.SurfaceFlux
 
             with nogil:
-                RHS_momentum(&DV.gH.values[0,0,0], &PV.Vorticity.values[0,0,0], &Gr.Coriolis[0,0],
+                RHS_momentum(Pr.rho[k], &DV.P.values[0,0,0], &PV.Vorticity.values[0,0,0], &Gr.Coriolis[0,0],
                             &DV.U.values[0,0,0], &DV.V.values[0,0,0], &Dry_Energy[0,0],
                             &u_vorticity[0,0], &v_vorticity[0,0], nx, ny, nl, k)
 

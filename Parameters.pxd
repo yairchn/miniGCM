@@ -16,15 +16,9 @@ cdef class Parameters:
         int truncation_number
         double moist_index
         double dissipation_order
-        double H1
-        double H2
-        double H3
-        double QT1
-        double QT2
-        double QT3
-        double rho1
-        double rho2
-        double rho3
+        double [:] rho
+        double [:] QT_init
+        double [:] H_init
         double rsphere
         double omega
         double g
@@ -52,7 +46,6 @@ cdef class Parameters:
         double efold
         double inoise
         double noise_amp
-        double [:] rho
         double dT_s
         double T_min
         double Rd

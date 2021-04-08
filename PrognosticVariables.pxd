@@ -34,9 +34,6 @@ cdef class PrognosticVariables:
         PrognosticVariable Divergence
         PrognosticVariable H
         PrognosticVariable QT
-        double [:] H_init
-        double [:] Rho_init
-        double [:] QT_init
         object MP
 
 

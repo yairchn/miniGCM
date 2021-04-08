@@ -72,10 +72,6 @@ cdef class Default(CaseBase):
             double [:,:] noise
             double [:,:] fr
 
-        PV.H_init   = np.array([Pr.H1, Pr.H1, Pr.H1])
-        PV.Rho_init = np.array([Pr.rho1, Pr.rho2, Pr.rho3])
-        PV.QT_init  = np.array([Pr.QT1, Pr.QT2, Pr.QT3])
-
         Pr.k_a = namelist['forcing']['k_a']
         Pr.k_b = namelist['forcing']['k_b']
         Pr.k_s = namelist['forcing']['k_s']
@@ -86,8 +82,8 @@ cdef class Default(CaseBase):
 
         PV.Vorticity.values  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         PV.Divergence.values = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
-        PV.QT.values         = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),PV.QT_init)
-        PV.H.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),PV.H_init)
+        PV.QT.values         = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),Pr.QT_init)
+        PV.H.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),Pr.H_init)
         for i  in range(nx):
             for j  in range(ny):
                 PV.H.values[i,j,2] -= 1.0*np.exp(-((Gr.lat[i,j] - Gr.lat[-1,j])**2.0)/(2.0*0.3)**2.0)
