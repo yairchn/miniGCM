@@ -160,7 +160,7 @@ def HeldSuarezMoist(namelist_defaults):
 
     namelist['surface'] = {}
     namelist['surface']['surface_model'] = 'bulk_formula'
-    namelist['surface']['momentum_transfer_coeff'] = 0.0044
+    namelist['surface']['momentum_transfer_coeff'] = 0.0
     namelist['surface']['sensible_heat_transfer_coeff'] = 0.0044
     namelist['surface']['latent_heat_transfer_coeff'] = 0.0044
     namelist['surface']['surface_temp_diff'] = 29.0 # [K]
