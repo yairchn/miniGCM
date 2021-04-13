@@ -56,6 +56,7 @@ cdef class SurfaceBulkFormula(SurfaceBase):
         Pr.dT_s = namelist['surface']['surface_temp_diff']
         Pr.T_min = namelist['surface']['surface_temp_min']
         Pr.dphi_s = namelist['surface']['surface_temp_lat_dif']
+        # eq. (6) Tatcher and Jablonowski 2016
         self.T_surf  = np.multiply(Pr.dT_s,np.exp(-0.5*np.power(Gr.lat,2.0)/Pr.dphi_s**2.0)) + Pr.T_min
         self.QT_surf = np.multiply(np.divide(Pr.qv_star0*Pr.eps_v, PV.P.values[:,:,Pr.n_layers]),
                        np.exp(-np.multiply(Pr.Lv/Pr.Rv,np.subtract(np.divide(1,self.T_surf) , np.divide(1,Pr.T_0) ))))
