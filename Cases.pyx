@@ -201,11 +201,10 @@ cdef class HeldSuarezMoist(CaseBase):
                               Pr.init_k/(Pr.init_k + 2.0)*np.cos(Gr.lat[i,0])**(Pr.init_k+2.0) )
 
                     Tv_ = 1.0/(Tau1 - Tau2 * I_T) # eq. (20) Ullrich et al. (2014)
-                    # Tv_ = 300.0
                     for ii in range(Pr.nlons):
                         # eq. (A1) Tatcher and Jablonowski 2016
                         PV.QT.values.base[i,ii,k]  = (Pr.QT_0 * np.exp(-(Gr.lat[i,0] / Pr.phi_hw)**4.0)
-                                  * np.exp(-((Pr.pressure_levels[k]/Pr.p_ref - 1.0) * Pr.p_ref / Pr.P_hw)**2.0))
+                                  * np.exp(-((p/Pr.p_ref - 1.0) * Pr.p_ref / Pr.P_hw)**2.0))
                         PV.T.values.base[i,ii,k]  = Tv_/(1+eps_*PV.QT.values.base[i,ii,k]) # eq. (20) Ullrich et al. (2014)
 
         PV.physical_to_spectral(Pr, Gr)
