@@ -18,6 +18,7 @@ cdef class PrognosticVariable:
         double [:,:] SurfaceFlux
         double [:,:,:] forcing
         double [:,:,:] mp_tendency
+        double [:,:,:] TurbFlux
         double complex [:,:] spectral
         double complex [:,:] old
         double complex [:,:] now

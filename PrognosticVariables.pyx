@@ -51,6 +51,7 @@ cdef class PrognosticVariable:
         if name=='T' or name=='QT':
             self.mp_tendency = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
             self.SurfaceFlux = np.zeros((nx,ny)   ,dtype=np.float64, order='c')
+            self.TurbFlux = np.zeros((nx,ny,nl)   ,dtype=np.float64, order='c')
 
 
         return
