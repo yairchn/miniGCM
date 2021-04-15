@@ -15,10 +15,6 @@ cdef extern from "turbulence_functions.h":
                                  double* T, double* qt, double* u, double* v, double* wTh,
                                  double* wqt, Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
 
-
-
-
-
 cdef class TurbulenceBase:
     def __init__(self):
         return

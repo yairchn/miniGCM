@@ -14,6 +14,7 @@ void rhs_T(double cp,
            double* restrict T_mp,
            double* restrict T_sur,
            double* restrict T_forc,
+           double* restrict turbflux,
            double* restrict rhs_T,
            double* restrict u_T,
            double* restrict v_T,
@@ -56,6 +57,7 @@ void rhs_T(double cp,
             rhs_T[ij] += T_mp[ijk];
             rhs_T[ij] += T_forc[ijk];
             rhs_T[ij] += T_sur[ij];
+            rhs_T[ij] += turbflux[ijk];
         } // End j loop
     } // end i loop
     return;
@@ -69,6 +71,7 @@ void rhs_qt(double* restrict p,
             double* restrict wp,
             double* restrict qt_mp,
             double* restrict qt_sur,
+            double* restrict turbflux,
             double* restrict rhs_qt,
             double* restrict u_qt,
             double* restrict v_qt,
@@ -107,6 +110,7 @@ void rhs_qt(double* restrict p,
             } // end else
             rhs_qt[ij] += qt_mp[ijk];
             rhs_qt[ij] += qt_sur[ij];
+            rhs_qt[ij] += turbflux[ijk];
             u_qt[ij] = u[ijk] * qt[ijk];
             v_qt[ij] = v[ijk] * qt[ijk];
         } // End j loop
