@@ -57,10 +57,10 @@ void vertical_turbulent_flux(
                 windspeed_dn = sqrt(u[ijk+1]*u[ijk+1] + v[ijk+1]*v[ijk+1]);
                 za = gz[ijkmax_p-1]/g/2.0;
                 // Ke is on pressure levels
-                Kq_up = Cq*windspeed_up*za*exp(-pow(fmax(Ppbl - p[ijkp],0.0)/Pstrato,2.0));
-                Kq_dn = Cq*windspeed_dn*za*exp(-pow(fmax(Ppbl - p[ijkp+1],0.0)/Pstrato,2.0));
-                Kh_up = Ch*windspeed_up*za*exp(-pow(fmax(Ppbl - p[ijkp],0.0)/Pstrato,2.0));
-                Kh_dn = Ch*windspeed_dn*za*exp(-pow(fmax(Ppbl - p[ijkp+1],0.0)/Pstrato,2.0));
+                Kq_up = Cq*windspeed_up*za*exp(-pow( (fmax(Ppbl - p[ijkp],0.0)/Pstrato),   2.0));
+                Kq_dn = Cq*windspeed_dn*za*exp(-pow( (fmax(Ppbl - p[ijkp+1],0.0)/Pstrato), 2.0));
+                Kh_up = Ch*windspeed_up*za*exp(-pow( (fmax(Ppbl - p[ijkp],0.0)/Pstrato),   2.0));
+                Kh_dn = Ch*windspeed_dn*za*exp(-pow( (fmax(Ppbl - p[ijkp+1],0.0)/Pstrato), 2.0));
                 if (k==0){
                     wTh[ijk]   =  0.0;
                     wqt[ijk]   =  0.0;
