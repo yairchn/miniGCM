@@ -51,7 +51,7 @@ cdef class PrognosticVariable:
         if name=='T' or name=='QT':
             self.mp_tendency = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
             self.SurfaceFlux = np.zeros((nx,ny)   ,dtype=np.float64, order='c')
-            self.TurbFlux = np.zeros((nx,ny,nl)   ,dtype=np.float64, order='c')
+            self.TurbFlux    = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
 
 
         return
@@ -236,8 +236,8 @@ cdef class PrognosticVariables:
         for k in range(nl):
             if k==nl-1:
                 Vort_sur_flux ,Div_sur_flux = Gr.SphericalGrid.getvrtdivspec(DV.U.SurfaceFlux.base, DV.V.SurfaceFlux.base)
-                T_sur_flux  = PV.T.SurfaceFlux
-                QT_sur_flux = PV.QT.SurfaceFlux
+                T_turb_flux  = PV.T.SurfaceFlux
+                QT_turb_flux = PV.QT.SurfaceFlux
 
             with nogil:
                 vertical_uv_fluxes(&PV.P.values[0,0,0], &DV.gZ.values[0,0,0], &PV.Vorticity.values[0,0,0],

@@ -10,7 +10,7 @@ from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
 
 cdef extern from "turbulence_functions.h":
-    void vertical_turbulent_flux(double g, double c_e, double kappa, double p_ref,
+    void vertical_turbulent_flux(double g, double Ch, double Cq, double kappa, double p_ref,
                                  double Ppbl, double Pstrato, double* p, double* gz,
                                  double* T, double* qt, double* u, double* v, double* wTh,
                                  double* wqt, Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
@@ -54,9 +54,8 @@ cdef class DownGradientTurbulence(TurbulenceBase):
             Py_ssize_t ny = Pr.nlons
             Py_ssize_t nl = Pr.n_layers
 
-        Pr.Ce = namelist['turbulence']['']
-        Pr.Pstrato = namelist['turbulence']['']
-        Pr.Ppbl = namelist['turbulence']['']
+        Pr.Pstrato = namelist['turbulence']['stratospheric_pressure']
+        Pr.Ppbl = namelist['turbulence']['boundary_layer_top_pressure']
         return
 
     @cython.wraparound(False)
@@ -70,7 +69,7 @@ cdef class DownGradientTurbulence(TurbulenceBase):
             Py_ssize_t nl = Pr.n_layers
 
         with nogil:
-            vertical_turbulent_flux(Pr.g, Pr.Ce, Pr.kappa, Pr.p_ref, Pr.Ppbl, Pr.Pstrato,
+            vertical_turbulent_flux(Pr.g, Pr.Ch, Pr.Cq, Pr.kappa, Pr.p_ref, Pr.Ppbl, Pr.Pstrato,
                               &PV.P.values[0,0,0],&DV.gZ.values[0,0,0],
                               &PV.T.values[0,0,0],&PV.QT.values[0,0,0],
                               &DV.U.values[0,0,0],&DV.V.values[0,0,0],

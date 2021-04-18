@@ -149,6 +149,9 @@ def HeldSuarezMoist(namelist_defaults):
     namelist['thermodynamics']['verical_half_width_of_the_q'] = 34000.0 # pasc
     namelist['thermodynamics']['horizontal_half_width_of_the_q'] = 0.6981 # radians lat
 
+    namelist['turbulence']['stratospheric_pressure'] = 10000.0
+    namelist['turbulence']['boundary_layer_top_pressure'] = 85000.0
+
     namelist['microphysics'] = {}
     namelist['microphysics']['rain_model'] = 'Kessler_cutoff'
     namelist['microphysics']['water_density'] = 1000.0            # g/m^3

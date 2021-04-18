@@ -6,7 +6,8 @@
 
 void vertical_turbulent_flux(
            double g,
-           double c_e,
+           double Ch,
+           double Cq,
            double kappa,
            double p_ref,
            double Ppbl,
@@ -30,11 +31,12 @@ void vertical_turbulent_flux(
     double windspeed_up;
     double windspeed_dn;
     double za;
-    double Ke_dn;
-    double Ke_up;
+    double Kh_dn;
+    double Kh_up;
+    double Kq_dn;
+    double Kq_up;
     double dpi;
     double Th_up;
-    double Th_md;
     double Th_dn;
 
     for(ssize_t i=imin;i<imax;i++){
@@ -55,38 +57,20 @@ void vertical_turbulent_flux(
                 windspeed_dn = sqrt(u[ijk+1]*u[ijk+1] + v[ijk+1]*v[ijk+1]);
                 za = gz[ijkmax_p-1]/g/2.0;
                 // Ke is on pressure levels
-                Ke_up = c_e*windspeed_up*za*exp(-pow(fmax(Ppbl - p[ijkp],0.0)/Pstrato,2.0));
-                Ke_dn = c_e*windspeed_dn*za*exp(-pow(fmax(Ppbl - p[ijkp+1],0.0)/Pstrato,2.0));
+                Kq_up = Cq*windspeed_up*za*exp(-pow(fmax(Ppbl - p[ijkp],0.0)/Pstrato,2.0));
+                Kq_dn = Cq*windspeed_dn*za*exp(-pow(fmax(Ppbl - p[ijkp+1],0.0)/Pstrato,2.0));
+                Kh_up = Ch*windspeed_up*za*exp(-pow(fmax(Ppbl - p[ijkp],0.0)/Pstrato,2.0));
+                Kh_dn = Ch*windspeed_dn*za*exp(-pow(fmax(Ppbl - p[ijkp+1],0.0)/Pstrato,2.0));
                 if (k==0){
-                    dpi = 2.0/(p[ijkp+2]-p[ijkp]);
-                    Th_dn = T[ijk+1]*pow((p[ijkp+1]+p[ijkp+2])/2.0/p_ref, kappa);
-                    Th_md = T[ijk]  *pow((p[ijkp]+p[ijkp+1])/2.0/p_ref, kappa);
                     wTh[ijk]   =  0.0;
                     wqt[ijk]   =  0.0;
-                    wTh[ijk+1] = -Ke_dn*(Th_dn     - Th_md)*dpi;
-                    wqt[ijk+1] = -Ke_dn*(qt[ijk+1] - qt[ijk])*dpi;
                 } // end if
-                else if (k==kmax-1){
-                    dpi = 2.0/(p[ijkp+1]-p[ijkp-1]);
-                    Th_md = T[ijk]  *pow((p[ijkp]   + p[ijkp+1])/2.0/p_ref, kappa);
-                    Th_up = T[ijk-1]*pow((p[ijkp-1] + p[ijkp])/2.0/p_ref, kappa);
-                    wTh[ijk]   = -Ke_up*(Th_md   - Th_up)*dpi;
-                    wqt[ijk]   = -Ke_up*(qt[ijk] - qt[ijk-1])*dpi;
-                    wTh[ijk+1] =  0.0;
-                    wqt[ijk+1] =  0.0;
-                } // end else if
                 else{
-                    Th_dn = T[ijk+1]*pow((p[ijkp+1] + p[ijkp+2])/2.0/p_ref, kappa);
-                    Th_md = T[ijk]  *pow((p[ijkp]   + p[ijkp+1])/2.0/p_ref, kappa);
+                    Th_dn = T[ijk]  *pow((p[ijkp]   + p[ijkp+1])/2.0/p_ref, kappa);
                     Th_up = T[ijk-1]*pow((p[ijkp-1] + p[ijkp])/2.0/p_ref, kappa);
-
                     dpi = 2.0/(p[ijkp+1]-p[ijkp-1]);
-                    wTh[ijk] = -Ke_up*(Th_md   - Th_up)*dpi;
-                    wqt[ijk] = -Ke_up*(qt[ijk] - qt[ijk-1])*dpi;
-
-                    dpi = 2.0/(p[ijkp+2]-p[ijkp]);
-                    wTh[ijk+1] = -Ke_dn*(Th_dn     - Th_md)*dpi;
-                    wqt[ijk+1] = -Ke_dn*(qt[ijk+1] - qt[ijk])*dpi;
+                    wTh[ijk] = -Kh_up*(Th_dn - Th_up)*dpi;
+                    wqt[ijk] = -Kq_up*(qt[ijk] - qt[ijk-1])*dpi;
                 } // end else
             } // end k loop
         } // end j loop

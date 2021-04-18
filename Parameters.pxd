@@ -21,7 +21,6 @@ cdef class Parameters:
         double p_ref
         double Ppbl
         double Pstrato
-        double Ce
         double rsphere
         double omega
         double g
