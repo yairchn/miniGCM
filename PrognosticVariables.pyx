@@ -46,7 +46,9 @@ cdef class PrognosticVariable:
         self.tendency = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         self.VerticalFlux = np.zeros((nx,ny,nl+1),dtype=np.float64, order='c')
         self.sp_VerticalFlux = np.zeros((n_spec,nl),dtype = np.complex, order='c')
-        if name=='T':
+        if name=='Vorticity':
+            self.sp_forcing = np.zeros((n_spec,nl),dtype = np.complex, order='c')
+        if name=='T' or 'Vorticity':
             self.forcing = np.zeros((nx,ny,nl),dtype = np.float64, order='c')
         if name=='T' or name=='QT':
             self.mp_tendency = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
@@ -269,7 +271,7 @@ cdef class PrognosticVariables:
             with nogil:
                 for i in range(nlm):
                     PV.Vorticity.tendency[i,k]  = (Vort_forc[i] - Divergent_momentum_flux[i]
-                                                    - w_vort_up[i] - w_vort_dn[i] + Vort_sur_flux[i])
+                                                    - w_vort_up[i] - w_vort_dn[i] + Vort_sur_flux[i] + PV.Vorticity.sp_forcing[i,k]) # JOSEF
                     PV.Divergence.tendency[i,k] = (Vortical_momentum_flux[i] - Dry_Energy_laplacian[i]
                                                     - w_div_up[i] - w_div_dn[i] + Div_forc[i] + Div_sur_flux[i])
 

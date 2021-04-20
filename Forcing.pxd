@@ -8,6 +8,7 @@ from PrognosticVariables cimport PrognosticVariables
 import sphericalForcing as spf
 from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
+import sphericalForcing as spf
 
 cdef class ForcingBase:
 	cdef:

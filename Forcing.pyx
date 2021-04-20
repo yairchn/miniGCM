@@ -14,6 +14,7 @@ from TimeStepping cimport TimeStepping
 import sys
 from Parameters cimport Parameters
 from libc.math cimport pow, log, sin, cos, fmax
+import sphericalForcing as spf
 
 cdef extern from "forcing_functions.h":
 	void focring_hs(double kappa, double p_ref, double sigma_b, double k_a, double k_b,
@@ -96,6 +97,8 @@ cdef class HelzSuarez(ForcingBase):
 						&self.cos_lat[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
 						&DV.U.forcing[0,0,0], &DV.V.forcing[0,0,0], &PV.T.forcing[0,0,0],
 						nx, ny, nl)
+
+		PV.Vorticity.sp_forcing[:,nl] = ??? # JOSEF
 		return
 
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):

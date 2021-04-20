@@ -19,6 +19,7 @@ cdef class PrognosticVariable:
         double [:,:,:] forcing
         double [:,:,:] mp_tendency
         double complex [:,:] spectral
+        double complex [:,:] sp_forcing
         double complex [:,:] old
         double complex [:,:] now
         double complex [:,:] tendency
