@@ -65,6 +65,8 @@ void rhs_T(double cp,
 }
 
 
+
+
 void rhs_qt(double* restrict p,
             double* restrict qt,
             double* restrict u,

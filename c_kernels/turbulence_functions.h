@@ -28,13 +28,10 @@ void vertical_turbulent_flux(
     const ssize_t imin = 0;
     const ssize_t jmin = 0;
     const ssize_t kmin = 0;
-    double windspeed_up;
-    double windspeed_dn;
+    double windspeed;
     double za;
-    double Kh_dn;
-    double Kh_up;
-    double Kq_dn;
-    double Kq_up;
+    double Kh;
+    double Kq;
     double dpi;
     double Th_up;
     double Th_dn;
@@ -49,28 +46,25 @@ void vertical_turbulent_flux(
             const ssize_t ij = ishift_2d + j;
             const ssize_t ijkmax = ishift + jshift + kmax;
             const ssize_t ijkmax_p = ishift_p + jshift_p + kmax;
+            windspeed = sqrt(u[ijkmax]*u[ijkmax] + v[ijkmax]*v[ijkmax]);
+            za = gz[ijkmax_p-1]/g/2.0;
             for(ssize_t k=kmin;k<kmax;k++){
                 const ssize_t ijk = ishift + jshift + k;
                 const ssize_t ijkp = ishift_p + jshift_p + k;
-                // eq. (17) Tatcher and Jablonowski 2016
-                windspeed_up = sqrt(u[ijk]*u[ijk]     + v[ijk]*v[ijk]);
-                windspeed_dn = sqrt(u[ijk+1]*u[ijk+1] + v[ijk+1]*v[ijk+1]);
-                za = gz[ijkmax_p-1]/g/2.0;
-                // Ke is on pressure levels
-                Kq_up = Cq*windspeed_up*za*exp(-pow( (fmax(Ppbl - p[ijkp],0.0)/Pstrato),   2.0));
-                Kq_dn = Cq*windspeed_dn*za*exp(-pow( (fmax(Ppbl - p[ijkp+1],0.0)/Pstrato), 2.0));
-                Kh_up = Ch*windspeed_up*za*exp(-pow( (fmax(Ppbl - p[ijkp],0.0)/Pstrato),   2.0));
-                Kh_dn = Ch*windspeed_dn*za*exp(-pow( (fmax(Ppbl - p[ijkp+1],0.0)/Pstrato), 2.0));
                 if (k==0){
                     wTh[ijk]   =  0.0;
                     wqt[ijk]   =  0.0;
                 } // end if
                 else{
+                    // Ke is on pressure levels
+                    // eq. (17) Tatcher and Jablonowski 2016
+                    Kq = Cq*windspeed*za*exp(-pow( (fmax(Ppbl - p[ijkp],0.0)/Pstrato),   2.0));
+                    Kh = Ch*windspeed*za*exp(-pow( (fmax(Ppbl - p[ijkp],0.0)/Pstrato),   2.0));
                     Th_dn = T[ijk]  *pow((p[ijkp]   + p[ijkp+1])/2.0/p_ref, kappa);
                     Th_up = T[ijk-1]*pow((p[ijkp-1] + p[ijkp])/2.0/p_ref, kappa);
-                    dpi = 2.0/(p[ijkp+1]-p[ijkp-1]);
-                    wTh[ijk] = -Kh_up*(Th_dn - Th_up)*dpi;
-                    wqt[ijk] = -Kq_up*(qt[ijk] - qt[ijk-1])*dpi;
+                    dpi = 2.0/(p[ijkp+1]-p[ijkp-1]); // pressure differnece from mid-layer values for ijk
+                    wTh[ijk] = -Kh*(Th_dn - Th_up)*dpi;
+                    wqt[ijk] = -Kq*(qt[ijk] - qt[ijk-1])*dpi;
                 } // end else
             } // end k loop
         } // end j loop
@@ -78,3 +72,18 @@ void vertical_turbulent_flux(
 
     return;
 }
+
+// STRUCTURE
+//                                    (w'T'_2          -        w'T'_1)/(p2-p1)
+// dT/dt_1  = -d/dp(K*dT/dp) = -(2*K*(T_2-T_1)/(p3-p1)                     - 0)/(p2-p1)
+//                                    (w'T'_3          -        w'T'_2)/(p3-p2)
+// dT/dt_2  = -d/dp(K*dT/dp) = -(2*K*(T_3-T_2)/(ps-p2) - 2*K*(T2-T1)/(p3-p1))/(p3-p2)
+//                                    (w'T'_3          -        w'T'_2)/(p3-p2)
+// dT/dt_3  = -d/dp(K*dT/dp) = -(surf_flux             - 2*K*(T3-T2)/(ps-p2))/(ps-p3)
+// ------------ p1 w'T'_1 = 0.0
+//  - - - - - -                                  (w'T'_2-w'T'_1)/(p2-p1)
+// ------------ p2 w'T'_2 = -K_e(T2- T1)/(p3-p1)
+//  - - - - - -                                  (w'T'_3-w'T'_2)/(p3-p2)
+// ------------ p3 w'T'_3 = -K_e(T3- T2)/(ps-p2)
+//  - - - - - -                                  (w'T'_s-w'T'_3)/(ps-p3)
+// ------------ ps w'T'_s = surf_flux
