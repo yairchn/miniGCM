@@ -18,7 +18,7 @@ cdef extern from "turbulence_functions.h":
 cdef class TurbulenceBase:
     def __init__(self):
         return
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+    cpdef initialize(self, Parameters Pr, namelist):
         return
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
         return
@@ -32,7 +32,7 @@ cdef class TurbulenceBase:
 cdef class TurbulenceNone(TurbulenceBase):
     def __init__(self):
         return
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+    cpdef initialize(self, Parameters Pr, namelist):
         return
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
         return
@@ -47,7 +47,7 @@ cdef class DownGradientTurbulence(TurbulenceBase):
     def __init__(self):
         TurbulenceBase.__init__(self)
         return
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+    cpdef initialize(self, Parameters Pr, namelist):
         cdef:
             Py_ssize_t i,j,k
             Py_ssize_t nx = Pr.nlats

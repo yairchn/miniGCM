@@ -8,6 +8,7 @@ from Grid cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
 cimport Forcing
 cimport Surface
+cimport Turbulence
 cimport Microphysics
 import sys
 from TimeStepping cimport TimeStepping
@@ -40,6 +41,9 @@ cdef class CaseBase:
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         return
 
+    cpdef initialize_turbulence(self, Parameters Pr, namelist):
+        return
+
     cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
         return
 
@@ -64,6 +68,7 @@ cdef class HeldSuarez(CaseBase):
         self.Fo  = Forcing.HelzSuarez()
         self.Sur = Surface.SurfaceNone()
         self.MP = Microphysics.MicrophysicsNone()
+        self.Tr = Turbulence.TurbulenceNone()
         return
 
     cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist):
@@ -110,6 +115,11 @@ cdef class HeldSuarez(CaseBase):
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Sur.initialize(Pr, Gr, PV, namelist)
+        self.Tr
+        return
+
+    cpdef initialize_turbulence(self, Parameters Pr, namelist):
+        self.Tr.initialize(Pr, namelist)
         return
 
     cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
@@ -142,6 +152,7 @@ cdef class HeldSuarez(CaseBase):
         self.Sur.update(Pr, Gr, PV, DV)
         self.Fo.update(Pr, Gr, PV, DV)
         self.MP.update(Pr, PV, DV, TS)
+        self.Tr.update(Pr, Gr, PV, DV)
         return
 
 cdef class HeldSuarezMoist(CaseBase):
@@ -150,6 +161,7 @@ cdef class HeldSuarezMoist(CaseBase):
         self.Fo  = Forcing.HelzSuarezMoist()
         self.Sur = Surface.SurfaceBulkFormula()
         self.MP = Microphysics.MicrophysicsCutoff()
+        self.Tr = Turbulence.DownGradientTurbulence()
         return
 
 
@@ -228,6 +240,10 @@ cdef class HeldSuarezMoist(CaseBase):
         self.Sur.initialize(Pr, Gr, PV, namelist)
         return
 
+    cpdef initialize_turbulence(self, Parameters Pr, namelist):
+        self.Tr.initialize(Pr, namelist)
+        return
+
     cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
         self.Fo.initialize(Pr, Gr, namelist)
         return
@@ -261,4 +277,5 @@ cdef class HeldSuarezMoist(CaseBase):
         self.Sur.update(Pr, Gr, PV, DV)
         self.Fo.update(Pr, Gr, PV, DV)
         self.MP.update(Pr, PV, DV, TS)
+        self.Tr.update(Pr, Gr, PV, DV)
         return
