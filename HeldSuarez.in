@@ -1,7 +1,7 @@
 {
     "diffusion": {
         "dissipation_order": 4.0,
-        "e_folding_timescale_grid_scale": 14400,
+        "e_folding_timescale_grid_scale": 7200,
         "e_folding_timescale_meso_scale": 100000000,
         "order": 4.0,
         "truncation_order": 3,
@@ -26,12 +26,14 @@
         "pressure_levels": [
             25000.0,
             50000.0,
-            75000.0,
+            85000.0,
             100000.0
         ]
     },
     "initialize": {
         "T_init": 300.0,
+        "forcing_inoise": 1,
+        "forcing_noise_amplitude": 0.000000001,
         "inoise": 1,
         "noise_amplitude": 1,
         "noise_type": "red",
@@ -41,14 +43,14 @@
         "restart type": "zonal_mean"
     },
     "io": {
-        "output_frequency": 7.0,
+        "output_frequency": 1.0,
         "stats_dir": "stats",
         "stats_frequency": 1.0
     },
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "ca477312-1b0a-4b35-9547-KbKags144do4"
+        "uuid": "8dd880fb-ec68-4295-b6e2-forcing_stoc"
     },
     "microphysics": {
         "rain_model": "None"

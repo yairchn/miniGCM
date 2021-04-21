@@ -56,6 +56,8 @@ cdef class Parameters:
         double efold_meso
         double efold_grid
         double inoise
+        double forcing_inoise
+        double forcing_noise_amp
         double noise_amp
 
         str case
