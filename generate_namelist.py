@@ -25,15 +25,15 @@ def main():
     namelist_defaults['diffusion'] = {}
     namelist_defaults['diffusion']['dissipation_order'] = 4.0
     namelist_defaults['diffusion']['truncation_order'] = 3
-    namelist_defaults['diffusion']['e_folding_timescale_grid_scale'] = 600
-    namelist_defaults['diffusion']['e_folding_timescale_meso_scale'] = 600
+    namelist_defaults['diffusion']['e_folding_timescale_grid_scale'] = 7200
+    namelist_defaults['diffusion']['e_folding_timescale_meso_scale'] = 100000000
     
     namelist_defaults['grid'] = {}
     namelist_defaults['grid']['dims'] = 1
     namelist_defaults['grid']['gw']   = 2
     namelist_defaults['grid']['number_of_latitute_points'] =  64
     namelist_defaults['grid']['number_of_longitude_points'] = 128
-    namelist_defaults['grid']['pressure_levels']    =  [250.0*1.e2,500.0*1.e2,850.0*1.e2, 1000.0*1.e2]  # [pasc]
+    namelist_defaults['grid']['pressure_levels']    =  [250.0*1.e2,500.0*1.e2,750.0*1.e2, 1000.0*1.e2]  # [pasc]
 
     namelist_defaults['planet'] = {}
     namelist_defaults['planet']['planet_radius']    = 6.37122e6 # earth radius [m]
@@ -53,6 +53,8 @@ def main():
     namelist_defaults['initialize']['restart time']             = 'none'         # input directory for restart
     namelist_defaults['initialize']['restart folder']           = './'         # input directory for restart
     namelist_defaults['initialize']['restart type']             = 'zonal_mean' # restart from zonal mean
+    namelist_defaults['initialize']['forcing_inoise']           = 1            # flag for noise in initial condition
+    namelist_defaults['initialize']['forcing_noise_amplitude']  =20.         # amplitude of initial noise in K
     namelist_defaults['initialize']['inoise']                   = 1            # flag for noise in initial condition
     namelist_defaults['initialize']['noise_amplitude']          = 1            # amplitude of initial noise in K
     namelist_defaults['initialize']['noise_type'] = 'red' # 'white', 'red', 'blue', or 'local' 
@@ -64,7 +66,7 @@ def main():
     namelist_defaults['io'] = {}
     namelist_defaults['io']['stats_dir'] = 'stats'
     namelist_defaults['io']['stats_frequency'] = 1.0
-    namelist_defaults['io']['output_frequency'] = 7.0
+    namelist_defaults['io']['output_frequency'] = 1.0
 
     namelist_defaults['meta'] = {}
 

@@ -46,6 +46,8 @@ cdef class Parameters:
         self.noise_amp      = namelist['initialize']['noise_amplitude']
 
         self.surface_model = namelist['surface']['surface_model']
+        self.forcing_inoise = namelist['initialize']['forcing_inoise']
+        self.forcing_noise_amp = namelist['initialize']['forcing_noise_amplitude']
         self.inoise        = namelist['initialize']['inoise']
         self.noise_amp        = namelist['initialize']['noise_amplitude']
         self.noise_type     = namelist['initialize']['noise_type']
