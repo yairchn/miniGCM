@@ -1,7 +1,7 @@
 {
     "diffusion": {
         "dissipation_order": 4.0,
-        "e_folding_timescale_grid_scale": 14400,
+        "e_folding_timescale_grid_scale": 7200,
         "e_folding_timescale_meso_scale": 100000000,
         "order": 4.0,
         "truncation_order": 3,
@@ -41,14 +41,14 @@
         "restart type": "zonal_mean"
     },
     "io": {
-        "output_frequency": 7.0,
+        "output_frequency": 1.0,
         "stats_dir": "stats",
         "stats_frequency": 1.0
     },
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "ca477312-1b0a-4b35-9547-KbKags144do4"
+        "uuid": "9127d853-4314-4297-b387-ReferenceRun"
     },
     "microphysics": {
         "rain_model": "None"
