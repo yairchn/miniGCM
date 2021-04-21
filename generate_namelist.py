@@ -53,8 +53,8 @@ def main():
     namelist_defaults['initialize']['restart time']             = 'none'         # input directory for restart
     namelist_defaults['initialize']['restart folder']           = './'         # input directory for restart
     namelist_defaults['initialize']['restart type']             = 'zonal_mean' # restart from zonal mean
-    namelist_defaults['initialize']['forcing_inoise']           = 1            # flag for noise in initial condition
-    namelist_defaults['initialize']['forcing_noise_amplitude']  =20.         # amplitude of initial noise in K
+    namelist_defaults['initialize']['forcing_inoise']                   = 1            # flag for noise in initial condition
+    namelist_defaults['initialize']['forcing_noise_amplitude']          = 1            # amplitude of initial noise in K
     namelist_defaults['initialize']['inoise']                   = 1            # flag for noise in initial condition
     namelist_defaults['initialize']['noise_amplitude']          = 1            # amplitude of initial noise in K
     namelist_defaults['initialize']['noise_type'] = 'red' # 'white', 'red', 'blue', or 'local' 

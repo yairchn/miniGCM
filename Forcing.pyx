@@ -13,6 +13,7 @@ from NetCDFIO cimport NetCDFIO_Stats
 from TimeStepping cimport TimeStepping
 import sys
 from Parameters cimport Parameters
+import sphericalForcing as spf
 from libc.math cimport pow, log, sin, cos, fmax
 import sphericalForcing as spf
 
@@ -89,6 +90,7 @@ cdef class HelzSuarez(ForcingBase):
 			Py_ssize_t nx = Pr.nlats
 			Py_ssize_t ny = Pr.nlons
 			Py_ssize_t nl = Pr.n_layers
+			double complex [:] forcing_noise
 
 		with nogil:
 			focring_hs(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
@@ -97,14 +99,21 @@ cdef class HelzSuarez(ForcingBase):
 						&self.cos_lat[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
 						&DV.U.forcing[0,0,0], &DV.V.forcing[0,0,0], &PV.T.forcing[0,0,0],
 						nx, ny, nl)
-		#if Pr.forcing_inoise==1:
-			# calculate noise
-			#print('add stochastic forcing')
-			#F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
-			#fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0., noise_type='local')
-			#forcing_noise = fr.forcingFn(F0)*Pr.forcing_noise_amp
-			#PV.Vorticity.sp_forcing[:,nl] = forcing_noise
+		if Pr.forcing_inoise==1:
+			F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
+			fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0., noise_type='local')
+			forcing_noise = fr.forcingFn(F0)*Pr.forcing_noise_amp
+			PV.Vorticity.sp_forcing[:,nl] = forcing_noise
 		return
+
+                #if Pr.forcing_inoise==1:
+                        # calculate noise
+                        #print('add stochastic forcing')
+                        #F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
+                        #fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0., noise_type='local')
+                        #forcing_noise = fr.forcingFn(F0)*Pr.forcing_noise_amp
+                        #PV.Vorticity.sp_forcing[:,nl] = forcing_noise
+ 
 
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
 		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'T_eq', self.Tbar)

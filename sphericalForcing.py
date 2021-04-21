@@ -23,16 +23,12 @@ class sphForcing(object):
     def forcingFn(self,F0):
         wavenumber=self.l.astype(float); wavenumber[0]=1 #just to prepare for scaling
         if self.noise_type == 'white':
-            print('add white noise')
             signal = self.magnitude*self.A*wavenumber**(-0.5)* np.exp(np.random.rand(self.nlm)*1j*2*np.pi) # white noise
         elif self.noise_type == 'blue':
-            print('add blue noise')
             signal = self.magnitude* self.A*wavenumber**(-0.25)* np.exp(np.random.rand(self.nlm)*1j*2*np.pi) # blue noise
         elif self.noise_type == 'red':
-            print('add red noise')
             signal = self.magnitude* self.A*wavenumber**(-0.8)* np.exp(np.random.rand(self.nlm)*1j*2*np.pi) # red noise
         elif self.noise_type == 'local':
-            print('add noise')
             signal = self.magnitude* self.A *np.exp(np.random.rand(self.nlm)*1j*2*np.pi)
         F = (np.sqrt(1-self.corr**2))*signal + self.corr*F0
         out = F

@@ -16,8 +16,8 @@ def main():
     #runname='5b4838ca0516'
     folder = args.folder
 
-    ncfile = '/home/scoty/miniGCM/' + folder + '/stats/Stats2.HeldSuarez.nc'
-    #ncfile = '/home/yair/' + folder + '/stats/Stats.HeldSuarezMoist.nc'
+    #ncfile = '/home/scoty/miniGCM/' + folder + '/stats/Stats2.HeldSuarez.nc'
+    ncfile = '/home/yair/' + folder + '/stats/Stats.HeldSuarezMoist.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])

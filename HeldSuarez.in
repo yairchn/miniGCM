@@ -26,14 +26,14 @@
         "pressure_levels": [
             25000.0,
             50000.0,
-            75000.0,
+            85000.0,
             100000.0
         ]
     },
     "initialize": {
         "T_init": 300.0,
-        "forcing_inoise": 0,
-        "forcing_noise_amplitude": 20.0,
+        "forcing_inoise": 1,
+        "forcing_noise_amplitude": 0.000000001,
         "inoise": 1,
         "noise_amplitude": 1,
         "noise_type": "red",
@@ -50,7 +50,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "6c6cb3ea-5b38-47c7-9367-c56de1acbc35"
+        "uuid": "8dd880fb-ec68-4295-b6e2-forcing_stoc"
     },
     "microphysics": {
         "rain_model": "None"
