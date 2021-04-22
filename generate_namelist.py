@@ -69,12 +69,12 @@ def main():
     namelist_defaults['io']['output_frequency'] = 1.0
 
 
-    namelist['convection'] = {}
-    namelist['convection']['convection_type'] = 'Randon'
-    namelist['convection']['Divergence_convective_noise_amplitude'] = 0.0
-    namelist['convection']['Vorticity_convective_noise_amplitude'] = 0.0
-    namelist['convection']['T_convective_noise_amplitude'] = 0.0
-    namelist['convection']['QT_convective_noise_amplitude'] = 0.0
+    namelist_defaults['convection'] = {}
+    namelist_defaults['convection']['convection_type'] = 'Randon'
+    namelist_defaults['convection']['Divergence_convective_noise_amplitude'] = 0.0
+    namelist_defaults['convection']['Vorticity_convective_noise_amplitude'] = 0.0001
+    namelist_defaults['convection']['T_convective_noise_amplitude'] = 0.0
+    namelist_defaults['convection']['QT_convective_noise_amplitude'] = 0.0
 
     namelist_defaults['meta'] = {}
 
