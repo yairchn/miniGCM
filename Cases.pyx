@@ -9,6 +9,7 @@ from NetCDFIO cimport NetCDFIO_Stats
 cimport Forcing
 cimport Surface
 cimport Microphysics
+cimport Convection
 import sys
 from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
@@ -40,6 +41,9 @@ cdef class CaseBase:
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         return
 
+    cpdef initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+        return
+
     cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
         return
 
@@ -63,6 +67,7 @@ cdef class HeldSuarez(CaseBase):
         # Pr.casename = namelist['meta']['casename']
         self.Fo  = Forcing.HelzSuarez()
         self.Sur = Surface.SurfaceNone()
+        self.Co = Convection.ConvectionRandom()
         self.MP = Microphysics.MicrophysicsNone()
         return
 
@@ -110,6 +115,10 @@ cdef class HeldSuarez(CaseBase):
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Sur.initialize(Pr, Gr, PV, namelist)
+        return
+
+    cpdef initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+        self.Co.initialize(Pr, Gr, namelist)
         return
 
     cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
@@ -226,6 +235,10 @@ cdef class HeldSuarezMoist(CaseBase):
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Sur.initialize(Pr, Gr, PV, namelist)
+        return
+
+    cpdef initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+        self.Co.initialize(Pr, Gr, namelist)
         return
 
     cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist):

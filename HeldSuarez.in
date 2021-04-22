@@ -4,7 +4,7 @@
         "QT_convective_noise_amplitude": 0.0,
         "T_convective_noise_amplitude": 0.0,
         "Vorticity_convective_noise_amplitude": 0.0001,
-        "convection_type": "Randon"
+        "convection_type": "Random"
     },
     "diffusion": {
         "dissipation_order": 4.0,
@@ -57,7 +57,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "50a6d6f0-ad6e-4e6a-a8af-a58c70ea7e53"
+        "uuid": "50a6d6f0-ad6e-4e6a-a8af-__convection"
     },
     "microphysics": {
         "rain_model": "None"
