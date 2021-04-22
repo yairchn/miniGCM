@@ -38,6 +38,7 @@ class Simulation:
         self.Case.initialize_microphysics(self.Pr, self.PV, self.DV, namelist)
         self.Case.initialize_forcing(self.Pr, self.Gr, namelist)
         self.Case.initialize_surface(self.Pr, self.Gr, self.PV, namelist)
+        self.Case.initialize_turbulence(self.Pr, namelist)
         self.DF.initialize(self.Pr, self.Gr, namelist)
         self.TS.initialize(self.Pr)
         self.initialize_io(namelist)

@@ -25,15 +25,15 @@ def main():
     namelist_defaults['diffusion'] = {}
     namelist_defaults['diffusion']['dissipation_order'] = 4.0
     namelist_defaults['diffusion']['truncation_order'] = 3
-    namelist_defaults['diffusion']['e_folding_timescale_grid_scale'] = 600
-    namelist_defaults['diffusion']['e_folding_timescale_meso_scale'] = 600
+    namelist_defaults['diffusion']['e_folding_timescale_grid_scale'] = 7200
+    namelist_defaults['diffusion']['e_folding_timescale_meso_scale'] = 100000000
     
     namelist_defaults['grid'] = {}
     namelist_defaults['grid']['dims'] = 1
     namelist_defaults['grid']['gw']   = 2
     namelist_defaults['grid']['number_of_latitute_points'] =  64
     namelist_defaults['grid']['number_of_longitude_points'] = 128
-    namelist_defaults['grid']['pressure_levels']    =  [250.0*1.e2,500.0*1.e2,850.0*1.e2, 1000.0*1.e2]  # [pasc]
+    namelist_defaults['grid']['pressure_levels']    =  [250.0*1.e2,500.0*1.e2,750.0*1.e2, 1000.0*1.e2]  # [pasc]
 
     namelist_defaults['planet'] = {}
     namelist_defaults['planet']['planet_radius']    = 6.37122e6 # earth radius [m]
@@ -143,12 +143,14 @@ def HeldSuarezMoist(namelist_defaults):
     namelist['initialize']['T1']   = 229.0 # initial temperature of layer 1 [K]
     namelist['initialize']['T2']   = 257.0 # initial temperature of layer 2 [K]
     namelist['initialize']['T3']   = 300.0 # initial temperature of layer 3 [K]
+    namelist['initialize']['T_init']   = 300.0 # initial temperature of layer 1 [K]
 
 
     namelist['thermodynamics']['thermodynamics_type'] = 'moist'
-    namelist['thermodynamics']['verical_half_width_of_the_q'] = 34000.0 # pasc
+    namelist['thermodynamics']['verical_half_width_of_the_q'] = 30000.0 # pasc
     namelist['thermodynamics']['horizontal_half_width_of_the_q'] = 0.6981 # radians lat
 
+    namelist['turbulence'] = {}
     namelist['turbulence']['stratospheric_pressure'] = 10000.0
     namelist['turbulence']['boundary_layer_top_pressure'] = 85000.0
 

@@ -78,16 +78,16 @@ cdef class DownGradientTurbulence(TurbulenceBase):
 
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
-        # Stats.add_surface_zonal_mean('zonal_mean_T_surf')
-        # Stats.add_surface_zonal_mean('zonal_mean_QT_surf')
+        # Stats.add_zonal_mean('zonal_mean_QT_Turb')
+        # Stats.add_zonal_mean('zonal_mean_T_Turb')
         return
 
     cpdef stats_io(self, NetCDFIO_Stats Stats):
-        # Stats.write_surface_zonal_mean('zonal_mean_QT_surf', self.T_surf)
-        # Stats.write_surface_zonal_mean('zonal_mean_QT_surf', self.QT_surf)
+        # Stats.write_zonal_mean('zonal_mean_QT_Turb', PV.QT.TurbFlux)
+        # Stats.write_zonal_mean('zonal_mean_T_Turb', PV.T.TurbFlux)
         return
 
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-        # Stats.write_2D_variable(Pr, TS.t,  'T_surf', self.T_surf)
-        # Stats.write_2D_variable(Pr, TS.t,  'QT_surf', self.QT_surf)
+        # Stats.write_3D_variable(Pr, TS.t,  'QT_Turb',  PV.QT.TurbFlux)
+        # Stats.write_3D_variable(Pr, TS.t,  'T_Turb',PV.T.TurbFlux)
         return
