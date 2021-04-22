@@ -59,6 +59,11 @@ cdef class Parameters:
         double forcing_inoise
         double forcing_noise_amp
         double noise_amp
+        double conv_amp
+        double Div_conv_amp
+        double Vort_conv_amp
+        double T_conv_amp
+        double QT_conv_amp
 
         str case
         str noise_type

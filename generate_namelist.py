@@ -68,6 +68,14 @@ def main():
     namelist_defaults['io']['stats_frequency'] = 1.0
     namelist_defaults['io']['output_frequency'] = 1.0
 
+
+    namelist['convection'] = {}
+    namelist['convection']['convection_type'] = 'Randon'
+    namelist['convection']['Divergence_convective_noise_amplitude'] = 0.0
+    namelist['convection']['Vorticity_convective_noise_amplitude'] = 0.0
+    namelist['convection']['T_convective_noise_amplitude'] = 0.0
+    namelist['convection']['QT_convective_noise_amplitude'] = 0.0
+
     namelist_defaults['meta'] = {}
 
     if case_name == 'HeldSuarez':

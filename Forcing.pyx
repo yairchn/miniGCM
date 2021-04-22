@@ -113,7 +113,7 @@ cdef class HelzSuarez(ForcingBase):
                         #fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0., noise_type='local')
                         #forcing_noise = fr.forcingFn(F0)*Pr.forcing_noise_amp
                         #PV.Vorticity.sp_forcing[:,nl] = forcing_noise
- 
+
 
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
 		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'T_eq', self.Tbar)

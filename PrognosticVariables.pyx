@@ -45,6 +45,7 @@ cdef class PrognosticVariable:
         self.now      = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         self.tendency = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         self.VerticalFlux = np.zeros((nx,ny,nl+1),dtype=np.float64, order='c')
+        self.ConvectiveFlux = np.zeros((n_spec,nl),dtype=np.complex, order='c')
         self.sp_VerticalFlux = np.zeros((n_spec,nl),dtype = np.complex, order='c')
         if kind=='Vorticity':
             self.sp_forcing = np.zeros((n_spec,nl),dtype = np.complex, order='c')
