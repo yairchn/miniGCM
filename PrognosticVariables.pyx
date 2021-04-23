@@ -271,13 +271,13 @@ cdef class PrognosticVariables:
 
             with nogil:
                 for i in range(nlm):
-                    PV.Vorticity.tendency[i,k]  = (Vort_forc[i] - Divergent_momentum_flux[i]
-                                                    - w_vort_up[i] - w_vort_dn[i] + Vort_sur_flux[i] + PV.Vorticity.sp_forcing[i,k]) # JOSEF
-                    PV.Divergence.tendency[i,k] = (Vortical_momentum_flux[i] - Dry_Energy_laplacian[i]
-                                                    - w_div_up[i] - w_div_dn[i] + Div_forc[i] + Div_sur_flux[i])
+                    PV.Vorticity.tendency[i,k]  = (Vort_forc[i] - Divergent_momentum_flux[i]- w_vort_up[i] - w_vort_dn[i]
+                                                     + Vort_sur_flux[i] + PV.Vorticity.ConvectiveFlux[i,k])
+                    PV.Divergence.tendency[i,k] = (Vortical_momentum_flux[i] - Dry_Energy_laplacian[i]- w_div_up[i] - w_div_dn[i]
+                                                    + Div_forc[i] + Div_sur_flux[i] + PV.Divergence.ConvectiveFlux[i,k])
 
-                    PV.T.tendency[i,k]  = RHS_T[i]  - Divergent_T_flux[i]
+                    PV.T.tendency[i,k]  = RHS_T[i]  - Divergent_T_flux[i] + PV.T.ConvectiveFlux[i,k]
 
                     if Pr.moist_index > 0.0:
-                        PV.QT.tendency[i,k] = RHS_QT[i] - Divergent_QT_flux[i]
+                        PV.QT.tendency[i,k] = RHS_QT[i] - Divergent_QT_flux[i] + PV.QT.ConvectiveFlux[i,k]
         return

@@ -28,20 +28,27 @@ cdef class ConvectionBase:
 
     cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS)
-    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats)
+    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
+    cpdef stats_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
 
 cdef class ConvectionNone(ConvectionBase):
     cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS)
-    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats)
+    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
+    cpdef stats_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
 
 cdef class ConvectionRandom(ConvectionBase):
     cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS)
-    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats)
+    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
+    cpdef stats_io(self, NetCDFIO_Stats Stats)
+    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
+
+cdef class ConvectionRandomGivenLapseRate(ConvectionBase):
+    cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
+    cpdef initialize_io(self, NetCDFIO_Stats Stats)
+    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
+    cpdef stats_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)

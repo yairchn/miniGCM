@@ -3,8 +3,9 @@
         "Divergence_convective_noise_amplitude": 0.0,
         "QT_convective_noise_amplitude": 0.0,
         "T_convective_noise_amplitude": 0.0,
-        "Vorticity_convective_noise_amplitude": 0.0001,
-        "convection_type": "Random"
+        "Vorticity_convective_noise_amplitude": 1.0,
+        "convection_type": "Randon",
+        "noise_wavenumber": 20
     },
     "diffusion": {
         "dissipation_order": 4.0,
@@ -50,14 +51,14 @@
         "restart type": "zonal_mean"
     },
     "io": {
-        "output_frequency": 1.0,
+        "output_frequency": 7.0,
         "stats_dir": "stats",
         "stats_frequency": 1.0
     },
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "50a6d6f0-ad6e-4e6a-a8af-__convection"
+        "uuid": "ac0b2ae8-18d1-4e37-Vort_forcing1"
     },
     "microphysics": {
         "rain_model": "None"
@@ -85,6 +86,6 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 1000.0
+        "t_max": 50.0
     }
 }

@@ -67,7 +67,7 @@ cdef class HeldSuarez(CaseBase):
         # Pr.casename = namelist['meta']['casename']
         self.Fo  = Forcing.HelzSuarez()
         self.Sur = Surface.SurfaceNone()
-        self.Co = Convection.ConvectionRandom()
+        self.Co = Convection.ConvectionRandomGivenLapseRate()
         self.MP = Microphysics.MicrophysicsNone()
         return
 
@@ -139,17 +139,20 @@ cdef class HeldSuarez(CaseBase):
         CaseBase.io(self, Pr, TS, Stats)
         self.Fo.io(Pr, TS, Stats)
         self.Sur.io(Pr, TS, Stats)
+        # self.Co.io(Pr, TS, Stats)
         return
 
     cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
         CaseBase.stats_io(self, PV, Stats)
         self.Fo.stats_io(Stats)
         self.Sur.stats_io(Stats)
+        # self.Co.stats_io(Stats)
         return
 
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         self.Sur.update(Pr, Gr, PV, DV)
         self.Fo.update(Pr, Gr, PV, DV)
+        self.Co.update(Pr, Gr, PV, DV)
         self.MP.update(Pr, PV, DV, TS)
         return
 
