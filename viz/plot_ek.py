@@ -10,9 +10,9 @@ from scipy.signal import savgol_filter
 import warnings
 warnings.filterwarnings("ignore")
 
-hres_scaling=1
+hres_scaling=4
 
-nlons  = hres_scaling*256  # number of longitudes
+nlons  = hres_scaling*128  # number of longitudes
 ntrunc = int(nlons/3)  # spectral truncation (for alias-free computations)
 nlats  = int(nlons/2)   # number of lats for gaussian grid.
 
@@ -23,6 +23,8 @@ grav    = 9.80616   # gravity
 Hbar    = 300.      # mean height (some typical range)
 
 def energy(u,v,l,rsphere= rsphere):
+    print('u.shape ',u.shape)
+    print('v.shape ',v.shape)
     vrtsp,divsp = x.getvrtdivspec(u,v)
     factor = (rsphere**2)/l/(l+1)
     TotEsp = factor*(vrtsp*vrtsp.conj()+divsp*divsp.conj()).real
@@ -61,18 +63,16 @@ lons,lats = np.meshgrid(x.lons, x.lats)
 latDeg = np.degrees(lats)
 lonDeg = np.degrees(lons)
 
-
-runname='ftpgne60n256'
-#runname='ftpgne.1n256'
-#runname='f2800e.1n256'
-path = '/home/suhas/miniGCM/Output.HeldSuarez.'+runname+'/Fields/'
+folder='Output.HeldSuarez.HighResolRun'
+path = '/home/josefs/miniGCM/'+folder+'/Fields/'
 
 
 
-for it in np.arange(200,801,20):
+#for it in np.arange(0,101,10):
+for it in np.arange(203,801,420):
     print('it ',it)
 
-    for Layer in np.arange(0,5):
+    for Layer in np.arange(0,3):
         print("day ", it," Layer ",Layer)
         u=netCDF4.Dataset(path+'U_'+str(it*3600*24)+'.nc').variables['U'][:,:,Layer]
         v=netCDF4.Dataset(path+'V_'+str(it*3600*24)+'.nc').variables['V'][:,:,Layer]

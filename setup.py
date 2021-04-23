@@ -118,5 +118,5 @@ _ext = Extension('Restart', ['Restart.pyx'], include_dirs=include_path,
 extensions.append(_ext)
 
 setup(
-    ext_modules=cythonize(extensions, verbose=1, include_path=include_path,  language_level = "3")
+    ext_modules=cythonize(extensions, verbose=1, include_path=include_path,  language_level = 3)
 )

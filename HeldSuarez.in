@@ -1,8 +1,8 @@
 {
     "diffusion": {
         "dissipation_order": 4.0,
-        "e_folding_timescale_grid_scale":  10,
-        "e_folding_timescale_meso_scale":1000,
+        "e_folding_timescale_grid_scale": 7200,
+        "e_folding_timescale_meso_scale": 100000000,
         "order": 4.0,
         "truncation_order": 3,
         "type": "hyperdiffusion"
@@ -21,14 +21,12 @@
     "grid": {
         "dims": 1,
         "gw": 2,
-        "number_of_latitute_points": 64,
-        "number_of_longitude_points": 128,
+        "number_of_latitute_points": 256,
+        "number_of_longitude_points": 512,
         "pressure_levels": [
-            15000.0,
             25000.0,
             50000.0,
             75000.0,
-            85000.0,
             100000.0
         ]
     },
@@ -50,7 +48,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "6116fc84-0784-4e9b-954d-9433c0799ee8"
+        "uuid": "ed912443-3605-40dd-9615-HighResToRun"
     },
     "microphysics": {
         "rain_model": "None"
