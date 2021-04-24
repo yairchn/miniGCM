@@ -1,9 +1,9 @@
 {
     "convection": {
-        "Divergence_convective_noise_amplitude": 0.0,
-        "QT_convective_noise_amplitude": 0.0,
-        "T_convective_noise_amplitude": 0.0,
-        "Vorticity_convective_noise_amplitude": 1.0,
+        "Divergence_convective_noise_amplitude": 0.1,
+        "QT_convective_noise_amplitude": 0.1,
+        "T_convective_noise_amplitude": 0.1,
+        "Vorticity_convective_noise_amplitude": 0.1,
         "convection_type": "Randon",
         "noise_wavenumber": 20
     },
@@ -58,7 +58,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "ac0b2ae8-18d1-4e37-Vort_forcing1"
+        "uuid": "ac0b2ae8-18d1-4e37all_forc01"
     },
     "microphysics": {
         "rain_model": "None"

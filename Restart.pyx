@@ -30,12 +30,11 @@ cdef class Restart:
             Py_ssize_t ny = Pr.nlons
             Py_ssize_t nl = Pr.n_layers
 
-        
         data = nc.Dataset(Pr.path_plus_file, 'r')
 
         if Pr.restart_type == '3D_output':
             timestring = Pr.restart_time
-            filepath = os.getcwd() + Pr.restart_folder + 'Fields/'
+            filepath = Pr.input_folder
             if os.path.exists(filepath + 'Temperature_' + timestring+'.nc'):
                 TS.t = float(Pr.restart_time)
                 print("Restarting simulation from time = ", TS.t)

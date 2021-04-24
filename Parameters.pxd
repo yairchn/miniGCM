@@ -66,6 +66,7 @@ cdef class Parameters:
         double T_conv_amp
         double QT_conv_amp
 
+        str input_folder
         str case
         str noise_type
         str surface_model
