@@ -220,34 +220,36 @@ cdef class ConvectionRandomGivenLapseRate(ConvectionBase):
             double [:,:] dpi_grid    = np.zeros((nx, ny),  dtype = np.float64, order ='c')
             double complex [:,:] dpi = np.zeros((nlm, nl), dtype = np.complex, order ='c')
             double [:,:] dpi_grid2    = np.zeros((nx, ny),  dtype = np.float64, order ='c')
-            double complex [:,:] dpi2 = np.zeros((nlm, nl), dtype = np.complex, order ='c')
+            double complex [:,:] dpi2 = np.zeros((nlm, nl+1), dtype = np.complex, order ='c')
 
         for k in range(nl):
+            # we compute the flux from below to the layer k
             dpi_grid = np.divide(1.0, np.subtract(PV.P.values[:,:,k+1],PV.P.values[:,:,k]))
             dpi.base[:,k] = Gr.SphericalGrid.grdtospec(dpi_grid.base)
-            if k>0:
-                dpi_grid2 = np.divide(2.0,np.subtract(PV.P.values[:,:,k+1],PV.P.values[:,:,k-1]))
-                dpi2.base[:,k] = Gr.SphericalGrid.grdtospec(dpi_grid.base)
-            F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
-            sph_noise = spf.sphForcing(Pr.nlons,Pr.nlats, Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0., noise_type='local')
-            forcing_noise = sph_noise.forcingFn(F0)*Pr.conv_amp
-            self.Wp.base[:,k] = forcing_noise
+            dpi_grid2 = np.divide(2.0,np.subtract(PV.P.values[:,:,k+2],PV.P.values[:,:,k]))
+            dpi2.base[:,k+1] = Gr.SphericalGrid.grdtospec(dpi_grid.base)
 
-            # we compute the flux from below to the layer k
+            F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
+            sph_noise = spf.sphForcing(Pr.nlons,Pr.nlats, Pr.truncation_number,Pr.rsphere,lmin= 1,
+                                    lmax= 100, magnitude = 0.05, correlation = 0., noise_type='local')
+            self.Wp.base[:,k+1] = sph_noise.forcingFn(F0)
             with nogil:
                 for i in range(nlm):
                     if k==nl-1:
                         self.wVort[i,k+1] = 0.0
                         self.wDiv[i,k+1]  = 0.0
-                        self.wT[i,k+1]    = Pr.T_conv_amp*self.Wp[i,k+1]*dpi2[i,k]
+                        self.wT[i,k+1]    = Pr.T_conv_amp*self.Wp[i,k+1]/(25000.0) # *dpi2[i,k+1]
                         if Pr.moist_index > 0.0:
-                            self.wQT[i,k+1] = Pr.QT_conv_amp*self.Wp[i,k+1]*dpi2[i,k]
+                            self.wQT[i,k+1] = Pr.QT_conv_amp*self.Wp[i,k+1]/(25000.0) # *dpi2[i,k+1]
                     else:
-                        self.wVort[i,k+1] = Pr.Vort_conv_amp*self.Wp[i,k+1]*dpi2[i,k]
-                        self.wDiv[i,k+1]  = Pr.Div_conv_amp*self.Wp[i,k+1]*dpi2[i,k]
-                        self.wT[i,k+1]    = Pr.T_conv_amp*self.Wp[i,k+1]*dpi2[i,k]
+                        self.wVort[i,k+1] = Pr.Vort_conv_amp*self.Wp[i,k+1]/(25000.0) # *dpi2[i,k+1]
+                        # with gil:
+                        #     # print(self.Wp[i,k+1])
+                        #     print(i, k+1, dpi2[i,k+1])
+                        self.wDiv[i,k+1]  = Pr.Div_conv_amp*self.Wp[i,k+1]/(25000.0) # *dpi2[i,k+1]
+                        self.wT[i,k+1]    = Pr.T_conv_amp*self.Wp[i,k+1]/(25000.0) # *dpi2[i,k+1]
                         if Pr.moist_index > 0.0:
-                            self.wQT[i,k+1] = Pr.QT_conv_amp*self.Wp[i,k+1]*dpi2[i,k]
+                            self.wQT[i,k+1] = Pr.QT_conv_amp*self.Wp[i,k+1]/(25000.0) # *dpi2[i,k+1]
         with nogil:
             for k in range(nl):
                 for i in range(nlm):
