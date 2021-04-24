@@ -38,6 +38,10 @@ cdef class NetCDFIO_Stats:
             self.output_folder = Pr.input_folder
         try:
             os.mkdir(Pr.input_folder)
+        except:
+            pass
+
+        try:
             os.mkdir(self.output_folder)
         except:
             pass
