@@ -77,6 +77,8 @@ cdef class PrognosticVariables:
         Stats.add_zonal_mean('zonal_mean_divergence')
         Stats.add_zonal_mean('zonal_mean_vorticity')
         Stats.add_surface_zonal_mean('zonal_mean_Ps')
+        Stats.add_surface_zonal_mean('T_SurfaceFlux')
+        Stats.add_surface_zonal_mean('QT_SurfaceFlux')
         Stats.add_meridional_mean('meridional_mean_divergence')
         Stats.add_meridional_mean('meridional_mean_vorticity')
         Stats.add_meridional_mean('meridional_mean_T')
@@ -151,6 +153,8 @@ cdef class PrognosticVariables:
         Stats.write_global_mean('global_mean_T', self.T.values)
         Stats.write_global_mean('global_mean_QT', self.QT.values)
         Stats.write_surface_zonal_mean('zonal_mean_Ps',self.P.values[:,:,nl])
+        Stats.write_surface_zonal_mean('T_SurfaceFlux', self.T.SurfaceFlux)
+        Stats.write_surface_zonal_mean('QT_SurfaceFlux',self.QT.SurfaceFlux)
         Stats.write_zonal_mean('zonal_mean_T',self.T.values)
         Stats.write_zonal_mean('zonal_mean_QT',self.QT.values)
         Stats.write_zonal_mean('zonal_mean_divergence',self.Divergence.values)
@@ -171,6 +175,8 @@ cdef class PrognosticVariables:
         Stats.write_3D_variable(Pr, int(TS.t),nl, 'Specific_humidity', self.QT.values)
         Stats.write_3D_variable(Pr, int(TS.t),nl, 'dQTdt',             self.QT.mp_tendency[:,:,0:nl])
         Stats.write_2D_variable(Pr, int(TS.t),    'Pressure',          self.P.values[:,:,nl])
+        Stats.write_2D_variable(Pr, int(TS.t),    'T_SurfaceFlux',     self.T.SurfaceFlux)
+        Stats.write_2D_variable(Pr, int(TS.t),    'QT_SurfaceFlux',    self.QT.SurfaceFlux)
         return
 
     @cython.wraparound(False)

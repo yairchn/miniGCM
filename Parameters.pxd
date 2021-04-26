@@ -29,7 +29,7 @@ cdef class Parameters:
         double Rd
         double Rv
         double Lv
-        double qv_star0
+        double pv_star0
         double T_0
         double QT_0
         double eps_v
