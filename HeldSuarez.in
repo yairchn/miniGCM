@@ -7,7 +7,7 @@
         "convection_type": "Randon",
         "max_noise_wavenumber": 20,
         "min_noise_wavenumber": 1,
-        "noise": true,
+        "noise": false,
         "noise_correlation": 0.0,
         "noise_magnitude": 0.05,
         "noise_type": "local"
@@ -32,7 +32,7 @@
         "lapse_rate": 10.0,
         "max_noise_wavenumber": 42,
         "min_noise_wavenumber": 38,
-        "noise": true,
+        "noise": false,
         "noise_correlation": 0.0,
         "noise_magnitude": 0.05,
         "noise_type": "local",
@@ -68,7 +68,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "d04c618a-6846-4c81-91cc-test_noise"
+        "uuid": "9207f0df-9564-4261-ba40-f02a256be02d"
     },
     "microphysics": {
         "rain_model": "None"

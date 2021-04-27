@@ -153,7 +153,7 @@ def HeldSuarezMoist(namelist_defaults):
     namelist['forcing']['k_a']          = 1.0/40.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_s']          = 1.0/4.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_f']          = 1.0/(24.0*3600.0)      # [1/sec]
-    namelist['forcing']['k_b']          = 1.0/40.0/(24.0*3600.0)/2.0  # [1/sec]
+    namelist['forcing']['k_b']          = 1.0/40.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['equatorial_temperature'] = 294.0 # Surface temperature at the equator [K]
     namelist['forcing']['polar_temperature']      = 240.0 # Surface temperature at the pole [K]
     namelist['forcing']['equator_to_pole_dT']     = 65.0  # Characteristic temperature change in meridional direction [K]
