@@ -1,13 +1,13 @@
 {
     "convection": {
-        "Divergence_convective_noise_amplitude": 0.0,
-        "QT_convective_noise_amplitude": 0.0,
-        "T_convective_noise_amplitude": 0.0,
-        "Vorticity_convective_noise_amplitude": 0.0,
+        "Divergence_convective_noise_amplitude": 0.1,
+        "QT_convective_noise_amplitude": 0.1,
+        "T_convective_noise_amplitude": 0.1,
+        "Vorticity_convective_noise_amplitude": 0.1,
         "convection_type": "Randon",
         "max_noise_wavenumber": 20,
         "min_noise_wavenumber": 1,
-        "noise": false,
+        "noise": true,
         "noise_correlation": 0.0,
         "noise_magnitude": 0.05,
         "noise_type": "local"
@@ -55,10 +55,10 @@
         "noise": true,
         "noise_amplitude": 1,
         "noise_type": "red",
-        "restart": false,
-        "restart folder": "./",
-        "restart time": "none",
-        "restart type": "zonal_mean"
+        "restart": true,
+        "restart folder": "/Output.HeldSuarez.ReferenceRun/",
+        "restart time": "43200000",
+        "restart type": "3D_output"
     },
     "io": {
         "output_frequency": 1.0,
@@ -68,7 +68,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "9207f0df-9564-4261-ba40-f02a256be02d"
+        "uuid": "0b072e1f-9e9d-46ce-8a65-ReferenceRun"
     },
     "microphysics": {
         "rain_model": "None"
@@ -96,6 +96,6 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 1000.0
+        "t_max": 650.0
     }
 }
