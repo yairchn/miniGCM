@@ -107,8 +107,11 @@ cdef class HelzSuarez(ForcingBase):
 						nx, ny, nl)
 		if self.noise:
 			F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
-			fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 40, magnitude = 0.05, correlation = 0., noise_type='local')
-			forcing_noise = fr.forcingFn(F0)*Pr.forcing_noise_amp
+			fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,
+				                Pr.Fo_noise_lmin, Pr.Fo_noise_lmax, Pr.Fo_noise_magnitude,
+				                correlation =Pr.Fo_noise_correlation, noise_type=Pr.Fo_noise_type)
+
+			forcing_noise = fr.forcingFn(F0)
 			PV.Vorticity.sp_forcing[:,nl] = forcing_noise
 		return
 

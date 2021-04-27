@@ -70,7 +70,7 @@ def main():
     namelist_defaults['convection']['noise'] = False            # flag for noise
     namelist_defaults['convection']['convection_type'] = 'Randon'
     namelist_defaults['convection']['Divergence_convective_noise_amplitude'] = 0.0
-    namelist_defaults['convection']['Vorticity_convective_noise_amplitude'] = 0.0001
+    namelist_defaults['convection']['Vorticity_convective_noise_amplitude'] = 0.0
     namelist_defaults['convection']['T_convective_noise_amplitude'] = 0.0
     namelist_defaults['convection']['QT_convective_noise_amplitude'] = 0.0
     namelist_defaults['convection']['min_noise_wavenumber'] = 1
@@ -82,11 +82,11 @@ def main():
     namelist_defaults['forcing'] = {}
     namelist_defaults['forcing']['noise'] = False # flag for noise
     namelist_defaults['forcing']['forcing_noise_amplitude'] = 1 # amplitude of initial noise in K
-    namelist_defaults['forcing']['noise_magnitude']
-    namelist_defaults['forcing']['noise_correlation']
-    namelist_defaults['forcing']['noise_type']
-    namelist_defaults['forcing']['min_noise_wavenumber']
-    namelist_defaults['forcing']['max_noise_wavenumber']
+    namelist_defaults['forcing']['noise_magnitude'] = 0.05
+    namelist_defaults['forcing']['noise_correlation'] = 0.0
+    namelist_defaults['forcing']['noise_type'] = 'local'
+    namelist_defaults['forcing']['min_noise_wavenumber'] = 38
+    namelist_defaults['forcing']['max_noise_wavenumber'] = 42
 
     namelist_defaults['meta'] = {}
 

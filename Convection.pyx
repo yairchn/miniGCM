@@ -67,11 +67,11 @@ cdef class ConvectionRandom(ConvectionBase):
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
 
         self.noise  = namelist['convection']['noise']
-        Pr.noise_magnitude  = namelist['convection']['noise_magnitude']
-        Pr.noise_correlation  = namelist['convection']['noise_correlation']
-        Pr.noise_type  = namelist['convection']['noise_type']
-        Pr.noise_lmin  = namelist['convection']['min_noise_wavenumber']
-        Pr.noise_lmax  = namelist['convection']['max_noise_wavenumber']
+        Pr.Co_noise_magnitude  = namelist['convection']['noise_magnitude']
+        Pr.Co_noise_correlation  = namelist['convection']['noise_correlation']
+        Pr.Co_noise_type  = namelist['convection']['noise_type']
+        Pr.Co_noise_lmin  = namelist['convection']['min_noise_wavenumber']
+        Pr.Co_noise_lmax  = namelist['convection']['max_noise_wavenumber']
         Pr.Div_conv_amp  = namelist['convection']['Divergence_convective_noise_amplitude']
         Pr.Vort_conv_amp = namelist['convection']['Vorticity_convective_noise_amplitude']
         Pr.T_conv_amp    = namelist['convection']['T_convective_noise_amplitude']
@@ -190,11 +190,11 @@ cdef class ConvectionRandomGivenLapseRate(ConvectionBase):
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
 
         self.noise  = namelist['convection']['noise']
-        Pr.noise_magnitude  = namelist['convection']['noise_magnitude']
-        Pr.noise_correlation  = namelist['convection']['noise_correlation']
-        Pr.noise_type  = namelist['convection']['noise_type']
-        Pr.noise_lmin  = namelist['convection']['min_noise_wavenumber']
-        Pr.noise_lmax  = namelist['convection']['max_noise_wavenumber']
+        Pr.Co_noise_magnitude  = namelist['convection']['noise_magnitude']
+        Pr.Co_noise_correlation  = namelist['convection']['noise_correlation']
+        Pr.Co_noise_type  = namelist['convection']['noise_type']
+        Pr.Co_noise_lmin  = namelist['convection']['min_noise_wavenumber']
+        Pr.Co_noise_lmax  = namelist['convection']['max_noise_wavenumber']
         Pr.Div_conv_amp  = namelist['convection']['Divergence_convective_noise_amplitude']
         Pr.Vort_conv_amp = namelist['convection']['Vorticity_convective_noise_amplitude']
         Pr.T_conv_amp    = namelist['convection']['T_convective_noise_amplitude']

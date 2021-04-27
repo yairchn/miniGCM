@@ -5,8 +5,12 @@
         "T_convective_noise_amplitude": 0.0,
         "Vorticity_convective_noise_amplitude": 0.0,
         "convection_type": "Randon",
-        "max_noise_wavenumber": 8,
-        "min_noise_wavenumber": 1
+        "max_noise_wavenumber": 20,
+        "min_noise_wavenumber": 1,
+        "noise": false,
+        "noise_correlation": 0.0,
+        "noise_magnitude": 0.05,
+        "noise_type": "local"
     },
     "diffusion": {
         "dissipation_order": 4.0,
@@ -19,12 +23,19 @@
     "forcing": {
         "equator_to_pole_dT": 60.0,
         "equatorial_temperature": 315.0,
+        "forcing_noise_amplitude": 1,
         "forcing_type": "HeldSuarez",
         "k_a": 2.8935185185185185e-07,
         "k_b": 2.8935185185185185e-07,
         "k_f": 1.1574074074074073e-05,
         "k_s": 2.8935185185185184e-06,
         "lapse_rate": 10.0,
+        "max_noise_wavenumber": 42,
+        "min_noise_wavenumber": 38,
+        "noise": false,
+        "noise_correlation": 0.0,
+        "noise_magnitude": 0.05,
+        "noise_type": "local",
         "sigma_b": 0.7
     },
     "grid": {
@@ -41,25 +52,23 @@
     },
     "initialize": {
         "T_init": 300.0,
-        "forcing_inoise": 1,
-        "forcing_noise_amplitude": 0.1,
-        "inoise": 1,
+        "noise": true,
         "noise_amplitude": 1,
         "noise_type": "red",
-        "restart": true,
-        "restart folder": "/Output.HeldSuarez.FVrwn40amp01/",
-        "restart time": "43200000",
-        "restart type": "3D_output"
+        "restart": false,
+        "restart folder": "./",
+        "restart time": "none",
+        "restart type": "zonal_mean"
     },
     "io": {
-        "output_frequency": 7.0,
+        "output_frequency": 1.0,
         "stats_dir": "stats",
         "stats_frequency": 1.0
     },
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "8dd880fb-ec68-4295-b6e2-FVrwn40amp01"
+        "uuid": "d04c618a-6846-4c81-91cc-1761d5a7c4c9"
     },
     "microphysics": {
         "rain_model": "None"
@@ -87,6 +96,6 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 800.0
+        "t_max": 1000.0
     }
 }

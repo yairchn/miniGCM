@@ -57,21 +57,27 @@ cdef class Parameters:
         double dphi_s
         double efold_meso
         double efold_grid
-        double inoise
-        double forcing_inoise
-        double forcing_noise_amp
         double noise_amp
         double conv_amp
         double Div_conv_amp
         double Vort_conv_amp
         double T_conv_amp
         double QT_conv_amp
-        double noise_magnitude
-        double noise_correlation
 
+        double Fo_noise_magnitude
+        double Fo_noise_correlation
+        double Fo_noise_lmin
+        double Fo_noise_lmax
+        double Co_noise_magnitude
+        double Co_noise_correlation
+        double Co_noise_lmin
+        double Co_noise_lmax
+
+        str noise_type
         str input_folder
         str case
-        str noise_type
+        str Co_noise_type
+        str Fo_noise_type
         str surface_model
         str uuid
         str path_plus_file

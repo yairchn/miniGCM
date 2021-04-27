@@ -15,7 +15,7 @@ cdef class ForcingBase:
 		double [:,:,:] Tbar
 		double [:,:] sin_lat
 		double [:,:] cos_lat
-		str noise
+		bint noise
 
 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
 	cpdef initialize_io(self, NetCDFIO_Stats Stats)

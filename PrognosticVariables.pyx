@@ -164,9 +164,11 @@ cdef class PrognosticVariables:
         Stats.write_meridional_mean('meridional_mean_vorticity',self.Vorticity.values)
         return
 
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
         cdef:
             Py_ssize_t nl = Pr.n_layers
+            Py_ssize_t nlm = Gr.SphericalGrid.nlm
+
         Stats.write_3D_variable(Pr, int(TS.t),nl, 'Vorticity',         self.Vorticity.values)
         Stats.write_3D_variable(Pr, int(TS.t),nl, 'Divergence',        self.Divergence.values)
         Stats.write_3D_variable(Pr, int(TS.t),nl, 'Temperature',       self.T.values)
@@ -174,11 +176,11 @@ cdef class PrognosticVariables:
         Stats.write_3D_variable(Pr, int(TS.t),nl, 'dQTdt',             self.QT.mp_tendency[:,:,0:nl])
         Stats.write_2D_variable(Pr, int(TS.t),    'Pressure',          self.P.values[:,:,nl])
 
-        Stats.write_spectral_field(Pr, int(TS.t),nl, 'Vorticity_forcing', self.Vorticity.sp_forcing)
-        Stats.write_spectral_field(Pr, int(TS.t),nl, 'Vorticity_ConvectiveFlux', self.Vorticity.ConvectiveFlux)
-        Stats.write_spectral_field(Pr, int(TS.t),nl, 'Divergence_ConvectiveFlux', self.Divergence.ConvectiveFlux)
-        Stats.write_spectral_field(Pr, int(TS.t),nl, 'Temperature_ConvectiveFlux', self.T.ConvectiveFlux)
-        Stats.write_spectral_field(Pr, int(TS.t),nl, 'Specific_humidity_ConvectiveFlux', self.QT.ConvectiveFlux)
+        # Stats.write_spectral_field(Pr, int(TS.t),nlm, nl, 'Vorticity_forcing', self.Vorticity.sp_forcing)
+        # Stats.write_spectral_field(Pr, int(TS.t),nlm, nl, 'Vorticity_ConvectiveFlux', self.Vorticity.ConvectiveFlux)
+        # Stats.write_spectral_field(Pr, int(TS.t),nlm, nl, 'Divergence_ConvectiveFlux', self.Divergence.ConvectiveFlux)
+        # Stats.write_spectral_field(Pr, int(TS.t),nlm, nl, 'Temperature_ConvectiveFlux', self.T.ConvectiveFlux)
+        # Stats.write_spectral_field(Pr, int(TS.t),nlm, nl, 'Specific_humidity_ConvectiveFlux', self.QT.ConvectiveFlux)
         return
 
     @cython.wraparound(False)

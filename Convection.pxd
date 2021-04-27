@@ -18,7 +18,7 @@ import sphericalForcing as spf
 
 cdef class ConvectionBase:
     cdef:
-        str noise
+        bint noise
         double complex [:] F0
         double complex [:] sph_noise
         double complex [:,:] Wp
