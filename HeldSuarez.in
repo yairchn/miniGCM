@@ -4,7 +4,7 @@
         "QT_convective_noise_amplitude": 0.1,
         "T_convective_noise_amplitude": 0.1,
         "Vorticity_convective_noise_amplitude": 0.1,
-        "convection_type": "Randon",
+        "convection_type": "Random",
         "max_noise_wavenumber": 20,
         "min_noise_wavenumber": 1,
         "noise": true,

@@ -19,7 +19,7 @@ import sphericalForcing as spf
 # def ConvectionFactory(namelist):
 #     if namelist['convection']['convection_type'] == 'None':
 #         return ConvectionNone(namelist)
-#     elif namelist['convection']['convection_type'] == 'Randon':
+#     elif namelist['convection']['convection_type'] == 'Random':
 #         return ConvectionRandomNoise(namelist)
 #     else:
 #         print('case not recognized')
@@ -122,8 +122,8 @@ cdef class ConvectionRandom(ConvectionBase):
 
                 F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
                 sph_noise = spf.sphForcing(Pr.nlons,Pr.nlats, Pr.truncation_number,Pr.rsphere,
-                                        Pr.noise_lmin,Pr.noise_lmax, Pr.noise_magnitude,
-                                        correlation = Pr.noise_correlation, noise_type=Pr.noise_type)
+                                        Pr.Co_noise_lmin,Pr.Co_noise_lmax, Pr.Co_noise_magnitude,
+                                        correlation = Pr.Co_noise_correlation, noise_type=Pr.Co_noise_type)
                 self.Wp.base[:,k] = sph_noise.forcingFn(F0)
                 with nogil:
                     for i in range(nlm):
@@ -190,6 +190,7 @@ cdef class ConvectionRandomGivenLapseRate(ConvectionBase):
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
 
         self.noise  = namelist['convection']['noise']
+        print('self.noise',self.noise) 
         Pr.Co_noise_magnitude  = namelist['convection']['noise_magnitude']
         Pr.Co_noise_correlation  = namelist['convection']['noise_correlation']
         Pr.Co_noise_type  = namelist['convection']['noise_type']
@@ -236,9 +237,10 @@ cdef class ConvectionRandomGivenLapseRate(ConvectionBase):
             Py_ssize_t nl = Pr.n_layers
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
             double [:,:] dpi_grid    = np.zeros((nx, ny),  dtype = np.float64, order ='c')
-            double complex [:,:] dpi = np.zeros((nlm, nl), dtype = np.complex, order ='c')
+            double complex [:,:] dpi = np.zeros((nlm, nl+1), dtype = np.complex, order ='c')
 
         if self.noise:
+            #print('calculate convective fluxes here') 
             # we compute the flux from below to the layer k skipping k=0
             for k in range(1,nl+1):
                 dpi_grid = np.divide(1.0, np.subtract(PV.P.values[:,:,k],PV.P.values[:,:,k-1]))
@@ -246,8 +248,8 @@ cdef class ConvectionRandomGivenLapseRate(ConvectionBase):
 
                 F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
                 sph_noise = spf.sphForcing(Pr.nlons,Pr.nlats, Pr.truncation_number,Pr.rsphere,
-                                        Pr.noise_lmin,Pr.noise_lmax, Pr.noise_magnitude,
-                                        correlation = Pr.noise_correlation, noise_type=Pr.noise_type)
+                                        Pr.Co_noise_lmin,Pr.Co_noise_lmax, Pr.Co_noise_magnitude,
+                                        correlation = Pr.Co_noise_correlation, noise_type=Pr.Co_noise_type)
                 self.Wp.base[:,k] = sph_noise.forcingFn(F0)
                 with nogil:
                     for i in range(nlm):
