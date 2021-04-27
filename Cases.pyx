@@ -67,8 +67,9 @@ cdef class HeldSuarez(CaseBase):
         # Pr.casename = namelist['meta']['casename']
         self.Fo  = Forcing.HelzSuarez()
         self.Sur = Surface.SurfaceNone()
-        self.Co = Convection.ConvectionRandomGivenLapseRate()
         self.MP = Microphysics.MicrophysicsNone()
+        self.Co = Convection.ConvectionRandomGivenLapseRate()
+        # self.Co = Convection.ConvectionRandom() # JOSEF
         return
 
     cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist):
@@ -98,7 +99,7 @@ cdef class HeldSuarez(CaseBase):
 
         PV.physical_to_spectral(Pr, Gr)
         print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
-        if Pr.inoise==1:
+        if namelist['initialize']['noise']:
              # calculate noise
              F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
              fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0., noise_type=Pr.noise_type)

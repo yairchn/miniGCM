@@ -66,6 +66,10 @@ cdef class ConvectionRandom(ConvectionBase):
             Py_ssize_t nl = Pr.n_layers
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
 
+        self.noise  = namelist['convection']['noise']
+        Pr.noise_magnitude  = namelist['convection']['noise_magnitude']
+        Pr.noise_correlation  = namelist['convection']['noise_correlation']
+        Pr.noise_type  = namelist['convection']['noise_type']
         Pr.noise_lmin  = namelist['convection']['min_noise_wavenumber']
         Pr.noise_lmax  = namelist['convection']['max_noise_wavenumber']
         Pr.Div_conv_amp  = namelist['convection']['Divergence_convective_noise_amplitude']
@@ -110,35 +114,41 @@ cdef class ConvectionRandom(ConvectionBase):
             double [:,:] dpi_grid    = np.zeros((nx, ny),  dtype = np.float64, order ='c')
             double complex [:,:] dpi = np.zeros((nlm, nl), dtype = np.complex, order ='c')
 
-        for k in range(nl):
-            dpi_grid = np.divide(np.subtract(PV.P.value[:,:,k+1],PV.P.value[:,:,k]))
-            dpi[:,k] = Gr.SphericalGrid.grdtospec(dpi_grid.base)
-            self.sph_noise = spf.sphForcing(nx, ny, Pr.truncation_number, Pr.rsphere, Pr.noise_lmin,
-                                            Pr.noise_lmax, magnitude = 0.05, correlation = 0., noise_type='local')
-            self.Wp[:,k] = self.sph_noise.forcingFn(self.F0)*Pr.conv_amp
-            with nogil:
-                for i in range(nlm):
-                    if k==nl-1:
-                        self.wVort[i,k+1] = 0.0
-                        self.wDiv[i,k+1]  = 0.0
-                        self.wT[i,k+1]    = Pr.T_conv_amp*self.Wp[i,k+1]*(PV.T.spectral[i,k]   + PV.T.spectral[i,k])*0.5
-                        if Pr.moist_index > 0.0:
-                            self.wQT[i,k+1] = Pr.QT_conv_amp*self.Wp[i,k+1]*(PV.QT.spectral[i,k] + PV.QT.spectral[i,k])*0.5
-                    else:
-                        self.wVort[i,k+1] = Pr.Vort_conv_amp*self.Wp[i,k+1]*(PV.Vorticity.spectral[i,k+1] - PV.Vorticity.spectral[i,k])
-                        self.wDiv[i,k+1]  = Pr.Div_conv_amp*self.Wp[i,k+1]*(PV.Divergence.spectral[i,k+1] - PV.Divergence.spectral[i,k])
-                        self.wT[i,k+1]    = Pr.T_conv_amp*self.Wp[i,k+1]*(PV.T.spectral[i,k+1]   + PV.T.spectral[i,k])*0.5
-                        if Pr.moist_index > 0.0:
-                            self.wQT[i,k+1] = Pr.QT_conv_amp*self.Wp[i,k+1]*(PV.QT.spectral[i,k+1] + PV.QT.spectral[i,k])*0.5
+        if self.noise:
+            # we compute the flux from below to the layer k skipping k=0
+            for k in range(1,nl+1):
+                dpi_grid = np.divide(1.0, np.subtract(PV.P.values[:,:,k],PV.P.values[:,:,k-1]))
+                dpi.base[:,k] = Gr.SphericalGrid.grdtospec(dpi_grid.base)
 
-        with nogil:
+                F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
+                sph_noise = spf.sphForcing(Pr.nlons,Pr.nlats, Pr.truncation_number,Pr.rsphere,
+                                        Pr.noise_lmin,Pr.noise_lmax, Pr.noise_magnitude,
+                                        correlation = Pr.noise_correlation, noise_type=Pr.noise_type)
+                self.Wp.base[:,k] = sph_noise.forcingFn(F0)
+                with nogil:
+                    for i in range(nlm):
+                        if k==nl:
+                            self.wVort[i,k] = 0.0
+                            self.wDiv[i,k]  = 0.0
+                            self.wT[i,k]    = Pr.Vort_conv_amp*self.Wp[i,k]*(PV.T.spectral[i,k-1] + PV.T.spectral[i,k-1])*0.5
+                            if Pr.moist_index > 0.0:
+                                self.wT[i,k]    = Pr.Vort_conv_amp*self.Wp[i,k]*(PV.QT.spectral[i,k-1] + PV.QT.spectral[i,k-1])*0.5
+                        else:
+                            self.wVort[i,k] = Pr.Vort_conv_amp*self.Wp[i,k]*(PV.Vorticity.spectral[i,k] - PV.Vorticity.spectral[i,k-1])
+                            self.wDiv[i,k]  = Pr.Vort_conv_amp*self.Wp[i,k]*(PV.Divergence.spectral[i,k] - PV.Divergence.spectral[i,k-1])
+                            self.wT[i,k]    = Pr.Vort_conv_amp*self.Wp[i,k]*(PV.T.spectral[i,k] + PV.T.spectral[i,k-1])*0.5
+                            if Pr.moist_index > 0.0:
+                                self.wT[i,k]    = Pr.Vort_conv_amp*self.Wp[i,k]*(PV.QT.spectral[i,k] + PV.QT.spectral[i,k-1])*0.5
+
+            # we compute the flux divergence at the middle of the k'th layer
             for k in range(nl):
-                for i in range(nlm):
-                    PV.Vorticity.ConvectiveFlux[i,k]  = -(self.wVort[i,k+1] - self.wVort[i,k])*dpi[i,k]
-                    PV.Divergence.ConvectiveFlux[i,k] = -(self.wDiv[i,k+1]  - self.wDiv[i,k])*dpi[i,k]
-                    PV.T.ConvectiveFlux[i,k]          = -(self.wT[i,k+1]    - self.wT[i,k])*dpi[i,k]
-                    if Pr.moist_index > 0.0:
-                        PV.QT.ConvectiveFlux[i,k]     = -(self.wQT[i,k+1]   - self.wQT[i,k])*dpi[i,k]
+                with nogil:
+                    for i in range(nlm):
+                        PV.Vorticity.ConvectiveFlux[i,k]  = -(self.wVort[i,k+1] - self.wVort[i,k])*dpi[i,k+1]
+                        PV.Divergence.ConvectiveFlux[i,k] = -(self.wDiv[i,k+1]  - self.wDiv[i,k])*dpi[i,k+1]
+                        PV.T.ConvectiveFlux[i,k]          = -(self.wT[i,k+1]    - self.wT[i,k])*dpi[i,k+1]
+                        if Pr.moist_index > 0.0:
+                            PV.QT.ConvectiveFlux[i,k]     = -(self.wQT[i,k+1]   - self.wQT[i,k])*dpi[i,k+1]
 
         return
 
@@ -179,6 +189,10 @@ cdef class ConvectionRandomGivenLapseRate(ConvectionBase):
             Py_ssize_t nl = Pr.n_layers
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
 
+        self.noise  = namelist['convection']['noise']
+        Pr.noise_magnitude  = namelist['convection']['noise_magnitude']
+        Pr.noise_correlation  = namelist['convection']['noise_correlation']
+        Pr.noise_type  = namelist['convection']['noise_type']
         Pr.noise_lmin  = namelist['convection']['min_noise_wavenumber']
         Pr.noise_lmax  = namelist['convection']['max_noise_wavenumber']
         Pr.Div_conv_amp  = namelist['convection']['Divergence_convective_noise_amplitude']
@@ -223,44 +237,52 @@ cdef class ConvectionRandomGivenLapseRate(ConvectionBase):
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
             double [:,:] dpi_grid    = np.zeros((nx, ny),  dtype = np.float64, order ='c')
             double complex [:,:] dpi = np.zeros((nlm, nl), dtype = np.complex, order ='c')
-            double [:,:] dpi_grid2    = np.zeros((nx, ny),  dtype = np.float64, order ='c')
-            double complex [:,:] dpi2 = np.zeros((nlm, nl+1), dtype = np.complex, order ='c')
 
-        for k in range(nl):
-            # we compute the flux from below to the layer k
-            dpi_grid = np.divide(1.0, np.subtract(PV.P.values[:,:,k+1],PV.P.values[:,:,k]))
-            dpi.base[:,k] = Gr.SphericalGrid.grdtospec(dpi_grid.base)
-            dpi_grid2 = np.divide(2.0,np.subtract(PV.P.values[:,:,k+2],PV.P.values[:,:,k]))
-            dpi2.base[:,k+1] = Gr.SphericalGrid.grdtospec(dpi_grid.base)
+        if self.noise:
+            # we compute the flux from below to the layer k skipping k=0
+            for k in range(1,nl+1):
+                dpi_grid = np.divide(1.0, np.subtract(PV.P.values[:,:,k],PV.P.values[:,:,k-1]))
+                dpi.base[:,k] = Gr.SphericalGrid.grdtospec(dpi_grid.base)
 
-            F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
-            sph_noise = spf.sphForcing(Pr.nlons,Pr.nlats, Pr.truncation_number,Pr.rsphere, Pr.noise_lmin,
-                                    Pr.noise_lmax, magnitude = 0.05, correlation = 0., noise_type='local')
-            self.Wp.base[:,k+1] = sph_noise.forcingFn(F0)
-            with nogil:
-                for i in range(nlm):
-                    if k==nl-1:
-                        self.wVort[i,k+1] = 0.0
-                        self.wDiv[i,k+1]  = 0.0
-                        self.wT[i,k+1]    = Pr.T_conv_amp*self.Wp[i,k+1]/(25000.0) # *dpi2[i,k+1]
-                        if Pr.moist_index > 0.0:
-                            self.wQT[i,k+1] = Pr.QT_conv_amp*self.Wp[i,k+1]/(25000.0) # *dpi2[i,k+1]
-                    else:
-                        self.wVort[i,k+1] = Pr.Vort_conv_amp*self.Wp[i,k+1]/(25000.0) # *dpi2[i,k+1]
-                        self.wDiv[i,k+1]  = Pr.Div_conv_amp*self.Wp[i,k+1]/(25000.0) # *dpi2[i,k+1]
-                        self.wT[i,k+1]    = Pr.T_conv_amp*self.Wp[i,k+1]/(25000.0) # *dpi2[i,k+1]
-                        if Pr.moist_index > 0.0:
-                            self.wQT[i,k+1] = Pr.QT_conv_amp*self.Wp[i,k+1]/(25000.0) # *dpi2[i,k+1]
-        with nogil:
+                F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
+                sph_noise = spf.sphForcing(Pr.nlons,Pr.nlats, Pr.truncation_number,Pr.rsphere,
+                                        Pr.noise_lmin,Pr.noise_lmax, Pr.noise_magnitude,
+                                        correlation = Pr.noise_correlation, noise_type=Pr.noise_type)
+                self.Wp.base[:,k] = sph_noise.forcingFn(F0)
+                with nogil:
+                    for i in range(nlm):
+                        if k==nl:
+                            self.wVort[i,k] = 0.0
+                            self.wDiv[i,k]  = 0.0
+                            self.wT[i,k]    = Pr.T_conv_amp*self.Wp[i,k]*dpi[i,k]
+                            if Pr.moist_index > 0.0:
+                                self.wQT[i,k] = Pr.QT_conv_amp*self.Wp[i,k]*dpi[i,k]
+                        else:
+                            self.wVort[i,k] = Pr.Vort_conv_amp*self.Wp[i,k]*dpi[i,k]
+                            self.wDiv[i,k]  = Pr.Div_conv_amp*self.Wp[i,k]*dpi[i,k]
+                            self.wT[i,k]    = Pr.T_conv_amp*self.Wp[i,k]*dpi[i,k]
+                            if Pr.moist_index > 0.0:
+                                self.wQT[i,k] = Pr.QT_conv_amp*self.Wp[i,k]*dpi[i,k]
+
+            # we compute the flux divergence at the middle of the k'th layer
             for k in range(nl):
-                for i in range(nlm):
-                    PV.Vorticity.ConvectiveFlux[i,k]  = -(self.wVort[i,k+1] - self.wVort[i,k])*dpi[i,k]
-                    PV.Divergence.ConvectiveFlux[i,k] = -(self.wDiv[i,k+1]  - self.wDiv[i,k])*dpi[i,k]
-                    PV.T.ConvectiveFlux[i,k]          = -(self.wT[i,k+1]    - self.wT[i,k])*dpi[i,k]
-                    if Pr.moist_index > 0.0:
-                        PV.QT.ConvectiveFlux[i,k]     = -(self.wQT[i,k+1]   - self.wQT[i,k])*dpi[i,k]
+                with nogil:
+                    for i in range(nlm):
+                        PV.Vorticity.ConvectiveFlux[i,k]  = -(self.wVort[i,k+1] - self.wVort[i,k])*dpi[i,k+1]
+                        PV.Divergence.ConvectiveFlux[i,k] = -(self.wDiv[i,k+1]  - self.wDiv[i,k])*dpi[i,k+1]
+                        PV.T.ConvectiveFlux[i,k]          = -(self.wT[i,k+1]    - self.wT[i,k])*dpi[i,k+1]
+                        if Pr.moist_index > 0.0:
+                            PV.QT.ConvectiveFlux[i,k]     = -(self.wQT[i,k+1]   - self.wQT[i,k])*dpi[i,k+1]
 
         return
+
+        # ------------ k=0 -> w'T' =0 ; dpi =0
+        # - - - - - -
+        # ------------ k=1 -> w'T'
+        # - - - - - -
+        # ------------ k=2 -> w'T' -> noise/(p2-p1)
+        # - - - - - -                        d(noise/(ps-p1))/(ps-p2)
+        # ============ k=s -> w'T' -> noise/(ps-p2)
 
     cpdef stats_io(self, NetCDFIO_Stats Stats):
         Stats.write_zonal_mean('zonal_mean_conv_wT',self.wT[:,1:])

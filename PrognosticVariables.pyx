@@ -173,6 +173,12 @@ cdef class PrognosticVariables:
         Stats.write_3D_variable(Pr, int(TS.t),nl, 'Specific_humidity', self.QT.values)
         Stats.write_3D_variable(Pr, int(TS.t),nl, 'dQTdt',             self.QT.mp_tendency[:,:,0:nl])
         Stats.write_2D_variable(Pr, int(TS.t),    'Pressure',          self.P.values[:,:,nl])
+
+        Stats.write_spectral_field(Pr, int(TS.t),nl, 'Vorticity_forcing', self.Vorticity.sp_forcing)
+        Stats.write_spectral_field(Pr, int(TS.t),nl, 'Vorticity_ConvectiveFlux', self.Vorticity.ConvectiveFlux)
+        Stats.write_spectral_field(Pr, int(TS.t),nl, 'Divergence_ConvectiveFlux', self.Divergence.ConvectiveFlux)
+        Stats.write_spectral_field(Pr, int(TS.t),nl, 'Temperature_ConvectiveFlux', self.T.ConvectiveFlux)
+        Stats.write_spectral_field(Pr, int(TS.t),nl, 'Specific_humidity_ConvectiveFlux', self.QT.ConvectiveFlux)
         return
 
     @cython.wraparound(False)
@@ -272,7 +278,7 @@ cdef class PrognosticVariables:
             with nogil:
                 for i in range(nlm):
                     PV.Vorticity.tendency[i,k]  = (Vort_forc[i] - Divergent_momentum_flux[i]- w_vort_up[i] - w_vort_dn[i]
-                                                     + Vort_sur_flux[i] + PV.Vorticity.ConvectiveFlux[i,k])
+                                                     + Vort_sur_flux[i] + PV.Vorticity.ConvectiveFlux[i,k] + PV.Vorticity.sp_forcing[i,k])
                     PV.Divergence.tendency[i,k] = (Vortical_momentum_flux[i] - Dry_Energy_laplacian[i]- w_div_up[i] - w_div_dn[i]
                                                     + Div_forc[i] + Div_sur_flux[i] + PV.Divergence.ConvectiveFlux[i,k])
 

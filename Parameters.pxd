@@ -66,6 +66,8 @@ cdef class Parameters:
         double Vort_conv_amp
         double T_conv_amp
         double QT_conv_amp
+        double noise_magnitude
+        double noise_correlation
 
         str input_folder
         str case

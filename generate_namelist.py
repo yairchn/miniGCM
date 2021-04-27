@@ -20,7 +20,6 @@ def main():
     namelist_defaults['timestepping']['dt'] = 100.0
     namelist_defaults['timestepping']['t_max'] = 1000.0 # days
 
-    namelist_defaults['forcing'] = {}
 
     namelist_defaults['diffusion'] = {}
     namelist_defaults['diffusion']['dissipation_order'] = 4.0
@@ -53,9 +52,7 @@ def main():
     namelist_defaults['initialize']['restart time']             = 'none'         # input directory for restart
     namelist_defaults['initialize']['restart folder']           = './'         # input directory for restart
     namelist_defaults['initialize']['restart type']             = 'zonal_mean' # restart from zonal mean
-    namelist_defaults['initialize']['forcing_inoise']                   = 1            # flag for noise in initial condition
-    namelist_defaults['initialize']['forcing_noise_amplitude']          = 1            # amplitude of initial noise in K
-    namelist_defaults['initialize']['inoise']                   = 1            # flag for noise in initial condition
+    namelist_defaults['initialize']['noise']                   = True            # flag for noise in initial condition
     namelist_defaults['initialize']['noise_amplitude']          = 1            # amplitude of initial noise in K
     namelist_defaults['initialize']['noise_type'] = 'red' # 'white', 'red', 'blue', or 'local' 
 
@@ -70,6 +67,7 @@ def main():
 
 
     namelist_defaults['convection'] = {}
+    namelist_defaults['convection']['noise'] = False            # flag for noise
     namelist_defaults['convection']['convection_type'] = 'Randon'
     namelist_defaults['convection']['Divergence_convective_noise_amplitude'] = 0.0
     namelist_defaults['convection']['Vorticity_convective_noise_amplitude'] = 0.0001
@@ -77,6 +75,18 @@ def main():
     namelist_defaults['convection']['QT_convective_noise_amplitude'] = 0.0
     namelist_defaults['convection']['min_noise_wavenumber'] = 1
     namelist_defaults['convection']['max_noise_wavenumber'] = 20
+    namelist_defaults['convection']['noise_magnitude'] = 0.05
+    namelist_defaults['convection']['noise_correlation'] = 0.0
+    namelist_defaults['convection']['noise_type'] = 'local'
+
+    namelist_defaults['forcing'] = {}
+    namelist_defaults['forcing']['noise'] = False # flag for noise
+    namelist_defaults['forcing']['forcing_noise_amplitude'] = 1 # amplitude of initial noise in K
+    namelist_defaults['forcing']['noise_magnitude']
+    namelist_defaults['forcing']['noise_correlation']
+    namelist_defaults['forcing']['noise_type']
+    namelist_defaults['forcing']['min_noise_wavenumber']
+    namelist_defaults['forcing']['max_noise_wavenumber']
 
     namelist_defaults['meta'] = {}
 

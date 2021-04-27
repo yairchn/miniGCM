@@ -67,9 +67,15 @@ cdef class HelzSuarez(ForcingBase):
 			Py_ssize_t nx = Pr.nlats
 			Py_ssize_t ny = Pr.nlons
 
+		self.noise = namelist['forcing']['noise']
 		self.Tbar = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
 		self.sin_lat = np.zeros((Pr.nlats, Pr.nlons), dtype=np.float64, order='c')
 		self.cos_lat = np.zeros((Pr.nlats, Pr.nlons), dtype=np.float64, order='c')
+		Pr.Fo_noise_magnitude  = namelist['forcing']['noise_magnitude']
+		Pr.Fo_noise_correlation = namelist['forcing']['noise_correlation']
+		Pr.Fo_noise_type  = namelist['forcing']['noise_type']
+		Pr.Fo_noise_lmin  = namelist['forcing']['min_noise_wavenumber']
+		Pr.Fo_noise_lmax  = namelist['forcing']['max_noise_wavenumber']
 		with nogil:
 			for i in range(nx):
 				for j in range(ny):
@@ -99,7 +105,7 @@ cdef class HelzSuarez(ForcingBase):
 						&self.cos_lat[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
 						&DV.U.forcing[0,0,0], &DV.V.forcing[0,0,0], &PV.T.forcing[0,0,0],
 						nx, ny, nl)
-		if Pr.forcing_inoise==1:
+		if self.noise:
 			F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
 			fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 40, magnitude = 0.05, correlation = 0., noise_type='local')
 			forcing_noise = fr.forcingFn(F0)*Pr.forcing_noise_amp
