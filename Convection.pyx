@@ -66,6 +66,8 @@ cdef class ConvectionRandom(ConvectionBase):
             Py_ssize_t nl = Pr.n_layers
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
 
+        Pr.noise_lmin  = namelist['convection']['min_noise_wavenumber']
+        Pr.noise_lmax  = namelist['convection']['max_noise_wavenumber']
         Pr.Div_conv_amp  = namelist['convection']['Divergence_convective_noise_amplitude']
         Pr.Vort_conv_amp = namelist['convection']['Vorticity_convective_noise_amplitude']
         Pr.T_conv_amp    = namelist['convection']['T_convective_noise_amplitude']
@@ -111,8 +113,8 @@ cdef class ConvectionRandom(ConvectionBase):
         for k in range(nl):
             dpi_grid = np.divide(np.subtract(PV.P.value[:,:,k+1],PV.P.value[:,:,k]))
             dpi[:,k] = Gr.SphericalGrid.grdtospec(dpi_grid.base)
-            self.sph_noise = spf.sphForcing(nx, ny, Pr.truncation_number, Pr.rsphere,lmin= 1,
-                                            lmax= 100, magnitude = 0.05, correlation = 0., noise_type='local')
+            self.sph_noise = spf.sphForcing(nx, ny, Pr.truncation_number, Pr.rsphere, Pr.noise_lmin,
+                                            Pr.noise_lmax, magnitude = 0.05, correlation = 0., noise_type='local')
             self.Wp[:,k] = self.sph_noise.forcingFn(self.F0)*Pr.conv_amp
             with nogil:
                 for i in range(nlm):
@@ -128,6 +130,7 @@ cdef class ConvectionRandom(ConvectionBase):
                         self.wT[i,k+1]    = Pr.T_conv_amp*self.Wp[i,k+1]*(PV.T.spectral[i,k+1]   + PV.T.spectral[i,k])*0.5
                         if Pr.moist_index > 0.0:
                             self.wQT[i,k+1] = Pr.QT_conv_amp*self.Wp[i,k+1]*(PV.QT.spectral[i,k+1] + PV.QT.spectral[i,k])*0.5
+
         with nogil:
             for k in range(nl):
                 for i in range(nlm):
@@ -176,7 +179,8 @@ cdef class ConvectionRandomGivenLapseRate(ConvectionBase):
             Py_ssize_t nl = Pr.n_layers
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
 
-        Pr.noise_lmax  = namelist['convection']['noise_wavenumber']
+        Pr.noise_lmin  = namelist['convection']['min_noise_wavenumber']
+        Pr.noise_lmax  = namelist['convection']['max_noise_wavenumber']
         Pr.Div_conv_amp  = namelist['convection']['Divergence_convective_noise_amplitude']
         Pr.Vort_conv_amp = namelist['convection']['Vorticity_convective_noise_amplitude']
         Pr.T_conv_amp    = namelist['convection']['T_convective_noise_amplitude']
@@ -230,8 +234,8 @@ cdef class ConvectionRandomGivenLapseRate(ConvectionBase):
             dpi2.base[:,k+1] = Gr.SphericalGrid.grdtospec(dpi_grid.base)
 
             F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
-            sph_noise = spf.sphForcing(Pr.nlons,Pr.nlats, Pr.truncation_number,Pr.rsphere,lmin= 1,
-                                    lmax= 100, magnitude = 0.05, correlation = 0., noise_type='local')
+            sph_noise = spf.sphForcing(Pr.nlons,Pr.nlats, Pr.truncation_number,Pr.rsphere, Pr.noise_lmin,
+                                    Pr.noise_lmax, magnitude = 0.05, correlation = 0., noise_type='local')
             self.Wp.base[:,k+1] = sph_noise.forcingFn(F0)
             with nogil:
                 for i in range(nlm):
@@ -243,9 +247,6 @@ cdef class ConvectionRandomGivenLapseRate(ConvectionBase):
                             self.wQT[i,k+1] = Pr.QT_conv_amp*self.Wp[i,k+1]/(25000.0) # *dpi2[i,k+1]
                     else:
                         self.wVort[i,k+1] = Pr.Vort_conv_amp*self.Wp[i,k+1]/(25000.0) # *dpi2[i,k+1]
-                        # with gil:
-                        #     # print(self.Wp[i,k+1])
-                        #     print(i, k+1, dpi2[i,k+1])
                         self.wDiv[i,k+1]  = Pr.Div_conv_amp*self.Wp[i,k+1]/(25000.0) # *dpi2[i,k+1]
                         self.wT[i,k+1]    = Pr.T_conv_amp*self.Wp[i,k+1]/(25000.0) # *dpi2[i,k+1]
                         if Pr.moist_index > 0.0:

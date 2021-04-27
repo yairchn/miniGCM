@@ -75,7 +75,8 @@ def main():
     namelist_defaults['convection']['Vorticity_convective_noise_amplitude'] = 0.0001
     namelist_defaults['convection']['T_convective_noise_amplitude'] = 0.0
     namelist_defaults['convection']['QT_convective_noise_amplitude'] = 0.0
-    namelist_defaults['convection']['noise_wavenumber'] = 20
+    namelist_defaults['convection']['min_noise_wavenumber'] = 1
+    namelist_defaults['convection']['max_noise_wavenumber'] = 20
 
     namelist_defaults['meta'] = {}
 

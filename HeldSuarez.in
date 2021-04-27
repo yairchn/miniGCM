@@ -3,9 +3,10 @@
         "Divergence_convective_noise_amplitude": 0.0,
         "QT_convective_noise_amplitude": 0.0,
         "T_convective_noise_amplitude": 0.0,
-        "Vorticity_convective_noise_amplitude": 0.1,
+        "Vorticity_convective_noise_amplitude": 5.0,
         "convection_type": "Randon",
-        "noise_wavenumber": 40
+        "max_noise_wavenumber": 8,
+        "min_noise_wavenumber": 1
     },
     "diffusion": {
         "dissipation_order": 4.0,
@@ -58,7 +59,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "8dd880fb-ec68-4295-b6e2-Vr_wn40amp01"
+        "uuid": "8dd880fb-ec68-4295-b6e2-FVr_wn40amp01"
     },
     "microphysics": {
         "rain_model": "None"

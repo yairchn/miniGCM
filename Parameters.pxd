@@ -15,6 +15,7 @@ cdef class Parameters:
         int truncation_order
         int truncation_number
         int noise_lmax
+        int noise_lmin
         double [:] pressure_levels
         double moist_index
         double dissipation_order
