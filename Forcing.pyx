@@ -71,7 +71,7 @@ cdef class HelzSuarez(ForcingBase):
 		self.Tbar = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
 		self.sin_lat = np.zeros((Pr.nlats, Pr.nlons), dtype=np.float64, order='c')
 		self.cos_lat = np.zeros((Pr.nlats, Pr.nlons), dtype=np.float64, order='c')
-		# Pr.Fo_noise_amplitude  = namelist['forcing']['noise_amplitude']
+		Pr.Fo_noise_amplitude  = namelist['forcing']['noise_amplitude']
 		Pr.Fo_noise_magnitude  = namelist['forcing']['noise_magnitude']
 		Pr.Fo_noise_correlation = namelist['forcing']['noise_correlation']
 		Pr.Fo_noise_type  = namelist['forcing']['noise_type']
@@ -116,7 +116,7 @@ cdef class HelzSuarez(ForcingBase):
 
 			forcing_noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(F0))
 			#print('layer ',Pr.n_layers-1,' forcing_noise min', forcing_noise.base.min())
-			sp_noise = Gr.SphericalGrid.grdtospec(forcing_noise.base)
+			sp_noise = Gr.SphericalGrid.grdtospec(forcing_noise.base)*Pr.Fo_noise_amplitude
 			PV.Vorticity.sp_forcing[:,Pr.n_layers-1] = sp_noise
 		return
 

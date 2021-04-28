@@ -59,6 +59,7 @@ cdef class Parameters:
         double efold_grid
         bint noise
         double noise_amp
+        double Fo_noise_amplitude
         double conv_amp
         double Div_conv_amp
         double Vort_conv_amp
