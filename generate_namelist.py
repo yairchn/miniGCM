@@ -68,11 +68,11 @@ def main():
 
     namelist_defaults['convection'] = {}
     namelist_defaults['convection']['noise'] = False            # flag for noise
-    namelist_defaults['convection']['convection_type'] = 'Randon'
-    namelist_defaults['convection']['Divergence_convective_noise_amplitude'] = 0.0
-    namelist_defaults['convection']['Vorticity_convective_noise_amplitude'] = 0.0
-    namelist_defaults['convection']['T_convective_noise_amplitude'] = 0.0
-    namelist_defaults['convection']['QT_convective_noise_amplitude'] = 0.0
+    namelist_defaults['convection']['convection_type'] = 'Random'
+    namelist_defaults['convection']['Divergence_convective_noise_amplitude'] = 0.1
+    namelist_defaults['convection']['Vorticity_convective_noise_amplitude'] = 0.1
+    namelist_defaults['convection']['T_convective_noise_amplitude'] = 0.1
+    namelist_defaults['convection']['QT_convective_noise_amplitude'] = 0.1
     namelist_defaults['convection']['min_noise_wavenumber'] = 1
     namelist_defaults['convection']['max_noise_wavenumber'] = 20
     namelist_defaults['convection']['noise_magnitude'] = 0.05
@@ -81,7 +81,7 @@ def main():
 
     namelist_defaults['forcing'] = {}
     namelist_defaults['forcing']['noise'] = False # flag for noise
-    namelist_defaults['forcing']['forcing_noise_amplitude'] = 1 # amplitude of initial noise in K
+    namelist_defaults['forcing']['noise_amplitude'] = 0.00001
     namelist_defaults['forcing']['noise_magnitude'] = 0.05
     namelist_defaults['forcing']['noise_correlation'] = 0.0
     namelist_defaults['forcing']['noise_type'] = 'local'
