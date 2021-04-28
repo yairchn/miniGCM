@@ -122,6 +122,7 @@ def HeldSuarez(namelist_defaults):
     namelist['forcing']['equator_to_pole_dT']         = 60.0                    # Characteristic temperature change in meridional direction [K]
     namelist['forcing']['equatorial_temperature']    = 315.0                   # Characteristic temperature at the equator [K]
     namelist['forcing']['lapse_rate']   = 10.0                   # Characteristic potential temperature change in vertical [K]
+    namelist['forcing']['noise_amplitude'] = 0.000000000000001,
 
     namelist['microphysics']['rain_model'] = 'None'
     namelist['initialize']['T_init']   = 300.0 # initial temperature of layer 1 [K]
