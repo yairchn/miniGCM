@@ -57,6 +57,7 @@ cdef class Parameters:
         double dphi_s
         double efold_meso
         double efold_grid
+        bint noise
         double noise_amp
         double conv_amp
         double Div_conv_amp
@@ -64,6 +65,7 @@ cdef class Parameters:
         double T_conv_amp
         double QT_conv_amp
 
+        double Fo_noise_amplitude
         double Fo_noise_magnitude
         double Fo_noise_correlation
         double Fo_noise_lmin

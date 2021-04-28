@@ -45,8 +45,8 @@ cdef class Parameters:
         self.efold_grid        = namelist['diffusion']['e_folding_timescale_grid_scale']
 
         self.surface_model     = namelist['surface']['surface_model']
-        # self.inoise            = namelist['initialize']['inoise']
-        # self.noise_amp         = namelist['initialize']['noise_amplitude']
+        self.noise             = namelist['initialize']['noise']
+        self.noise_amp         = namelist['initialize']['noise_amplitude']
         self.noise_type        = namelist['initialize']['noise_type']
 
         self.uuid        = namelist['meta']['uuid']

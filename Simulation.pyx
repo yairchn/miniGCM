@@ -16,7 +16,6 @@ import time
 from TimeStepping import TimeStepping
 from Microphysics import MicrophysicsBase
 from LogFile import LogFile
-
 class Simulation:
 
     def __init__(self, namelist):
