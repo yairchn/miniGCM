@@ -153,7 +153,7 @@ cdef class HeldSuarez(CaseBase):
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         self.Sur.update(Pr, Gr, PV, DV)
         self.Fo.update(Pr, Gr, PV, DV)
-        # self.Co.update(Pr, Gr, PV, DV)
+        self.Co.update(Pr, Gr, PV, DV)
         self.MP.update(Pr, PV, DV, TS)
         return
 
@@ -222,7 +222,7 @@ cdef class HeldSuarezMoist(CaseBase):
 
         PV.physical_to_spectral(Pr, Gr)
         print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
-        if Pr.inoise==1:
+        if Pr.noise==1:
              # calculate noise
              F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
              fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0., noise_type=Pr.noise_type)
