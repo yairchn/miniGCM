@@ -33,7 +33,7 @@
         "min_noise_wavenumber": 38,
         "noise": true,
         "noise_correlation": 0.0,
-        "noise_amplitude": 0.00001,
+        "noise_amplitude": 0.000000000000001,
         "noise_magnitude": 0.05,
         "noise_type": "local",
         "sigma_b": 0.7
@@ -55,7 +55,7 @@
         "noise": true,
         "noise_amplitude": 1.0,
         "noise_type": "red",
-        "restart": false,
+        "restart": true,
         "restart folder": "/Output.HeldSuarez.ReferenceRun/",
         "restart time": "43200000",
         "restart type": "3D_output"
@@ -96,6 +96,6 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 1000.0
+        "t_max": 650.0
     }
 }
