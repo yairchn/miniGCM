@@ -56,8 +56,8 @@
         "noise": true,
         "noise_amplitude": 1,
         "noise_type": "red",
-        "restart": true,
-        "restart folder": "/Output.HeldSuarez.Random__Conv/",
+        "restart": false,
+        "restart folder": "/Output.HeldSuarez.test/",
         "restart time": "43200000",
         "restart type": "3D_output"
     },
