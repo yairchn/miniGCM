@@ -114,9 +114,9 @@ cdef class HelzSuarez(ForcingBase):
 				                Pr.Fo_noise_lmin, Pr.Fo_noise_lmax, Pr.Fo_noise_magnitude,
 				                correlation =Pr.Fo_noise_correlation, noise_type=Pr.Fo_noise_type)
 
-			forcing_noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(F0))
+			forcing_noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(F0))*Pr.Fo_noise_amplitude
 			#print('layer ',Pr.n_layers-1,' forcing_noise min', forcing_noise.base.min())
-			sp_noise = Gr.SphericalGrid.grdtospec(forcing_noise.base)*Pr.Fo_noise_amplitude
+			sp_noise = Gr.SphericalGrid.grdtospec(forcing_noise.base)
 			PV.Vorticity.sp_forcing[:,Pr.n_layers-1] = sp_noise
 		return
 
