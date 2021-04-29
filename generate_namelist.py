@@ -65,7 +65,6 @@ def main():
     namelist_defaults['io']['stats_frequency'] = 1.0
     namelist_defaults['io']['output_frequency'] = 1.0
 
-
     namelist_defaults['convection'] = {}
     namelist_defaults['convection']['noise'] = False            # flag for noise
     namelist_defaults['convection']['convection_type'] = 'Random'
