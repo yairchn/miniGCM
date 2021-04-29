@@ -21,6 +21,8 @@ cdef class Parameters:
         double dissipation_order
         double T_init
         double p_ref
+        double Ppbl
+        double Pstrato
         double rsphere
         double omega
         double g
@@ -29,7 +31,7 @@ cdef class Parameters:
         double Rd
         double Rv
         double Lv
-        double qv_star0
+        double pv_star0
         double T_0
         double QT_0
         double eps_v

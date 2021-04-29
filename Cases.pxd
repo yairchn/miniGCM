@@ -9,6 +9,7 @@ from NetCDFIO cimport NetCDFIO_Stats
 from Forcing cimport ForcingBase
 from Surface cimport SurfaceBase
 from Convection cimport ConvectionBase
+from Turbulence cimport TurbulenceBase
 from Microphysics cimport MicrophysicsBase
 import sys
 from TimeStepping cimport TimeStepping
@@ -28,10 +29,12 @@ cdef class CaseBase:
         ForcingBase Fo
         ConvectionBase Co
         MicrophysicsBase MP
+        TurbulenceBase Tr
 
     cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist)
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
+    cpdef initialize_turbulence(self, Parameters Pr, namelist)
     cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist)
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
@@ -43,6 +46,7 @@ cdef class HeldSuarez(CaseBase):
     cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist)
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
+    cpdef initialize_turbulence(self, Parameters Pr, namelist)
     cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist)
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
@@ -55,6 +59,7 @@ cdef class HeldSuarezMoist(CaseBase):
     cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist)
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
     cpdef initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist)
+    cpdef initialize_turbulence(self, Parameters Pr, namelist)
     cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist)
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)

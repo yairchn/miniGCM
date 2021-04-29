@@ -14,6 +14,7 @@ void rhs_T(double cp,
            double* restrict T_mp,
            double* restrict T_sur,
            double* restrict T_forc,
+           double* restrict turbflux,
            double* restrict rhs_T,
            double* restrict u_T,
            double* restrict v_T,
@@ -42,24 +43,28 @@ void rhs_T(double cp,
             dpi = 1.0/(p[ijkp+1] - p[ijkp]);
             rhs_T[ij] = 0.0;
             if (k==0){
-                rhs_T[ij] -= 0.5*wp[ijkp+1]*(T[ijk+1]+ T[ijk])*dpi;
+                rhs_T[ij] -= 0.5*wp[ijkp+1]*(T[ijk+1] + T[ijk])*dpi;
+                rhs_T[ij] -= (turbflux[ijk+1] - turbflux[ijk])*dpi;
             } // end if
             else if (k==kmax-1){
-                rhs_T[ij] += 0.5*wp[ijkp]  *(T[ijk] +T[ijk-1])*dpi;
-                rhs_T[ij] -= 0.5*wp[ijkp+1]*(T[ijk] +T[ijk])*dpi;
+                rhs_T[ij] += 0.5*wp[ijkp]  *(T[ijk] + T[ijk-1])*dpi;
+                rhs_T[ij] -= 0.5*wp[ijkp+1]*(T[ijk] + T[ijk])*dpi;
+                rhs_T[ij] -= (T_sur[ij] - turbflux[ijk])*dpi;
             } // end else if
             else{
                 rhs_T[ij] += 0.5*wp[ijkp]  *(T[ijk]   + T[ijk-1])*dpi;
                 rhs_T[ij] -= 0.5*wp[ijkp+1]*(T[ijk+1] + T[ijk])*dpi;
+                rhs_T[ij] -= (turbflux[ijk+1] - turbflux[ijk])*dpi;
             } // end else
             rhs_T[ij] -= 0.5*(wp[ijkp+1]+wp[ijkp])*(gz[ijkp+1]-gz[ijkp])*dpi/cp;
             rhs_T[ij] += T_mp[ijk];
             rhs_T[ij] += T_forc[ijk];
-            rhs_T[ij] += T_sur[ij];
         } // End j loop
     } // end i loop
     return;
 }
+
+
 
 
 void rhs_qt(double* restrict p,
@@ -69,6 +74,7 @@ void rhs_qt(double* restrict p,
             double* restrict wp,
             double* restrict qt_mp,
             double* restrict qt_sur,
+            double* restrict turbflux,
             double* restrict rhs_qt,
             double* restrict u_qt,
             double* restrict v_qt,
@@ -96,17 +102,19 @@ void rhs_qt(double* restrict p,
             dpi = 1.0/(p[ijkp+1] - p[ijkp]);
             if (k==0){
                 rhs_qt[ij] -= 0.5*wp[ijkp+1]*(qt[ijk+1]+ qt[ijk])*dpi;
+                rhs_qt[ij] -= (turbflux[ijk+1] - turbflux[ijk])*dpi;
             } // end if
             else if (k==kmax-1){
                 rhs_qt[ij] += 0.5*wp[ijkp]  *(qt[ijk] +qt[ijk-1])*dpi;
                 rhs_qt[ij] -= 0.5*wp[ijkp+1]*(qt[ijk] +qt[ijk])*dpi;
+                rhs_qt[ij] -= (qt_sur[ij] - turbflux[ijk])*dpi;
             } // end else if
             else{
                 rhs_qt[ij] += 0.5*wp[ijkp]  *(qt[ijk]   + qt[ijk-1])*dpi;
                 rhs_qt[ij] -= 0.5*wp[ijkp+1]*(qt[ijk+1] + qt[ijk])*dpi;
+                rhs_qt[ij] -= (turbflux[ijk+1] - turbflux[ijk])*dpi;
             } // end else
             rhs_qt[ij] += qt_mp[ijk];
-            rhs_qt[ij] += qt_sur[ij];
             u_qt[ij] = u[ijk] * qt[ijk];
             v_qt[ij] = v[ijk] * qt[ijk];
         } // End j loop

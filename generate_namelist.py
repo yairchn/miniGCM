@@ -122,7 +122,7 @@ def HeldSuarez(namelist_defaults):
     namelist['forcing']['equator_to_pole_dT']         = 60.0                    # Characteristic temperature change in meridional direction [K]
     namelist['forcing']['equatorial_temperature']    = 315.0                   # Characteristic temperature at the equator [K]
     namelist['forcing']['lapse_rate']   = 10.0                   # Characteristic potential temperature change in vertical [K]
-    namelist['forcing']['noise_amplitude'] = 0.000000000000001,
+    namelist['forcing']['noise_amplitude'] = 0.000000000000001
 
     namelist['microphysics']['rain_model'] = 'None'
     namelist['initialize']['T_init']   = 300.0 # initial temperature of layer 1 [K]
@@ -166,11 +166,16 @@ def HeldSuarezMoist(namelist_defaults):
     namelist['initialize']['T1']   = 229.0 # initial temperature of layer 1 [K]
     namelist['initialize']['T2']   = 257.0 # initial temperature of layer 2 [K]
     namelist['initialize']['T3']   = 300.0 # initial temperature of layer 3 [K]
+    namelist['initialize']['T_init']   = 300.0 # initial temperature of layer 1 [K]
 
 
     namelist['thermodynamics']['thermodynamics_type'] = 'moist'
-    namelist['thermodynamics']['verical_half_width_of_the_q'] = 34000.0 # pasc
+    namelist['thermodynamics']['verical_half_width_of_the_q'] = 30000.0 # pasc
     namelist['thermodynamics']['horizontal_half_width_of_the_q'] = 0.6981 # radians lat
+
+    namelist['turbulence'] = {}
+    namelist['turbulence']['stratospheric_pressure'] = 10000.0
+    namelist['turbulence']['boundary_layer_top_pressure'] = 85000.0
 
     namelist['microphysics'] = {}
     namelist['microphysics']['rain_model'] = 'Kessler_cutoff'

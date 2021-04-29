@@ -33,7 +33,7 @@ cdef class Parameters:
         self.Rd        = namelist['thermodynamics']['dry_air_gas_constant']
         self.Rv        = namelist['thermodynamics']['vapor_gas_constant']
         self.Lv        = namelist['thermodynamics']['latent_heat_evap']
-        self.qv_star0  = namelist['thermodynamics']['pv_star_triple_point']
+        self.pv_star0  = namelist['thermodynamics']['pv_star_triple_point']
         self.T_0       = namelist['thermodynamics']['triple_point_temp']
         self.eps_v     = self.Rd/self.Rv
         self.kappa     = self.Rd/self.cp

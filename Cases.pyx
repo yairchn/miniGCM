@@ -8,6 +8,7 @@ from Grid cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
 cimport Forcing
 cimport Surface
+cimport Turbulence
 cimport Microphysics
 cimport Convection
 import sys
@@ -43,6 +44,8 @@ cdef class CaseBase:
 
     cpdef initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         return
+    cpdef initialize_turbulence(self, Parameters Pr, namelist):
+        return
 
     cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
         return
@@ -70,6 +73,7 @@ cdef class HeldSuarez(CaseBase):
         self.MP = Microphysics.MicrophysicsNone()
         self.Co = Convection.ConvectionRandomGivenLapseRate()
         # self.Co = Convection.ConvectionRandom() # JOSEF
+        self.Tr = Turbulence.TurbulenceNone()
         return
 
     cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist):
@@ -116,6 +120,11 @@ cdef class HeldSuarez(CaseBase):
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Sur.initialize(Pr, Gr, PV, namelist)
+        self.Tr
+        return
+
+    cpdef initialize_turbulence(self, Parameters Pr, namelist):
+        self.Tr.initialize(Pr, namelist)
         return
 
     cpdef initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
@@ -155,6 +164,7 @@ cdef class HeldSuarez(CaseBase):
         self.Fo.update(Pr, Gr, PV, DV)
         self.Co.update(Pr, Gr, PV, DV)
         self.MP.update(Pr, PV, DV, TS)
+        self.Tr.update(Pr, Gr, PV, DV)
         return
 
 cdef class HeldSuarezMoist(CaseBase):
@@ -163,6 +173,9 @@ cdef class HeldSuarezMoist(CaseBase):
         self.Fo  = Forcing.HelzSuarezMoist()
         self.Sur = Surface.SurfaceBulkFormula()
         self.MP = Microphysics.MicrophysicsCutoff()
+        # self.MP = Microphysics.MicrophysicsNone()
+        self.Tr = Turbulence.DownGradientTurbulence()
+        self.Co = Convection.ConvectionRandomGivenLapseRate()
         return
 
 
@@ -222,7 +235,7 @@ cdef class HeldSuarezMoist(CaseBase):
 
         PV.physical_to_spectral(Pr, Gr)
         print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
-        if Pr.noise==1:
+        if namelist['initialize']['noise']:
              # calculate noise
              F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
              fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0., noise_type=Pr.noise_type)
@@ -243,6 +256,9 @@ cdef class HeldSuarezMoist(CaseBase):
 
     cpdef initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Co.initialize(Pr, Gr, namelist)
+
+    cpdef initialize_turbulence(self, Parameters Pr, namelist):
+        self.Tr.initialize(Pr, namelist)
         return
 
     cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
@@ -278,4 +294,5 @@ cdef class HeldSuarezMoist(CaseBase):
         self.Sur.update(Pr, Gr, PV, DV)
         self.Fo.update(Pr, Gr, PV, DV)
         self.MP.update(Pr, PV, DV, TS)
+        self.Tr.update(Pr, Gr, PV, DV)
         return

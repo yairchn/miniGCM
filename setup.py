@@ -118,6 +118,11 @@ _ext = Extension('Restart', ['Restart.pyx'], include_dirs=include_path,
 extensions.append(_ext)
 
 _ext = Extension('Convection', ['Convection.pyx'], include_dirs=include_path,
+                     extra_compile_args=extra_compile_args, libraries=libraries, library_dirs=library_dirs,
+                 runtime_library_dirs=library_dirs)
+extensions.append(_ext)
+
+_ext = Extension('Turbulence', ['Turbulence.pyx'], include_dirs=include_path,
                  extra_compile_args=extra_compile_args, libraries=libraries, library_dirs=library_dirs,
                  runtime_library_dirs=library_dirs)
 extensions.append(_ext)
