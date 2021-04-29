@@ -160,7 +160,8 @@ cdef class HeldSuarezMoist(CaseBase):
         # Pr.casename = namelist['meta']['casename']
         self.Fo  = Forcing.HelzSuarezMoist()
         self.Sur = Surface.SurfaceBulkFormula()
-        self.MP = Microphysics.MicrophysicsCutoff()
+        # self.MP = Microphysics.MicrophysicsCutoff()
+        self.MP = Microphysics.MicrophysicsNone()
         self.Tr = Turbulence.DownGradientTurbulence()
         return
 
