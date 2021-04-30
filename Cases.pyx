@@ -24,7 +24,7 @@ def CasesFactory(namelist):
     elif namelist['meta']['casename'] == 'HeldSuarezMoist':
         return HeldSuarezMoist(namelist)
     # anthoer example
-    # elif namelist['meta']['casename'] == 'Stochastic_Forcing':
+    # elif namelist['meta']['casename'] == 'StochasticHeldSuarez':
     #     return Stochastic_Frorcing(paramlist)
     else:
         print('case not recognized')
@@ -163,7 +163,7 @@ cdef class HeldSuarez(CaseBase):
         self.Tr.update(Pr, Gr, PV, DV)
         return
 
-cdef class HeldSuarezMoist(CaseBase):
+cdef class StochasticHeldSuarez(CaseBase):
     def __init__(self, namelist):
         # Pr.casename = namelist['meta']['casename']
         self.Fo  = Forcing.ForcingFactory(namelist)
