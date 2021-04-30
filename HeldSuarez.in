@@ -4,7 +4,7 @@
         "QT_convective_noise_amplitude": 0.1,
         "T_convective_noise_amplitude": 0.1,
         "Vorticity_convective_noise_amplitude": 0.1,
-        "convection_type": "Random",
+        "convection_model": "RandomFlux",
         "max_noise_wavenumber": 20,
         "min_noise_wavenumber": 1,
         "noise": true,
@@ -23,7 +23,7 @@
     "forcing": {
         "equator_to_pole_dT": 60.0,
         "equatorial_temperature": 315.0,
-        "forcing_type": "HeldSuarez",
+        "forcing_model": "HeldSuarez",
         "k_a": 2.8935185185185185e-07,
         "k_b": 2.8935185185185185e-07,
         "k_f": 1.1574074074074073e-05,
@@ -31,7 +31,7 @@
         "lapse_rate": 10.0,
         "max_noise_wavenumber": 42,
         "min_noise_wavenumber": 38,
-        "noise": true,
+        "noise": false,
         "noise_amplitude": 1e-15,
         "noise_correlation": 0.0,
         "noise_magnitude": 0.05,
@@ -68,10 +68,10 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "bfea7854-8da5-4b57-b595-e37184ea74af"
+        "uuid": "3c660cf0-0fd0-4652-a07f-f642b8c6a34a"
     },
     "microphysics": {
-        "rain_model": "None"
+        "microphysics_model": "None"
     },
     "output": {
         "output_root": "./"
@@ -97,5 +97,8 @@
         "CFL_limit": 0.8,
         "dt": 100.0,
         "t_max": 1000.0
+    },
+    "turbulence": {
+        "turbulence_model": "None"
     }
 }

@@ -24,8 +24,18 @@ cdef extern from "forcing_functions.h":
 			double* v, double* u_forc, double* v_forc, double* T_forc,
 			Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
 
+
+def ForcingFactory(namelist):
+	if namelist['forcing']['forcing_model'] == 'None':
+		return ForcingNone(namelist)
+	elif namelist['forcing']['forcing_model'] == 'HeldSuarez':
+		return HelzSuarez(namelist)
+	else:
+		print('case not recognized')
+	return
+
 cdef class ForcingBase:
-	def __init__(self):
+	def __init__(self, namelist):
 		return
 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
 		self.Tbar = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
@@ -42,8 +52,8 @@ cdef class ForcingBase:
 		return
 
 cdef class ForcingNone(ForcingBase):
-	def __init__(self):
-		ForcingBase.__init__(self)
+	def __init__(self, namelist):
+		ForcingBase.__init__(self, namelist)
 		return
 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
 		return
@@ -57,8 +67,8 @@ cdef class ForcingNone(ForcingBase):
 		return
 
 cdef class HelzSuarez(ForcingBase):
-	def __init__(self):
-		ForcingBase.__init__(self)
+	def __init__(self, namelist):
+		ForcingBase.__init__(self, namelist)
 		return
 
 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
@@ -132,8 +142,8 @@ cdef class HelzSuarez(ForcingBase):
 		return
 
 cdef class HelzSuarezMoist(ForcingBase):
-	def __init__(self):
-		ForcingBase.__init__(self)
+	def __init__(self, namelist):
+		ForcingBase.__init__(self, namelist)
 		return
 
 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):

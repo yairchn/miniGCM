@@ -6,11 +6,11 @@ from PrognosticVariables cimport PrognosticVariables
 from DiagnosticVariables cimport DiagnosticVariables
 from Grid cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
-cimport Forcing
-cimport Surface
-cimport Turbulence
-cimport Microphysics
-cimport Convection
+import Forcing
+import Surface
+import Microphysics
+import Convection
+import Turbulence
 import sys
 from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
@@ -29,8 +29,6 @@ def CasesFactory(namelist):
     else:
         print('case not recognized')
     return
-
-
 
 cdef class CaseBase:
     def __init__(self, namelist):
@@ -68,12 +66,11 @@ cdef class CaseBase:
 cdef class HeldSuarez(CaseBase):
     def __init__(self, namelist):
         # Pr.casename = namelist['meta']['casename']
-        self.Fo  = Forcing.HelzSuarez()
-        self.Sur = Surface.SurfaceNone()
-        self.MP = Microphysics.MicrophysicsNone()
-        self.Co = Convection.ConvectionRandomGivenLapseRate()
-        # self.Co = Convection.ConvectionRandom() # JOSEF
-        self.Tr = Turbulence.TurbulenceNone()
+        self.Fo  = Forcing.ForcingFactory(namelist)
+        self.Sur = Surface.SurfaceFactory(namelist)
+        self.MP  = Microphysics.MicrophysicsFactory(namelist)
+        self.Co = Convection.ConvectionFactory(namelist)
+        self.Tr = Turbulence.TurbulenceFactory(namelist)
         return
 
     cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist):
@@ -120,7 +117,6 @@ cdef class HeldSuarez(CaseBase):
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Sur.initialize(Pr, Gr, PV, namelist)
-        self.Tr
         return
 
     cpdef initialize_turbulence(self, Parameters Pr, namelist):
@@ -170,12 +166,11 @@ cdef class HeldSuarez(CaseBase):
 cdef class HeldSuarezMoist(CaseBase):
     def __init__(self, namelist):
         # Pr.casename = namelist['meta']['casename']
-        self.Fo  = Forcing.HelzSuarezMoist()
-        self.Sur = Surface.SurfaceBulkFormula()
-        self.MP = Microphysics.MicrophysicsCutoff()
-        # self.MP = Microphysics.MicrophysicsNone()
-        self.Tr = Turbulence.DownGradientTurbulence()
-        self.Co = Convection.ConvectionRandomGivenLapseRate()
+        self.Fo  = Forcing.ForcingFactory(namelist)
+        self.Sur = Surface.SurfaceFactory(namelist)
+        self.MP  = Microphysics.MicrophysicsFactory(namelist)
+        self.Co = Convection.ConvectionFactory(namelist)
+        self.Tr = Turbulence.TurbulenceFactory(namelist)
         return
 
 

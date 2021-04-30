@@ -15,8 +15,17 @@ cdef extern from "turbulence_functions.h":
                                  double* T, double* qt, double* u, double* v, double* wTh,
                                  double* wqt, Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
 
+def TurbulenceFactory(namelist):
+    if namelist['turbulence']['turbulence_model'] == 'None':
+        return TurbulenceNone(namelist)
+    elif namelist['turbulence']['turbulence_model'] == 'DownGradient':
+        return DownGradientTurbulence(namelist)
+    else:
+        print('case not recognized')
+    return
+
 cdef class TurbulenceBase:
-    def __init__(self):
+    def __init__(self, namelist):
         return
     cpdef initialize(self, Parameters Pr, namelist):
         return
@@ -30,7 +39,8 @@ cdef class TurbulenceBase:
         return
 
 cdef class TurbulenceNone(TurbulenceBase):
-    def __init__(self):
+    def __init__(self, namelist):
+        TurbulenceBase.__init__(self, namelist)
         return
     cpdef initialize(self, Parameters Pr, namelist):
         return
@@ -44,8 +54,8 @@ cdef class TurbulenceNone(TurbulenceBase):
         return
 
 cdef class DownGradientTurbulence(TurbulenceBase):
-    def __init__(self):
-        TurbulenceBase.__init__(self)
+    def __init__(self, namelist):
+        TurbulenceBase.__init__(self, namelist)
         return
     cpdef initialize(self, Parameters Pr, namelist):
         cdef:

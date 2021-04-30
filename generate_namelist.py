@@ -66,8 +66,8 @@ def main():
     namelist_defaults['io']['output_frequency'] = 1.0
 
     namelist_defaults['convection'] = {}
-    namelist_defaults['convection']['noise'] = False            # flag for noise
-    namelist_defaults['convection']['convection_type'] = 'Random'
+    namelist_defaults['convection']['noise'] = False # flag for noise
+    namelist_defaults['convection']['convection_model'] = 'RandomFlux'
     namelist_defaults['convection']['Divergence_convective_noise_amplitude'] = 0.1
     namelist_defaults['convection']['Vorticity_convective_noise_amplitude'] = 0.1
     namelist_defaults['convection']['T_convective_noise_amplitude'] = 0.1
@@ -80,10 +80,10 @@ def main():
 
     namelist_defaults['forcing'] = {}
     namelist_defaults['forcing']['noise'] = False # flag for noise
+    namelist_defaults['forcing']['noise_type'] = 'local'
     namelist_defaults['forcing']['noise_amplitude'] = 0.00001
     namelist_defaults['forcing']['noise_magnitude'] = 0.05
     namelist_defaults['forcing']['noise_correlation'] = 0.0
-    namelist_defaults['forcing']['noise_type'] = 'local'
     namelist_defaults['forcing']['min_noise_wavenumber'] = 38
     namelist_defaults['forcing']['max_noise_wavenumber'] = 42
 
@@ -110,9 +110,9 @@ def HeldSuarez(namelist_defaults):
     namelist['thermodynamics']['thermodynamics_type'] = 'dry'
 
     namelist['microphysics'] = {}
-    namelist['microphysics']['rain_model'] = 'None'
+    namelist['microphysics']['microphysics_model'] = 'None'
 
-    namelist['forcing']['forcing_type'] = 'HeldSuarez'
+    namelist['forcing']['forcing_model'] = 'HeldSuarez'
     namelist['forcing']['sigma_b']      = 0.7                   # sigma coordiantes as sigma=p/ps
     namelist['forcing']['k_a']          = 1./40.0/(24.0*3600.0) # [1/sec]
     namelist['forcing']['k_s']          = 1./4.0/(24.0*3600.0)  # [1/sec]
@@ -123,11 +123,13 @@ def HeldSuarez(namelist_defaults):
     namelist['forcing']['lapse_rate']   = 10.0                   # Characteristic potential temperature change in vertical [K]
     namelist['forcing']['noise_amplitude'] = 0.000000000000001
 
-    namelist['microphysics']['rain_model'] = 'None'
     namelist['initialize']['T_init']   = 300.0 # initial temperature of layer 1 [K]
 
     namelist['surface'] = {}
     namelist['surface']['surface_model'] = 'None'
+
+    namelist['turbulence'] = {}
+    namelist['turbulence']['turbulence_model'] = 'None'
 
     namelist['diffusion']['type'] = 'hyperdiffusion'
     namelist['diffusion']['order'] = 4.0
@@ -148,7 +150,7 @@ def HeldSuarezMoist(namelist_defaults):
     namelist['meta']['simname'] = 'HeldSuarezMoist'
     namelist['meta']['casename'] = 'HeldSuarezMoist'
 
-    namelist['forcing']['forcing_type'] = 'HeldSuarezMoist'
+    namelist['forcing']['forcing_model'] = 'HeldSuarez'
     namelist['forcing']['sigma_b']      = 0.7                    # sigma coordiantes as sigma=p/ps
     namelist['forcing']['k_a']          = 1.0/40.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_s']          = 1.0/4.0/(24.0*3600.0)  # [1/sec]
@@ -173,11 +175,12 @@ def HeldSuarezMoist(namelist_defaults):
     namelist['thermodynamics']['horizontal_half_width_of_the_q'] = 0.6981 # radians lat
 
     namelist['turbulence'] = {}
+    namelist['turbulence']['turbulence_model'] = 'DownGradient'
     namelist['turbulence']['stratospheric_pressure'] = 10000.0
     namelist['turbulence']['boundary_layer_top_pressure'] = 85000.0
 
     namelist['microphysics'] = {}
-    namelist['microphysics']['rain_model'] = 'Kessler_cutoff'
+    namelist['microphysics']['microphysics_model'] = 'Cutoff'
     namelist['microphysics']['water_density'] = 1000.0            # g/m^3
     namelist['microphysics']['Magnus_formula_A'] = 6.1094
     namelist['microphysics']['Magnus_formula_B'] = 17.625
@@ -186,7 +189,7 @@ def HeldSuarezMoist(namelist_defaults):
     namelist['microphysics']['max_supersaturation'] = 0.0
 
     namelist['surface'] = {}
-    namelist['surface']['surface_model'] = 'bulk_formula'
+    namelist['surface']['surface_model'] = 'BulkFormula'
     namelist['surface']['momentum_transfer_coeff'] = 0.0
     namelist['surface']['sensible_heat_transfer_coeff'] = 0.0044
     namelist['surface']['latent_heat_transfer_coeff'] = 0.0044
