@@ -140,7 +140,7 @@ cdef class HelzSuarez(ForcingBase):
 		Stats.write_meridional_mean('meridional_mean_T_eq', self.Tbar)
 		return
 
-cdef class HelzSuarezMoist(ForcingBase):
+cdef class StochasticHeldSuarez(ForcingBase):
 	def __init__(self, namelist):
 		ForcingBase.__init__(self, namelist)
 		return
