@@ -91,6 +91,8 @@ cdef class SurfaceBulkFormula(SurfaceBase):
                               &DV.U.SurfaceFlux[0,0], &DV.V.SurfaceFlux[0,0],
                               &PV.T.SurfaceFlux[0,0], &PV.QT.SurfaceFlux[0,0],
                               nx, ny, nl)
+        # print(np.max(PV.T.SurfaceFlux))
+        # print(np.max(PV.QT.SurfaceFlux))
 
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):

@@ -12,7 +12,7 @@ def main():
     args = parser.parse_args()
     varname = args.varname
 
-    folder = os.getcwd() + '/Output.HeldSuarezMoist.cc-__no_rain/stats/'
+    folder = os.getcwd() + '/Output.HeldSuarezMoist.9d4Layer_Sur/stats/'
     ncfile = folder + 'Stats.HeldSuarezMoist.nc'
     data = nc.Dataset(ncfile, 'r')
 
@@ -27,11 +27,16 @@ def main():
     fig = plt.figure(varname)
     for i in range(n):
         ax1 = fig.add_subplot(n, 1, i+1)
-        im1 = ax1.plot(np.mean(var[:,:,i], axis = 0), lat_list)
+        im1 = ax1.plot(np.mean(var[450:-1,:,i], axis = 0), lat_list)
         ax1.set_ylabel('degree latitude')
         if i==n-1:
             ax1.set_xlabel(varname)
         # fig.colorbar(im1)
+    fig = plt.figure('one plot')
+    plt.ylabel('degree latitude')
+    for i in range(n):
+        plt.plot(np.mean(var[450:-1,:,i], axis = 0), lat_list,  label=str(i))
+    plt.legend()
     plt.show()
 if __name__ == '__main__':
     main()

@@ -12,13 +12,8 @@ def main():
     args = parser.parse_args()
     varname = args.varname
 
-<<<<<<< HEAD
-    folder = os.getcwd() + '/Output.HeldSuarez.ort_forcing1/stats/'
-    ncfile = folder + 'Stats.HeldSuarez.nc'
-=======
-    folder = os.getcwd() + '/Output.HeldSuarezMoist.cc-__no_rain/stats/'
-    ncfile = folder + 'Stats.HeldSuarezMoist.nc'
->>>>>>> add_turb
+    folder = os.getcwd() + '/Output.HeldSuarezMoist.4Revised_Sur/stats/'
+    ncfile = folder + 'Stats.HeldSuarezMoist.Rerun_8.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
