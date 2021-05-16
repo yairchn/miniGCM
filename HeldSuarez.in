@@ -4,7 +4,7 @@
         "QT_convective_noise_amplitude": 0.1,
         "T_convective_noise_amplitude": 0.1,
         "Vorticity_convective_noise_amplitude": 0.1,
-        "convection_model": "RandomFlux",
+        "convection_model": "None",
         "max_noise_wavenumber": 20,
         "min_noise_wavenumber": 1,
         "noise": true,
@@ -68,7 +68,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "3c660cf0-0fd0-4652-a07f-f642b8c6a34a"
+        "uuid": "3c660cf0-0fd0-4652-a07f-Dry_moist"
     },
     "microphysics": {
         "microphysics_model": "None"
