@@ -1,4 +1,17 @@
 {
+    "convection": {
+        "Divergence_convective_noise_amplitude": 0.1,
+        "QT_convective_noise_amplitude": 0.1,
+        "T_convective_noise_amplitude": 0.1,
+        "Vorticity_convective_noise_amplitude": 0.1,
+        "convection_type": "Random",
+        "max_noise_wavenumber": 20,
+        "min_noise_wavenumber": 1,
+        "noise": true,
+        "noise_correlation": 0.0,
+        "noise_magnitude": 0.05,
+        "noise_type": "local"
+    },
     "diffusion": {
         "dissipation_order": 4.0,
         "e_folding_timescale_grid_scale": 7200,
@@ -16,6 +29,13 @@
         "k_f": 1.1574074074074073e-05,
         "k_s": 2.8935185185185184e-06,
         "lapse_rate": 10.0,
+        "max_noise_wavenumber": 42,
+        "min_noise_wavenumber": 38,
+        "noise": true,
+        "noise_amplitude": 1e-15,
+        "noise_correlation": 0.0,
+        "noise_magnitude": 0.05,
+        "noise_type": "local",
         "sigma_b": 0.7
     },
     "grid": {
@@ -32,7 +52,7 @@
     },
     "initialize": {
         "T_init": 300.0,
-        "inoise": 1,
+        "noise": true,
         "noise_amplitude": 1,
         "noise_type": "red",
         "restart": false,
@@ -41,14 +61,14 @@
         "restart type": "zonal_mean"
     },
     "io": {
-        "output_frequency": 900,
+        "output_frequency": 1.0,
         "stats_dir": "stats",
         "stats_frequency": 1.0
     },
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "ed912443-3605-40dd-9615-HighResToRun"
+        "uuid": "bfea7854-8da5-4b57-b595-e37184ea74af"
     },
     "microphysics": {
         "rain_model": "None"

@@ -14,11 +14,15 @@ cdef class Parameters:
         Py_ssize_t n_layers
         int truncation_order
         int truncation_number
+        int noise_lmax
+        int noise_lmin
         double [:] pressure_levels
         double moist_index
         double dissipation_order
         double T_init
         double p_ref
+        double Ppbl
+        double Pstrato
         double rsphere
         double omega
         double g
@@ -27,7 +31,7 @@ cdef class Parameters:
         double Rd
         double Rv
         double Lv
-        double qv_star0
+        double pv_star0
         double T_0
         double QT_0
         double eps_v
@@ -55,11 +59,29 @@ cdef class Parameters:
         double dphi_s
         double efold_meso
         double efold_grid
-        double inoise
+        bint noise
         double noise_amp
+        double conv_amp
+        double Div_conv_amp
+        double Vort_conv_amp
+        double T_conv_amp
+        double QT_conv_amp
 
-        str case
+        double Fo_noise_amplitude
+        double Fo_noise_magnitude
+        double Fo_noise_correlation
+        double Fo_noise_lmin
+        double Fo_noise_lmax
+        double Co_noise_magnitude
+        double Co_noise_correlation
+        double Co_noise_lmin
+        double Co_noise_lmax
+
         str noise_type
+        str input_folder
+        str case
+        str Co_noise_type
+        str Fo_noise_type
         str surface_model
         str uuid
         str path_plus_file

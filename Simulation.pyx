@@ -16,7 +16,6 @@ import time
 from TimeStepping import TimeStepping
 from Microphysics import MicrophysicsBase
 from LogFile import LogFile
-
 class Simulation:
 
     def __init__(self, namelist):
@@ -38,6 +37,8 @@ class Simulation:
         self.Case.initialize_microphysics(self.Pr, self.PV, self.DV, namelist)
         self.Case.initialize_forcing(self.Pr, self.Gr, namelist)
         self.Case.initialize_surface(self.Pr, self.Gr, self.PV, namelist)
+        self.Case.initialize_convection(self.Pr, self.Gr, self.PV, namelist)
+        self.Case.initialize_turbulence(self.Pr, namelist)
         self.DF.initialize(self.Pr, self.Gr, namelist)
         self.TS.initialize(self.Pr)
         self.initialize_io(namelist)
@@ -83,10 +84,9 @@ class Simulation:
         return
 
     def io(self):
-        if (self.TS.t >= 3600.*24.*500.):
-            self.DV.io(self.Pr, self.TS, self.Stats)
-            self.PV.io(self.Pr, self.TS, self.Stats)
-        #self.Case.io(self.Pr, self.TS, self.Stats)
+        self.DV.io(self.Pr, self.TS, self.Stats)
+        self.PV.io(self.Pr, self.Gr, self.TS, self.Stats)
+        self.Case.io(self.Pr, self.TS, self.Stats)
         return
 
     def stats_io(self):

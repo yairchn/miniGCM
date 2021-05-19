@@ -28,6 +28,7 @@ cdef class DiagnosticVariables:
         DiagnosticVariable VT
         DiagnosticVariable TT
         DiagnosticVariable UV
+        DiagnosticVariable M
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef stats_io(self, NetCDFIO_Stats Stats)

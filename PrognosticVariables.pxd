@@ -18,7 +18,10 @@ cdef class PrognosticVariable:
         double [:,:] SurfaceFlux
         double [:,:,:] forcing
         double [:,:,:] mp_tendency
+        double complex [:,:] ConvectiveFlux
+        double [:,:,:] TurbFlux
         double complex [:,:] spectral
+        double complex [:,:] sp_forcing
         double complex [:,:] old
         double complex [:,:] now
         double complex [:,:] tendency
@@ -49,5 +52,5 @@ cdef class PrognosticVariables:
     cpdef set_now_with_tendencies(self)
     cpdef reset_pressures_and_bcs(self, Parameters Pr, DiagnosticVariables DV)
     cpdef stats_io(self, Parameters Pr, NetCDFIO_Stats Stats)
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
+    cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
     cpdef compute_tendencies(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)

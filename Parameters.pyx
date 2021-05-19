@@ -33,7 +33,7 @@ cdef class Parameters:
         self.Rd        = namelist['thermodynamics']['dry_air_gas_constant']
         self.Rv        = namelist['thermodynamics']['vapor_gas_constant']
         self.Lv        = namelist['thermodynamics']['latent_heat_evap']
-        self.qv_star0  = namelist['thermodynamics']['pv_star_triple_point']
+        self.pv_star0  = namelist['thermodynamics']['pv_star_triple_point']
         self.T_0       = namelist['thermodynamics']['triple_point_temp']
         self.eps_v     = self.Rd/self.Rv
         self.kappa     = self.Rd/self.cp
@@ -43,12 +43,11 @@ cdef class Parameters:
         self.truncation_number = int(self.nlons/self.truncation_order)
         self.efold_meso        = namelist['diffusion']['e_folding_timescale_meso_scale']
         self.efold_grid        = namelist['diffusion']['e_folding_timescale_grid_scale']
-        self.noise_amp      = namelist['initialize']['noise_amplitude']
 
-        self.surface_model = namelist['surface']['surface_model']
-        self.inoise        = namelist['initialize']['inoise']
-        self.noise_amp        = namelist['initialize']['noise_amplitude']
-        self.noise_type     = namelist['initialize']['noise_type']
+        self.surface_model     = namelist['surface']['surface_model']
+        self.noise             = namelist['initialize']['noise']
+        self.noise_amp         = namelist['initialize']['noise_amplitude']
+        self.noise_type        = namelist['initialize']['noise_type']
 
         self.uuid        = namelist['meta']['uuid']
         self.casename    = namelist['meta']['casename']

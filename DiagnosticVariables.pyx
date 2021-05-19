@@ -15,10 +15,10 @@ from TimeStepping import TimeStepping
 from Parameters cimport Parameters
 
 cdef extern from "diagnostic_variables.h":
-    void diagnostic_variables(double Rd, double Rv,
-           double* p,  double* T,  double* qt, double* ql, double* u,  double* v,
+    void diagnostic_variables(double Rd, double Rv, double Omega, double a,
+           double* lat,  double* p,  double* T,  double* qt, double* ql, double* u,  double* v,
            double* div, double* ke, double* wp, double* gz, double* uv, double* TT, double* vT,
-           Py_ssize_t k, Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
+           double* M, Py_ssize_t k, Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
 
 cdef class DiagnosticVariable:
     def __init__(self, nx,ny,nl,n_spec, kind, name, units):
@@ -43,6 +43,7 @@ cdef class DiagnosticVariables:
         self.VT = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'temperature_flux', 'vT','Km/s' )
         self.TT = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'temperature_variance', 'TT','K^2' )
         self.UV = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'momentum_flux', 'uv','m^2/s^2' )
+        self.M  = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'angular_momentum', 'M','m^2/s' )
         return
 
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -51,6 +52,7 @@ cdef class DiagnosticVariables:
         Stats.add_meridional_mean('meridional_mean_QL')
         Stats.add_global_mean('global_mean_KE')
         Stats.add_global_mean('global_mean_gZ')
+        Stats.add_global_mean('global_mean_M')
         Stats.add_zonal_mean('zonal_mean_U')
         Stats.add_zonal_mean('zonal_mean_V')
         Stats.add_zonal_mean('zonal_mean_gZ')
@@ -58,6 +60,7 @@ cdef class DiagnosticVariables:
         Stats.add_zonal_mean('zonal_mean_VT')
         Stats.add_zonal_mean('zonal_mean_TT')
         Stats.add_zonal_mean('zonal_mean_UV')
+        Stats.add_zonal_mean('zonal_mean_M')
         Stats.add_meridional_mean('meridional_mean_U')
         Stats.add_meridional_mean('meridional_mean_V')
         Stats.add_meridional_mean('meridional_mean_gZ')
@@ -65,6 +68,7 @@ cdef class DiagnosticVariables:
         Stats.add_meridional_mean('meridional_mean_VT')
         Stats.add_meridional_mean('meridional_mean_TT')
         Stats.add_meridional_mean('meridional_mean_UV')
+        Stats.add_meridional_mean('meridional_mean_M')
         return
 
     cpdef stats_io(self, NetCDFIO_Stats Stats):
@@ -73,6 +77,7 @@ cdef class DiagnosticVariables:
         Stats.write_meridional_mean('meridional_mean_QL',self.QL.values)
         Stats.write_global_mean('global_mean_KE', self.KE.values)
         Stats.write_global_mean('global_mean_gZ', self.gZ.values[:,:,0:-1])
+        Stats.write_global_mean('global_mean_M', self.M.values)
         Stats.write_zonal_mean('zonal_mean_U',self.U.values)
         Stats.write_zonal_mean('zonal_mean_V',self.V.values)
         Stats.write_zonal_mean('zonal_mean_Wp',self.Wp.values[:,:,1:])
@@ -80,6 +85,7 @@ cdef class DiagnosticVariables:
         Stats.write_zonal_mean('zonal_mean_UV',self.UV.values.base)
         Stats.write_zonal_mean('zonal_mean_VT',self.VT.values.base)
         Stats.write_zonal_mean('zonal_mean_TT',self.TT.values.base)
+        Stats.write_zonal_mean('zonal_mean_M',self.M.values.base)
         Stats.write_meridional_mean('meridional_mean_U',self.U.values)
         Stats.write_meridional_mean('meridional_mean_V',self.V.values)
         Stats.write_meridional_mean('meridional_mean_Wp',self.Wp.values[:,:,1:])
@@ -87,15 +93,17 @@ cdef class DiagnosticVariables:
         Stats.write_meridional_mean('meridional_mean_UV',self.UV.values)
         Stats.write_meridional_mean('meridional_mean_VT',self.VT.values)
         Stats.write_meridional_mean('meridional_mean_TT',self.TT.values)
+        Stats.write_meridional_mean('meridional_mean_M',self.TT.values)
         return
 
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-        #Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Geopotential',  self.gZ.values[:,:,0:Pr.n_layers])
-        #Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Wp',            self.Wp.values[:,:,1:Pr.n_layers+1])
-        #Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'QL',            self.QL.values)
-        #Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'U',             self.U.values)
-        #Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'V',             self.V.values)
-        #Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Kinetic_enegry',self.KE.values)
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Geopotential',  self.gZ.values[:,:,0:Pr.n_layers])
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Wp',            self.Wp.values[:,:,1:Pr.n_layers+1])
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'QL',            self.QL.values)
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'U',             self.U.values)
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'V',             self.V.values)
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Kinetic_enegry',self.KE.values)
+        Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'angular_momentum',self.M.values)
         return
 
     @cython.wraparound(False)
@@ -115,10 +123,10 @@ cdef class DiagnosticVariables:
             self.U.values.base[:,:,k], self.V.values.base[:,:,k] = Gr.SphericalGrid.getuv(
                          PV.Vorticity.spectral.base[:,k],PV.Divergence.spectral.base[:,k])
             with nogil:
-                diagnostic_variables(Pr.Rd, Pr.Rv, &PV.P.values[0,0,0], &PV.T.values[0,0,0],
+                diagnostic_variables(Pr.Rd, Pr.Rv, Pr.Omega, Pr.rsphere, &Gr.lat[0,0], &PV.P.values[0,0,0], &PV.T.values[0,0,0],
                                      &PV.QT.values[0,0,0],   &self.QL.values[0,0,0], &self.U.values[0,0,0],
                                      &self.V.values[0,0,0],  &PV.Divergence.values[0,0,0],
                                      &self.KE.values[0,0,0], &self.Wp.values[0,0,0], &self.gZ.values[0,0,0],
                                      &self.UV.values[0,0,0], &self.TT.values[0,0,0], &self.VT.values[0,0,0],
-                                     k, nx, ny, nl)
+                                     &self.M.values[0,0,0], k, nx, ny, nl)
         return

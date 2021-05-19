@@ -22,7 +22,7 @@ cdef class NetCDFIO_Stats:
         str stats_path
         str output_path
         str path_plus_file
-        str path_plus_var
+        str output_folder
         str uuid
         public double last_output_time
         public double stats_frequency
@@ -42,5 +42,6 @@ cdef class NetCDFIO_Stats:
     cpdef write_surface_zonal_mean(self, var_name, data)
     cpdef write_surface_meridional_mean(self, var_name, data)
     cpdef write_3D_variable(self, Parameters Pr, t, n_layers, var_name, data)
+    cpdef write_spectral_field(self, Parameters Pr, t, nlm, n_layers, var_name, data)
     cpdef write_2D_variable(self, Parameters Pr, t, var_name, data)
     cpdef write_simulation_time(self, t)
