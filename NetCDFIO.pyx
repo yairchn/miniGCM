@@ -20,7 +20,8 @@ cdef class NetCDFIO_Stats:
         self.last_output_time = 0.0
         self.uuid = str(namelist['meta']['uuid'])
         self.stats_frequency = namelist['io']['stats_frequency']*24.0*3600.0 # sec/day
-        self.output_frequency = namelist['io']['output_frequency']*24.0*3600.0 # sec/day
+        #self.output_frequency = namelist['io']['output_frequency']*24.0*3600.0 # sec/day
+        self.output_frequency = namelist['io']['output_frequency'] # sec
 
         # Setup the statistics output path
         outpath = str(os.path.join(namelist['output']['output_root'] + 'Output.' + namelist['meta']['simname'] + '.'

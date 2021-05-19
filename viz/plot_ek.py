@@ -69,7 +69,7 @@ path = '/home/josefs/miniGCM/'+folder+'/Fields/'
 
 
 #for it in np.arange(0,101,10):
-for it in np.arange(203,801,420):
+for it in np.arange(203,801,42):
     print('it ',it)
 
     for Layer in np.arange(0,3):
@@ -176,20 +176,20 @@ for it in np.arange(203,801,420):
            # Energy Spectra
            #
            #
-           plt.figure(33)
-           plt.clf()
+           #plt.figure(33)
+           #plt.clf()
            #[KE,ks] = keSpectra(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
            #plt.loglog(ks,savgol_filter(KE,5,1))
            [EkTot,EkRot,EkDiv,ks] = energy(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True),l)
-           plt.loglog(ks,EkTot,'-k',alpha=0.4,linewidth=4)
-           plt.loglog(ks,EkRot,'-r')
-           plt.loglog(ks,EkDiv,'-b')
-           plt.loglog(ks,1.e2*ks**(-5./3.),'--k',linewidth=2)
-           plt.loglog(ks,1.e5*ks**(-3.),'-k',linewidth=2)
-           plt.title('KE Spectra')
-           plt.grid()
-           plt.ylim(1.e-6,1.e4)
-           plt.savefig('Ek_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
+           #plt.loglog(ks,EkTot,'-k',alpha=0.4,linewidth=4)
+           #plt.loglog(ks,EkRot,'-r')
+           #plt.loglog(ks,EkDiv,'-b')
+           #plt.loglog(ks,1.e2*ks**(-5./3.),'--k',linewidth=2)
+           #plt.loglog(ks,1.e5*ks**(-3.),'-k',linewidth=2)
+           #plt.title('KE Spectra')
+           #plt.grid()
+           #plt.ylim(1.e-6,1.e4)
+           #plt.savefig('Ek_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
            np.save('EkTot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkTot)
            np.save('EkRot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkRot)
            np.save('EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkDiv)

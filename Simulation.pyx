@@ -83,9 +83,10 @@ class Simulation:
         return
 
     def io(self):
-        self.DV.io(self.Pr, self.TS, self.Stats)
-        self.PV.io(self.Pr, self.TS, self.Stats)
-        self.Case.io(self.Pr, self.TS, self.Stats)
+        if (self.TS.t >= 3600.*24.*500.):
+            self.DV.io(self.Pr, self.TS, self.Stats)
+            self.PV.io(self.Pr, self.TS, self.Stats)
+        #self.Case.io(self.Pr, self.TS, self.Stats)
         return
 
     def stats_io(self):

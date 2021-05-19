@@ -41,7 +41,7 @@
         "restart type": "zonal_mean"
     },
     "io": {
-        "output_frequency": 7.0,
+        "output_frequency": 900,
         "stats_dir": "stats",
         "stats_frequency": 1.0
     },
@@ -76,6 +76,6 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 1000.0
+        "t_max": 800.0
     }
 }
