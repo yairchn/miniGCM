@@ -7,7 +7,7 @@
         "convection_type": "Random",
         "max_noise_wavenumber": 20,
         "min_noise_wavenumber": 1,
-        "noise": true,
+        "noise": false,
         "noise_correlation": 0.0,
         "noise_magnitude": 0.05,
         "noise_type": "local"
@@ -41,8 +41,8 @@
     "grid": {
         "dims": 1,
         "gw": 2,
-        "number_of_latitute_points": 256,
-        "number_of_longitude_points": 512,
+        "number_of_latitute_points": 64,
+        "number_of_longitude_points": 128,
         "pressure_levels": [
             25000.0,
             50000.0,
@@ -68,7 +68,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "bfea7854-8da5-4b57-b595-e37184ea74af"
+        "uuid": "bfea7854-8da5-4b57-b595-JustAtestRun"
     },
     "microphysics": {
         "rain_model": "None"
@@ -96,6 +96,6 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 800.0
+        "t_max": 500.0
     }
 }
