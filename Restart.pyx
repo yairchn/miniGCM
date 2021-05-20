@@ -53,6 +53,27 @@ cdef class Restart:
                 Specific_humidity    = nc.Dataset(filepath + 'Specific_humidity_' + timestring+'.nc', 'r')
                 PV.QT.values         = np.array(Specific_humidity.variables['Specific_humidity'])
 
+        elif Pr.restart_type == '3D_interpolate':
+            timestring = Pr.restart_time
+            filepath = Pr.input_folder
+            if os.path.exists(filepath + 'Temperature_' + timestring+'.nc'):
+                TS.t = float(Pr.restart_time)
+                print("Restarting simulation from time = ", TS.t)
+            else:
+                sys.exit("Restart files do not match exiting files: " + filepath + 'Temperature_' + timestring+'.nc')
+
+            Temperature          = nc.Dataset( filepath + 'Temperature_' + timestring+'.nc', 'r')
+            PV.T.values          = np.array(Temperature.variables['Temperature'])
+            Vorticity            = nc.Dataset(filepath + 'Vorticity_' + timestring+'.nc', 'r')
+            PV.Vorticity.values  = np.array(Vorticity.variables['Vorticity'])
+            Divergence           = nc.Dataset(filepath + 'Divergence_' + timestring+'.nc', 'r')
+            PV.Divergence.values = np.array(Divergence.variables['Divergence'])
+            Pressure             = nc.Dataset(filepath + 'Pressure_' + timestring+'.nc', 'r')
+            PV.P.values.base[:,:,nl]  = np.array(Pressure.variables['Pressure'])
+            if Pr.moist_index > 0.0:
+                Specific_humidity    = nc.Dataset(filepath + 'Specific_humidity_' + timestring+'.nc', 'r')
+                PV.QT.values         = np.array(Specific_humidity.variables['Specific_humidity'])
+
         elif Pr.restart_type == 'zonal_mean':
             TS.t = np.max(data.groups['zonal_mean'].variables['t'])
             if TS.t_max<=TS.t:
