@@ -31,7 +31,7 @@
         "lapse_rate": 10.0,
         "max_noise_wavenumber": 42,
         "min_noise_wavenumber": 38,
-        "noise": true,
+        "noise": false,
         "noise_amplitude": 1e-15,
         "noise_correlation": 0.0,
         "noise_magnitude": 0.05,
@@ -41,8 +41,8 @@
     "grid": {
         "dims": 1,
         "gw": 2,
-        "number_of_latitute_points": 64,
-        "number_of_longitude_points": 128,
+        "number_of_latitute_points": 256,
+        "number_of_longitude_points": 512,
         "pressure_levels": [
             25000.0,
             50000.0,
@@ -52,13 +52,13 @@
     },
     "initialize": {
         "T_init": 300.0,
-        "noise": true,
-        "noise_amplitude": 1,
+        "noise": false,
+        "noise_amplitude": 0.0,
         "noise_type": "red",
-        "restart": false,
-        "restart folder": "./",
-        "restart time": "none",
-        "restart type": "zonal_mean"
+        "restart": true,
+        "restart folder": "/Output.HeldSuarez.JustAtestRun/",
+        "restart time": "43200000",
+        "restart type": "3D_interpolate"
     },
     "io": {
         "output_frequency": 1.0,
@@ -96,6 +96,6 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 500.0
+        "t_max": 800.0
     }
 }
