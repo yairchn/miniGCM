@@ -12,7 +12,7 @@ def main():
     args = parser.parse_args()
     varname = args.varname
 
-    folder = os.getcwd() + '/Output.HeldSuarezMoist.86-Dry_moist/stats/'
+    folder = os.getcwd() + '/Output.HeldSuarezMoist._None_C_norm/stats/'
     ncfile = folder + 'Stats.HeldSuarezMoist.nc'
     data = nc.Dataset(ncfile, 'r')
 

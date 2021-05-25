@@ -12,8 +12,8 @@ def main():
     args = parser.parse_args()
     varname = args.varname
 
-    folder = os.getcwd() + '/Output.HeldSuarezMoist.9d4Layer_Sur/stats/'
-    ncfile = folder + 'Stats.HeldSuarezMoist.Rerun_1.nc'
+    folder = os.getcwd() + '/Output.HeldSuarezMoist.86-Dry_moist/stats/'
+    ncfile = folder + 'Stats.HeldSuarezMoist.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
