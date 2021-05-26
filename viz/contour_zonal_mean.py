@@ -5,15 +5,15 @@ import argparse
 import os
 
 # command line:
-# python viz/contour_zonal_mean.py zonal_mean_QL
+# python viz/contour_zonal_mean.py zonal_mean_QT
 def main():
     parser = argparse.ArgumentParser(prog='miniGCM')
     parser.add_argument("varname")
     args = parser.parse_args()
     varname = args.varname
 
-    folder = os.getcwd() + '/Output.HeldSuarezMoist._None_C_norm/stats/'
-    ncfile = folder + 'Stats.HeldSuarezMoist.nc'
+    folder = os.getcwd() + '/Output.HeldSuarezMoist.qvs_ps_mss01/stats/'
+    ncfile = folder + 'Stats.HeldSuarezMoist.Cq_x10_mss_015.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
@@ -36,6 +36,13 @@ def main():
         else:
             ax1.set_xlabel('time days')
         fig.colorbar(im1)
+    print(np.shape(var))
+    globle_mean_var = np.mean(np.mean(var, axis = 1), axis = 1)
+    norm_var  = np.divide(np.subtract(globle_mean_var,globle_mean_var[0]),globle_mean_var[0])
+    plt.figure('global mean')
+    plt.plot(t, norm_var)
+    print(np.max(np.divide(np.subtract(globle_mean_var,globle_mean_var[0]),globle_mean_var[0])))
     plt.show()
+
 if __name__ == '__main__':
     main()

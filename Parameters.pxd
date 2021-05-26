@@ -54,6 +54,8 @@ cdef class Parameters:
         double Cd
         double Ch
         double Cq
+        double Dh
+        double Dq
         double dT_s
         double T_min
         double dphi_s

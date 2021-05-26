@@ -154,7 +154,7 @@ cdef class NetCDFIO_Stats:
         t = global_mean_grp.createVariable('t', 'f8', ('time'))
 
         # Set surface_global_mean
-        surface_global_mean_grp = root_grp.createGroup('global_mean')
+        surface_global_mean_grp = root_grp.createGroup('surface_global_mean')
         surface_global_mean_grp.createDimension('time', None)
         t = surface_global_mean_grp.createVariable('t', 'f8', ('time'))
 

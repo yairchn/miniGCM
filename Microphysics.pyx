@@ -116,6 +116,7 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
 
     cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
         Stats.write_global_mean('global_mean_dQTdt', PV.QT.mp_tendency)
+        # Stats.write_surface_global_mean('global_mean_RainRate', self.RainRate)
         Stats.write_zonal_mean('zonal_mean_dQTdt',PV.QT.mp_tendency)
         Stats.write_meridional_mean('meridional_mean_dQTdt',PV.QT.mp_tendency)
         Stats.write_surface_zonal_mean('zonal_mean_RainRate',self.RainRate)

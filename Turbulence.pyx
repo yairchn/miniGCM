@@ -66,6 +66,8 @@ cdef class DownGradientTurbulence(TurbulenceBase):
 
         Pr.Pstrato = namelist['turbulence']['stratospheric_pressure']
         Pr.Ppbl = namelist['turbulence']['boundary_layer_top_pressure']
+        Pr.Dh = namelist['turbulence']['sensible_heat_transfer_coeff']
+        Pr.Dq = namelist['turbulence']['latent_heat_transfer_coeff']
         return
 
     @cython.wraparound(False)
@@ -79,13 +81,12 @@ cdef class DownGradientTurbulence(TurbulenceBase):
             Py_ssize_t nl = Pr.n_layers
 
         with nogil:
-            vertical_turbulent_flux(Pr.g, Pr.Ch, Pr.Cq, Pr.kappa, Pr.p_ref, Pr.Ppbl, Pr.Pstrato,
+            vertical_turbulent_flux(Pr.g, Pr.Dh, Pr.Dq, Pr.kappa, Pr.p_ref, Pr.Ppbl, Pr.Pstrato,
                               &PV.P.values[0,0,0],&DV.gZ.values[0,0,0],
                               &PV.T.values[0,0,0],&PV.QT.values[0,0,0],
                               &DV.U.values[0,0,0],&DV.V.values[0,0,0],
                               &PV.T.TurbFlux[0,0,0],&PV.QT.TurbFlux[0,0,0],
                                nx, ny, nl)
-
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         # Stats.add_zonal_mean('zonal_mean_QT_Turb')

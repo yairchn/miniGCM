@@ -178,6 +178,8 @@ def HeldSuarezMoist(namelist_defaults):
     namelist['turbulence']['turbulence_model'] = 'DownGradient'
     namelist['turbulence']['stratospheric_pressure'] = 10000.0
     namelist['turbulence']['boundary_layer_top_pressure'] = 85000.0
+    namelist['turbulence']['sensible_heat_transfer_coeff'] = 0.0044
+    namelist['turbulence']['latent_heat_transfer_coeff'] = 0.0044
 
     namelist['microphysics'] = {}
     namelist['microphysics']['microphysics_model'] = 'Cutoff'
