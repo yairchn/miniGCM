@@ -237,7 +237,7 @@ cdef class NetCDFIO_Stats:
 
     cpdef write_surface_global_mean(self, var_name, data):
         var = self.global_mean_grp.variables[var_name]
-        var[-1,:] = np.array(np.mean(np.mean(data,0),0))
+        var[-1] = np.array(np.mean(np.mean(data,0),0))
         return
 
     cpdef write_surface_zonal_mean(self, var_name, data):
