@@ -95,12 +95,6 @@ cdef class Restart:
                     PV.QT.values.base[:,:,k] = f_Specific_humidity(Gr.longitude_list,Gr.latitude_list)
             print("Temperature min shape ", np.min(PV.T.values), np.shape(PV.T.values))
             print("Pressure min shape ", np.min(PV.P.values), np.shape(PV.P.values))
-            import pylab as plt
-            plt.figure('original')
-            plt.contourf(Temperature[:,:,2])
-            plt.figure('new')
-            plt.contourf(PV.T.values.base[:,:,2])
-            plt.show()
 
         elif Pr.restart_type == 'zonal_mean':
             TS.t = np.max(data.groups['zonal_mean'].variables['t'])

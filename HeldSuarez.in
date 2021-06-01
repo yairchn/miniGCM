@@ -41,8 +41,8 @@
     "grid": {
         "dims": 1,
         "gw": 2,
-        "number_of_latitute_points": 128,
-        "number_of_longitude_points": 256,
+        "number_of_latitute_points": 32,
+        "number_of_longitude_points": 64,
         "pressure_levels": [
             25000.0,
             50000.0,
