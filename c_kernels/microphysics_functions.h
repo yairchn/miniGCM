@@ -23,6 +23,7 @@ void microphysics_cutoff(
            double* restrict T_mp,
            double* restrict qt_mp,
            double* restrict rain_rate,
+           double* restrict qv_star,
            ssize_t imax,
            ssize_t jmax,
            ssize_t kmax)
@@ -32,7 +33,7 @@ void microphysics_cutoff(
     const ssize_t jmin = 0;
     const ssize_t kmin = 0;
     double p_half;
-    double qv_star;
+    // double qv_star;
     double denom;
     double Lv_Rv=Lv/Rv;
     double Lv_cpRv=pow(Lv,2.0)/cp/Rv;
@@ -55,11 +56,11 @@ void microphysics_cutoff(
                 const ssize_t ijk = ishift + jshift + k;
                 const ssize_t ijkp = ishift_p + jshift_p + k;
                 p_half = 0.5*(p[ijkp]+p[ijkp+1]);
-                qv_star = (pv0epsv/p_half)*exp(-Lv_Rv*(1.0/T[ijk]-T_0_inv)); // Eq. (1) Tatcher and Jabolonski 2016
-                denom = (1.0+Lv_cpRv*qv_star/(T[ijk]*T[ijk]))*dt;
-                ql[ijk] = fmax(qt[ijk] - qv_star,0.0);
-                qt_mp[ijk] = -fmax((qt[ijk] - (1.0+max_ss)*qv_star), 0.0)/denom; // Eq. (2) Tatcher and Jabolonski 2016
-                T_mp[ijk] = Lv_cp*ql[ijk]/denom; // Eq. (3) Tatcher and Jabolonski 2016
+                qv_star[ijk] = (pv0epsv/p_half)*exp(-Lv_Rv*(1.0/T[ijk]-T_0_inv)); // Eq. (1) Tatcher and Jabolonski 2016
+                denom = (1.0+Lv_cpRv*qv_star[ijk]/(T[ijk]*T[ijk]))*dt;
+                ql[ijk] = fmax(qt[ijk] - qv_star[ijk],0.0);
+                T_mp[ijk]  =  fmax((qt[ijk] - qv_star[ijk]), 0.0)/denom; // Eq. (2) Tatcher and Jabolonski 2016
+                qt_mp[ijk] = -fmax((qt[ijk] - (1.0+max_ss)*qv_star[ijk]), 0.0)/denom; // Eq. (3) Tatcher and Jabolonski 2016
                 rain_rate[ij] = rain_rate[ij] - (qt_mp[ijk]/rho_w*g*(p[ijkmax_p]-p[0,0,0]))/(kmax); // Eq. (5) Tatcher and Jabolonski 2016
             } // end k loop
         } // end j loop

@@ -12,6 +12,7 @@ from NetCDFIO cimport NetCDFIO_Stats
 cdef class MicrophysicsBase:
     cdef:
         double [:,:] RainRate
+        double [:,:,:] qv_star
     cpdef initialize(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, namelist)
     cpdef update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)

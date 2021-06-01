@@ -189,6 +189,7 @@ def HeldSuarezMoist(namelist_defaults):
     namelist['microphysics']['Magnus_formula_C'] = 243.04
     namelist['microphysics']['molar_mass_ratio'] = 1.60745384883
     namelist['microphysics']['max_supersaturation'] = 0.0
+    namelist['microphysics']['autoconversion_timescale'] = 200.0 # sec
 
     namelist['surface'] = {}
     namelist['surface']['surface_model'] = 'BulkFormula'
