@@ -41,8 +41,8 @@
     "grid": {
         "dims": 1,
         "gw": 2,
-        "number_of_latitute_points": 256,
-        "number_of_longitude_points": 512,
+        "number_of_latitute_points": 128,
+        "number_of_longitude_points": 256,
         "pressure_levels": [
             25000.0,
             50000.0,
@@ -52,12 +52,12 @@
     },
     "initialize": {
         "T_init": 300.0,
-        "noise": false,
-        "noise_amplitude": 0.0,
+        "noise": true,
+        "noise_amplitude": 1,
         "noise_type": "red",
         "restart": true,
-        "restart folder": "/Output.HeldSuarez.JustAtestRun/",
-        "restart time": "43200000",
+        "restart folder": "/Output.HeldSuarez.test_Restart/",
+        "restart time": "777600",
         "restart type": "3D_interpolate"
     },
     "io": {
@@ -68,7 +68,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "bfea7854-8da5-4b57-b595-JustAtestRun"
+        "uuid": "b8787bf4-7bbe-4608-8819-test_Restart"
     },
     "microphysics": {
         "rain_model": "None"
@@ -96,6 +96,6 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 800.0
+        "t_max": 10.0
     }
 }

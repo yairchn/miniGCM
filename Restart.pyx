@@ -12,6 +12,8 @@ import sphericalForcing as spf
 from TimeStepping cimport TimeStepping
 import pylab as plt
 import scipy.ndimage as ndimage
+from scipy.interpolate import interp2d
+from scipy.interpolate import griddata
 
 cdef class Restart:
 
@@ -30,6 +32,7 @@ cdef class Restart:
             Py_ssize_t nx = Pr.nlats
             Py_ssize_t ny = Pr.nlons
             Py_ssize_t nl = Pr.n_layers
+            double interp_factor
             double [:,:] Temperature_2D  = np.zeros((nx, ny),dtype=np.float64, order ='c')
             double [:,:] Divergence_2D  = np.zeros((nx, ny),dtype=np.float64, order ='c')
             double [:,:] Vorticity_2D  = np.zeros((nx, ny),dtype=np.float64, order ='c')
@@ -61,6 +64,9 @@ cdef class Restart:
         elif Pr.restart_type == '3D_interpolate':
             timestring = Pr.restart_time
             filepath = Pr.input_folder
+            old_lat = np.array(data.groups['coordinates'].variables['latitude'])[:,1]
+            old_lon = np.array(data.groups['coordinates'].variables['longitude'])[1,:]
+
             print("file ", filepath + 'Temperature_' + timestring+'.nc')
             if os.path.exists(filepath + 'Temperature_' + timestring+'.nc'):
                 TS.t = float(Pr.restart_time)
@@ -68,29 +74,33 @@ cdef class Restart:
             else:
                 sys.exit("Restart files do not match exiting files: " + filepath + 'Temperature_' + timestring+'.nc')
 
-            Pressure             = nc.Dataset(filepath + 'Pressure_' + timestring+'.nc', 'r')
-            Temperature          = nc.Dataset( filepath + 'Temperature_' + timestring+'.nc', 'r')
-            Vorticity            = nc.Dataset(filepath + 'Vorticity_' + timestring+'.nc', 'r')
-            Divergence           = nc.Dataset(filepath + 'Divergence_' + timestring+'.nc', 'r')
-            Pressure_2D=ndimage.zoom(np.array(Pressure.variables['Pressure'][:,:]), 4)
-            for i in range(Pr.nlats):
-                for j in range(Pr.nlons):
-                    PV.P.values.base[i,j,nl]    = Pressure_2D[i,j]
+            Pressure             = np.array(nc.Dataset(filepath + 'Pressure_' + timestring+'.nc', 'r').variables['Pressure'])
+            Temperature          = np.array(nc.Dataset(filepath + 'Temperature_' + timestring+'.nc', 'r').variables['Temperature'])
+            Vorticity            = np.array(nc.Dataset(filepath + 'Vorticity_' + timestring+'.nc', 'r').variables['Vorticity'])
+            Divergence           = np.array(nc.Dataset(filepath + 'Divergence_' + timestring+'.nc', 'r').variables['Divergence'])
+            if Pr.moist_index > 0.0:
+                Specific_humidity = np.array(nc.Dataset(filepath + 'Specific_humidity_' + timestring+'.nc', 'r').variables['Specific_humidity'])
+
+            f_Pressure = interp2d(old_lon, old_lat, Pressure, kind='linear')
+            PV.P.values.base[:,:,nl]    = f_Pressure(Gr.longitude_list,Gr.latitude_list)
             for k in range(Pr.n_layers):
-                print("layer k",k)
-                Temperature_2D=ndimage.zoom(np.array(Temperature.variables['Temperature'][:,:,k]), 4)
-                Vorticity_2D=ndimage.zoom(np.array(Vorticity.variables['Vorticity'][:,:,k]), 4)
-                Divergence_2D=ndimage.zoom(np.array(Divergence.variables['Divergence'][:,:,k]), 4)
-                for i in range(Pr.nlats):
-                    for j in range(Pr.nlons):
-                        PV.T.values[i,j,k]          = Temperature_2D[i,j]
-                        PV.Vorticity.values[i,j,k]  = Vorticity_2D[i,j]
-                        PV.Divergence.values[i,j,k] = Divergence_2D[i,j]
+                f_Temperature = interp2d(old_lon, old_lat, Temperature[:,:,k], kind='linear')
+                f_Vorticity   = interp2d(old_lon, old_lat, Vorticity[:,:,k], kind='linear')
+                f_Divergence  = interp2d(old_lon, old_lat, Divergence[:,:,k], kind='linear')
+                PV.T.values.base[:,:,k]          = f_Temperature(Gr.longitude_list,Gr.latitude_list)
+                PV.Vorticity.values.base[:,:,k]  = f_Vorticity(Gr.longitude_list,Gr.latitude_list)
+                PV.Divergence.values.base[:,:,k] = f_Divergence(Gr.longitude_list,Gr.latitude_list)
+                if Pr.moist_index > 0.0:
+                    f_Specific_humidity = interp2d(old_lon, old_lat, Specific_humidity[:,:,k], kind='linear')
+                    PV.QT.values.base[:,:,k] = f_Specific_humidity(Gr.longitude_list,Gr.latitude_list)
             print("Temperature min shape ", np.min(PV.T.values), np.shape(PV.T.values))
             print("Pressure min shape ", np.min(PV.P.values), np.shape(PV.P.values))
-            #if Pr.moist_index > 0.0:
-            #    Specific_humidity    = nc.Dataset(filepath + 'Specific_humidity_' + timestring+'.nc', 'r')
-            #    PV.QT.values         = np.array(Specific_humidity.variables['Specific_humidity'])
+            import pylab as plt
+            plt.figure('original')
+            plt.contourf(Temperature[:,:,2])
+            plt.figure('new')
+            plt.contourf(PV.T.values.base[:,:,2])
+            plt.show()
 
         elif Pr.restart_type == 'zonal_mean':
             TS.t = np.max(data.groups['zonal_mean'].variables['t'])
