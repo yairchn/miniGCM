@@ -32,11 +32,6 @@ cdef class Restart:
             Py_ssize_t nx = Pr.nlats
             Py_ssize_t ny = Pr.nlons
             Py_ssize_t nl = Pr.n_layers
-            double interp_factor
-            double [:,:] Temperature_2D  = np.zeros((nx, ny),dtype=np.float64, order ='c')
-            double [:,:] Divergence_2D  = np.zeros((nx, ny),dtype=np.float64, order ='c')
-            double [:,:] Vorticity_2D  = np.zeros((nx, ny),dtype=np.float64, order ='c')
-            double [:,:] Pressure_2D  = np.zeros((nx, ny),dtype=np.float64, order ='c')
 
         data = nc.Dataset(Pr.path_plus_file, 'r')
 

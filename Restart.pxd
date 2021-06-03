@@ -10,10 +10,4 @@ import sphericalForcing as spf
 from TimeStepping cimport TimeStepping
 
 cdef class Restart:
-    cdef:
-        double [:,:] Temperature_2D
-        double [:,:] Divergence_2D
-        double [:,:] Vorticity_2D
-        double [:,:] Pressure_2D
-
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV,  TimeStepping TS, namelist)
