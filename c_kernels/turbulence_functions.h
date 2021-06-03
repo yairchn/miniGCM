@@ -6,8 +6,8 @@
 
 void vertical_turbulent_flux(
            double g,
-           double Ch,
-           double Cq,
+           double Dh,
+           double Dq,
            double kappa,
            double p_ref,
            double Ppbl,
@@ -58,8 +58,8 @@ void vertical_turbulent_flux(
                 else{
                     // Ke is on pressure levels
                     // eq. (17) Tatcher and Jablonowski 2016
-                    Kq = Cq*windspeed*za*exp(-pow( (fmax(Ppbl - p[ijkp],0.0)/Pstrato),   2.0));
-                    Kh = Ch*windspeed*za*exp(-pow( (fmax(Ppbl - p[ijkp],0.0)/Pstrato),   2.0));
+                    Kq = Dq*windspeed*za*exp(-pow( (fmax(Ppbl - p[ijkp],0.0)/Pstrato),   2.0));
+                    Kh = Dh*windspeed*za*exp(-pow( (fmax(Ppbl - p[ijkp],0.0)/Pstrato),   2.0));
                     Th_dn = T[ijk]  *pow((p[ijkp]   + p[ijkp+1])/2.0/p_ref, kappa);
                     Th_up = T[ijk-1]*pow((p[ijkp-1] + p[ijkp])/2.0/p_ref, kappa);
                     dpi = 2.0/(p[ijkp+1]-p[ijkp-1]); // pressure differnece from mid-layer values for ijk

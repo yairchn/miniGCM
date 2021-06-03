@@ -5,7 +5,7 @@ import argparse
 import os
 
 # command line:
-# python viz/plot_zonal_mean.py zonal_mean_U
+# python viz/plot_zonal_mean.py zonal_mean_qv_star
 def main():
     parser = argparse.ArgumentParser(prog='miniGCM')
     parser.add_argument("varname")
@@ -32,6 +32,11 @@ def main():
         if i==n-1:
             ax1.set_xlabel(varname)
         # fig.colorbar(im1)
+    fig = plt.figure('one plot')
+    plt.ylabel('degree latitude')
+    for i in range(n):
+        plt.plot(np.mean(var[400:-1,:,i], axis = 0), lat_list,  label=str(i))
+    plt.legend()
     plt.show()
 if __name__ == '__main__':
     main()

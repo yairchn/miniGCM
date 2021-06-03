@@ -50,10 +50,13 @@ cdef class Parameters:
         double T_pole
         double init_k
         double max_ss
+        double mp_dt
         double rho_w
         double Cd
         double Ch
         double Cq
+        double Dh
+        double Dq
         double dT_s
         double T_min
         double dphi_s

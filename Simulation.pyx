@@ -48,25 +48,12 @@ class Simulation:
         print('run')
         start_time = time.time()
         while self.TS.t <= self.TS.t_max:
-            # time0 = time.time()
             self.PV.reset_pressures_and_bcs(self.Pr, self.DV)
-            # print('PV.reset_pressures_and_bcs', time.time() - time0)
-            # time0 = time.time()
             self.PV.spectral_to_physical(self.Pr, self.Gr)
-            # print('PV.spectral_to_physical', time.time() - time0)
-            # time0 = time.time()
             self.DV.update(self.Pr, self.Gr, self.PV)
-            # print('DV.update', time.time() - time0)
-            # time0 = time.time()
             self.Case.update(self.Pr, self.Gr, self.PV, self.DV, self.TS)
-            # print('Case.update', time.time() - time0)
-            # time0 = time.time()
             self.PV.compute_tendencies(self.Pr, self.Gr, self.PV, self.DV)
-            # print('PV.compute_tendencies', time.time() - time0)
-            # time0 = time.time()
             self.TS.update(self.Pr, self.Gr, self.PV, self.DV, self.DF, namelist)
-            # print('TS.update', time.time() - time0)
-            # time0 = time.time()
 
             if (self.TS.t%self.Stats.stats_frequency < self.TS.dt or self.TS.t == self.TS.t_max):
                 wallclocktime = time.time() - start_time

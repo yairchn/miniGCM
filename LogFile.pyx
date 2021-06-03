@@ -41,6 +41,8 @@ cdef class LogFile:
 
         for i in range(Pr.n_layers):
             if Pr.moist_index > 0.0:
+                os.system('echo QT layer '+str(i+1)+' min max ' + str(PV.QT.values.base[:,:,i].min())
+                          + ' ' + str(PV.QT.values.base[:,:,i].max()) + '>> '+Pr.logfilename)
                 os.system('echo dTdt_mp layer '+str(i+1)+' min max ' + str(PV.T.mp_tendency.base[:,:,i].min())
                           + ' ' + str(PV.T.mp_tendency.base[:,:,i].max()) + '>> '+Pr.logfilename)
         return

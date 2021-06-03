@@ -6,11 +6,11 @@ from PrognosticVariables cimport PrognosticVariables
 from DiagnosticVariables cimport DiagnosticVariables
 from Grid cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
-cimport Forcing
-cimport Surface
-cimport Turbulence
-cimport Microphysics
-cimport Convection
+import Forcing
+import Surface
+import Microphysics
+import Convection
+import Turbulence
 import sys
 from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
@@ -24,13 +24,11 @@ def CasesFactory(namelist):
     elif namelist['meta']['casename'] == 'HeldSuarezMoist':
         return HeldSuarezMoist(namelist)
     # anthoer example
-    # elif namelist['meta']['casename'] == 'Stochastic_Forcing':
+    # elif namelist['meta']['casename'] == 'StochasticHeldSuarez':
     #     return Stochastic_Frorcing(paramlist)
     else:
         print('case not recognized')
     return
-
-
 
 cdef class CaseBase:
     def __init__(self, namelist):
@@ -68,12 +66,11 @@ cdef class CaseBase:
 cdef class HeldSuarez(CaseBase):
     def __init__(self, namelist):
         # Pr.casename = namelist['meta']['casename']
-        self.Fo  = Forcing.HelzSuarez()
-        self.Sur = Surface.SurfaceNone()
-        self.MP = Microphysics.MicrophysicsNone()
-        self.Co = Convection.ConvectionRandomGivenLapseRate()
-        # self.Co = Convection.ConvectionRandom() # JOSEF
-        self.Tr = Turbulence.TurbulenceNone()
+        self.Fo  = Forcing.ForcingFactory(namelist)
+        self.Sur = Surface.SurfaceFactory(namelist)
+        self.MP  = Microphysics.MicrophysicsFactory(namelist)
+        self.Co = Convection.ConvectionFactory(namelist)
+        self.Tr = Turbulence.TurbulenceFactory(namelist)
         return
 
     cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist):
@@ -89,8 +86,7 @@ cdef class HeldSuarez(CaseBase):
         Pr.Dtheta_z = namelist['forcing']['lapse_rate']
         Pr.T_equator = namelist['forcing']['equatorial_temperature']
 
-        PV.P_init = Pr.pressure_levels
-        PV.P.values      = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),PV.P_init)
+        PV.P.values      = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),Pr.pressure_levels)
 
         if Pr.restart:
             RS.initialize(Pr, Gr, PV, TS, namelist)
@@ -120,7 +116,6 @@ cdef class HeldSuarez(CaseBase):
 
     cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Sur.initialize(Pr, Gr, PV, namelist)
-        self.Tr
         return
 
     cpdef initialize_turbulence(self, Parameters Pr, namelist):
@@ -170,12 +165,11 @@ cdef class HeldSuarez(CaseBase):
 cdef class HeldSuarezMoist(CaseBase):
     def __init__(self, namelist):
         # Pr.casename = namelist['meta']['casename']
-        self.Fo  = Forcing.HelzSuarezMoist()
-        self.Sur = Surface.SurfaceBulkFormula()
-        self.MP = Microphysics.MicrophysicsCutoff()
-        # self.MP = Microphysics.MicrophysicsNone()
-        self.Tr = Turbulence.DownGradientTurbulence()
-        self.Co = Convection.ConvectionRandomGivenLapseRate()
+        self.Fo  = Forcing.ForcingFactory(namelist)
+        self.Sur = Surface.SurfaceFactory(namelist)
+        self.MP  = Microphysics.MicrophysicsFactory(namelist)
+        self.Co = Convection.ConvectionFactory(namelist)
+        self.Tr = Turbulence.TurbulenceFactory(namelist)
         return
 
 
@@ -203,14 +197,13 @@ cdef class HeldSuarezMoist(CaseBase):
         Pr.init_k    = namelist['forcing']['initial_profile_power']
         eps_ = Pr.Rv/Pr.Rv-1.0
 
-        PV.P_init = Pr.pressure_levels
-        PV.P.values = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),PV.P_init)
+        PV.P.values = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),Pr.pressure_levels)
         if Pr.restart:
             RS.initialize(Pr, Gr, PV, TS, namelist)
         else:
             PV.Vorticity.values  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
             PV.Divergence.values = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
-            PV.P.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),PV.P_init)
+            PV.P.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers+1), dtype=np.double, order='c'),Pr.pressure_levels)
 
             T_0 = 0.5 * (Pr.T_equator + Pr.T_pole) # eq. (18) Ullrich et al. (2014)
             B   = (T_0 - Pr.T_pole) / T_0 / Pr.T_pole # eq. (17) Ullrich et al. (2014)

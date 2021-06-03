@@ -16,17 +16,19 @@ from Grid cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
 import sphericalForcing as spf
 
-# def ConvectionFactory(namelist):
-#     if namelist['convection']['convection_type'] == 'None':
-#         return ConvectionNone(namelist)
-#     elif namelist['convection']['convection_type'] == 'Random':
-#         return ConvectionRandomNoise(namelist)
-#     else:
-#         print('case not recognized')
-#     return
+def ConvectionFactory(namelist):
+    if namelist['convection']['convection_model'] == 'None':
+        return ConvectionNone(namelist)
+    elif namelist['convection']['convection_model'] == 'RandomFlux':
+        return ConvectionRandomFlux(namelist)
+    elif namelist['convection']['convection_model'] == 'RandomTransport':
+        return ConvectionRandomTransport(namelist)
+    else:
+        print('case not recognized')
+    return
 
 cdef class ConvectionBase:
-    def __init__(self):
+    def __init__(self, namelist):
         return
     cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
         return
@@ -40,8 +42,8 @@ cdef class ConvectionBase:
         return
 
 cdef class ConvectionNone(ConvectionBase):
-    def __init__(self):
-        ConvectionBase.__init__(self)
+    def __init__(self, namelist):
+        ConvectionBase.__init__(self, namelist)
         return
     cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
         return
@@ -54,9 +56,9 @@ cdef class ConvectionNone(ConvectionBase):
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
 
-cdef class ConvectionRandom(ConvectionBase):
-    def __init__(self):
-        ConvectionBase.__init__(self)
+cdef class ConvectionRandomFlux(ConvectionBase):
+    def __init__(self, namelist):
+        ConvectionBase.__init__(self, namelist)
         return
 
     cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
@@ -112,33 +114,33 @@ cdef class ConvectionRandom(ConvectionBase):
             Py_ssize_t nl = Pr.n_layers
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
             double [:,:] dpi_grid    = np.zeros((nx, ny),  dtype = np.float64, order ='c')
-            double complex [:,:] dpi = np.zeros((nlm, nl), dtype = np.complex, order ='c')
+            double complex [:,:] dpi = np.zeros((nlm, nl+1), dtype = np.complex, order ='c')
+            double complex [:] Wp = np.zeros(nlm, dtype = np.complex, order ='c')
 
         if self.noise:
             # we compute the flux from below to the layer k skipping k=0
             for k in range(1,nl+1):
                 dpi_grid = np.divide(1.0, np.subtract(PV.P.values[:,:,k],PV.P.values[:,:,k-1]))
                 dpi.base[:,k] = Gr.SphericalGrid.grdtospec(dpi_grid.base)
-
                 F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
                 sph_noise = spf.sphForcing(Pr.nlons,Pr.nlats, Pr.truncation_number,Pr.rsphere,
                                         Pr.Co_noise_lmin,Pr.Co_noise_lmax, Pr.Co_noise_magnitude,
                                         correlation = Pr.Co_noise_correlation, noise_type=Pr.Co_noise_type)
-                self.Wp.base[:,k] = sph_noise.forcingFn(F0)
+                Wp = sph_noise.forcingFn(F0)
                 with nogil:
                     for i in range(nlm):
                         if k==nl:
                             self.wVort[i,k] = 0.0
                             self.wDiv[i,k]  = 0.0
-                            self.wT[i,k]    = Pr.Vort_conv_amp*self.Wp[i,k]*(PV.T.spectral[i,k-1] + PV.T.spectral[i,k-1])*0.5
+                            self.wT[i,k]    = Pr.Vort_conv_amp*Wp[i]*(PV.T.spectral[i,k-1] + PV.T.spectral[i,k-1])*0.5
                             if Pr.moist_index > 0.0:
-                                self.wT[i,k]    = Pr.Vort_conv_amp*self.Wp[i,k]*(PV.QT.spectral[i,k-1] + PV.QT.spectral[i,k-1])*0.5
+                                self.wT[i,k]    = Pr.Vort_conv_amp*Wp[i]*(PV.QT.spectral[i,k-1] + PV.QT.spectral[i,k-1])*0.5
                         else:
-                            self.wVort[i,k] = Pr.Vort_conv_amp*self.Wp[i,k]*(PV.Vorticity.spectral[i,k] - PV.Vorticity.spectral[i,k-1])
-                            self.wDiv[i,k]  = Pr.Vort_conv_amp*self.Wp[i,k]*(PV.Divergence.spectral[i,k] - PV.Divergence.spectral[i,k-1])
-                            self.wT[i,k]    = Pr.Vort_conv_amp*self.Wp[i,k]*(PV.T.spectral[i,k] + PV.T.spectral[i,k-1])*0.5
+                            self.wVort[i,k] = Pr.Vort_conv_amp*Wp[i]*(PV.Vorticity.spectral[i,k] - PV.Vorticity.spectral[i,k-1])*dpi[i,k]
+                            self.wDiv[i,k]  = Pr.Vort_conv_amp*Wp[i]*(PV.Divergence.spectral[i,k] - PV.Divergence.spectral[i,k-1])*dpi[i,k]
+                            self.wT[i,k]    = Pr.Vort_conv_amp*Wp[i]*(PV.T.spectral[i,k] + PV.T.spectral[i,k-1])*0.5*dpi[i,k]
                             if Pr.moist_index > 0.0:
-                                self.wT[i,k]    = Pr.Vort_conv_amp*self.Wp[i,k]*(PV.QT.spectral[i,k] + PV.QT.spectral[i,k-1])*0.5
+                                self.wT[i,k]    = Pr.Vort_conv_amp*Wp[i]*(PV.QT.spectral[i,k] + PV.QT.spectral[i,k-1])*0.5*dpi[i,k]
 
             # we compute the flux divergence at the middle of the k'th layer
             for k in range(nl):
@@ -177,9 +179,9 @@ cdef class ConvectionRandom(ConvectionBase):
         return
 
 
-cdef class ConvectionRandomGivenLapseRate(ConvectionBase):
-    def __init__(self):
-        ConvectionBase.__init__(self)
+cdef class ConvectionRandomTransport(ConvectionBase):
+    def __init__(self, namelist):
+        ConvectionBase.__init__(self, namelist)
         return
 
     cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
@@ -190,7 +192,6 @@ cdef class ConvectionRandomGivenLapseRate(ConvectionBase):
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
 
         self.noise  = namelist['convection']['noise']
-        print('self.noise',self.noise) 
         Pr.Co_noise_magnitude  = namelist['convection']['noise_magnitude']
         Pr.Co_noise_correlation  = namelist['convection']['noise_correlation']
         Pr.Co_noise_type  = namelist['convection']['noise_type']
@@ -204,7 +205,7 @@ cdef class ConvectionRandomGivenLapseRate(ConvectionBase):
 
         self.F0 = np.zeros(nlm, dtype = np.complex, order='c')
         # fluxes are at pressure levels
-        self.Wp = np.zeros((nlm, nl+1), dtype = np.complex, order ='c')
+        Wp = np.zeros((nlm, nl+1), dtype = np.complex, order ='c')
         self.wT = np.zeros((nlm, nl+1), dtype = np.complex, order ='c')
         self.wVort = np.zeros((nlm, nl+1), dtype = np.complex, order ='c')
         self.wDiv = np.zeros((nlm, nl+1), dtype = np.complex, order ='c')
@@ -238,34 +239,33 @@ cdef class ConvectionRandomGivenLapseRate(ConvectionBase):
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
             double [:,:] dpi_grid    = np.zeros((nx, ny),  dtype = np.float64, order ='c')
             double complex [:,:] dpi = np.zeros((nlm, nl+1), dtype = np.complex, order ='c')
+            double complex [:] Wp = np.zeros(nlm, dtype = np.complex, order ='c')
 
         if self.noise:
-            #print('calculate convective fluxes here') 
+            #print('calculate convective fluxes here')
             # we compute the flux from below to the layer k skipping k=0
             for k in range(1,nl+1):
                 dpi_grid = np.divide(1.0, np.subtract(PV.P.values[:,:,k],PV.P.values[:,:,k-1]))
                 dpi.base[:,k] = Gr.SphericalGrid.grdtospec(dpi_grid.base)
-
                 F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
                 sph_noise = spf.sphForcing(Pr.nlons,Pr.nlats, Pr.truncation_number,Pr.rsphere,
                                         Pr.Co_noise_lmin,Pr.Co_noise_lmax, Pr.Co_noise_magnitude,
                                         correlation = Pr.Co_noise_correlation, noise_type=Pr.Co_noise_type)
-                self.Wp.base[:,k] = sph_noise.forcingFn(F0)
+                Wp = sph_noise.forcingFn(F0)
                 with nogil:
                     for i in range(nlm):
                         if k==nl:
                             self.wVort[i,k] = 0.0
                             self.wDiv[i,k]  = 0.0
-                            self.wT[i,k]    = Pr.T_conv_amp*self.Wp[i,k]*dpi[i,k]
+                            self.wT[i,k]    = Pr.T_conv_amp*Wp[i]*dpi[i,k]
                             if Pr.moist_index > 0.0:
-                                self.wQT[i,k] = Pr.QT_conv_amp*self.Wp[i,k]*dpi[i,k]
+                                self.wQT[i,k] = Pr.QT_conv_amp*Wp[i]*dpi[i,k]
                         else:
-                            self.wVort[i,k] = Pr.Vort_conv_amp*self.Wp[i,k]*dpi[i,k]
-                            self.wDiv[i,k]  = Pr.Div_conv_amp*self.Wp[i,k]*dpi[i,k]
-                            self.wT[i,k]    = Pr.T_conv_amp*self.Wp[i,k]*dpi[i,k]
+                            self.wVort[i,k] = Pr.Vort_conv_amp*Wp[i]*dpi[i,k]
+                            self.wDiv[i,k]  = Pr.Div_conv_amp*Wp[i]*dpi[i,k]
+                            self.wT[i,k]    = Pr.T_conv_amp*Wp[i]*dpi[i,k]
                             if Pr.moist_index > 0.0:
-                                self.wQT[i,k] = Pr.QT_conv_amp*self.Wp[i,k]*dpi[i,k]
-
+                                self.wQT[i,k] = Pr.QT_conv_amp*Wp[i]*dpi[i,k]
             # we compute the flux divergence at the middle of the k'th layer
             for k in range(nl):
                 with nogil:
@@ -277,14 +277,6 @@ cdef class ConvectionRandomGivenLapseRate(ConvectionBase):
                             PV.QT.ConvectiveFlux[i,k]     = -(self.wQT[i,k+1]   - self.wQT[i,k])*dpi[i,k+1]
 
         return
-
-        # ------------ k=0 -> w'T' =0 ; dpi =0
-        # - - - - - -
-        # ------------ k=1 -> w'T'
-        # - - - - - -
-        # ------------ k=2 -> w'T' -> noise/(p2-p1)
-        # - - - - - -                        d(noise/(ps-p1))/(ps-p2)
-        # ============ k=s -> w'T' -> noise/(ps-p2)
 
     cpdef stats_io(self, NetCDFIO_Stats Stats):
         Stats.write_zonal_mean('zonal_mean_conv_wT',self.wT[:,1:])

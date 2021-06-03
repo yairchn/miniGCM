@@ -24,8 +24,18 @@ cdef extern from "forcing_functions.h":
 			double* v, double* u_forc, double* v_forc, double* T_forc,
 			Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
 
+
+def ForcingFactory(namelist):
+	if namelist['forcing']['forcing_model'] == 'None':
+		return ForcingNone(namelist)
+	elif namelist['forcing']['forcing_model'] == 'HeldSuarez':
+		return HelzSuarez(namelist)
+	else:
+		print('case not recognized')
+	return
+
 cdef class ForcingBase:
-	def __init__(self):
+	def __init__(self, namelist):
 		return
 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
 		self.Tbar = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
@@ -42,8 +52,8 @@ cdef class ForcingBase:
 		return
 
 cdef class ForcingNone(ForcingBase):
-	def __init__(self):
-		ForcingBase.__init__(self)
+	def __init__(self, namelist):
+		ForcingBase.__init__(self, namelist)
 		return
 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
 		return
@@ -57,8 +67,8 @@ cdef class ForcingNone(ForcingBase):
 		return
 
 cdef class HelzSuarez(ForcingBase):
-	def __init__(self):
-		ForcingBase.__init__(self)
+	def __init__(self, namelist):
+		ForcingBase.__init__(self, namelist)
 		return
 
 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
@@ -97,7 +107,7 @@ cdef class HelzSuarez(ForcingBase):
 			Py_ssize_t nx = Pr.nlats
 			Py_ssize_t ny = Pr.nlons
 			Py_ssize_t nl = Pr.n_layers
-			Py_ssize_t nlm = Gr.SphericalGrid.nlm 
+			Py_ssize_t nlm = Gr.SphericalGrid.nlm
 			double [:,:] forcing_noise = np.zeros((nx,ny)   ,dtype=np.float64, order='c')
 			double complex [:] sp_noise = np.zeros(nlm    ,dtype=np.complex, order='c')
 
@@ -115,7 +125,6 @@ cdef class HelzSuarez(ForcingBase):
 				                correlation =Pr.Fo_noise_correlation, noise_type=Pr.Fo_noise_type)
 
 			forcing_noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(F0))*Pr.Fo_noise_amplitude
-			#print('layer ',Pr.n_layers-1,' forcing_noise min', forcing_noise.base.min())
 			sp_noise = Gr.SphericalGrid.grdtospec(forcing_noise.base)
 			PV.Vorticity.sp_forcing[:,Pr.n_layers-1] = sp_noise
 		return
@@ -131,9 +140,9 @@ cdef class HelzSuarez(ForcingBase):
 		Stats.write_meridional_mean('meridional_mean_T_eq', self.Tbar)
 		return
 
-cdef class HelzSuarezMoist(ForcingBase):
-	def __init__(self):
-		ForcingBase.__init__(self)
+cdef class StochasticHeldSuarez(ForcingBase):
+	def __init__(self, namelist):
+		ForcingBase.__init__(self, namelist)
 		return
 
 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):

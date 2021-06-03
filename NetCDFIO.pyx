@@ -153,6 +153,11 @@ cdef class NetCDFIO_Stats:
         global_mean_grp.createDimension('lay',  Pr.n_layers)
         t = global_mean_grp.createVariable('t', 'f8', ('time'))
 
+        # Set surface_global_mean
+        surface_global_mean_grp = root_grp.createGroup('surface_global_mean')
+        surface_global_mean_grp.createDimension('time', None)
+        t = surface_global_mean_grp.createVariable('t', 'f8', ('time'))
+
         # Set surface_meridional_mean
         surface_meridional_mean_grp = root_grp.createGroup('surface_meridional_mean')
         surface_meridional_mean_grp.createDimension('time', None)
@@ -179,6 +184,13 @@ cdef class NetCDFIO_Stats:
         root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
         meridional_mean_grp = root_grp.groups['meridional_mean']
         new_var = meridional_mean_grp.createVariable(var_name, 'f8', ('time','lon','lay'))
+        root_grp.close()
+        return
+
+    cpdef add_surface_global_mean(self, var_name):
+        root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
+        global_grp = root_grp.groups['global_mean']
+        new_var = global_grp.createVariable(var_name, 'f8',('time'))
         root_grp.close()
         return
 
@@ -221,6 +233,11 @@ cdef class NetCDFIO_Stats:
         # print('np.shape(np.mean(data,1))', np.shape(np.mean(data,1)))
         # print('np.shape(var[-1,:,:])', np.shape(var[-1,:,:]))
         var[-1,:,:] = np.array(np.mean(data,0))
+        return
+
+    cpdef write_surface_global_mean(self, var_name, data):
+        var = self.global_mean_grp.variables[var_name]
+        var[-1] = np.array(np.mean(np.mean(data,0),0))
         return
 
     cpdef write_surface_zonal_mean(self, var_name, data):

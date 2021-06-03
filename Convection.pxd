@@ -21,7 +21,6 @@ cdef class ConvectionBase:
         bint noise
         double complex [:] F0
         double complex [:] sph_noise
-        double complex [:,:] Wp
         double complex [:,:] wT
         double complex [:,:] wQT
         double complex [:,:] wVort
@@ -40,14 +39,14 @@ cdef class ConvectionNone(ConvectionBase):
     cpdef stats_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
 
-cdef class ConvectionRandom(ConvectionBase):
+cdef class ConvectionRandomFlux(ConvectionBase):
     cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
     cpdef stats_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
 
-cdef class ConvectionRandomGivenLapseRate(ConvectionBase):
+cdef class ConvectionRandomTransport(ConvectionBase):
     cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
