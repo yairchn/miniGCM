@@ -4,7 +4,7 @@
         "QT_convective_noise_amplitude": 0.1,
         "T_convective_noise_amplitude": 0.1,
         "Vorticity_convective_noise_amplitude": 0.1,
-        "convection_model": "None",
+        "convection_model": "RandomFlux",
         "max_noise_wavenumber": 20,
         "min_noise_wavenumber": 1,
         "noise": false,
@@ -41,8 +41,8 @@
     "grid": {
         "dims": 1,
         "gw": 2,
-        "number_of_latitute_points": 32,
-        "number_of_longitude_points": 64,
+        "number_of_latitute_points": 128,
+        "number_of_longitude_points": 256,
         "pressure_levels": [
             25000.0,
             50000.0,
@@ -58,7 +58,7 @@
         "restart": true,
         "restart folder": "/Output.HeldSuarez.test_Restart/",
         "restart time": "777600",
-        "restart type": "3D_interpolate"
+        "restart type": "3D_output"
     },
     "io": {
         "output_frequency": 1.0,
@@ -68,7 +68,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "b8787bf4-7bbe-4608-8819-test_Restart"
+        "uuid": "9d331160-7114-4d05-bd44-test_Restart"
     },
     "microphysics": {
         "microphysics_model": "None"
