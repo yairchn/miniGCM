@@ -33,7 +33,6 @@ void microphysics_cutoff(
     const ssize_t jmin = 0;
     const ssize_t kmin = 0;
     double p_half;
-    // double qv_star;
     double denom;
     double Lv_Rv=Lv/Rv;
     double Lv_cpRv=pow(Lv,2.0)/cp/Rv;
