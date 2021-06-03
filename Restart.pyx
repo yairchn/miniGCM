@@ -11,9 +11,7 @@ import netCDF4 as nc
 import sphericalForcing as spf
 from TimeStepping cimport TimeStepping
 import pylab as plt
-import scipy.ndimage as ndimage
 from scipy.interpolate import interp2d
-from scipy.interpolate import griddata
 
 cdef class Restart:
 
