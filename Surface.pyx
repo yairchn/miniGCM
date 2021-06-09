@@ -11,14 +11,23 @@ from Parameters cimport Parameters
 
 cdef extern from "surface_functions.h":
     void surface_bulk_formula(double g, double Rv, double Lv, double T_0, double Ch, double Cq,
-                              double Cd, double qv_star0, double eps_v, double* p, double* gz, double* T,
+                              double Cd, double pv_star0, double eps_v, double* p, double* gz, double* T,
                               double* qt, double* T_surf, double* u, double* v, double* u_surf_flux,
                               double* v_surf_flux, double* T_surf_flux, double* qt_surf_flux,
                               Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
 
 
+def SurfaceFactory(namelist):
+    if namelist['surface']['surface_model'] == 'None':
+        return SurfaceNone(namelist)
+    elif namelist['surface']['surface_model'] == 'BulkFormula':
+        return SurfaceBulkFormula(namelist)
+    else:
+        print('case not recognized')
+    return
+
 cdef class SurfaceBase:
-    def __init__(self):
+    def __init__(self, namelist):
         return
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         return
@@ -32,7 +41,8 @@ cdef class SurfaceBase:
         return
 
 cdef class SurfaceNone(SurfaceBase):
-    def __init__(self):
+    def __init__(self, namelist):
+        SurfaceBase.__init__(self, namelist)
         return
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         return
@@ -46,8 +56,8 @@ cdef class SurfaceNone(SurfaceBase):
         return
 
 cdef class SurfaceBulkFormula(SurfaceBase):
-    def __init__(self):
-        SurfaceBase.__init__(self)
+    def __init__(self, namelist):
+        SurfaceBase.__init__(self, namelist)
         return
     cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         Pr.Cd = namelist['surface']['momentum_transfer_coeff']
@@ -58,7 +68,7 @@ cdef class SurfaceBulkFormula(SurfaceBase):
         Pr.dphi_s = namelist['surface']['surface_temp_lat_dif']
         # eq. (6) Tatcher and Jablonowski 2016
         self.T_surf  = np.multiply(Pr.dT_s,np.exp(-0.5*np.power(Gr.lat,2.0)/Pr.dphi_s**2.0)) + Pr.T_min
-        self.QT_surf = np.multiply(np.divide(Pr.qv_star0*Pr.eps_v, PV.P.values[:,:,Pr.n_layers]),
+        self.QT_surf = np.multiply(np.divide(Pr.pv_star0*Pr.eps_v, PV.P.values[:,:,Pr.n_layers]),
                        np.exp(-np.multiply(Pr.Lv/Pr.Rv,np.subtract(np.divide(1,self.T_surf) , np.divide(1,Pr.T_0) ))))
         return
 
@@ -74,13 +84,15 @@ cdef class SurfaceBulkFormula(SurfaceBase):
 
         with nogil:
             surface_bulk_formula(Pr.g, Pr.Rv, Pr.Lv, Pr.T_0, Pr.Ch, Pr.Cq,
-                              Pr.Cd, Pr.qv_star0, Pr.eps_v, &PV.P.values[0,0,0],
+                              Pr.Cd, Pr.pv_star0, Pr.eps_v, &PV.P.values[0,0,0],
                               &DV.gZ.values[0,0,0], &PV.T.values[0,0,0],
                               &PV.QT.values[0,0,0], &self.T_surf[0,0],
                               &DV.U.values[0,0,0], &DV.V.values[0,0,0],
                               &DV.U.SurfaceFlux[0,0], &DV.V.SurfaceFlux[0,0],
                               &PV.T.SurfaceFlux[0,0], &PV.QT.SurfaceFlux[0,0],
                               nx, ny, nl)
+        # print(np.max(PV.T.SurfaceFlux))
+        # print(np.max(PV.QT.SurfaceFlux))
 
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):

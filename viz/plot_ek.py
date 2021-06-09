@@ -10,9 +10,9 @@ from scipy.signal import savgol_filter
 import warnings
 warnings.filterwarnings("ignore")
 
-hres_scaling=1
+hres_scaling=4
 
-nlons  = hres_scaling*512  # number of longitudes
+nlons  = hres_scaling*128  # number of longitudes
 ntrunc = int(nlons/3)  # spectral truncation (for alias-free computations)
 nlats  = int(nlons/2)   # number of lats for gaussian grid.
 
@@ -23,6 +23,8 @@ grav    = 9.80616   # gravity
 Hbar    = 300.      # mean height (some typical range)
 
 def energy(u,v,l,rsphere= rsphere):
+    print('u.shape ',u.shape)
+    print('v.shape ',v.shape)
     vrtsp,divsp = x.getvrtdivspec(u,v)
     factor = (rsphere**2)/l/(l+1)
     TotEsp = factor*(vrtsp*vrtsp.conj()+divsp*divsp.conj()).real
@@ -61,20 +63,23 @@ lons,lats = np.meshgrid(x.lons, x.lats)
 latDeg = np.degrees(lats)
 lonDeg = np.degrees(lons)
 
+folder='Output.HeldSuarez.HighResolRun'
+path = '/home/josefs/miniGCM/'+folder+'/Fields/'
 
-path='../Output.HeldSuarez.410k2/Fields/'
 
 
-
-for it in np.arange(10,101,20):
+#for it in np.arange(0,101,10):
+for it in np.arange(203,801,42):
+    print('it ',it)
 
     for Layer in np.arange(0,3):
         print("day ", it," Layer ",Layer)
-        u=netCDF4.Dataset(path+'u_'+str(it*3600*24)+'.nc').variables['u'][:,:,Layer]
-        v=netCDF4.Dataset(path+'v_'+str(it*3600*24)+'.nc').variables['v'][:,:,Layer]
-        T=netCDF4.Dataset(path+'T_'+str(it*3600*24)+'.nc').variables['T'][:,:,Layer]
+        u=netCDF4.Dataset(path+'U_'+str(it*3600*24)+'.nc').variables['U'][:,:,Layer]
+        v=netCDF4.Dataset(path+'V_'+str(it*3600*24)+'.nc').variables['V'][:,:,Layer]
+        T=netCDF4.Dataset(path+'Temperature_'+str(it*3600*24)+'.nc').variables['Temperature'][:,:,Layer]
 
-        #print('u', u.shape)
+        print('u', u.shape)
+        print('v', v.shape)
 
         iplot_mean=0
         if (iplot_mean==1):
@@ -116,7 +121,7 @@ for it in np.arange(10,101,20):
            plt.savefig('ekin_zonalmean_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
            #
 
-        iplot_ctr=1
+        iplot_ctr=0
         if (iplot_ctr==1):
            #
            # c o n t o u r s
@@ -165,26 +170,26 @@ for it in np.arange(10,101,20):
            plt.savefig('T_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
 
 
-        iplot_spctr=0
+        iplot_spctr=1
         if (iplot_spctr==1):
            #
            # Energy Spectra
            #
            #
-           plt.figure(33)
-           plt.clf()
+           #plt.figure(33)
+           #plt.clf()
            #[KE,ks] = keSpectra(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
            #plt.loglog(ks,savgol_filter(KE,5,1))
            [EkTot,EkRot,EkDiv,ks] = energy(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True),l)
-           plt.loglog(ks,EkTot,'-k',alpha=0.4,linewidth=4)
-           plt.loglog(ks,EkRot,'-r')
-           plt.loglog(ks,EkDiv,'-b')
-           plt.loglog(ks,1.e2*ks**(-5./3.),'--k',linewidth=2)
-           plt.loglog(ks,1.e5*ks**(-3.),'-k',linewidth=2)
-           plt.title('KE Spectra')
-           plt.grid()
-           plt.ylim(1.e-6,1.e4)
-           plt.savefig('Ek_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
+           #plt.loglog(ks,EkTot,'-k',alpha=0.4,linewidth=4)
+           #plt.loglog(ks,EkRot,'-r')
+           #plt.loglog(ks,EkDiv,'-b')
+           #plt.loglog(ks,1.e2*ks**(-5./3.),'--k',linewidth=2)
+           #plt.loglog(ks,1.e5*ks**(-3.),'-k',linewidth=2)
+           #plt.title('KE Spectra')
+           #plt.grid()
+           #plt.ylim(1.e-6,1.e4)
+           #plt.savefig('Ek_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
            np.save('EkTot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkTot)
            np.save('EkRot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkRot)
            np.save('EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkDiv)

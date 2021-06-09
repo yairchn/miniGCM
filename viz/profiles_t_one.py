@@ -52,6 +52,6 @@ def main():
     plt.suptitle("Temperature / K",size='14', fontname = 'Dejavu Sans')
     plt.tight_layout()
     #plt.savefig('Theta_'+runname+'.png',dpi=150)
-    plt.savefig('T_'+folder+'.pdf',dpi=150)
+    plt.savefig('T_3l_'+folder+'.pdf',dpi=150)
 if __name__ == '__main__':
     main()

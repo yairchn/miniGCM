@@ -31,9 +31,18 @@ cdef class NetCDFIO_Stats:
         except:
             pass
 
-        self.path_plus_var = str(outpath + '/' + 'Fields/')
+        Pr.input_folder = str(outpath + '/' + 'Fields/')
+        if Pr.restart:
+            self.output_folder = str(outpath + '/' + 'Fields_restart/')
+        else:
+            self.output_folder = Pr.input_folder
         try:
-            os.mkdir(self.path_plus_var)
+            os.mkdir(Pr.input_folder)
+        except:
+            pass
+
+        try:
+            os.mkdir(self.output_folder)
         except:
             pass
 
@@ -144,6 +153,11 @@ cdef class NetCDFIO_Stats:
         global_mean_grp.createDimension('lay',  Pr.n_layers)
         t = global_mean_grp.createVariable('t', 'f8', ('time'))
 
+        # Set surface_global_mean
+        surface_global_mean_grp = root_grp.createGroup('surface_global_mean')
+        surface_global_mean_grp.createDimension('time', None)
+        t = surface_global_mean_grp.createVariable('t', 'f8', ('time'))
+
         # Set surface_meridional_mean
         surface_meridional_mean_grp = root_grp.createGroup('surface_meridional_mean')
         surface_meridional_mean_grp.createDimension('time', None)
@@ -170,6 +184,13 @@ cdef class NetCDFIO_Stats:
         root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
         meridional_mean_grp = root_grp.groups['meridional_mean']
         new_var = meridional_mean_grp.createVariable(var_name, 'f8', ('time','lon','lay'))
+        root_grp.close()
+        return
+
+    cpdef add_surface_global_mean(self, var_name):
+        root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
+        global_grp = root_grp.groups['global_mean']
+        new_var = global_grp.createVariable(var_name, 'f8',('time'))
         root_grp.close()
         return
 
@@ -214,6 +235,11 @@ cdef class NetCDFIO_Stats:
         var[-1,:,:] = np.array(np.mean(data,0))
         return
 
+    cpdef write_surface_global_mean(self, var_name, data):
+        var = self.global_mean_grp.variables[var_name]
+        var[-1] = np.array(np.mean(np.mean(data,0),0))
+        return
+
     cpdef write_surface_zonal_mean(self, var_name, data):
         var = self.surface_zonal_mean_grp.variables[var_name]
         var[-1,:] = np.array(np.mean(data,1))
@@ -228,7 +254,7 @@ cdef class NetCDFIO_Stats:
 
 
     cpdef write_3D_variable(self, Parameters Pr, t, n_layers, var_name, data):
-        root_grp = nc.Dataset(self.path_plus_var+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')
+        root_grp = nc.Dataset(self.output_folder+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')
         root_grp.createDimension('lat', Pr.nlats)
         root_grp.createDimension('lon', Pr.nlons)
         root_grp.createDimension('lay', n_layers)
@@ -237,8 +263,17 @@ cdef class NetCDFIO_Stats:
         root_grp.close()
         return
 
+    cpdef write_spectral_field(self, Parameters Pr, t, nlm, n_layers, var_name, data):
+        root_grp = nc.Dataset(self.output_folder+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')
+        root_grp.createDimension('nlm', nlm)
+        root_grp.createDimension('lay', n_layers)
+        var = root_grp.createVariable(var_name, 'f8', ('nlm', 'lay'))
+        var[:,:] = np.array(data)
+        root_grp.close()
+        return
+
     cpdef write_2D_variable(self, Parameters Pr, t, var_name, data):
-        root_grp = nc.Dataset(self.path_plus_var+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')
+        root_grp = nc.Dataset(self.output_folder+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')
         root_grp.createDimension('lat', Pr.nlats)
         root_grp.createDimension('lon', Pr.nlons)
         var = root_grp.createVariable(var_name, 'f8', ('lat', 'lon'))

@@ -1,4 +1,17 @@
 {
+    "convection": {
+        "Divergence_convective_noise_amplitude": 0.1,
+        "QT_convective_noise_amplitude": 0.1,
+        "T_convective_noise_amplitude": 0.1,
+        "Vorticity_convective_noise_amplitude": 0.1,
+        "convection_model": "RandomFlux",
+        "max_noise_wavenumber": 20,
+        "min_noise_wavenumber": 1,
+        "noise": false,
+        "noise_correlation": 0.0,
+        "noise_magnitude": 0.05,
+        "noise_type": "local"
+    },
     "diffusion": {
         "dissipation_order": 4.0,
         "e_folding_timescale_grid_scale": 7200,
@@ -10,19 +23,26 @@
     "forcing": {
         "equator_to_pole_dT": 60.0,
         "equatorial_temperature": 315.0,
-        "forcing_type": "HeldSuarez",
+        "forcing_model": "HeldSuarez",
         "k_a": 2.8935185185185185e-07,
         "k_b": 2.8935185185185185e-07,
         "k_f": 1.1574074074074073e-05,
         "k_s": 2.8935185185185184e-06,
         "lapse_rate": 10.0,
+        "max_noise_wavenumber": 42,
+        "min_noise_wavenumber": 38,
+        "noise": false,
+        "noise_amplitude": 1e-15,
+        "noise_correlation": 0.0,
+        "noise_magnitude": 0.05,
+        "noise_type": "local",
         "sigma_b": 0.7
     },
     "grid": {
         "dims": 1,
         "gw": 2,
-        "number_of_latitute_points": 64,
-        "number_of_longitude_points": 128,
+        "number_of_latitute_points": 128,
+        "number_of_longitude_points": 256,
         "pressure_levels": [
             25000.0,
             50000.0,
@@ -32,13 +52,13 @@
     },
     "initialize": {
         "T_init": 300.0,
-        "inoise": 1,
+        "noise": true,
         "noise_amplitude": 1,
         "noise_type": "red",
-        "restart": false,
-        "restart folder": "./",
-        "restart time": "none",
-        "restart type": "zonal_mean"
+        "restart": true,
+        "restart folder": "/Output.HeldSuarez.test_Restart/",
+        "restart time": "777600",
+        "restart type": "3D_output"
     },
     "io": {
         "output_frequency": 1.0,
@@ -48,10 +68,10 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "9127d853-4314-4297-b387-ReferenceRun"
+        "uuid": "9d331160-7114-4d05-bd44-test_Restart"
     },
     "microphysics": {
-        "rain_model": "None"
+        "microphysics_model": "None"
     },
     "output": {
         "output_root": "./"
@@ -77,5 +97,8 @@
         "CFL_limit": 0.8,
         "dt": 100.0,
         "t_max": 1000.0
+    },
+    "turbulence": {
+        "turbulence_model": "None"
     }
 }

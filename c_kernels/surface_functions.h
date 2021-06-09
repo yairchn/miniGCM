@@ -12,7 +12,7 @@ void surface_bulk_formula(
            double Ch,
            double Cq,
            double Cd,
-           double qv_star0,
+           double pv_star0,
            double eps_v,
            double* restrict p,
            double* restrict gz,
@@ -36,7 +36,7 @@ void surface_bulk_formula(
     double windspeed;
     double qt_surf;
     double Lv_Rv=Lv/Rv;
-    double qv0epsv=qv_star0*eps_v;
+    double pv0epsv=pv_star0*eps_v;
     double T_0_inv=1.0/T_0;
 
     for(ssize_t i=imin;i<imax;i++){
@@ -50,8 +50,8 @@ void surface_bulk_formula(
             const ssize_t ijkmax = ishift + jshift + kmax;
             const ssize_t ijkmax_p = ishift_p + jshift_p + kmax;
             windspeed = sqrt(u[ijkmax-1]*u[ijkmax-1] + v[ijkmax-1]*v[ijkmax-1]);
-            qt_surf = qv0epsv/p[ijkmax_p]*exp(-Lv_Rv*(1.0/T_surf[ij] - T_0_inv));
-            z_a = gz[ijkmax_p-1]/g;
+            qt_surf = pv0epsv/p[ijkmax_p]*exp(-Lv_Rv*(1.0/T_surf[ij] - T_0_inv));
+            z_a = gz[ijkmax_p-1]/g/2.0;
             u_surf_flux[ij]  = -Cd/z_a*windspeed*u[ijkmax-1];
             v_surf_flux[ij]  = -Cd/z_a*windspeed*v[ijkmax-1];
             T_surf_flux[ij]  = -Ch/z_a*windspeed*(T[ijkmax-1] - T_surf[ij]);

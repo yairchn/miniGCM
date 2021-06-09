@@ -20,7 +20,6 @@ def main():
     namelist_defaults['timestepping']['dt'] = 100.0
     namelist_defaults['timestepping']['t_max'] = 1000.0 # days
 
-    namelist_defaults['forcing'] = {}
 
     namelist_defaults['diffusion'] = {}
     namelist_defaults['diffusion']['dissipation_order'] = 4.0
@@ -53,7 +52,7 @@ def main():
     namelist_defaults['initialize']['restart time']             = 'none'         # input directory for restart
     namelist_defaults['initialize']['restart folder']           = './'         # input directory for restart
     namelist_defaults['initialize']['restart type']             = 'zonal_mean' # restart from zonal mean
-    namelist_defaults['initialize']['inoise']                   = 1            # flag for noise in initial condition
+    namelist_defaults['initialize']['noise']                   = True            # flag for noise in initial condition
     namelist_defaults['initialize']['noise_amplitude']          = 1            # amplitude of initial noise in K
     namelist_defaults['initialize']['noise_type'] = 'red' # 'white', 'red', 'blue', or 'local' 
 
@@ -65,6 +64,28 @@ def main():
     namelist_defaults['io']['stats_dir'] = 'stats'
     namelist_defaults['io']['stats_frequency'] = 1.0
     namelist_defaults['io']['output_frequency'] = 1.0
+
+    namelist_defaults['convection'] = {}
+    namelist_defaults['convection']['noise'] = False # flag for noise
+    namelist_defaults['convection']['convection_model'] = 'RandomFlux'
+    namelist_defaults['convection']['Divergence_convective_noise_amplitude'] = 0.1
+    namelist_defaults['convection']['Vorticity_convective_noise_amplitude'] = 0.1
+    namelist_defaults['convection']['T_convective_noise_amplitude'] = 0.1
+    namelist_defaults['convection']['QT_convective_noise_amplitude'] = 0.1
+    namelist_defaults['convection']['min_noise_wavenumber'] = 1
+    namelist_defaults['convection']['max_noise_wavenumber'] = 20
+    namelist_defaults['convection']['noise_magnitude'] = 0.05
+    namelist_defaults['convection']['noise_correlation'] = 0.0
+    namelist_defaults['convection']['noise_type'] = 'local'
+
+    namelist_defaults['forcing'] = {}
+    namelist_defaults['forcing']['noise'] = False # flag for noise
+    namelist_defaults['forcing']['noise_type'] = 'local'
+    namelist_defaults['forcing']['noise_amplitude'] = 0.00001
+    namelist_defaults['forcing']['noise_magnitude'] = 0.05
+    namelist_defaults['forcing']['noise_correlation'] = 0.0
+    namelist_defaults['forcing']['min_noise_wavenumber'] = 38
+    namelist_defaults['forcing']['max_noise_wavenumber'] = 42
 
     namelist_defaults['meta'] = {}
 
@@ -89,9 +110,9 @@ def HeldSuarez(namelist_defaults):
     namelist['thermodynamics']['thermodynamics_type'] = 'dry'
 
     namelist['microphysics'] = {}
-    namelist['microphysics']['rain_model'] = 'None'
+    namelist['microphysics']['microphysics_model'] = 'None'
 
-    namelist['forcing']['forcing_type'] = 'HeldSuarez'
+    namelist['forcing']['forcing_model'] = 'HeldSuarez'
     namelist['forcing']['sigma_b']      = 0.7                   # sigma coordiantes as sigma=p/ps
     namelist['forcing']['k_a']          = 1./40.0/(24.0*3600.0) # [1/sec]
     namelist['forcing']['k_s']          = 1./4.0/(24.0*3600.0)  # [1/sec]
@@ -100,12 +121,15 @@ def HeldSuarez(namelist_defaults):
     namelist['forcing']['equator_to_pole_dT']         = 60.0                    # Characteristic temperature change in meridional direction [K]
     namelist['forcing']['equatorial_temperature']    = 315.0                   # Characteristic temperature at the equator [K]
     namelist['forcing']['lapse_rate']   = 10.0                   # Characteristic potential temperature change in vertical [K]
+    namelist['forcing']['noise_amplitude'] = 0.000000000000001
 
-    namelist['microphysics']['rain_model'] = 'None'
     namelist['initialize']['T_init']   = 300.0 # initial temperature of layer 1 [K]
 
     namelist['surface'] = {}
     namelist['surface']['surface_model'] = 'None'
+
+    namelist['turbulence'] = {}
+    namelist['turbulence']['turbulence_model'] = 'None'
 
     namelist['diffusion']['type'] = 'hyperdiffusion'
     namelist['diffusion']['order'] = 4.0
@@ -126,12 +150,12 @@ def HeldSuarezMoist(namelist_defaults):
     namelist['meta']['simname'] = 'HeldSuarezMoist'
     namelist['meta']['casename'] = 'HeldSuarezMoist'
 
-    namelist['forcing']['forcing_type'] = 'HeldSuarezMoist'
+    namelist['forcing']['forcing_model'] = 'HeldSuarez'
     namelist['forcing']['sigma_b']      = 0.7                    # sigma coordiantes as sigma=p/ps
     namelist['forcing']['k_a']          = 1.0/40.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_s']          = 1.0/4.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['k_f']          = 1.0/(24.0*3600.0)      # [1/sec]
-    namelist['forcing']['k_b']          = 1.0/40.0/(24.0*3600.0)/2.0  # [1/sec]
+    namelist['forcing']['k_b']          = 1.0/40.0/(24.0*3600.0)  # [1/sec]
     namelist['forcing']['equatorial_temperature'] = 294.0 # Surface temperature at the equator [K]
     namelist['forcing']['polar_temperature']      = 240.0 # Surface temperature at the pole [K]
     namelist['forcing']['equator_to_pole_dT']     = 65.0  # Characteristic temperature change in meridional direction [K]
@@ -143,23 +167,32 @@ def HeldSuarezMoist(namelist_defaults):
     namelist['initialize']['T1']   = 229.0 # initial temperature of layer 1 [K]
     namelist['initialize']['T2']   = 257.0 # initial temperature of layer 2 [K]
     namelist['initialize']['T3']   = 300.0 # initial temperature of layer 3 [K]
+    namelist['initialize']['T_init']   = 300.0 # initial temperature of layer 1 [K]
 
 
     namelist['thermodynamics']['thermodynamics_type'] = 'moist'
-    namelist['thermodynamics']['verical_half_width_of_the_q'] = 34000.0 # pasc
+    namelist['thermodynamics']['verical_half_width_of_the_q'] = 30000.0 # pasc
     namelist['thermodynamics']['horizontal_half_width_of_the_q'] = 0.6981 # radians lat
 
+    namelist['turbulence'] = {}
+    namelist['turbulence']['turbulence_model'] = 'DownGradient'
+    namelist['turbulence']['stratospheric_pressure'] = 10000.0
+    namelist['turbulence']['boundary_layer_top_pressure'] = 85000.0
+    namelist['turbulence']['sensible_heat_transfer_coeff'] = 0.0044
+    namelist['turbulence']['latent_heat_transfer_coeff'] = 0.0044
+
     namelist['microphysics'] = {}
-    namelist['microphysics']['rain_model'] = 'Kessler_cutoff'
+    namelist['microphysics']['microphysics_model'] = 'Cutoff'
     namelist['microphysics']['water_density'] = 1000.0            # g/m^3
     namelist['microphysics']['Magnus_formula_A'] = 6.1094
     namelist['microphysics']['Magnus_formula_B'] = 17.625
     namelist['microphysics']['Magnus_formula_C'] = 243.04
     namelist['microphysics']['molar_mass_ratio'] = 1.60745384883
     namelist['microphysics']['max_supersaturation'] = 0.0
+    namelist['microphysics']['autoconversion_timescale'] = 200.0 # sec
 
     namelist['surface'] = {}
-    namelist['surface']['surface_model'] = 'bulk_formula'
+    namelist['surface']['surface_model'] = 'BulkFormula'
     namelist['surface']['momentum_transfer_coeff'] = 0.0
     namelist['surface']['sensible_heat_transfer_coeff'] = 0.0044
     namelist['surface']['latent_heat_transfer_coeff'] = 0.0044

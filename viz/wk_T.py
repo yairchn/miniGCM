@@ -17,7 +17,12 @@ from scipy import signal
 
 #exit()
 
+<<<<<<< HEAD
 nlons = 128  # number of longitudes
+=======
+hres=4
+nlons = 128*hres  # number of longitudes
+>>>>>>> cac9ef4d3dc162bddfab92f1a8bbf5b44882f56d
 ntrunc = int(nlons/3)  # spectral truncation (for alias-free computations)
 nlats = int(nlons/2)   # for gaussian grid.
 
@@ -37,8 +42,13 @@ Hbar = 250.
 Hbar = 200.
 Hbar = 100.
 #Hbar = 300.
+<<<<<<< HEAD
 Hbar = 30.
 #Hbar = 15.
+=======
+#Hbar = 30.
+Hbar = 60.
+>>>>>>> cac9ef4d3dc162bddfab92f1a8bbf5b44882f56d
 
 disp = dc.curves(lat=np.deg2rad(7.5), grav=grav,rsphere=rsphere,omega=omega,mean=0.)
 
@@ -66,14 +76,14 @@ def plotDispCurves(Hbar):
     plt.plot(kIGW4,freqIGW4,'--k',linewidth='.5',alpha=0.5)
     plt.plot(kIGW5,freqIGW5,'--k',linewidth='.5',alpha=0.5)
 
-def calcFlux(name,tmin,tmax,lmin,lmax,dt,dx=1.):
+def calcFlux(name,tmin,tmax,lmin,lmax,dt,dx=1.,Layer=0):
 
     data = xarray.open_dataset(name)
     #u    = data['uwind']
     #v    = data['vwind']
     #vort = data['vorticity']
     #field = data['Temperature'][500:800,28:36,:,2]-np.mean(data['Temperature'][500:800,28:36,:,2],axis=(0,2))
-    field = data['Temperature'][0:30000,28:36,:,0]-np.mean(data['Temperature'][0:30000,28:36,:,0],axis=(0,2))
+    field = data['Temperature'][0:30000,112:144,:,Layer]-np.mean(data['Temperature'][0:30000,112:144,:,Layer],axis=(0,2))
     field -= np.mean(field,axis=(2))
     #qp   = data['qprime']
     #vrt  = data['vorticity']
@@ -105,7 +115,7 @@ def calcFlux(name,tmin,tmax,lmin,lmax,dt,dx=1.):
     #ntim = len(time)
     #nlon = len(lon)
     #print("ntim, nlon", ntim, nlon)
-    nlon=128
+    nlon=512
     ntim=out.shape[0]
     dt=1.
     dt=.01
@@ -135,13 +145,12 @@ dt   = 1.e-1
 dt   = 1.e-2
 #dt   = 1.
 
-path     = '../Output.HeldSuarez.ReferenceRun/Fields/'
-path     = '../Output.HeldSuarez.750TimeTOutp/Fields/'
+path     = '../Output.HeldSuarez.HighResToRun/Fields/'
 filename = 'T_merge.nc'
 
 #lmin= 45.; lmax=65.
 lmin=-15.; lmax=15.
-sp1     = calcFlux(path+filename,tmin,tmax,lmin,lmax,dt)
+sp3     = calcFlux(path+filename,tmin,tmax,lmin,lmax,dt,Layer=2)
 
 
 
@@ -152,25 +161,34 @@ plt.ion()
 seaborn.set_style('whitegrid',rc={"axes.edgecolor":'black'})
 
 
-[power,kx,kt] = sp1
-power=np.log10(power)
+[power1,kx,kt] = sp1
+print('calculated power - Layer 0')
+#[power2,kx,kt] = sp2
+#print('calculated power - Layer 1')
+[power3,kx,kt] = sp3
+power3=np.log10(power3)
+print('calculated power - Layer 2')
+#power=np.log10(power1)-np.log10(power2)
+power=np.log10(power1)
 print('calculated power')
+power_diff_Layer0_Layer1=np.load(filename+"hp_power_tropics_m15_p15_diff_Layer0_Layer1.npy")
 #power=np.load(filename+"hp_power_tropics_m15_p15.npy")
 #kx=np.load(filename+"power_kx.npy")
 #kt=np.load(filename+"power_kt.npy")
 print("power.shape ", power.shape)
 print("min max power ", np.amin(power), np.amax(power))
-np.save(filename+"hp_power_tropics_m15_p15.npy",power)
-np.save(filename+"power_kx.npy",kx)
-np.save(filename+"power_kt.npy",kt)
+#np.save(filename+"hp_power_tropics_m15_p15.npy",power)
+#np.save(filename+"power_kx.npy",kx)
+#np.save(filename+"power_kt.npy",kt)
 #plt.figure(figsize=(8,8))
-plt.figure(figsize=(5,4.5))
-#contours = plt.contourf(kx,kt,power,levels=np.linspace(2.1,8.1,60),cmap='RdYlBu_r') 
-contours = plt.contourf(kx,kt,power,levels=np.linspace(4.1,8.1,80),cmap='RdYlBu_r') 
-plotDispCurves(Hbar)
+plt.figure(figsize=(5,5.5))
+contours = plt.contourf(kx,kt,power,levels=np.linspace(7.4,11.8,20),cmap='RdYlBu_r') 
+#contour_lines_red = plt.contour(kx,kt,power3,levels=np.arange(10.5,12.6,.5),colors='red',linestyle='dashed',linewidths=0.25) 
+contour_lines = plt.contour(kx,kt,power_diff_Layer0_Layer1,levels=np.arange(0.75,2.1,.25),colors='black',linewidths=0.25) 
+#plotDispCurves(Hbar)
 #contours = plt.contourf(kx,kt,power,levels=np.linspace(7.8,15.1,30),cmap='RdYlBu_r') #run b 
 #contours = plt.contourf(kx,kt,power,levels=np.linspace(4.4,10.1,30),cmap='RdYlBu_r') #run b 
-#plotDispCurves(Hbar)
+plotDispCurves(Hbar)
 plt.colorbar(contours,orientation='horizontal',shrink=0.95,aspect=30,pad=0.14,ticks=np.arange(-28.,28.1,2.0))
 plt.ticklabel_format(style='sci',scilimits=(-2,2),axis='x')
 plt.ticklabel_format(style='sci',scilimits=(-2,2),axis='y')
