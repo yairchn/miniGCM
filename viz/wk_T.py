@@ -17,8 +17,12 @@ from scipy import signal
 
 #exit()
 
+<<<<<<< HEAD
+nlons = 128  # number of longitudes
+=======
 hres=4
 nlons = 128*hres  # number of longitudes
+>>>>>>> cac9ef4d3dc162bddfab92f1a8bbf5b44882f56d
 ntrunc = int(nlons/3)  # spectral truncation (for alias-free computations)
 nlats = int(nlons/2)   # for gaussian grid.
 
@@ -38,8 +42,13 @@ Hbar = 250.
 Hbar = 200.
 Hbar = 100.
 #Hbar = 300.
+<<<<<<< HEAD
+Hbar = 30.
+#Hbar = 15.
+=======
 #Hbar = 30.
 Hbar = 60.
+>>>>>>> cac9ef4d3dc162bddfab92f1a8bbf5b44882f56d
 
 disp = dc.curves(lat=np.deg2rad(7.5), grav=grav,rsphere=rsphere,omega=omega,mean=0.)
 
@@ -141,8 +150,6 @@ filename = 'T_merge.nc'
 
 #lmin= 45.; lmax=65.
 lmin=-15.; lmax=15.
-sp1     = calcFlux(path+filename,tmin,tmax,lmin,lmax,dt,Layer=0)
-#sp2     = calcFlux(path+filename,tmin,tmax,lmin,lmax,dt,Layer=1)
 sp3     = calcFlux(path+filename,tmin,tmax,lmin,lmax,dt,Layer=2)
 
 
@@ -194,6 +201,6 @@ plt.xlim((-25,25))
 plt.xlabel('Wavenumber $k_x$',size='12', fontname = 'Dejavu Sans')
 plt.ylabel('Frequency [1/day]',size='12', fontname = 'Dejavu Sans')
 plt.grid(alpha=0.7,color='k',linestyle='dotted',dashes=[1,5 ],linewidth=1,zorder=100)
-#plt.legend(fontsize='10',loc='upper left')
+plt.legend(fontsize='10',loc='upper left')
 plt.savefig('wk.png', bbox_inches='tight',dpi=150)
 plt.close()

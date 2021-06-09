@@ -42,10 +42,18 @@ def main():
         ax[i,j].grid(alpha=0.7,color='k',linestyle='dotted',dashes=[1,5 ],linewidth=1,zorder=10)
         ax[i,j].set_yticks(np.linspace(-90,90,7))
         ax[i,j].set_ylim(-90,90)
+<<<<<<< HEAD
+        #ax[i,j].set_xlim(-1.5e-1,1.5e-1)
+        ax[i,j].set_xlim(-5.e-2,5.e-2)
+        ax[i,j].axvline(x=0,color='k',linestyle='dashed',zorder=25,alpha=0.75)
+        ax[i,j].ticklabel_format(style='sci',scilimits=(-2,2),axis='x')
+        #ax[i,j].legend(loc='upper left')
+=======
         ax[i,j].set_xlim(-1.5e-1,1.5e-1)
         ax[i,j].axvline(x=0,color='k',linestyle='dashed',zorder=25,alpha=0.75)
         ax[i,j].ticklabel_format(style='sci',scilimits=(-2,2),axis='x')
         ax[i,j].legend(loc='upper left')
+>>>>>>> cac9ef4d3dc162bddfab92f1a8bbf5b44882f56d
 
     ax[0,0].set_ylabel('Latitude / $\circ$',size='12', fontname = 'Dejavu Sans')
 

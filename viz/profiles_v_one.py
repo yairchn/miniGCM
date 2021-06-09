@@ -15,10 +15,8 @@ def main():
     #runname='5b4838ca0516'
     folder = args.folder
 
-    ncfile = '/home/josefs/miniGCM/' + folder + '/stats/Stats2.HeldSuarez.nc'
-    #ncfile = '/home/yair/' + folder + '/stats/Stats.HeldSuarezMoist.nc'
+    ncfile = '/home/scoty/miniGCM/' + folder + '/stats/Stats.HeldSuarez.nc'
     data = nc.Dataset(ncfile, 'r')
-
     lat = np.array(data.groups['coordinates'].variables['latitude'])
     n = int(np.multiply(data.groups['coordinates'].variables['layers'],1.0))
 
@@ -28,6 +26,7 @@ def main():
     t1 = 300
     t2 = 500
 
+    fig,ax = plt.subplots(1,3, sharey='all',figsize=(5, 4),squeeze=False)
 
     i = 0
     li=[4,3,2,1,.5]
