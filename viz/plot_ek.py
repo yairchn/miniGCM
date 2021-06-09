@@ -72,11 +72,10 @@ lonDeg = np.degrees(lons)
 
 folder='Output.HeldSuarez.HighResolRun'
 path = '/home/josefs/miniGCM/'+folder+'/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.ReferenceRun/Fields_restart_factor4/'
 
 
-
-#for it in np.arange(0,101,10):
-for it in np.arange(203,801,42):
+for it in np.arange(500,801,5):
     print('it ',it)
 
     for Layer in np.arange(0,3):
