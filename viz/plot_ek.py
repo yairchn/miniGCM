@@ -1,5 +1,12 @@
 #Code to solve moist shallow water equations on a sphere
-#SWE are of the vorticity-divergence form.
+#adopted from SWE of the vorticity-divergence form.
+#
+# plotting script to calculate
+# ============================
+#  zonal means (iplot_means) 
+#  contours (iplot_ctr)
+#  spectra (iplot_spctr)
+#
 import numpy as np
 import shtns
 import sphTrans as sph
@@ -40,7 +47,7 @@ def energy(u,v,l,rsphere= rsphere):
         DivEk[i] = np.sum(DivEsp[l==i])
     return [TotEk,RotEk,DivEk,k]
 
-
+#some different way of calculating spectra that is currently inactive
 def keSpectra(u,v):
     uk = x.grdtospec(u)
     vk = x.grdtospec(v)
@@ -65,11 +72,10 @@ lonDeg = np.degrees(lons)
 
 folder='Output.HeldSuarez.HighResolRun'
 path = '/home/josefs/miniGCM/'+folder+'/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.ReferenceRun/Fields_restart_factor4/'
 
 
-
-#for it in np.arange(0,101,10):
-for it in np.arange(203,801,42):
+for it in np.arange(500,801,5):
     print('it ',it)
 
     for Layer in np.arange(0,3):
