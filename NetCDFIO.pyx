@@ -57,20 +57,21 @@ cdef class NetCDFIO_Stats:
         i = 1
         Pr.path_plus_file = str(self.stats_path + '/' + 'Stats.' + namelist['meta']['simname'] + '.nc')
         if Pr.restart:
-            # copy stats file to newname
-            res_name = 'Restart_'+str(i)
-            print("Here " + res_name)
-            sourcefile = Pr.path_plus_file
-            Pr.path_plus_file = str(self.stats_path
+            Pr.path_source_file = Pr.path_plus_file
+
+        if Pr.restart:
+            if os.path.exists(Pr.path_plus_file):
+                res_name = 'Restart_'+str(i)
+                print("Here " + res_name)
+                Pr.path_plus_file = str(self.stats_path
                         + '/' + 'Stats.' + namelist['meta']['simname']
                         + '.' + res_name + '.nc')
-            while os.path.exists(Pr.path_plus_file):
+                while os.path.exists(Pr.path_plus_file):
                     i += 1
                     res_name = 'Restart_'+str(i)
                     print("Here " + res_name)
                     Pr.path_plus_file = str( self.stats_path + '/' + 'Stats.' + namelist['meta']['simname']
                                + '.' + res_name + '.nc')
-            shutil.copyfile(sourcefile,Pr.path_plus_file)
         else:
             if os.path.exists(Pr.path_plus_file):
                 res_name = 'Rerun_'+str(i)
@@ -89,11 +90,7 @@ cdef class NetCDFIO_Stats:
         shutil.copyfile(os.path.join( './', namelist['meta']['simname'] + '.in'),
                         os.path.join( outpath, namelist['meta']['simname'] + '.in'))
         self.path_plus_file = Pr.path_plus_file
-        if Pr.restart:
-            root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
-        else:
-            self.setup_stats_file(Pr, Gr)
-        return
+        self.setup_stats_file(Pr, Gr)
 
     cpdef open_files(self):
         self.root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
@@ -110,9 +107,6 @@ cdef class NetCDFIO_Stats:
 
     cpdef setup_stats_file(self, Parameters Pr, Grid Gr):
 
-        # if Pr.restart:
-        #     root_grp = nc.Dataset(self.path_plus_file, 'r+', format='NETCDF4')
-        # else:
         root_grp = nc.Dataset(self.path_plus_file, 'w', format='NETCDF4')
 
         # Set coordinates
@@ -228,10 +222,6 @@ cdef class NetCDFIO_Stats:
 
     cpdef write_meridional_mean(self, var_name, data):
         var = self.meridional_mean_grp.variables[var_name]
-        # print('np.shape(data)', np.shape(data))
-        # print('np.shape(np.mean(data,0))', np.shape(np.mean(data,0)))
-        # print('np.shape(np.mean(data,1))', np.shape(np.mean(data,1)))
-        # print('np.shape(var[-1,:,:])', np.shape(var[-1,:,:]))
         var[-1,:,:] = np.array(np.mean(data,0))
         return
 
@@ -247,8 +237,6 @@ cdef class NetCDFIO_Stats:
 
     cpdef write_surface_meridional_mean(self, var_name, data):
         var = self.surface_meridional_mean_grp.variables[var_name]
-        print('np.shape(var) ', np.shape(var))
-        print('np.shape(np.mean(data,0)) ', np.shape(np.mean(data,0)))
         var[-1,:] = np.array(np.mean(data,0))
         return
 

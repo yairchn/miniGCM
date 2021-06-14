@@ -46,10 +46,11 @@ cdef class DiagnosticVariables:
         self.M  = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'angular_momentum', 'M','m^2/s' )
         return
 
-    cpdef initialize_io(self, NetCDFIO_Stats Stats):
-        Stats.add_global_mean('global_mean_QL')
-        Stats.add_zonal_mean('zonal_mean_QL')
-        Stats.add_meridional_mean('meridional_mean_QL')
+    cpdef initialize_io(self, Parameters Pr, NetCDFIO_Stats Stats):
+        if Pr.moist_index > 0.0:
+            Stats.add_global_mean('global_mean_QL')
+            Stats.add_zonal_mean('zonal_mean_QL')
+            Stats.add_meridional_mean('meridional_mean_QL')
         Stats.add_global_mean('global_mean_KE')
         Stats.add_global_mean('global_mean_gZ')
         Stats.add_global_mean('global_mean_M')
@@ -71,10 +72,11 @@ cdef class DiagnosticVariables:
         Stats.add_meridional_mean('meridional_mean_M')
         return
 
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
-        Stats.write_global_mean('global_mean_QL', self.QL.values)
-        Stats.write_zonal_mean('zonal_mean_QL',self.QL.values)
-        Stats.write_meridional_mean('meridional_mean_QL',self.QL.values)
+    cpdef stats_io(self, Parameters Pr, NetCDFIO_Stats Stats):
+        if Pr.moist_index > 0.0:
+            Stats.write_global_mean('global_mean_QL', self.QL.values)
+            Stats.write_zonal_mean('zonal_mean_QL',self.QL.values)
+            Stats.write_meridional_mean('meridional_mean_QL',self.QL.values)
         Stats.write_global_mean('global_mean_KE', self.KE.values)
         Stats.write_global_mean('global_mean_gZ', self.gZ.values[:,:,0:-1])
         Stats.write_global_mean('global_mean_M', self.M.values)

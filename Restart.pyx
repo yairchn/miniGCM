@@ -31,7 +31,7 @@ cdef class Restart:
             Py_ssize_t ny = Pr.nlons
             Py_ssize_t nl = Pr.n_layers
 
-        data = nc.Dataset(Pr.path_plus_file, 'r')
+        data = nc.Dataset(Pr.path_source_file, 'r')
 
         if Pr.restart_type == '3D_output':
             timestring = Pr.restart_time
@@ -39,7 +39,6 @@ cdef class Restart:
             old_lat = np.array(data.groups['coordinates'].variables['latitude'])[:,1]
             old_lon = np.array(data.groups['coordinates'].variables['longitude'])[1,:]
 
-            print("file ", filepath + 'Temperature_' + timestring+'.nc')
             if os.path.exists(filepath + 'Temperature_' + timestring+'.nc'):
                 TS.t = float(Pr.restart_time)
                 print("Restarting simulation from time = ", TS.t)
@@ -67,6 +66,7 @@ cdef class Restart:
                     PV.QT.values.base[:,:,k] = f_Specific_humidity(Gr.longitude_list,Gr.latitude_list)
 
         elif Pr.restart_type == 'zonal_mean':
+            print(np.max(data.groups['zonal_mean'].variables['t']))
             TS.t = np.max(data.groups['zonal_mean'].variables['t'])
             if TS.t_max<=TS.t:
                 print(TS.t_max,TS.t)
@@ -75,7 +75,7 @@ cdef class Restart:
                 for j in range(Pr.nlons):
                     PV.P.values[i,j,Pr.n_layers]    = np.array(data.groups['surface_zonal_mean'].variables['zonal_mean_Ps'])[-1,i]
                     for k in range(Pr.n_layers):
-                        PV.P.values[i,j,k]          = PV.P_init[k]
+                        PV.P.values[i,j,k]          = Pr.pressure_levels[k]
                         PV.T.values[i,j,k]          = np.array(data.groups['zonal_mean'].variables['zonal_mean_T'])[-1,i,k]
                         PV.Vorticity.values[i,j,k]  = np.array(data.groups['zonal_mean'].variables['zonal_mean_vorticity'])[-1,i,k]
                         PV.Divergence.values[i,j,k] = np.array(data.groups['zonal_mean'].variables['zonal_mean_divergence'])[-1,i,k]

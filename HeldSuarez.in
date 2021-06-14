@@ -41,8 +41,8 @@
     "grid": {
         "dims": 1,
         "gw": 2,
-        "number_of_latitute_points": 128,
-        "number_of_longitude_points": 256,
+        "number_of_latitute_points": 256,
+        "number_of_longitude_points": 512,
         "pressure_levels": [
             25000.0,
             50000.0,
@@ -56,9 +56,9 @@
         "noise_amplitude": 1,
         "noise_type": "red",
         "restart": true,
-        "restart folder": "/Output.HeldSuarez.test_Restart/",
-        "restart time": "777600",
-        "restart type": "3D_output"
+        "restart folder": "/Output.HeldSuarez.44-T_Restart/",
+        "restart time": "864000",
+        "restart type": "zonal_mean"
     },
     "io": {
         "output_frequency": 1.0,
@@ -68,7 +68,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "9d331160-7114-4d05-bd44-test_Restart"
+        "uuid": "9d331160-7114-4d05-bd44-T_Restart"
     },
     "microphysics": {
         "microphysics_model": "None"
@@ -96,7 +96,7 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 1000.0
+        "t_max": 20.0
     },
     "turbulence": {
         "turbulence_model": "None"

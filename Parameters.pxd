@@ -88,6 +88,7 @@ cdef class Parameters:
         str surface_model
         str uuid
         str path_plus_file
+        str path_source_file
         bint restart
         str restart_time
         str restart_folder

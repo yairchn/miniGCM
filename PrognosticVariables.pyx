@@ -72,11 +72,9 @@ cdef class PrognosticVariables:
         self.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
         return
 
-    cpdef initialize_io(self, NetCDFIO_Stats Stats):
+    cpdef initialize_io(self, Parameters Pr, NetCDFIO_Stats Stats):
         Stats.add_global_mean('global_mean_T')
-        Stats.add_global_mean('global_mean_QT')
         Stats.add_zonal_mean('zonal_mean_T')
-        Stats.add_zonal_mean('zonal_mean_QT')
         Stats.add_zonal_mean('zonal_mean_divergence')
         Stats.add_zonal_mean('zonal_mean_vorticity')
         Stats.add_surface_zonal_mean('zonal_mean_Ps')
@@ -85,8 +83,11 @@ cdef class PrognosticVariables:
         Stats.add_meridional_mean('meridional_mean_divergence')
         Stats.add_meridional_mean('meridional_mean_vorticity')
         Stats.add_meridional_mean('meridional_mean_T')
-        Stats.add_meridional_mean('meridional_mean_QT')
         Stats.add_surface_meridional_mean('meridional_mean_Ps')
+        if Pr.moist_index > 0.0:
+            Stats.add_global_mean('global_mean_QT')
+            Stats.add_zonal_mean('zonal_mean_QT')
+            Stats.add_meridional_mean('meridional_mean_QT')
         return
 
     # convert spherical data to spectral
@@ -154,19 +155,20 @@ cdef class PrognosticVariables:
             Py_ssize_t nl = Pr.n_layers
 
         Stats.write_global_mean('global_mean_T', self.T.values)
-        Stats.write_global_mean('global_mean_QT', self.QT.values)
         Stats.write_surface_zonal_mean('zonal_mean_Ps',self.P.values[:,:,nl])
         Stats.write_surface_zonal_mean('T_SurfaceFlux', self.T.SurfaceFlux)
         Stats.write_surface_zonal_mean('QT_SurfaceFlux',self.QT.SurfaceFlux)
         Stats.write_zonal_mean('zonal_mean_T',self.T.values)
-        Stats.write_zonal_mean('zonal_mean_QT',self.QT.values)
         Stats.write_zonal_mean('zonal_mean_divergence',self.Divergence.values)
         Stats.write_zonal_mean('zonal_mean_vorticity',self.Vorticity.values)
         # Stats.write_surface_meridional_mean('meridional_mean_Ps',self.P.values[:,:,-1])
         Stats.write_meridional_mean('meridional_mean_T',self.T.values)
-        Stats.write_meridional_mean('meridional_mean_QT',self.QT.values)
         Stats.write_meridional_mean('meridional_mean_divergence',self.Divergence.values)
         Stats.write_meridional_mean('meridional_mean_vorticity',self.Vorticity.values)
+        if Pr.moist_index > 0.0:
+            Stats.write_global_mean('global_mean_QT', self.QT.values)
+            Stats.write_zonal_mean('zonal_mean_QT',self.QT.values)
+            Stats.write_meridional_mean('meridional_mean_QT',self.QT.values)
         return
 
     cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
