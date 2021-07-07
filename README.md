@@ -1,7 +1,6 @@
 ## miniGCM - A minimal Global Circulation Model in python
 
 Author: Yair Cohen
-  - Addition of stochastic parameteres for entrainment/detrainment by Haakon Ludvig Langeland Ervik. See also ‘SCAMPy’ examples directory.
 Last updated : July 2021
 
 INTALL
@@ -17,31 +16,31 @@ Create miniconda env with (python3.6.8 packages)
 > conda create -n minigcm python=3.6.8 scipy numpy matplotlib cython netCDF4 xarray
 
 cd to FFTW, 
->> ./configure CC=gfortran --enable-openmp --enable-shared --prefix=/Users/yaircohen/opt/miniconda3/envs/minigcm
->> make 
->> make install
+> ./configure CC=gfortran --enable-openmp --enable-shared --prefix=/Users/yaircohen/opt/miniconda3/envs/minigcm
+> make 
+> make install
 
 cd SHTNS, 
->> ./configure --enable-openmp --enable-python --prefix=/Users/yaircohen/opt/miniconda3/envs/minigcm
->> make 
->> make install
+> ./configure --enable-openmp --enable-python --prefix=/Users/yaircohen/opt/miniconda3/envs/minigcm
+> make 
+> make install
 
 check installation by
->> python
->> import shtns
+> python
+> import shtns
 
 clone miniGC
->> git clone https://github.com/yairchn/miniGCM.git
+> git clone https://github.com/yairchn/miniGCM.git
 
 activate env
->> conda activate minigcm
+> conda activate minigcm
 
 generate namelist
 
->> generate_namelist.py HeldSuarez
+> generate_namelist.py HeldSuarez
 
 compile
->> python setup.py build_ext --inplace 
+> python setup.py build_ext --inplace 
 
 run model
->> python main.py HeldSuarez.in
+> python main.py HeldSuarez.in
