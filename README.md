@@ -14,7 +14,7 @@ download + unzip + install:
 4. xcode , xcode command tools
 
 Create miniconda env with (python3.6.8 packages)
->> conda create -n minigcm python=3.6.8 scipy numpy matplotlib cython netCDF4 xarray
+> conda create -n minigcm python=3.6.8 scipy numpy matplotlib cython netCDF4 xarray
 
 cd to FFTW, 
 >> ./configure CC=gfortran --enable-openmp --enable-shared --prefix=/Users/yaircohen/opt/miniconda3/envs/minigcm
