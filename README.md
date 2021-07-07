@@ -1,6 +1,6 @@
 ## miniGCM - A minimal Global Circulation Model in python
 
-Author: Yair Cohen
+Authors: Yair Cohen and Josef Schröttle
 Last updated : July 2021
 
 INTALL
