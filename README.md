@@ -5,10 +5,10 @@ Last updated : July 2021
 
 miniGCM relays on SHTns to perform Spherical Harmonic Transforms.
 For SHTns documentation and download see:
-https://bitbucket.org/nschaeff/shtns/src/master/
-https://www2.atmos.umd.edu/~dkleist/docs/shtns/doc/html/
+https://bitbucket.org/nschaeff/shtns/src/master/;
+https://www2.atmos.umd.edu/~dkleist/docs/shtns/doc/html/;
 Reference:
-Efficient spherical harmonic transforms aimed at pseudospectral numerical simulations
+Efficient spherical harmonic transforms aimed at pseudospectral numerical simulations;
 http://arxiv.org/abs/1202.6522
 
 INTALL SHTns
