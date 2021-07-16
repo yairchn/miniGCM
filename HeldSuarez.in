@@ -44,9 +44,15 @@
         "number_of_latitute_points": 256,
         "number_of_longitude_points": 512,
         "pressure_levels": [
-            25000.0,
+            10000.0,
+            20000.0,
+            30000.0,
+            40000.0,
             50000.0,
-            75000.0,
+            60000.0,
+            70000.0,
+            80000.0,
+            90000.0,
             100000.0
         ]
     },
@@ -55,8 +61,8 @@
         "noise": true,
         "noise_amplitude": 1,
         "noise_type": "red",
-        "restart": true,
-        "restart folder": "/Output.HeldSuarez.44-T_Restart/",
+        "restart": false,
+        "restart folder": "/Output.HeldSuarez.44-test9lay/",
         "restart time": "864000",
         "restart type": "zonal_mean"
     },
@@ -68,7 +74,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "9d331160-7114-4d05-bd44-T_Restart"
+        "uuid": "9d331160-7114-4d05-44-test9lay"
     },
     "microphysics": {
         "microphysics_model": "None"

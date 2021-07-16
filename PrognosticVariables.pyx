@@ -165,10 +165,16 @@ cdef class PrognosticVariables:
         Stats.write_meridional_mean('meridional_mean_T',self.T.values)
         Stats.write_meridional_mean('meridional_mean_divergence',self.Divergence.values)
         Stats.write_meridional_mean('meridional_mean_vorticity',self.Vorticity.values)
+        Stats.write_zonal_mean('zonal_mean_dTdt',self.T.mp_tendency)
+        Stats.write_meridional_mean('meridional_mean_dTdt',self.T.mp_tendency)
+        Stats.write_global_mean('global_mean_dTdt', self.T.mp_tendency)
         if Pr.moist_index > 0.0:
             Stats.write_global_mean('global_mean_QT', self.QT.values)
             Stats.write_zonal_mean('zonal_mean_QT',self.QT.values)
             Stats.write_meridional_mean('meridional_mean_QT',self.QT.values)
+            Stats.write_global_mean('global_mean_dQTdt', self.QT.mp_tendency)
+            Stats.write_zonal_mean('zonal_mean_dQTdt',self.QT.mp_tendency)
+            Stats.write_meridional_mean('meridional_mean_dQTdt',self.QT.mp_tendency)
         return
 
     cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
