@@ -41,8 +41,8 @@
     "grid": {
         "dims": 1,
         "gw": 2,
-        "number_of_latitute_points": 256,
-        "number_of_longitude_points": 512,
+        "number_of_latitute_points": 64,
+        "number_of_longitude_points": 128,
         "pressure_levels": [
             10000.0,
             20000.0,
@@ -74,7 +74,11 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
+<<<<<<< HEAD
         "uuid": "9d331160-7114-4d05-44-test9lay"
+=======
+        "uuid": "637723d4-7dfb-4c55-9ef7-d25c4b6b4761"
+>>>>>>> e21f11802b798b47c4183be29aa979469d23b6ed
     },
     "microphysics": {
         "microphysics_model": "None"
@@ -102,7 +106,7 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 20.0
+        "t_max": 1000.0
     },
     "turbulence": {
         "turbulence_model": "None"
