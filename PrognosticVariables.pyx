@@ -85,6 +85,9 @@ cdef class PrognosticVariables:
         Stats.add_meridional_mean('meridional_mean_T')
         Stats.add_surface_meridional_mean('meridional_mean_Ps')
         if Pr.moist_index > 0.0:
+            Stats.add_global_mean('zonal_mean_dTdt')
+            Stats.add_global_mean('meridional_mean_dTdt')
+            Stats.add_global_mean('global_mean_dTdt')
             Stats.add_global_mean('global_mean_QT')
             Stats.add_zonal_mean('zonal_mean_QT')
             Stats.add_meridional_mean('meridional_mean_QT')
@@ -165,10 +168,10 @@ cdef class PrognosticVariables:
         Stats.write_meridional_mean('meridional_mean_T',self.T.values)
         Stats.write_meridional_mean('meridional_mean_divergence',self.Divergence.values)
         Stats.write_meridional_mean('meridional_mean_vorticity',self.Vorticity.values)
-        Stats.write_zonal_mean('zonal_mean_dTdt',self.T.mp_tendency)
-        Stats.write_meridional_mean('meridional_mean_dTdt',self.T.mp_tendency)
-        Stats.write_global_mean('global_mean_dTdt', self.T.mp_tendency)
         if Pr.moist_index > 0.0:
+            Stats.write_zonal_mean('zonal_mean_dTdt',self.T.mp_tendency)
+            Stats.write_meridional_mean('meridional_mean_dTdt',self.T.mp_tendency)
+            Stats.write_global_mean('global_mean_dTdt', self.T.mp_tendency)
             Stats.write_global_mean('global_mean_QT', self.QT.values)
             Stats.write_zonal_mean('zonal_mean_QT',self.QT.values)
             Stats.write_meridional_mean('meridional_mean_QT',self.QT.values)

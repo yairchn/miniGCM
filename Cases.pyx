@@ -286,6 +286,6 @@ cdef class HeldSuarezMoist(CaseBase):
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         self.Sur.update(Pr, Gr, PV, DV)
         self.Fo.update(Pr, Gr, PV, DV)
-        self.MP.update(Pr, PV, DV, TS)
         self.Tr.update(Pr, Gr, PV, DV)
+        self.MP.update(Pr, PV, DV, TS)
         return
