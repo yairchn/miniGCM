@@ -20,3 +20,4 @@ _templates/
 *.out
 *.log
 __pycache__/
+*.plan
