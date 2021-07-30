@@ -60,7 +60,13 @@ B - **clone miniGC**
 > generate_namelist.py HeldSuarez
 
 2. compile
+
 > python setup.py build_ext --inplace 
 
 3. run model
+
 > python main.py HeldSuarez.in
+
+
+
+## notes for rrtmg - add openmpi-mpicc  with: conda install -c conda-forge openmpi-mpicc 
