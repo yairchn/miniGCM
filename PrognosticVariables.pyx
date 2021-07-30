@@ -85,8 +85,8 @@ cdef class PrognosticVariables:
         Stats.add_meridional_mean('meridional_mean_T')
         Stats.add_surface_meridional_mean('meridional_mean_Ps')
         if Pr.moist_index > 0.0:
-            Stats.add_global_mean('zonal_mean_dTdt')
-            Stats.add_global_mean('meridional_mean_dTdt')
+            Stats.add_zonal_mean('zonal_mean_dTdt')
+            Stats.add_meridional_mean('meridional_mean_dTdt')
             Stats.add_global_mean('global_mean_dTdt')
             Stats.add_global_mean('global_mean_QT')
             Stats.add_zonal_mean('zonal_mean_QT')
