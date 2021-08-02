@@ -18,6 +18,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 hres_scaling=4
+hres_scaling=1
 
 nlons  = hres_scaling*128  # number of longitudes
 ntrunc = int(nlons/3)  # spectral truncation (for alias-free computations)
@@ -73,12 +74,19 @@ lonDeg = np.degrees(lons)
 folder='Output.HeldSuarez.HighResolRun'
 path = '/home/josefs/miniGCM/'+folder+'/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.ReferenceRun/Fields_restart_factor4/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.ReferenceRun/Fields_restart/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.MultiLayeRun/Fields/'
+nt=100
+nL=3
 
+u_timeseries=np.zeros((nt+1,nL))
+v_timeseries=np.zeros((nt+1,nL))
+T_timeseries=np.zeros((nt+1,nL))
 
-for it in np.arange(500,801,5):
+for it in np.arange(500,501+nt,10):
     print('it ',it)
 
-    for Layer in np.arange(0,3):
+    for Layer in np.arange(0,nL):
         print("day ", it," Layer ",Layer)
         u=netCDF4.Dataset(path+'U_'+str(it*3600*24)+'.nc').variables['U'][:,:,Layer]
         v=netCDF4.Dataset(path+'V_'+str(it*3600*24)+'.nc').variables['V'][:,:,Layer]
@@ -86,8 +94,12 @@ for it in np.arange(500,801,5):
 
         print('u', u.shape)
         print('v', v.shape)
+        print('T', T.shape)
+        u_timeseries[it-500,Layer]=np.mean(u)
+        v_timeseries[it-500,Layer]=np.mean(v)
+        T_timeseries[it-500,Layer]=np.mean(T)
 
-        iplot_mean=0
+        iplot_mean=1
         if (iplot_mean==1):
 
            zonalmean=u.mean(axis=1)
@@ -176,7 +188,7 @@ for it in np.arange(500,801,5):
            plt.savefig('T_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
 
 
-        iplot_spctr=1
+        iplot_spctr=0
         if (iplot_spctr==1):
            #
            # Energy Spectra
@@ -201,4 +213,43 @@ for it in np.arange(500,801,5):
            np.save('EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkDiv)
            np.save('ks.npy',ks)
         #
+
+time=np.arange(500,501+nt,1)
+plt.figure(figsize=(15,4))
+plt.plot(time,T_timeseries[:,0],'-k',label='Layer I')
+plt.plot(time,T_timeseries[:,1],'-k',linewidth=2,alpha=0.8,label='Layer II')
+plt.plot(time,T_timeseries[:,2],'-k',linewidth=4,alpha=0.5,label='Layer III')
+plt.xlabel('time / days')
+plt.ylabel('$T$ / K')
+plt.xlim(500,500+nt)
+plt.legend()
+plt.tight_layout()
+plt.savefig('timeseries_T.png')
+
+
+plt.figure(figsize=(15,4))
+plt.plot(time,u_timeseries[:,0],'-k',label='Layer I')
+plt.plot(time,u_timeseries[:,1],'-k',linewidth=2,alpha=0.8,label='Layer II')
+plt.plot(time,u_timeseries[:,2],'-k',linewidth=4,alpha=0.5,label='Layer III')
+plt.xlabel('time / days')
+plt.ylabel('$u$ / m s$^{-1}$')
+plt.xlim(500,500+nt)
+plt.legend()
+plt.tight_layout()
+plt.savefig('timeseries_u.png')
+
+
+
+plt.figure(figsize=(15,4))
+plt.plot(time,v_timeseries[:,0],'-k',label='Layer I')
+plt.plot(time,v_timeseries[:,1],'-k',linewidth=2,alpha=0.8,label='Layer II')
+plt.plot(time,v_timeseries[:,2],'-k',linewidth=4,alpha=0.5,label='Layer III')
+plt.xlabel('time / days')
+plt.ylabel('$v$ / m s$^{-1}$')
+plt.xlim(500,500+nt)
+plt.legend()
+plt.tight_layout()
+plt.savefig('timeseries_v.png')
+
+
 
