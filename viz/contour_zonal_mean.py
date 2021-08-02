@@ -12,8 +12,8 @@ def main():
     args = parser.parse_args()
     varname = args.varname
 
-    folder = os.getcwd() + '/Output.HeldSuarez.d44-9_layers/stats/'
-    ncfile = folder + 'Stats.HeldSuarez.Rerun_2.nc'
+    folder = os.getcwd() + '/Output.HeldSuarezMoist.24_mp_update/stats/'
+    ncfile = folder + 'Stats.HeldSuarezMoist.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
@@ -44,18 +44,11 @@ def main():
     plt.figure('global mean')
     plt.plot(t, norm_var)
     print(np.max(np.divide(np.subtract(globle_mean_var,globle_mean_var[0]),globle_mean_var[0])))
-    fig = plt.figure('time mean ' + varname)
-    for i in range(n):
-        ax1 = fig.add_subplot(n, 1, i+1)
-        im1 = ax1.plot(np.mean(var[50:-1,:,i],axis = 0),Y)
-        ax1.set_ylabel('degree latitude')
-        ax1.set_xlim([0.0,0.005])
-        if i<n-1:
-            xlabels = [item.get_text() for item in ax1.get_xticklabels()]
-            xempty_string_labels = [''] * len(xlabels)
-            ax1.set_xticklabels(xempty_string_labels)
-        else:
-            ax1.set_xlabel('time days')
+    plt.figure('time mean ' + varname)
+    plt.plot(np.mean(var[700:799,:,0],axis = 0),Y, 'k')
+    plt.plot(np.mean(var[700:799,:,1],axis = 0),Y, 'r')
+    plt.plot(np.mean(var[700:799,:,2],axis = 0),Y, 'b')
+    plt.xlabel('time days')
     plt.show()
 
 if __name__ == '__main__':
