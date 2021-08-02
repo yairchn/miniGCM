@@ -17,8 +17,7 @@ from scipy.signal import savgol_filter
 import warnings
 warnings.filterwarnings("ignore")
 
-hres_scaling=4
-hres_scaling=1
+hres_scaling=16
 
 nlons  = hres_scaling*128  # number of longitudes
 ntrunc = int(nlons/3)  # spectral truncation (for alias-free computations)
@@ -60,6 +59,58 @@ def keSpectra(u,v):
     return [Ek,k]
 
 
+def Enstrophy_flux(u,v):
+    vrtsp,divsp = x.getvrtdivspec(u,v)
+
+    vrt_x, vrt_y = x.getgrad(vrtsp) # get gradients in grid space
+
+    vrtsp_advection = x.grdtospec(vrt_x*u + vrt_y*v)
+
+    Enstrophy_flux = -1.*vrtsp*vrtsp_advection.conj()
+
+    # build spectrum
+    Enstrophy_sum = np.zeros(np.amax(l)+1)
+    Ek = np.zeros(np.amax(l)+1)
+    k = np.arange(np.amax(l)+1)
+
+    # running sum (Integral)
+    for i in range(0,np.amax(l)):
+        Ek[i] = np.sum(Enstrophy_flux[np.logical_and(l>=i-0.5 , l<i+0.5)])
+    for i in range(0,np.amax(l)):
+        for j in range(i,np.amax(l)):
+            Enstrophy_sum[i]+=Ek[j]
+
+    return [Enstrophy_sum,k]
+
+def keSpectral_flux(u,v):
+    uk = x.grdtospec(u)
+    vk = x.grdtospec(v)
+    ux, uy = x.getgrad(uk) # get gradients in grid space
+    vx, vy = x.getgrad(vk) # get gradients in grid space
+    uak = x.grdtospec(ux*u + uy*v)
+    vak = x.grdtospec(vx*u + vy*v)
+
+
+    Usp = -1.*uak*uk.conj()
+    Vsp = -1.*vak*vk.conj()
+    Esp = Usp + Vsp
+
+    # build spectrum
+    Ek_sum = np.zeros(np.amax(l)+1)
+    Ek = np.zeros(np.amax(l)+1)
+    k = np.arange(np.amax(l)+1)
+
+    # running sum (Integral)
+    for i in range(0,np.amax(l)):
+        Ek[i] = np.sum(Esp[np.logical_and(l>=i-0.5 , l<i+0.5)])
+    for i in range(0,np.amax(l)):
+        for j in range(i,np.amax(l)):
+            Ek_sum[i]+=Ek[j]
+
+    return [Ek_sum,k]
+
+
+
 
 # setup up spherical harmonic instance, set lats/lons of grid
 x = sph.Spharmt(nlons,nlats,ntrunc,rsphere,gridtype='gaussian')
@@ -74,69 +125,82 @@ lonDeg = np.degrees(lons)
 folder='Output.HeldSuarez.HighResolRun'
 path = '/home/josefs/miniGCM/'+folder+'/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.ReferenceRun/Fields_restart_factor4/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.ReferenceRun/Fields_restart/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.MultiLayeRun/Fields/'
-nt=100
-nL=3
+path = '/home/josefs/miniGCM/Output.HeldSuarez.JustAtestRun/Fields_restart_factor8/'
+path = '/home/josefs/miniGCM/Output.HeldSuarez.JustAtestRun/Fields_restart_factor16/'
 
-u_timeseries=np.zeros((nt+1,nL))
-v_timeseries=np.zeros((nt+1,nL))
-T_timeseries=np.zeros((nt+1,nL))
-
-for it in np.arange(500,501+nt,10):
+#for it in np.arange(500,801,5):
+for it in np.arange(600,801,5):
     print('it ',it)
 
-    for Layer in np.arange(0,nL):
+    for Layer in np.arange(0,3):
         print("day ", it," Layer ",Layer)
         u=netCDF4.Dataset(path+'U_'+str(it*3600*24)+'.nc').variables['U'][:,:,Layer]
         v=netCDF4.Dataset(path+'V_'+str(it*3600*24)+'.nc').variables['V'][:,:,Layer]
         T=netCDF4.Dataset(path+'Temperature_'+str(it*3600*24)+'.nc').variables['Temperature'][:,:,Layer]
 
+        vrtsp,divsp = x.getvrtdivspec(u,v)
+        u_vrt,v_vrt = x.getuv(vrtsp,divsp*0.)
+        u_div,v_div = x.getuv(vrtsp*0.,divsp)
+
         print('u', u.shape)
         print('v', v.shape)
         print('T', T.shape)
-        u_timeseries[it-500,Layer]=np.mean(u)
-        v_timeseries[it-500,Layer]=np.mean(v)
-        T_timeseries[it-500,Layer]=np.mean(T)
 
-        iplot_mean=1
+        iplot_mean=0
         if (iplot_mean==1):
 
+           zonalmean=T.mean(axis=1)
+           #zonalstd=T.std(axis=1)
+           #print("zonal mean of T: ", zonalmean, zonalmean.shape)
+           #maxAnomaly = np.amax(abs(zonalmean))
+           #plt.figure(3,figsize=(4,8))
+           #plt.clf()
+           #plt.title("Zonal means at day "+str(it))
+           #plt.plot(zonalmean,latDeg,'-k',linewidth='2')
+           #plt.plot(zonalmean-zonalstd,latDeg,'-k')
+           #plt.plot(zonalmean+zonalstd,latDeg,'-k')
+           #plt.savefig('T_zonalmean_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
+           np.save('T_zonalmean_'+str(Layer)+'_'+str(it).zfill(10),np.array(zonalmean))
+
+
            zonalmean=u.mean(axis=1)
-           zonalstd=u.std(axis=1)
+           #zonalstd=u.std(axis=1)
            #print("zonal mean of u: ", zonalmean, zonalmean.shape)
-           maxAnomaly = np.amax(abs(zonalmean))
-           plt.figure(3,figsize=(4,8))
-           plt.clf()
-           plt.title("Zonal means at day "+str(it))
-           plt.plot(zonalmean,latDeg,'-k',linewidth='2')
-           plt.plot(zonalmean-zonalstd,latDeg,'-k')
-           plt.plot(zonalmean+zonalstd,latDeg,'-k')
-           plt.savefig('u_zonalmean_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
+           #maxAnomaly = np.amax(abs(zonalmean))
+           #plt.figure(3,figsize=(4,8))
+           #plt.clf()
+           #plt.title("Zonal means at day "+str(it))
+           #plt.plot(zonalmean,latDeg,'-k',linewidth='2')
+           #plt.plot(zonalmean-zonalstd,latDeg,'-k')
+           #plt.plot(zonalmean+zonalstd,latDeg,'-k')
+           #plt.savefig('u_zonalmean_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
+           np.save('u_zonalmean_'+str(Layer)+'_'+str(it).zfill(10),np.array(zonalmean))
 
            zonalmean=v.mean(axis=1)
-           zonalstd=v.std(axis=1)
+           #zonalstd=v.std(axis=1)
            #print("zonal mean of v: ", zonalmean, zonalmean.shape)
-           maxAnomaly = np.amax(abs(zonalmean))
-           plt.figure(3,figsize=(4,8))
-           plt.clf()
-           plt.title("Zonal means at day "+str(it))
-           plt.plot(zonalmean,latDeg,'-k',linewidth='2')
-           plt.plot(zonalmean-zonalstd,latDeg,'-k')
-           plt.plot(zonalmean+zonalstd,latDeg,'-k')
-           plt.savefig('v_zonalmean_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
+           #maxAnomaly = np.amax(abs(zonalmean))
+           #plt.figure(3,figsize=(4,8))
+           #plt.clf()
+           #plt.title("Zonal means at day "+str(it))
+           #plt.plot(zonalmean,latDeg,'-k',linewidth='2')
+           #plt.plot(zonalmean-zonalstd,latDeg,'-k')
+           #plt.plot(zonalmean+zonalstd,latDeg,'-k')
+           #plt.savefig('v_zonalmean_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
+           np.save('v_zonalmean_'+str(Layer)+'_'+str(it).zfill(10),np.array(zonalmean))
+           np.save('latDeg',latDeg)
            #
-           zonalmean=0.5*(u*u + v*v).mean(axis=1)
-           zonalstd=0.5*(u*u + v*v).std(axis=1)
+           #zonalmean=0.5*(u*u + v*v).mean(axis=1)
+           #zonalstd=0.5*(u*u + v*v).std(axis=1)
            #print("zonal mean of ekin: ", zonalmean, zonalmean.shape)
-           maxAnomaly = np.amax(abs(zonalmean))
-           plt.figure(7,figsize=(4,8))
-           plt.clf()
-           plt.title("Zonal means at day "+str(it))
-           plt.plot(zonalmean,latDeg,'-k',linewidth='2')
-           plt.plot(zonalmean-zonalstd,latDeg,'-k')
-           plt.plot(zonalmean+zonalstd,latDeg,'-k')
-           plt.savefig('ekin_zonalmean_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
+           #maxAnomaly = np.amax(abs(zonalmean))
+           #plt.figure(7,figsize=(4,8))
+           #plt.clf()
+           #plt.title("Zonal means at day "+str(it))
+           #plt.plot(zonalmean,latDeg,'-k',linewidth='2')
+           #plt.plot(zonalmean-zonalstd,latDeg,'-k')
+           #plt.plot(zonalmean+zonalstd,latDeg,'-k')
+           #plt.savefig('ekin_zonalmean_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
            #
 
         iplot_ctr=0
@@ -188,7 +252,7 @@ for it in np.arange(500,501+nt,10):
            plt.savefig('T_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
 
 
-        iplot_spctr=0
+        iplot_spctr=1
         if (iplot_spctr==1):
            #
            # Energy Spectra
@@ -196,7 +260,11 @@ for it in np.arange(500,501+nt,10):
            #
            #plt.figure(33)
            #plt.clf()
-           #[KE,ks] = keSpectra(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
+           [KE,ks] = keSpectra(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
+           [KE_flux,ks] = keSpectral_flux(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
+           [E_flux,ks] = Enstrophy_flux(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
+           [KErot_flux,ks] = keSpectral_flux(u_vrt-u_vrt.mean(axis=1, keepdims=True),v_vrt-v_vrt.mean(axis=1, keepdims=True))
+           [KEdiv_flux,ks] = keSpectral_flux(u_div-u_div.mean(axis=1, keepdims=True),v_div-v_div.mean(axis=1, keepdims=True))
            #plt.loglog(ks,savgol_filter(KE,5,1))
            [EkTot,EkRot,EkDiv,ks] = energy(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True),l)
            #plt.loglog(ks,EkTot,'-k',alpha=0.4,linewidth=4)
@@ -208,48 +276,14 @@ for it in np.arange(500,501+nt,10):
            #plt.grid()
            #plt.ylim(1.e-6,1.e4)
            #plt.savefig('Ek_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
+           np.save('Ek_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE)
            np.save('EkTot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkTot)
            np.save('EkRot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkRot)
            np.save('EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkDiv)
+           np.save('Ek_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux)
+           np.save('Enstrophy_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',E_flux)
+           np.save('EkRot_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KErot_flux)
+           np.save('EkDiv_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KEdiv_flux)
            np.save('ks.npy',ks)
         #
-
-time=np.arange(500,501+nt,1)
-plt.figure(figsize=(15,4))
-plt.plot(time,T_timeseries[:,0],'-k',label='Layer I')
-plt.plot(time,T_timeseries[:,1],'-k',linewidth=2,alpha=0.8,label='Layer II')
-plt.plot(time,T_timeseries[:,2],'-k',linewidth=4,alpha=0.5,label='Layer III')
-plt.xlabel('time / days')
-plt.ylabel('$T$ / K')
-plt.xlim(500,500+nt)
-plt.legend()
-plt.tight_layout()
-plt.savefig('timeseries_T.png')
-
-
-plt.figure(figsize=(15,4))
-plt.plot(time,u_timeseries[:,0],'-k',label='Layer I')
-plt.plot(time,u_timeseries[:,1],'-k',linewidth=2,alpha=0.8,label='Layer II')
-plt.plot(time,u_timeseries[:,2],'-k',linewidth=4,alpha=0.5,label='Layer III')
-plt.xlabel('time / days')
-plt.ylabel('$u$ / m s$^{-1}$')
-plt.xlim(500,500+nt)
-plt.legend()
-plt.tight_layout()
-plt.savefig('timeseries_u.png')
-
-
-
-plt.figure(figsize=(15,4))
-plt.plot(time,v_timeseries[:,0],'-k',label='Layer I')
-plt.plot(time,v_timeseries[:,1],'-k',linewidth=2,alpha=0.8,label='Layer II')
-plt.plot(time,v_timeseries[:,2],'-k',linewidth=4,alpha=0.5,label='Layer III')
-plt.xlabel('time / days')
-plt.ylabel('$v$ / m s$^{-1}$')
-plt.xlim(500,500+nt)
-plt.legend()
-plt.tight_layout()
-plt.savefig('timeseries_v.png')
-
-
 
