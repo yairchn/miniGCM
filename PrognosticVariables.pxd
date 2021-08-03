@@ -14,18 +14,10 @@ from TimeStepping cimport TimeStepping
 cdef class PrognosticVariable:
     cdef:
         double [:,:,:] values
-        double [:,:,:] VerticalFlux
-        double [:,:] SurfaceFlux
-        double [:,:,:] forcing
-        double [:,:,:] mp_tendency
-        double complex [:,:] ConvectiveFlux
-        double [:,:,:] TurbFlux
         double complex [:,:] spectral
-        double complex [:,:] sp_forcing
         double complex [:,:] old
         double complex [:,:] now
         double complex [:,:] tendency
-        double complex [:,:] sp_VerticalFlux
         str kind
         str name
         str units
@@ -33,14 +25,8 @@ cdef class PrognosticVariable:
 cdef class PrognosticVariables:
     cdef:
         Py_ssize_t k
-        PrognosticVariable Vorticity
-        PrognosticVariable Divergence
-        PrognosticVariable T
-        PrognosticVariable QT
-        PrognosticVariable P
-        double [:] T_init
-        double [:] P_init
-        double [:] QT_init
+        PrognosticVariable U
+        PrognosticVariable q
         object MP
 
 

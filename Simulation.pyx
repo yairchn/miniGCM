@@ -34,11 +34,7 @@ class Simulation:
     def initialize(self, namelist):
         self.LF.initialize(self.Pr, namelist)
         self.Case.initialize(self.RS, self.Pr, self.Gr, self.PV, self.TS, namelist)
-        self.Case.initialize_microphysics(self.Pr, self.PV, self.DV, namelist)
         self.Case.initialize_forcing(self.Pr, self.Gr, namelist)
-        self.Case.initialize_surface(self.Pr, self.Gr, self.PV, namelist)
-        self.Case.initialize_convection(self.Pr, self.Gr, self.PV, namelist)
-        self.Case.initialize_turbulence(self.Pr, namelist)
         self.DF.initialize(self.Pr, self.Gr, namelist)
         self.TS.initialize(self.Pr)
         self.initialize_io(namelist)
@@ -48,7 +44,6 @@ class Simulation:
         print('run')
         start_time = time.time()
         while self.TS.t <= self.TS.t_max:
-            self.PV.reset_pressures_and_bcs(self.Pr, self.DV)
             self.PV.spectral_to_physical(self.Pr, self.Gr)
             self.DV.update(self.Pr, self.Gr, self.PV)
             self.Case.update(self.Pr, self.Gr, self.PV, self.DV, self.TS)
@@ -82,7 +77,4 @@ class Simulation:
         self.PV.stats_io(self.Pr, self.Stats)
         self.Case.stats_io(self.PV, self.Stats)
         self.Stats.close_files()
-        return
-
-    def force_io(self):
         return

@@ -17,7 +17,8 @@ def main():
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
-    n = int(np.multiply(data.groups['coordinates'].variables['layers'],1.0))
+    # n = int(np.multiply(data.groups['coordinates'].variables['layers'],1.0))
+    n=3
 
     lat_list = np.array(data.groups['coordinates'].variables['latitude_list'])
     var = np.array(data.groups['zonal_mean'].variables[varname])
@@ -45,9 +46,9 @@ def main():
     plt.plot(t, norm_var)
     print(np.max(np.divide(np.subtract(globle_mean_var,globle_mean_var[0]),globle_mean_var[0])))
     plt.figure('time mean ' + varname)
-    plt.plot(np.mean(var[700:799,:,0],axis = 0),Y, 'k')
-    plt.plot(np.mean(var[700:799,:,1],axis = 0),Y, 'r')
-    plt.plot(np.mean(var[700:799,:,2],axis = 0),Y, 'b')
+    plt.plot(np.mean(var[0:50,:,0],axis = 0),Y, 'k')
+    plt.plot(np.mean(var[0:50,:,1],axis = 0),Y, 'r')
+    plt.plot(np.mean(var[0:50,:,2],axis = 0),Y, 'b')
     plt.xlabel('time days')
     plt.show()
 

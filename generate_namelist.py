@@ -14,6 +14,46 @@ def main():
 
     case_name = args.case_name
 
+    namelist_defaults['planet'] = {}
+    namelist_defaults['planet']['planet_radius']    = 6.37122e6 # earth radius [m]
+    namelist_defaults['planet']['Omega_rotation']   = 7.292e-5  # rotation rate [1/s]
+    namelist_defaults['planet']['gravity']          = 9.80616   # gravity [m/s**2]
+    
+    namelist_defaults['grid'] = {}
+    namelist_defaults['grid']['dims'] = 1
+    namelist_defaults['grid']['gw']   = 2
+    # namelist_defaults['grid']['number_of_latitute_points'] =  64
+    # namelist_defaults['grid']['number_of_longitude_points'] = 128
+    namelist_defaults['grid']['number of latitudes'] = [32 ,64, 96 , 128, 160]
+    namelist_defaults['grid']['Truncation wavenumber'] = [21 , 42, 63, 84, 106]
+    Earth_rad               =  6370                              ; # Earth's radius in Kilometers
+    D.Omega                         =  7.3*0.00001                       ; # Earth's rotation rate in 1/second
+    [D.miu, D.weights]        =  lgwt(D.J, -1, 1)                  ; # sin(lat) and gaussian weights miu is not structured, i.e., dmiu is not constant
+    D.miu                           =  D.miu.'                           ;
+    D.weights                 =  D.weights.'                       ;
+    D.leg_cell                =  legendre_cell(D.M+1, D.J, D.miu)  ; # legendre functions places in a cell
+
+    D.phi                     =  asin(D.miu)                       ;
+    D.lat                     =  asind(D.miu)                      ;
+    D.n_lat                   =  length(D.lat)                     ;
+    D.long                    =  0:360/(2*D.J):360-360/(2*D.J)     ; # Longitude in degrees, for truncation T42
+    D.lam                     =  D.long*pi/180                     ; # Longitude in radians
+    D.n_long                  =  length(D.long)                    ;
+    D.lam_rep                 =  repmat(D.lam, D.n_lat, 1)         ;
+    D.miu_rep                 =  repmat(D.miu.',1,D.n_long)        ;
+    D.cos_lat_sqr             =  (ones(1, D.n_lat) - D.miu.^2)     ;
+    D.cos_lat                 =  D.cos_lat_sqr.^(0.5)              ;
+    D.one_over_cos_sqr        =  repmat( (D.cos_lat_sqr.^(-1)).', 1, 2*D.M+1)      ; # for the function "non_linear_terms"
+    D.f                       =  2*D.Omega*D.miu_rep                               ; # Coriolis parameter
+    D.wave                    =  wave_cell(D.M+1, D.lam_rep)                       ;
+    [D.Y_l_m, D.Y_l_minus_m]  =  spherical_harmonics(D.leg_cell, D.wave, D.M, D.J) ; # The spherical harmonic functions
+
+    D.lat_rep                 =  repmat(D.lat.', 1, D.n_long)      ;
+    D.long_rep                =  repmat(D.long, D.n_lat, 1)        ;
+
+
+
+
     namelist_defaults = {}
     namelist_defaults['timestepping'] = {}
     namelist_defaults['timestepping']['CFL_limit'] = 0.8
@@ -27,17 +67,7 @@ def main():
     namelist_defaults['diffusion']['e_folding_timescale_grid_scale'] = 7200
     namelist_defaults['diffusion']['e_folding_timescale_meso_scale'] = 100000000
     
-    namelist_defaults['grid'] = {}
-    namelist_defaults['grid']['dims'] = 1
-    namelist_defaults['grid']['gw']   = 2
-    namelist_defaults['grid']['number_of_latitute_points'] =  64
-    namelist_defaults['grid']['number_of_longitude_points'] = 128
-    namelist_defaults['grid']['pressure_levels']    =  [250.0*1.e2,500.0*1.e2,750.0*1.e2, 1000.0*1.e2]  # [pasc]
 
-    namelist_defaults['planet'] = {}
-    namelist_defaults['planet']['planet_radius']    = 6.37122e6 # earth radius [m]
-    namelist_defaults['planet']['Omega_rotation']   = 7.292e-5  # rotation rate [1/s]
-    namelist_defaults['planet']['gravity']          = 9.80616   # gravity [m/s**2]
 
     namelist_defaults['thermodynamics'] = {}
     namelist_defaults['thermodynamics']['heat_capacity']        = 1004.0    # [J / (kg K)]
