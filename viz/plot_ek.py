@@ -109,6 +109,47 @@ def keSpectral_flux(u,v):
 
     return [Ek_sum,k]
 
+def CrossSpectral_flux(u,v):
+    vrtsp,divsp = x.getvrtdivspec(u,v)
+    u_vrt,v_vrt = x.getuv(vrtsp,divsp*0.)
+    u_div,v_div = x.getuv(vrtsp*0.,divsp)
+
+    uk_vrt = x.grdtospec(u_vrt) # intergate planetary vorticity in calculation
+    vk_vrt = x.grdtospec(v_vrt)
+    uk_div = x.grdtospec(u_div)
+    vk_div = x.grdtospec(v_div)
+
+    ux_vrt, uy_vrt = x.getgrad(uk_vrt) # get gradients in grid space
+    vx_vrt, vy_vrt = x.getgrad(vk_vrt) # get gradients in grid space
+    ux_div, uy_div = x.getgrad(uk_div) # get gradients in grid space
+    vx_div, vy_div = x.getgrad(vk_div) # get gradients in grid space
+
+    advecting_cross_terms_row1 = x.grdtospec(ux_vrt*u_div + uy_vrt*v_div)
+    advecting_cross_terms_row2 = x.grdtospec(vx_vrt*u_div + vy_vrt*v_div)
+    advecting_cross_terms_row3 = x.grdtospec(ux_div*u_vrt + uy_div*v_vrt)
+    advecting_cross_terms_row4 = x.grdtospec(vx_div*u_vrt + vy_div*v_vrt)
+
+    asp = uk_vrt.conj()*advecting_cross_terms_row1 \
+         +vk_vrt.conj()*advecting_cross_terms_row2 \
+         +uk_div.conj()*advecting_cross_terms_row3 \
+         +vk_div.conj()*advecting_cross_terms_row4
+
+    Esp = -1.*asp
+
+    # build spectrum
+    Ek_sum = np.zeros(np.amax(l)+1)
+    Ek = np.zeros(np.amax(l)+1)
+    k = np.arange(np.amax(l)+1)
+
+    # running sum (Integral)
+    for i in range(0,np.amax(l)):
+        Ek[i] = np.sum(Esp[np.logical_and(l>=i-0.5 , l<i+0.5)])
+    for i in range(0,np.amax(l)):
+        for j in range(i,np.amax(l)):
+            Ek_sum[i]+=Ek[j]
+
+    return [Ek_sum,k]
+
 
 
 
@@ -260,9 +301,10 @@ for it in np.arange(600,801,5):
            #
            #plt.figure(33)
            #plt.clf()
+           [E_flux,ks] = Enstrophy_flux(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
            [KE,ks] = keSpectra(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
            [KE_flux,ks] = keSpectral_flux(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
-           [E_flux,ks] = Enstrophy_flux(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
+           [Cross_flux,ks] = CrossSpectral_flux(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
            [KErot_flux,ks] = keSpectral_flux(u_vrt-u_vrt.mean(axis=1, keepdims=True),v_vrt-v_vrt.mean(axis=1, keepdims=True))
            [KEdiv_flux,ks] = keSpectral_flux(u_div-u_div.mean(axis=1, keepdims=True),v_div-v_div.mean(axis=1, keepdims=True))
            #plt.loglog(ks,savgol_filter(KE,5,1))
@@ -284,6 +326,7 @@ for it in np.arange(600,801,5):
            np.save('Enstrophy_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',E_flux)
            np.save('EkRot_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KErot_flux)
            np.save('EkDiv_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KEdiv_flux)
+           np.save('EkCross_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',Cross_flux)
            np.save('ks.npy',ks)
         #
 
