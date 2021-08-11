@@ -12,8 +12,8 @@ def main():
     args = parser.parse_args()
     varname = args.varname
 
-    folder = os.getcwd() + '/Output.HeldSuarez.o_truncation/stats/'
-    ncfile = folder + 'Stats.HeldSuarez.nc'
+    folder = os.getcwd() + '/Output.HeldSuarezMoist.o_truncation/stats/'
+    ncfile = folder + 'Stats.HeldSuarezMoist.Rerun_3.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
@@ -30,7 +30,7 @@ def main():
     for i in range(n):
         ax1 = fig.add_subplot(n, 1, i+1)
         im1 = ax1.contourf(X,Y,np.fliplr(np.rot90(np.squeeze(var[:,:,i]), k=3)))
-        ax1.set_ylabel('degree latitude')
+        ax1.set_ylabel('lat')
         if i<n-1:
             xlabels = [item.get_text() for item in ax1.get_xticklabels()]
             xempty_string_labels = [''] * len(xlabels)
@@ -38,17 +38,20 @@ def main():
         else:
             ax1.set_xlabel('time days')
         fig.colorbar(im1)
-    print(np.shape(var))
     globle_mean_var = np.mean(np.mean(var, axis = 1), axis = 1)
     norm_var  = np.divide(np.subtract(globle_mean_var,globle_mean_var[0]),globle_mean_var[0])
+    pressure_levels = np.flipud(np.array([250.0, 350.0, 450.0, 550.0, 650.0, 750.0, 850.0, 950.0]))
+    y,z = np.meshgrid(lat_list,pressure_levels)
     plt.figure('global mean')
     plt.plot(t, norm_var)
-    print(np.max(np.divide(np.subtract(globle_mean_var,globle_mean_var[0]),globle_mean_var[0])))
+    print(np.shape(np.fliplr(np.rot90(np.squeeze(np.mean(var[700:799,:,0:],axis = 0))))))
+    print(np.shape(y))
+    print(np.shape(z))
     plt.figure('time mean ' + varname)
-    plt.plot(np.mean(var[700:799,:,0],axis = 0),Y, 'k')
-    plt.plot(np.mean(var[700:799,:,1],axis = 0),Y, 'r')
-    plt.plot(np.mean(var[700:799,:,2],axis = 0),Y, 'b')
-    plt.xlabel('time days')
+    plt.contourf(y,z, np.rot90(np.squeeze(np.mean(var[700:799,:,0:],axis = 0))))
+    plt.gca().invert_yaxis()
+    plt.colorbar()
+    plt.xlabel('degree latitude')
     plt.show()
 
 if __name__ == '__main__':
