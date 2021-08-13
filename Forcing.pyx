@@ -18,11 +18,18 @@ from libc.math cimport pow, log, sin, cos, fmax
 import sphericalForcing as spf
 
 cdef extern from "forcing_functions.h":
-	void focring_hs(double kappa, double p_ref, double sigma_b, double k_a, double k_b,
+	void forcing_hs(double kappa, double p_ref, double sigma_b, double k_a, double k_b,
 			double k_f, double k_s, double Dtheta_z, double T_equator, double DT_y,
 			double* p, double* T, double* T_bar, double* sin_lat, double* cos_lat, double* u,
 			double* v, double* u_forc, double* v_forc, double* T_forc,
 			Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
+
+	void forcing_tp(double kappa, double p_ref, double sigma_b, double k_a, double k_b,
+			double k_f, double k_s, double Dtheta_z, double T_equator, double DT_y,
+			double* p, double* T, double* T_bar, double* u,
+			double* v, double* u_forc, double* v_forc, double* T_forc,
+			Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
+
 
 
 def ForcingFactory(namelist):
@@ -114,7 +121,7 @@ cdef class HelzSuarez(ForcingBase):
 			double complex [:] sp_noise = np.zeros(nlm    ,dtype=np.complex, order='c')
 
 		with nogil:
-			focring_hs(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
+			forcing_hs(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
 						Pr.Dtheta_z, Pr.T_equator, Pr.DT_y, &PV.P.values[0,0,0],
 						&PV.T.values[0,0,0],&self.Tbar[0,0,0], &self.sin_lat[0,0],
 						&self.cos_lat[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
@@ -153,13 +160,6 @@ cdef class StochasticTropicalPlanet(ForcingBase):
 			Py_ssize_t nx = Pr.nlats
 			Py_ssize_t ny = Pr.nlons
 		self.Tbar = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
-		self.sin_lat = np.zeros((Pr.nlats, Pr.nlons), dtype=np.float64, order='c')
-		self.cos_lat = np.zeros((Pr.nlats, Pr.nlons), dtype=np.float64, order='c')
-		with nogil:
-			for i in range(nx):
-				for j in range(ny):
-					self.sin_lat[i,j] = sin(Gr.lat[i,j])
-					self.cos_lat[i,j] = cos(Gr.lat[i,j])
 		return
 
 	cpdef initialize_io(self, NetCDFIO_Stats Stats):
@@ -177,10 +177,10 @@ cdef class StochasticTropicalPlanet(ForcingBase):
 			Py_ssize_t nl = Pr.n_layers
 
 		with nogil:
-			focring_tp(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
+			forcing_tp(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
 						Pr.Dtheta_z, Pr.T_equator, Pr.DT_y, &PV.P.values[0,0,0],
-						&PV.T.values[0,0,0],&self.Tbar[0,0,0], &self.sin_lat[0,0],
-						&self.cos_lat[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
+						&PV.T.values[0,0,0],&self.Tbar[0,0,0],
+						&DV.U.values[0,0,0], &DV.V.values[0,0,0],
 						&DV.U.forcing[0,0,0], &DV.V.forcing[0,0,0], &PV.T.forcing[0,0,0],
 						nx, ny, nl)
 		return
@@ -230,7 +230,7 @@ cdef class StochasticHeldSuarez(ForcingBase):
 			Py_ssize_t nl = Pr.n_layers
 
 		with nogil:
-			focring_hs(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
+			forcing_hs(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
 						Pr.Dtheta_z, Pr.T_equator, Pr.DT_y, &PV.P.values[0,0,0],
 						&PV.T.values[0,0,0],&self.Tbar[0,0,0], &self.sin_lat[0,0],
 						&self.cos_lat[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],

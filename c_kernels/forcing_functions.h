@@ -4,7 +4,7 @@
 #pragma once
 #include <math.h>
 
-void focring_hs(
+void forcing_hs(
            double kappa,
            double p_ref,
            double sigma_b,
@@ -72,7 +72,7 @@ void focring_hs(
     return;
 }
 
-void focring_tp(
+void forcing_tp(
            double kappa,
            double p_ref,
            double sigma_b,
@@ -86,8 +86,6 @@ void focring_tp(
            double* restrict p,
            double* restrict T,
            double* restrict T_bar,
-           double* restrict sin_lat,
-           double* restrict cos_lat,
            double* restrict u,
            double* restrict v,
            double* restrict u_forc,
@@ -126,7 +124,7 @@ void focring_tp(
 
 
                 sigma_ratio = fmax((p_half/p[ijkmax_p]-sigma_b)/(1-sigma_b),0.0);
-                k_T = k_a + (k_s-k_a)*sigma_ratio*pow(cos_lat[ij],4.0);
+                k_T = k_a + (k_s-k_a)*sigma_ratio;
                 k_v = k_b +  k_f*sigma_ratio;
 
                 u_forc[ijk] = -k_v *  u[ijk];
