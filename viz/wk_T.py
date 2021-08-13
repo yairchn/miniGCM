@@ -74,7 +74,7 @@ def calcFlux(name,tmin,tmax,lmin,lmax,dt,dx=1.,Layer=0):
     #v    = data['vwind']
     #vort = data['vorticity']
     #field = data['Temperature'][500:800,28:36,:,2]-np.mean(data['Temperature'][500:800,28:36,:,2],axis=(0,2))
-    field = data['Temperature'][0:30000,112:144,:,Layer]-np.mean(data['Temperature'][0:30000,112:144,:,Layer],axis=(0,2))
+    field = data['Temperature'][0:300,112:144,:,Layer]-np.mean(data['Temperature'][0:300,112:144,:,Layer],axis=(0,2))
     field -= np.mean(field,axis=(2))
     #qp   = data['qprime']
     #vrt  = data['vorticity']
@@ -136,7 +136,7 @@ dt   = 1.e-1
 dt   = 1.e-2
 #dt   = 1.
 
-path     = '../Output.HeldSuarez.HighResToRun/Fields/'
+path     = '../Output.HeldSuarez..44-test3lay/Fields/'
 filename = 'T_merge.nc'
 
 #lmin= 45.; lmax=65.
