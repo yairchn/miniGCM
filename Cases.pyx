@@ -23,9 +23,6 @@ def CasesFactory(namelist):
         return HeldSuarez(namelist)
     elif namelist['meta']['casename'] == 'HeldSuarezMoist':
         return HeldSuarezMoist(namelist)
-    # anthoer example
-    # elif namelist['meta']['casename'] == 'StochasticHeldSuarez':
-    #     return Stochastic_Frorcing(paramlist)
     else:
         print('case not recognized')
     return
