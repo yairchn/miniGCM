@@ -14,7 +14,7 @@
     },
     "diffusion": {
         "dissipation_order": 4.0,
-        "e_folding_timescale_grid_scale": 28800,
+        "e_folding_timescale_grid_scale": 57600,
         "e_folding_timescale_meso_scale": 100000000,
         "order": 4.0,
         "truncation_order": 3,
@@ -61,7 +61,7 @@
         "noise_amplitude": 1,
         "noise_type": "red",
         "restart": false,
-        "restart folder": "/Output.HeldSuarez.47-test9lay/",
+        "restart folder": "/Output.HeldSuarez.48-test9lay/",
         "restart time": "864000",
         "restart type": "3D_output"
     },
@@ -73,7 +73,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "b8787bf4-7bbe-4608-8819-.47-test9lay"
+        "uuid": "b8787bf4-7bbe-4608-8819-.48-test9lay"
     },
     "microphysics": {
         "microphysics_model": "None"

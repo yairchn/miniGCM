@@ -6,6 +6,7 @@
 #  zonal means (iplot_means) 
 #  contours (iplot_ctr)
 #  spectra (iplot_spctr)
+#  spectra (iplot_timsr)
 #
 import numpy as np
 import shtns
@@ -18,6 +19,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 hres_scaling=16
+hres_scaling=1
 
 nlons  = hres_scaling*128  # number of longitudes
 ntrunc = int(nlons/3)  # spectral truncation (for alias-free computations)
@@ -168,9 +170,15 @@ path = '/home/josefs/miniGCM/'+folder+'/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.ReferenceRun/Fields_restart_factor4/'
 path = '/home/josefs/miniGCM/Output.HeldSuarez.JustAtestRun/Fields_restart_factor8/'
 path = '/home/josefs/miniGCM/Output.HeldSuarez.JustAtestRun/Fields_restart_factor16/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez..44-test3lay/Fields/'
+
+
+eke=np.zeros((3,801))
+time=np.arange(0,801)
+
 
 #for it in np.arange(500,801,5):
-for it in np.arange(600,801,5):
+for it in np.arange(0,801,1):
     print('it ',it)
 
     for Layer in np.arange(0,3):
@@ -186,6 +194,10 @@ for it in np.arange(600,801,5):
         print('u', u.shape)
         print('v', v.shape)
         print('T', T.shape)
+
+        iplot_timsr=1
+        if (iplot_timsr==1):
+           eke[Layer,it]=np.mean(0.5*(u-u.mean(axis=1,keepdims=True))**2 + 0.5*(v-v.mean(axis=1,keepdims=True))**2)
 
         iplot_mean=0
         if (iplot_mean==1):
@@ -318,15 +330,32 @@ for it in np.arange(600,801,5):
            #plt.grid()
            #plt.ylim(1.e-6,1.e4)
            #plt.savefig('Ek_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
-           np.save('Ek_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE)
+           #np.save('Ek_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE)
            np.save('EkTot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkTot)
            np.save('EkRot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkRot)
            np.save('EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkDiv)
-           np.save('Ek_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux)
-           np.save('Enstrophy_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',E_flux)
-           np.save('EkRot_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KErot_flux)
-           np.save('EkDiv_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KEdiv_flux)
-           np.save('EkCross_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',Cross_flux)
+           #np.save('Ek_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux)
+           #np.save('Enstrophy_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',E_flux)
+           #np.save('EkRot_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KErot_flux)
+           #np.save('EkDiv_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KEdiv_flux)
+           #np.save('EkCross_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',Cross_flux)
            np.save('ks.npy',ks)
         #
+
+iplot_timsr=1
+if (iplot_timsr==1):
+   zonalstd=T.std(axis=1)
+   plt.figure(3,figsize=(5,2.5))
+   plt.clf()
+   plt.title("Global Mean Eddy Kinetic Energy")
+   #plt.plot(time,eke[0,:],'-k',alpha=0.9,linewidth='1',label='top')
+   #plt.plot(time,eke[1,:],'-k',alpha=0.7,linewidth='1',label='middle')
+   #plt.plot(time,eke[2,:],'-k',alpha=0.5,linewidth='1',label='bottom')
+   plt.plot(time,(eke[0,:]+eke[1,:]+eke[2,:])/3.,'-k',alpha=1.,linewidth=1,label='bottom')
+   plt.tight_layout()
+   plt.ylabel('eke / m$^2$ s$^{-2}$')
+   plt.xlabel('time / days')
+   plt.tight_layout()
+   plt.savefig('eke_timeseries.pdf')
+
 
