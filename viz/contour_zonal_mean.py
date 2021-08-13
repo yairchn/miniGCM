@@ -20,7 +20,7 @@ def main():
     n = int(np.multiply(data.groups['coordinates'].variables['layers'],1.0))
 
     lat_list = np.array(data.groups['coordinates'].variables['latitude_list'])
-    var = np.array(data.groups['zonal_mean'].variables[varname])
+    var = np.multiply(np.array(data.groups['zonal_mean'].variables[varname]) ,1000.0)
     t = np.divide(data.groups['zonal_mean'].variables['t'],3600.0*24.0)
 
     X, Y = np.meshgrid(t,lat_list)
