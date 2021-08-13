@@ -44,14 +44,15 @@
         "number_of_latitute_points": 64,
         "number_of_longitude_points": 128,
         "pressure_levels": [
+<<<<<<< HEAD
             20000.0,
             30000.0,
             40000.0,
+=======
+            25000.0,
+>>>>>>> df92f004ac84edf77e8844fbf29850d5d4e030ce
             50000.0,
-            60000.0,
-            70000.0,
-            80000.0,
-            90000.0,
+            75000.0,
             100000.0
         ]
     },
@@ -61,19 +62,29 @@
         "noise_amplitude": 1,
         "noise_type": "red",
         "restart": false,
+<<<<<<< HEAD
         "restart folder": "/Output.HeldSuarez.48-test9lay/",
         "restart time": "864000",
         "restart type": "3D_output"
+=======
+        "restart folder": "./",
+        "restart time": "none",
+        "restart type": "zonal_mean"
+>>>>>>> df92f004ac84edf77e8844fbf29850d5d4e030ce
     },
     "io": {
-        "output_frequency": 1.0,
+        "output_frequency": 14.0,
         "stats_dir": "stats",
         "stats_frequency": 1.0
     },
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
+<<<<<<< HEAD
         "uuid": "b8787bf4-7bbe-4608-8819-.48-test9lay"
+=======
+        "uuid": "f6bfc4a1-e1d4-48a3-b6e8-no_truncation"
+>>>>>>> df92f004ac84edf77e8844fbf29850d5d4e030ce
     },
     "microphysics": {
         "microphysics_model": "None"
@@ -101,7 +112,7 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 1000.0
+        "t_max": 800.0
     },
     "turbulence": {
         "turbulence_model": "None"
