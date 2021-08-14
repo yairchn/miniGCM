@@ -37,8 +37,10 @@ def ForcingFactory(namelist):
 		return ForcingNone(namelist)
 	elif namelist['forcing']['forcing_model'] == 'HeldSuarez':
 		return HelzSuarez(namelist)
-	elif namelist['forcing']['forcing_model'] == 'TropicalPlanet':
-		return HelzSuarez(namelist)
+	elif namelist['forcing']['forcing_model'] == 'StochasticTropicalPlanet':
+		return StochasticTropicalPlanet(namelist)
+	elif namelist['forcing']['forcing_model'] == 'StochasticHeldSuarez':
+		return StochasticHeldSuarez(namelist)
 	else:
 		print('case not recognized')
 	return
