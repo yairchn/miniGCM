@@ -41,8 +41,8 @@
     "grid": {
         "dims": 1,
         "gw": 2,
-        "number_of_latitute_points": 256,
-        "number_of_longitude_points": 512,
+        "number_of_latitute_points": 64,
+        "number_of_longitude_points": 128,
         "pressure_levels": [
             25000.0,
             50000.0,
@@ -68,7 +68,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "f6bfc4a1-e1d4-48a3-b6e8-no_truncation"
+        "uuid": "f6bfc4a1-e1d4-48a3-b6e8-josetp_planet"
     },
     "microphysics": {
         "microphysics_model": "None"
