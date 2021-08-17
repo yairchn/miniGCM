@@ -20,6 +20,7 @@ warnings.filterwarnings("ignore")
 
 hres_scaling=16
 hres_scaling=1
+#hres_scaling=4
 
 nlons  = hres_scaling*128  # number of longitudes
 ntrunc = int(nlons/3)  # spectral truncation (for alias-free computations)
@@ -171,14 +172,15 @@ path = '/home/scoty/miniGCM/Output.HeldSuarez.ReferenceRun/Fields_restart_factor
 path = '/home/josefs/miniGCM/Output.HeldSuarez.JustAtestRun/Fields_restart_factor8/'
 path = '/home/josefs/miniGCM/Output.HeldSuarez.JustAtestRun/Fields_restart_factor16/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez..44-test3lay/Fields/'
+#path = '/home/scoty/miniGCM/Output.HeldSuarez.o_truncation/Fields/'
 
 
 eke=np.zeros((3,801))
 time=np.arange(0,801)
 
 
-#for it in np.arange(500,801,5):
-for it in np.arange(0,801,1):
+for it in np.arange(420,801,14):
+#for it in np.arange(0,801,1):
     print('it ',it)
 
     for Layer in np.arange(0,3):
@@ -195,7 +197,7 @@ for it in np.arange(0,801,1):
         print('v', v.shape)
         print('T', T.shape)
 
-        iplot_timsr=1
+        iplot_timsr=0
         if (iplot_timsr==1):
            eke[Layer,it]=np.mean(0.5*(u-u.mean(axis=1,keepdims=True))**2 + 0.5*(v-v.mean(axis=1,keepdims=True))**2)
 
@@ -314,6 +316,10 @@ for it in np.arange(0,801,1):
            #plt.figure(33)
            #plt.clf()
            [E_flux,ks] = Enstrophy_flux(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
+           print('u.shape', u.shape)
+           print('(u.mean(axis=1, keepdims=True)).shape', u.shape)
+           print('(v.mean(axis=1, keepdims=True)).shape', v.shape)
+           #[KE_mean,ks] = keSpectra(np.zeros((256,512))+u.mean(axis=1, keepdims=True),np.zeros((256,512))+v.mean(axis=1, keepdims=True))
            [KE,ks] = keSpectra(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
            [KE_flux,ks] = keSpectral_flux(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
            [Cross_flux,ks] = CrossSpectral_flux(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
@@ -331,18 +337,19 @@ for it in np.arange(0,801,1):
            #plt.ylim(1.e-6,1.e4)
            #plt.savefig('Ek_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
            #np.save('Ek_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE)
+           #np.save('EkMean_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_mean)
            np.save('EkTot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkTot)
            np.save('EkRot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkRot)
            np.save('EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkDiv)
-           #np.save('Ek_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux)
-           #np.save('Enstrophy_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',E_flux)
-           #np.save('EkRot_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KErot_flux)
-           #np.save('EkDiv_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KEdiv_flux)
-           #np.save('EkCross_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',Cross_flux)
+           np.save('Ek_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux)
+           np.save('Enstrophy_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',E_flux)
+           np.save('EkRot_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KErot_flux)
+           np.save('EkDiv_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KEdiv_flux)
+           np.save('EkCross_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',Cross_flux)
            np.save('ks.npy',ks)
         #
 
-iplot_timsr=1
+iplot_timsr=0
 if (iplot_timsr==1):
    zonalstd=T.std(axis=1)
    plt.figure(3,figsize=(5,2.5))

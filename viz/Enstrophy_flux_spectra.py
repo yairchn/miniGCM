@@ -15,11 +15,8 @@ Ek=np.copy(ks)*0.
 #Layer=2
 
 for Layer in np.arange(0,3):
-    for it in np.arange(600,800,5): Ek+=np.load('Enstrophy_flux_'+str(Layer)+'_0000000'+str(it)+'.npy')/40.
+    for it in np.arange(420,800,14): Ek+=np.load('Enstrophy_flux_'+str(Layer)+'_0000000'+str(it)+'.npy')/40.
 
-
-#convert to eddy kinetic energy in shallow water system
-Ek*=Hbar/2.
 
 fig, ax = plt.subplots(constrained_layout=True,figsize=(5,4.))
 
@@ -27,7 +24,7 @@ ax.semilogx(ks[1:700],savgol_filter(Ek[1:700],5,1),'-k',linewidth=2,alpha=0.8,la
 
 ax.set_xlabel('Wavenumber $k$',size='12', fontname = 'Dejavu Sans')
 
-ax.set_ylabel('Eddy Enstrophy Flux [W/kg]',size='12', fontname = 'Dejavu Sans')
+ax.set_ylabel('Eddy Enstrophy Flux [W/kg m$^2$]',size='12', fontname = 'Dejavu Sans')
 
 plt.grid(alpha=0.7,color='k',linestyle='dotted',dashes=[1,5 ],linewidth=1,zorder=100)
 
