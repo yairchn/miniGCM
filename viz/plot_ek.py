@@ -20,7 +20,7 @@ warnings.filterwarnings("ignore")
 
 hres_scaling=16
 hres_scaling=1
-#hres_scaling=4
+hres_scaling=4
 
 nlons  = hres_scaling*128  # number of longitudes
 ntrunc = int(nlons/3)  # spectral truncation (for alias-free computations)
@@ -90,6 +90,8 @@ def keSpectral_flux(u,v):
     vk = x.grdtospec(v)
     ux, uy = x.getgrad(uk) # get gradients in grid space
     vx, vy = x.getgrad(vk) # get gradients in grid space
+    #uak = x.grdtospec(ux*u + uy*v)
+    #vak = x.grdtospec(vx*u + vy*v)
     uak = x.grdtospec(ux*u + uy*v)
     vak = x.grdtospec(vx*u + vy*v)
 
@@ -127,16 +129,37 @@ def CrossSpectral_flux(u,v):
     ux_div, uy_div = x.getgrad(uk_div) # get gradients in grid space
     vx_div, vy_div = x.getgrad(vk_div) # get gradients in grid space
 
-    advecting_cross_terms_row1 = x.grdtospec(ux_vrt*u_div + uy_vrt*v_div)
+    #advecting_cross_terms_row1 = x.grdtospec(ux_vrt*u_div + uy_vrt*v_div)
+    #advecting_cross_terms_row2 = x.grdtospec(vx_vrt*u_div + vy_vrt*v_div)
+    #advecting_cross_terms_row3 = x.grdtospec(ux_div*u_vrt + uy_div*v_vrt)
+    #advecting_cross_terms_row4 = x.grdtospec(vx_div*u_vrt + vy_div*v_vrt)
+
+    #asp = uk_vrt.conj()*advecting_cross_terms_row1 \
+    #     +vk_vrt.conj()*advecting_cross_terms_row2 \
+    #     +uk_div.conj()*advecting_cross_terms_row3 \
+    #     +vk_div.conj()*advecting_cross_terms_row4
+
+    advecting_cross_terms_row1 = x.grdtospec(ux_vrt*u_div + uy_vrt*v_div) #cross advection of vortical and divergent terms
     advecting_cross_terms_row2 = x.grdtospec(vx_vrt*u_div + vy_vrt*v_div)
     advecting_cross_terms_row3 = x.grdtospec(ux_div*u_vrt + uy_div*v_vrt)
     advecting_cross_terms_row4 = x.grdtospec(vx_div*u_vrt + vy_div*v_vrt)
+    advecting_cross_terms_row5 = x.grdtospec(ux_vrt*u_vrt + uy_vrt*v_vrt) #advecting cross terms
+    advecting_cross_terms_row6 = x.grdtospec(vx_vrt*u_vrt + vy_vrt*v_vrt)
+    advecting_cross_terms_row7 = x.grdtospec(ux_div*u_div + uy_div*v_div)
+    advecting_cross_terms_row8 = x.grdtospec(vx_div*u_div + vy_div*v_div)
 
     asp = uk_vrt.conj()*advecting_cross_terms_row1 \
          +vk_vrt.conj()*advecting_cross_terms_row2 \
          +uk_div.conj()*advecting_cross_terms_row3 \
-         +vk_div.conj()*advecting_cross_terms_row4
-
+         +vk_div.conj()*advecting_cross_terms_row4 \
+         +uk_div.conj()*advecting_cross_terms_row1 \
+         +vk_div.conj()*advecting_cross_terms_row2 \
+         +uk_vrt.conj()*advecting_cross_terms_row3 \
+         +vk_vrt.conj()*advecting_cross_terms_row4 \
+         +uk_div.conj()*advecting_cross_terms_row5 \
+         +vk_div.conj()*advecting_cross_terms_row6 \
+         +uk_vrt.conj()*advecting_cross_terms_row7 \
+         +vk_vrt.conj()*advecting_cross_terms_row8
     Esp = -1.*asp
 
     # build spectrum
@@ -172,7 +195,7 @@ path = '/home/scoty/miniGCM/Output.HeldSuarez.ReferenceRun/Fields_restart_factor
 path = '/home/josefs/miniGCM/Output.HeldSuarez.JustAtestRun/Fields_restart_factor8/'
 path = '/home/josefs/miniGCM/Output.HeldSuarez.JustAtestRun/Fields_restart_factor16/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez..44-test3lay/Fields/'
-#path = '/home/scoty/miniGCM/Output.HeldSuarez.o_truncation/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.o_truncation/Fields/'
 
 
 eke=np.zeros((3,801))
@@ -192,6 +215,8 @@ for it in np.arange(420,801,14):
         vrtsp,divsp = x.getvrtdivspec(u,v)
         u_vrt,v_vrt = x.getuv(vrtsp,divsp*0.)
         u_div,v_div = x.getuv(vrtsp*0.,divsp)
+        #u=u_vrt+u_div
+        #v=v_vrt+v_div
 
         print('u', u.shape)
         print('v', v.shape)
@@ -320,11 +345,11 @@ for it in np.arange(420,801,14):
            print('(u.mean(axis=1, keepdims=True)).shape', u.shape)
            print('(v.mean(axis=1, keepdims=True)).shape', v.shape)
            #[KE_mean,ks] = keSpectra(np.zeros((256,512))+u.mean(axis=1, keepdims=True),np.zeros((256,512))+v.mean(axis=1, keepdims=True))
-           [KE,ks] = keSpectra(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
-           [KE_flux,ks] = keSpectral_flux(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
-           [Cross_flux,ks] = CrossSpectral_flux(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
-           [KErot_flux,ks] = keSpectral_flux(u_vrt-u_vrt.mean(axis=1, keepdims=True),v_vrt-v_vrt.mean(axis=1, keepdims=True))
-           [KEdiv_flux,ks] = keSpectral_flux(u_div-u_div.mean(axis=1, keepdims=True),v_div-v_div.mean(axis=1, keepdims=True))
+           [KE,ks] = keSpectra(u,v)
+           [KE_flux,ks] = keSpectral_flux(u,v)
+           [Cross_flux,ks] = CrossSpectral_flux(u,v)
+           [KErot_flux,ks] = keSpectral_flux(u_vrt,v_vrt)
+           [KEdiv_flux,ks] = keSpectral_flux(u_div,v_div)
            #plt.loglog(ks,savgol_filter(KE,5,1))
            [EkTot,EkRot,EkDiv,ks] = energy(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True),l)
            #plt.loglog(ks,EkTot,'-k',alpha=0.4,linewidth=4)
