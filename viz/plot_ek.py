@@ -85,6 +85,45 @@ def Enstrophy_flux(u,v):
 
     return [Enstrophy_sum,k]
 
+
+def keSpectral_flux_dp(u,v,pU,pD):
+    # pressure Up is pi+1
+    # pressure Down pi-1
+    # for pressure weighted ke flux
+    dp=pU-pD
+
+    uk = x.grdtospec(u)
+    vk = x.grdtospec(v)
+    uk_dp = x.grdtospec(u*dp)
+    vk_dp = x.grdtospec(v*dp)
+    ux, uy = x.getgrad(uk_dp) # get gradients in grid space
+    vx, vy = x.getgrad(vk_dp) # get gradients in grid space
+    #uak = x.grdtospec(ux*u + uy*v)
+    #vak = x.grdtospec(vx*u + vy*v)
+    uak = x.grdtospec(ux*u + uy*v)
+    vak = x.grdtospec(vx*u + vy*v)
+
+
+    Usp = -1.*uak*uk.conj()
+    Vsp = -1.*vak*vk.conj()
+    Esp = Usp + Vsp
+
+    # build spectrum
+    Ek_sum = np.zeros(np.amax(l)+1)
+    Ek = np.zeros(np.amax(l)+1)
+    k = np.arange(np.amax(l)+1)
+
+    # running sum (Integral)
+    for i in range(0,np.amax(l)):
+        Ek[i] = np.sum(Esp[np.logical_and(l>=i-0.5 , l<i+0.5)])
+    for i in range(0,np.amax(l)):
+        for j in range(i,np.amax(l)):
+            Ek_sum[i]+=Ek[j]
+
+    return [Ek_sum,k]
+
+
+
 def keSpectral_flux(u,v):
     uk = x.grdtospec(u)
     vk = x.grdtospec(v)
@@ -198,9 +237,11 @@ path = '/home/scoty/miniGCM/Output.HeldSuarez..44-test3lay/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.o_truncation/Fields/'
 
 
+
 eke=np.zeros((3,801))
 time=np.arange(0,801)
 
+p1=250.; p2=500.; p3=750. # [hPa]
 
 for it in np.arange(420,801,14):
 #for it in np.arange(0,801,1):
@@ -208,9 +249,21 @@ for it in np.arange(420,801,14):
 
     for Layer in np.arange(0,3):
         print("day ", it," Layer ",Layer)
+        ps=netCDF4.Dataset(path+'Pressure_'+str(it*3600*24)+'.nc').variables['Pressure'][:,:]
         u=netCDF4.Dataset(path+'U_'+str(it*3600*24)+'.nc').variables['U'][:,:,Layer]
         v=netCDF4.Dataset(path+'V_'+str(it*3600*24)+'.nc').variables['V'][:,:,Layer]
         T=netCDF4.Dataset(path+'Temperature_'+str(it*3600*24)+'.nc').variables['Temperature'][:,:,Layer]
+
+        if Layer == 0:
+            pD=ps*0.+p1
+            pU=ps*0.+p2
+        elif Layer == 1:
+            pD=ps*0.+p2
+            pU=ps*0.+p3
+        elif Layer == 2:
+            pD=ps*0.+p3
+            pU=ps
+        #
 
         vrtsp,divsp = x.getvrtdivspec(u,v)
         u_vrt,v_vrt = x.getuv(vrtsp,divsp*0.)
@@ -340,16 +393,17 @@ for it in np.arange(420,801,14):
            #
            #plt.figure(33)
            #plt.clf()
-           [E_flux,ks] = Enstrophy_flux(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
+           #[E_flux,ks] = Enstrophy_flux(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
            print('u.shape', u.shape)
            print('(u.mean(axis=1, keepdims=True)).shape', u.shape)
            print('(v.mean(axis=1, keepdims=True)).shape', v.shape)
            #[KE_mean,ks] = keSpectra(np.zeros((256,512))+u.mean(axis=1, keepdims=True),np.zeros((256,512))+v.mean(axis=1, keepdims=True))
-           [KE,ks] = keSpectra(u,v)
-           [KE_flux,ks] = keSpectral_flux(u,v)
-           [Cross_flux,ks] = CrossSpectral_flux(u,v)
-           [KErot_flux,ks] = keSpectral_flux(u_vrt,v_vrt)
-           [KEdiv_flux,ks] = keSpectral_flux(u_div,v_div)
+           #[KE,ks] = keSpectra(u,v)
+           #[KE_flux,ks] = keSpectral_flux(u,v)
+           [KE_flux_dp,ks] = keSpectral_flux_dp(u,v,pU,pD)
+           #[Cross_flux,ks] = CrossSpectral_flux(u,v)
+           #[KErot_flux,ks] = keSpectral_flux(u_vrt,v_vrt)
+           #[KEdiv_flux,ks] = keSpectral_flux(u_div,v_div)
            #plt.loglog(ks,savgol_filter(KE,5,1))
            [EkTot,EkRot,EkDiv,ks] = energy(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True),l)
            #plt.loglog(ks,EkTot,'-k',alpha=0.4,linewidth=4)
@@ -366,11 +420,12 @@ for it in np.arange(420,801,14):
            np.save('EkTot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkTot)
            np.save('EkRot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkRot)
            np.save('EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkDiv)
-           np.save('Ek_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux)
-           np.save('Enstrophy_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',E_flux)
-           np.save('EkRot_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KErot_flux)
-           np.save('EkDiv_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KEdiv_flux)
-           np.save('EkCross_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',Cross_flux)
+           np.save('Ek_flux_dp_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux_dp)
+           #np.save('Ek_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux)
+           #np.save('Enstrophy_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',E_flux)
+           #np.save('EkRot_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KErot_flux)
+           #np.save('EkDiv_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KEdiv_flux)
+           #np.save('EkCross_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',Cross_flux)
            np.save('ks.npy',ks)
         #
 
