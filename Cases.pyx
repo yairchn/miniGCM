@@ -95,7 +95,6 @@ cdef class HeldSuarez(CaseBase):
             PV.T.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),Pr.T_init)
 
         PV.physical_to_spectral(Pr, Gr)
-        print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
         if namelist['initialize']['noise']:
              # calculate noise
              F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
@@ -108,6 +107,8 @@ cdef class HeldSuarez(CaseBase):
              # add noise
              PV.T.spectral.base[:,Pr.n_layers-1] = np.add(PV.T.spectral.base[:,Pr.n_layers-1],
                                                         Gr.SphericalGrid.grdtospec(noise.base))
+        print('layer 1 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-3]).min())
+        print('layer 2 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-2]).min())
         print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
         return
 

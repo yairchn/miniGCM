@@ -86,34 +86,7 @@ def Enstrophy_flux(u,v):
     return [Enstrophy_sum,k]
 
 
-def keSpectral_flux_dp(u,v,Geo,pU,pD):
-    zero=np.copy(u)*0.
-    # constants from Held & Suarez
-    k_f=zero+1.0/(24.0*3600.0)  # day^(-1) [1/sec] 
-    k_b=zero+1./40./(24.*3600.) # 1/40 day^(-1) [1/sec]
-    sigma_b=0.7 # sigma ratio for boundary layer
-    if pD[1,1]==750:
-        p_half = 0.5*(pD+pU);
-        #pU=ps in this scase of the lowest layer
-        sigma_ratio = (p_half/pU-sigma_b)/(1-sigma_b)
-        print('Shape of sigma_ratio in this layer: ', sigma_ratio.shape)
-        print('Shape of k_b in this layer: ', k_b.shape)
-        print('Shape of k_f in this layer: ', k_f.shape)
-        print('Minimum pU in this layer: ', np.amin(pU))
-        print('Maximum pU in this layer: ', np.amax(pU))
-        sigma_ratio[np.where(sigma_ratio<0)]=0.
-        print('Minimum sigma_ratio in this layer: ', np.amin(sigma_ratio))
-        print('Maximum sigma_ratio in this layer: ', np.amax(sigma_ratio))
-        print('Lower layer pressure top: ', pD[1,1])
-        k_b+= k_f*sigma_ratio # [1/sec] 
-        print('Minimum k_b in this layer [1/day]: ', np.amin(k_b*(24.*3600.)))
-        print('Maximum k_b in this layer [1/day]: ', np.amax(k_b*(24.*3600.)))
-
-    # get vorticity, divergence in spectral space 
-    vrtsp,divsp = x.getvrtdivspec(u,v)
-    vrt=x.spectogrd(vrtsp)
-    div=x.spectogrd(divsp)
-
+def keSpectral_flux_dp(u,v,pU,pD):
     # pressure Up is pi+1
     # pressure Down pi-1
     # for pressure weighted ke flux
@@ -121,19 +94,19 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
 
     uk = x.grdtospec(u)
     vk = x.grdtospec(v)
-    ux, uy = x.getgrad(uk) # get gradients in grid space
-    vx, vy = x.getgrad(vk) # get gradients in grid space
-    Geok = x.grdtospec(Geo)
-    Geox, Geoy = x.getgrad(Geok) # get gradients in grid space
-    #uak = x.grdtospec(ux*u + uy*v)  # only non-linear divergence in flux
+    uk_dp = x.grdtospec(u*dp)
+    vk_dp = x.grdtospec(v*dp)
+    ux, uy = x.getgrad(uk_dp) # get gradients in grid space
+    vx, vy = x.getgrad(vk_dp) # get gradients in grid space
+    #uak = x.grdtospec(ux*u + uy*v)
     #vak = x.grdtospec(vx*u + vy*v)
-    uak = x.grdtospec(ux*u*dp + uy*v*dp + div*u*dp + Geox*dp + k_b*u*dp)  # including the full flux
-    vak = x.grdtospec(vx*u*dp + vy*v*dp + div*v*dp + Geoy*dp + k_b*v*dp)
+    uak = x.grdtospec(ux*u + uy*v)
+    vak = x.grdtospec(vx*u + vy*v)
 
 
     Usp = -1.*uak*uk.conj()
     Vsp = -1.*vak*vk.conj()
-    Esp = Usp + Vsp 
+    Esp = Usp + Vsp
 
     # build spectrum
     Ek_sum = np.zeros(np.amax(l)+1)
@@ -262,7 +235,6 @@ path = '/home/josefs/miniGCM/Output.HeldSuarez.JustAtestRun/Fields_restart_facto
 path = '/home/josefs/miniGCM/Output.HeldSuarez.JustAtestRun/Fields_restart_factor16/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez..44-test3lay/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.o_truncation/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.oistp_plane4/Fields/'
 
 
 
@@ -281,20 +253,16 @@ for it in np.arange(420,801,14):
         u=netCDF4.Dataset(path+'U_'+str(it*3600*24)+'.nc').variables['U'][:,:,Layer]
         v=netCDF4.Dataset(path+'V_'+str(it*3600*24)+'.nc').variables['V'][:,:,Layer]
         T=netCDF4.Dataset(path+'Temperature_'+str(it*3600*24)+'.nc').variables['Temperature'][:,:,Layer]
-        Geo=netCDF4.Dataset(path+'Geopotential_'+str(it*3600*24)+'.nc').variables['Geopotential'][:,:,Layer]
 
         if Layer == 0:
             pD=ps*0.+p1
             pU=ps*0.+p2
-            print('pU ',pU[1,1],' pD',pD[1,1],' Layer',Layer)
         elif Layer == 1:
             pD=ps*0.+p2
             pU=ps*0.+p3
-            print('pU ',pU[1,1],' pD',pD[1,1],' Layer',Layer)
         elif Layer == 2:
             pD=ps*0.+p3
-            pU=ps/100.
-            print('pU ',pU[1,1],' pD',pD[1,1],' Layer',Layer)
+            pU=ps
         #
 
         vrtsp,divsp = x.getvrtdivspec(u,v)
@@ -432,8 +400,7 @@ for it in np.arange(420,801,14):
            #[KE_mean,ks] = keSpectra(np.zeros((256,512))+u.mean(axis=1, keepdims=True),np.zeros((256,512))+v.mean(axis=1, keepdims=True))
            #[KE,ks] = keSpectra(u,v)
            #[KE_flux,ks] = keSpectral_flux(u,v)
-           #[KE_flux_dp,ks] = keSpectral_flux_dp(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True),Geo-Geo.mean(axis=1, keepdims=True),pU,pD)
-           [KE_flux_dp,ks] = keSpectral_flux_dp(u,v,Geo,pU,pD)
+           [KE_flux_dp,ks] = keSpectral_flux_dp(u,v,pU,pD)
            #[Cross_flux,ks] = CrossSpectral_flux(u,v)
            #[KErot_flux,ks] = keSpectral_flux(u_vrt,v_vrt)
            #[KEdiv_flux,ks] = keSpectral_flux(u_div,v_div)

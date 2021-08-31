@@ -12,6 +12,7 @@ from scipy.signal import savgol_filter
 
 path='./res1/'
 path='./res4/'
+path='./'
 
 ks=np.load(path+'ks.npy')
 
@@ -25,7 +26,7 @@ EkDiv =np.load(path+'EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy')*0.
 icount=0
 for Layer in np.arange(0,3):
     print("Layer ",Layer)
-    for it in np.arange(420,800,14):
+    for it in np.arange(420,630,14):
         print('it ',it)
         icount+=1
         #
@@ -43,23 +44,28 @@ EkDiv/=icount
 
 plt.figure(figsize=(5.5,4.5))
 plt.clf()
-#EkTot[1:170]=savgol_filter(EkTot[1:170]/float(icount),5,1)
-#EkRot[1:170]=savgol_filter(EkRot[1:170]/float(icount),5,1)
-#EkDiv[1:170]=savgol_filter(EkDiv[1:170]/float(icount),5,1)
+EkTot[0]=EkTot[1]
+EkRot[0]=EkRot[1]
+EkDiv[0]=EkDiv[1]
+EkTot=savgol_filter(EkTot,5,1)
+EkRot=savgol_filter(EkRot,5,1)
+EkDiv=savgol_filter(EkDiv,5,1)
 plt.loglog(ks,EkTot,'-',color='black',alpha=0.4,linewidth=4,label='KE')
 plt.loglog(ks,EkRot,'-',color='red',label='KE vortical')
 plt.loglog(ks,EkDiv,'-',color='blue',label='KE divergent')
 #plt.loglog(ks,EkMean,'--',linewidth=2,color='black',alpha=0.4,label='KE zonal mean flow')
-plt.loglog(ks,8.e5*ks**(-3.),'-k',linewidth=2,label='-3')
-#plt.loglog(ks[15:400],5.e1*ks[15:400]**(-5./3.),'--k',linewidth=2,label='-5/3')
+#plt.loglog(ks,8.e5*ks**(-3.),'-k',linewidth=2,label='-3')
+plt.loglog(ks[10:100],5.e1*ks[10:100]**(-5./3.),'--k',linewidth=2,label='-5/3')
 plt.title('KE Spectra / m$^2$ s$^{-2}$')
 plt.legend(loc='upper right')
 plt.grid()
 plt.xlabel('Wavenumber')
-plt.ylim(1.e-3,1.e5)
+#plt.ylim(1.e-3,1.e5)
+plt.ylim(5.e-3,5.e2)
 plt.xlim(1.,2.e2)
 plt.tight_layout()
-plt.savefig(path+'Ek.pdf')
+#plt.savefig(path+'Ek.pdf')
+plt.savefig('Ek.pdf')
 
 
 
