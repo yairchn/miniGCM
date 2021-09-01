@@ -206,8 +206,7 @@ cdef class StochasticTropicalPlanet(ForcingBase):
 
 			forcing_noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(F0))*Pr.Fo_noise_amplitude
 			sp_noise = Gr.SphericalGrid.grdtospec(forcing_noise.base)
-			#PV.Vorticity.sp_forcing[:,Pr.n_layers-1] = sp_noise # lowest layer
-			PV.Vorticity.sp_forcing[:,Pr.n_layers-3] = sp_noise # top layer
+			PV.Vorticity.sp_forcing[:,Pr.n_layers-1] = sp_noise # lowest layer
 		return
 
 

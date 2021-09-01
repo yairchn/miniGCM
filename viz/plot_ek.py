@@ -127,8 +127,10 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
     Geox, Geoy = x.getgrad(Geok) # get gradients in grid space
     #uak = x.grdtospec(ux*u + uy*v)  # only non-linear divergence in flux
     #vak = x.grdtospec(vx*u + vy*v)
-    uak = x.grdtospec(ux*u*dp + uy*v*dp + div*u*dp + Geox*dp + k_b*u*dp)  # including the full flux
-    vak = x.grdtospec(vx*u*dp + vy*v*dp + div*v*dp + Geoy*dp + k_b*v*dp)
+    #uak = x.grdtospec(ux*u*dp + uy*v*dp + div*u*dp + Geox*dp + k_b*u*dp)  # including the full flux
+    #vak = x.grdtospec(vx*u*dp + vy*v*dp + div*v*dp + Geoy*dp + k_b*v*dp)
+    uak = x.grdtospec(ux*u + uy*v + div*u)  # only non-linear divergence and divergent component in flux
+    vak = x.grdtospec(vx*u + vy*v + div*v)
 
 
     Usp = -1.*uak*uk.conj()
@@ -145,9 +147,10 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
         Ek[i] = np.sum(Esp[np.logical_and(l>=i-0.5 , l<i+0.5)])
     for i in range(0,np.amax(l)):
         for j in range(i,np.amax(l)):
-            Ek_sum[i]+=Ek[j]
+            Ek_sum[i]+=Ek[j]*np.sum(dpk[np.logical_and(l>=j-0.5 , l<j+0.5)])
 
-    return [Ek_sum,k]
+    #return [Ek_sum,k]
+    return [Pk,k]
 
 
 
@@ -262,17 +265,24 @@ path = '/home/josefs/miniGCM/Output.HeldSuarez.JustAtestRun/Fields_restart_facto
 path = '/home/josefs/miniGCM/Output.HeldSuarez.JustAtestRun/Fields_restart_factor16/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez..44-test3lay/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.o_truncation/Fields/'
+#path = '/home/scoty/miniGCM/Output.HeldSuarez.oistp_plane4/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.oistp_plane4/Fields/'
 
 
 
-eke=np.zeros((3,801))
-time=np.arange(0,801)
+#ke=np.zeros((3,801))
+#time=np.arange(0,801)
+time=np.arange(0,801,14)
+print('time.shape',time.shape)
+print('time',time)
+ke=np.zeros((3,time.shape[0]))
 
+dPressure=750. # pressure difference between p1 and <ps>_area_mean [hPa]
 p1=250.; p2=500.; p3=750. # [hPa]
 
-for it in np.arange(420,801,14):
-#for it in np.arange(0,801,1):
+icount=0
+#for it in np.arange(420,801,14):
+for it in np.arange(0,801,14):
     print('it ',it)
 
     for Layer in np.arange(0,3):
@@ -307,9 +317,11 @@ for it in np.arange(420,801,14):
         print('v', v.shape)
         print('T', T.shape)
 
-        iplot_timsr=0
+        iplot_timsr=1
         if (iplot_timsr==1):
-           eke[Layer,it]=np.mean(0.5*(u-u.mean(axis=1,keepdims=True))**2 + 0.5*(v-v.mean(axis=1,keepdims=True))**2)
+           dp=pU-pD
+           #eke[Layer,it]=np.mean(0.5*(u-u.mean(axis=1,keepdims=True))**2 + 0.5*(v-v.mean(axis=1,keepdims=True))**2)
+           ke[Layer,icount]=np.mean(0.5*dp*u**2 + 0.5*dp*v**2)
 
         iplot_mean=0
         if (iplot_mean==1):
@@ -461,21 +473,26 @@ for it in np.arange(420,801,14):
            #np.save('EkCross_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',Cross_flux)
            np.save('ks.npy',ks)
         #
+    icount+=1
+    print('icount ',icount)
 
-iplot_timsr=0
+iplot_timsr=1
 if (iplot_timsr==1):
    zonalstd=T.std(axis=1)
    plt.figure(3,figsize=(5,2.5))
    plt.clf()
-   plt.title("Global Mean Eddy Kinetic Energy")
-   #plt.plot(time,eke[0,:],'-k',alpha=0.9,linewidth='1',label='top')
-   #plt.plot(time,eke[1,:],'-k',alpha=0.7,linewidth='1',label='middle')
-   #plt.plot(time,eke[2,:],'-k',alpha=0.5,linewidth='1',label='bottom')
-   plt.plot(time,(eke[0,:]+eke[1,:]+eke[2,:])/3.,'-k',alpha=1.,linewidth=1,label='bottom')
+   plt.title("Global Mean Kinetic Energy")
+   ke_global_mean=(ke[0,:]+ke[1,:]+ke[2,:])/dPressure
+   plt.plot(time,ke_global_mean,'-k',alpha=1.,linewidth=1,label='bottom')
+   for it in np.arange(9,icount,10):
+       print('it=',it,'mean ke=',np.mean(ke_global_mean[it:it+10]))
+       plt.plot(time[it:it+10],np.mean(ke_global_mean[it:it+10])+time[it:it+10]*0.,'-r',alpha=1.,linewidth=0.5,label='bottom')
+   np.save('time.npy',time)
+   np.save('ke_global_mean.npy',ke_global_mean)
    plt.tight_layout()
-   plt.ylabel('eke / m$^2$ s$^{-2}$')
+   plt.ylabel('ke / m$^2$ s$^{-2}$')
    plt.xlabel('time / days')
    plt.tight_layout()
-   plt.savefig('eke_timeseries.pdf')
+   plt.savefig('ke_timeseries.pdf')
 
 
