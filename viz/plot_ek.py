@@ -147,10 +147,10 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
         Ek[i] = np.sum(Esp[np.logical_and(l>=i-0.5 , l<i+0.5)])
     for i in range(0,np.amax(l)):
         for j in range(i,np.amax(l)):
-            Ek_sum[i]+=Ek[j]*np.sum(dpk[np.logical_and(l>=j-0.5 , l<j+0.5)])
+            Ek_sum[i]+=Ek[j]
 
     #return [Ek_sum,k]
-    return [Pk,k]
+    return [Ek_sum,k]
 
 
 
@@ -266,7 +266,6 @@ path = '/home/josefs/miniGCM/Output.HeldSuarez.JustAtestRun/Fields_restart_facto
 path = '/home/scoty/miniGCM/Output.HeldSuarez..44-test3lay/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.o_truncation/Fields/'
 #path = '/home/scoty/miniGCM/Output.HeldSuarez.oistp_plane4/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.oistp_plane4/Fields/'
 
 
 
