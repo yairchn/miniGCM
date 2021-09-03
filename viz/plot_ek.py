@@ -65,9 +65,11 @@ def keSpectra(u,v):
 def Enstrophy_flux(u,v):
     vrtsp,divsp = x.getvrtdivspec(u,v)
 
+    div = x.spectogrd(divsp)
+    vrt = x.spectogrd(vrtsp)
     vrt_x, vrt_y = x.getgrad(vrtsp) # get gradients in grid space
 
-    vrtsp_advection = x.grdtospec(vrt_x*u + vrt_y*v)
+    vrtsp_advection = x.grdtospec(vrt_x*u + vrt_y*v + div*vrt + div*vrt)
 
     Enstrophy_flux = -1.*vrtsp*vrtsp_advection.conj()
 
@@ -271,7 +273,8 @@ path = '/home/scoty/miniGCM/Output.HeldSuarez.o_truncation/Fields/'
 
 #ke=np.zeros((3,801))
 #time=np.arange(0,801)
-time=np.arange(0,801,14)
+#time=np.arange(0,801,14)
+time=np.arange(0,630,14)
 print('time.shape',time.shape)
 print('time',time)
 ke=np.zeros((3,time.shape[0]))
@@ -281,7 +284,7 @@ p1=250.; p2=500.; p3=750. # [hPa]
 
 icount=0
 #for it in np.arange(420,801,14):
-for it in np.arange(0,801,14):
+for it in np.arange(0,630,14):
     print('it ',it)
 
     for Layer in np.arange(0,3):
@@ -437,6 +440,7 @@ for it in np.arange(0,801,14):
            #plt.figure(33)
            #plt.clf()
            #[E_flux,ks] = Enstrophy_flux(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
+           [E_flux,ks] = Enstrophy_flux(u,v)
            print('u.shape', u.shape)
            print('(u.mean(axis=1, keepdims=True)).shape', u.shape)
            print('(v.mean(axis=1, keepdims=True)).shape', v.shape)
@@ -466,7 +470,7 @@ for it in np.arange(0,801,14):
            np.save('EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkDiv)
            np.save('Ek_flux_dp_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux_dp)
            #np.save('Ek_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux)
-           #np.save('Enstrophy_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',E_flux)
+           np.save('Enstrophy_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',E_flux)
            #np.save('EkRot_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KErot_flux)
            #np.save('EkDiv_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KEdiv_flux)
            #np.save('EkCross_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',Cross_flux)
