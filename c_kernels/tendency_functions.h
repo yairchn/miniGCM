@@ -140,7 +140,7 @@ void rhs_qt(double* restrict p,
                 dwqtdp_dn = -0.5*wp[ijkp+1]*(qt[ijk] + qt[ijk])*dpi;
                 qt_turbflux = -(qt_sur[ij] - turbflux[ijk])*dpi;
             }
-            rhs_qt[ij] = qt_turbflux + dwqtdp_dn + dwqtdp_up;
+            rhs_qt[ij] = qt_turbflux + dwqtdp_dn + dwqtdp_up + qt_mp[ijk];
             u_qt[ij] = u[ijk] * qt[ijk];
             v_qt[ij] = v[ijk] * qt[ijk];
         } // End j loop
