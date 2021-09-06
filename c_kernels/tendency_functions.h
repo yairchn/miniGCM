@@ -30,7 +30,7 @@ void rhs_T(double cp,
     double dpi;
     double dwTdp_up;
     double dwTdp_dn;
-    double T_turbflux;
+    double T_turbfluxdiv;
 
     for(ssize_t i=imin;i<imax;i++){
         const ssize_t ishift_2d = i*jmax;
@@ -46,30 +46,30 @@ void rhs_T(double cp,
             v_T[ij] = v[ijk] * T[ijk];
             dwTdp_up = 0;
             dwTdp_dn = 0;
-            T_turbflux = 0;
+            T_turbfluxdiv = 0;
             dpi = 1.0/(p[ijkp+1] - p[ijkp]);
             rhs_T[ij] = 0.0;
             if (kmax-1>0){
                 if (k==0){
                     dwTdp_dn = -0.5*wp[ijkp+1]*(T[ijk+1] + T[ijk])*dpi;
-                    T_turbflux = -(turbflux[ijk+1] - turbflux[ijk])*dpi;
+                    T_turbfluxdiv = -(turbflux[ijk+1] - turbflux[ijk])*dpi;
                 } // end if
                 else if (k==kmax-1){
                     dwTdp_up =  0.5*wp[ijkp]  *(T[ijk] + T[ijk-1])*dpi;
                     dwTdp_dn = -0.5*wp[ijkp+1]*(T[ijk] + T[ijk])*dpi;
-                    T_turbflux = -(T_sur[ij] - turbflux[ijk])*dpi;
+                    T_turbfluxdiv = -(T_sur[ij] - turbflux[ijk])*dpi;
                 } // end else if
                 else { // if not @ boundaries you can access k+1 and k-1
                     dwTdp_up =  0.5*wp[ijkp]  *(T[ijk]   + T[ijk-1])*dpi;
                     dwTdp_dn = -0.5*wp[ijkp+1]*(T[ijk+1] + T[ijk])*dpi;
-                    T_turbflux = -(turbflux[ijk+1] - turbflux[ijk])*dpi;
+                    T_turbfluxdiv = -(turbflux[ijk+1] - turbflux[ijk])*dpi;
                 } // end else
             } // end if
             else{ // in a single layer we have a change in mass (ps)
                 dwTdp_dn = -0.5*wp[ijkp+1]*(T[ijk] + T[ijk])*dpi;
-                T_turbflux = -(T_sur[ij] - turbflux[ijk])*dpi;
+                T_turbfluxdiv = -(T_sur[ij] - turbflux[ijk])*dpi;
             }
-            rhs_T[ij] = T_turbflux + dwTdp_dn + dwTdp_up;
+            rhs_T[ij] = T_turbfluxdiv + dwTdp_dn + dwTdp_up;
             rhs_T[ij] -= 0.5*(wp[ijkp+1]+wp[ijkp])*(gz[ijkp+1]-gz[ijkp])*dpi/cp;
             rhs_T[ij] += T_mp[ijk];
             rhs_T[ij] += T_forc[ijk];
@@ -103,7 +103,7 @@ void rhs_qt(double* restrict p,
     double dpi;
     double dwqtdp_dn;
     double dwqtdp_up;
-    double qt_turbflux;
+    double qT_turbfluxdivdiv;
 
     for(ssize_t i=imin;i<imax;i++){
         const ssize_t ishift_2d = i*jmax;
@@ -117,30 +117,30 @@ void rhs_qt(double* restrict p,
             const ssize_t ijkp = ishift_p + jshift_p + k;
             dwqtdp_dn = 0;
             dwqtdp_up = 0;
-            qt_turbflux = 0;
+            qT_turbfluxdivdiv = 0;
             dpi = 1.0/(p[ijkp+1] - p[ijkp]);
 
             if (kmax-1>0){
                 if (k==0){
                     dwqtdp_dn = -0.5*wp[ijkp+1]*(qt[ijk+1] + qt[ijk])*dpi;
-                    qt_turbflux = -(turbflux[ijk+1] - turbflux[ijk])*dpi;
+                    qT_turbfluxdivdiv = -(turbflux[ijk+1] - turbflux[ijk])*dpi;
                 } // end if
                 else if (k==kmax-1){
                     dwqtdp_up =  0.5*wp[ijkp]  *(qt[ijk] + qt[ijk-1])*dpi;
                     dwqtdp_dn = -0.5*wp[ijkp+1]*(qt[ijk] + qt[ijk])*dpi;
-                    qt_turbflux = -(qt_sur[ij] - turbflux[ijk])*dpi;
+                    qT_turbfluxdivdiv = -(qt_sur[ij] - turbflux[ijk])*dpi;
                 } // end else if
                 else { // if not @ boundaries you can access k+1 and k-1
                     dwqtdp_up =  0.5*wp[ijkp]  *(qt[ijk]   + qt[ijk-1])*dpi;
                     dwqtdp_dn = -0.5*wp[ijkp+1]*(qt[ijk+1] + qt[ijk])*dpi;
-                    qt_turbflux = -(turbflux[ijk+1] - turbflux[ijk])*dpi;
+                    qT_turbfluxdivdiv = -(turbflux[ijk+1] - turbflux[ijk])*dpi;
                 } // end else
             } // end if
             else{ // in a single layer we have a change in mass (ps)
                 dwqtdp_dn = -0.5*wp[ijkp+1]*(qt[ijk] + qt[ijk])*dpi;
-                qt_turbflux = -(qt_sur[ij] - turbflux[ijk])*dpi;
+                qT_turbfluxdivdiv = -(qt_sur[ij] - turbflux[ijk])*dpi;
             }
-            rhs_qt[ij] = qt_turbflux + dwqtdp_dn + dwqtdp_up + qt_mp[ijk];
+            rhs_qt[ij] = qT_turbfluxdivdiv + dwqtdp_dn + dwqtdp_up + qt_mp[ijk];
             u_qt[ij] = u[ijk] * qt[ijk];
             v_qt[ij] = v[ijk] * qt[ijk];
         } // End j loop
