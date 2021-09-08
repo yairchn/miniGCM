@@ -24,15 +24,15 @@
         "equator_to_pole_dT": 60.0,
         "equatorial_temperature": 315.0,
         "forcing_model": "StochasticTropicalPlanet",
-        "k_a": 2.8935185185185185e-07,
-        "k_b": 2.8935185185185185e-07,
-        "k_f": 1.1574074074074073e-05,
-        "k_s": 2.8935185185185184e-06,
+        "k_a": 2.8935185185185185e-17,
+        "k_b": 2.3148148148148148e-08,
+        "k_f": 1.1574074074074073e-15,
+        "k_s": 2.8935185185185184e-16,
         "lapse_rate": 10.0,
-        "max_noise_wavenumber": 42,
-        "min_noise_wavenumber": 38,
-        "noise": false,
-        "noise_amplitude": 1e-15,
+        "max_noise_wavenumber": 102,
+        "min_noise_wavenumber": 98,
+        "noise": true,
+        "noise_amplitude": 1.0e-8,
         "noise_correlation": 0.0,
         "noise_magnitude": 0.05,
         "noise_type": "local",
@@ -41,18 +41,16 @@
     "grid": {
         "dims": 1,
         "gw": 2,
-        "number_of_latitute_points": 64,
-        "number_of_longitude_points": 128,
+        "number_of_latitute_points": 256,
+        "number_of_longitude_points": 512,
         "pressure_levels": [
             25000.0,
-            50000.0,
-            75000.0,
             100000.0
         ]
     },
     "initialize": {
         "T_init": 300.0,
-        "noise": true,
+        "noise": false,
         "noise_amplitude": 1,
         "noise_type": "red",
         "restart": false,
@@ -68,7 +66,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "f6bfc4a1-e1d4-48a3-b6e8-josetp_planet"
+        "uuid": "f6bfc4a1-e1d4-48a3-b6e8-oneLayerExpe"
     },
     "microphysics": {
         "microphysics_model": "None"
