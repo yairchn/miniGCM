@@ -14,8 +14,8 @@ Ek=np.copy(ks)*0.
 #Layer=1
 #Layer=2
 
-#for Layer in np.arange(0,3):
-for Layer in np.arange(0,1):
+for Layer in np.arange(0,3):
+#for Layer in np.arange(0,1):
     for it in np.arange(280,630,14): Ek+=np.load('Enstrophy_flux_'+str(Layer)+'_0000000'+str(it)+'.npy')/40.
 
 

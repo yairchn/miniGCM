@@ -18,16 +18,18 @@ Ek=np.copy(ks)*0.
 
 dP=750. # [hPa]
 
-#for Layer in np.arange(0,3):
-#for Layer in np.arange(1,2):
-for Layer in np.arange(0,1):
-#for Layer in np.arange(2,3):
-    icount=0
-    #for it in np.arange(420,800,14): Ek+=np.load(path+'Ek_flux_dp_'+str(Layer)+'_0000000'+str(it)+'.npy'); icount+=1.
-    for it in np.arange(280,630,14): Ek+=np.load(path+'Ek_flux_dp_'+str(Layer)+'_0000000'+str(it)+'.npy'); icount+=1.
+#for Layer in np.arange(0,1):
+    #icount=0
+    #for it in np.arange(280,630,14): Ek+=np.load(path+'Ek_flux_dp_'+str(Layer)+'_0000000'+str(it)+'.npy'); icount+=1.
 
+icount=0
+for it in np.arange(280,630,14):
+    #Ek+=np.load(path+'Ek_flux_dp_0_0000000'+str(it)+'.npy')/2.
+    Ek+=np.load(path+'Ek_flux_dp_0_0000000'+str(it)+'.npy')
+    Ek+=np.load(path+'Ek_flux_dp_1_0000000'+str(it)+'.npy')
+    Ek+=np.load(path+'Ek_flux_dp_2_0000000'+str(it)+'.npy'); icount+=1.
 
-Ek/=icount
+Ek/=icount/3.
 Ek/=dP
 
 

@@ -69,9 +69,9 @@ def Enstrophy_flux(u,v):
     vrt = x.spectogrd(vrtsp)
     vrt_x, vrt_y = x.getgrad(vrtsp) # get gradients in grid space
 
-    vrtsp_advection = x.grdtospec(vrt_x*u + vrt_y*v + div*vrt + div*vrt)
+    vrtsp_advection = x.grdtospec(vrt_x*u + vrt_y*v)
 
-    Enstrophy_flux = -1.*vrtsp*vrtsp_advection.conj()
+    Enstrophy_flux = -1.*vrtsp*vrtsp_advection.conj() - 1.*vrtsp.conj()*vrtsp_advection
 
     # build spectrum
     Enstrophy_sum = np.zeros(np.amax(l)+1)
@@ -88,28 +88,8 @@ def Enstrophy_flux(u,v):
     return [Enstrophy_sum,k]
 
 
-def keSpectral_flux_dp(u,v,Geo,pU,pD):
+def ke_flux_dp(u,v,pU,pD):
     zero=np.copy(u)*0.
-    # constants from Held & Suarez
-    k_f=zero+1.0/(24.0*3600.0)  # day^(-1) [1/sec] 
-    k_b=zero+1./40./(24.*3600.) # 1/40 day^(-1) [1/sec]
-    sigma_b=0.7 # sigma ratio for boundary layer
-    if pD[1,1]==750:
-        p_half = 0.5*(pD+pU);
-        #pU=ps in this scase of the lowest layer
-        sigma_ratio = (p_half/pU-sigma_b)/(1-sigma_b)
-        print('Shape of sigma_ratio in this layer: ', sigma_ratio.shape)
-        print('Shape of k_b in this layer: ', k_b.shape)
-        print('Shape of k_f in this layer: ', k_f.shape)
-        print('Minimum pU in this layer: ', np.amin(pU))
-        print('Maximum pU in this layer: ', np.amax(pU))
-        sigma_ratio[np.where(sigma_ratio<0)]=0.
-        print('Minimum sigma_ratio in this layer: ', np.amin(sigma_ratio))
-        print('Maximum sigma_ratio in this layer: ', np.amax(sigma_ratio))
-        print('Lower layer pressure top: ', pD[1,1])
-        k_b+= k_f*sigma_ratio # [1/sec] 
-        print('Minimum k_b in this layer [1/day]: ', np.amin(k_b*(24.*3600.)))
-        print('Maximum k_b in this layer [1/day]: ', np.amax(k_b*(24.*3600.)))
 
     # get vorticity, divergence in spectral space 
     vrtsp,divsp = x.getvrtdivspec(u,v)
@@ -121,18 +101,51 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
     # for pressure weighted ke flux
     dp=pU-pD
 
-    uk = x.grdtospec(u)
-    vk = x.grdtospec(v)
+    KE=u**2+v**2
+    tmp1 = u*KE
+    tmp2 = v*KE
+    tmpa, tmpb = x.getvrtdivspec(tmp1, tmp2)
+
+    Flux = x.spectogrd(tmpb)
+    print('shape Flux',Flux.shape)
+    print('shape dp',dp.shape)
+
+    return [Flux*dp]
+
+
+
+def keSpectral_flux_dp(u,v,Geo,pU,pD):
+    zero=np.copy(u)*0.
+
+    # get vorticity, divergence in spectral space 
+    vrtsp,divsp = x.getvrtdivspec(u,v)
+    vrt=x.spectogrd(vrtsp)
+    div=x.spectogrd(divsp)
+
+    # pressure Up is pi+1
+    # pressure Down pi-1
+    # for pressure weighted ke flux
+    dp=pU-pD
+    #dp=250.
+
+    uk   = x.grdtospec(u)
+    vk   = x.grdtospec(v)
     ux, uy = x.getgrad(uk) # get gradients in grid space
     vx, vy = x.getgrad(vk) # get gradients in grid space
     Geok = x.grdtospec(Geo)
     Geox, Geoy = x.getgrad(Geok) # get gradients in grid space
+    # (1)
     #uak = x.grdtospec(ux*u + uy*v)  # only non-linear divergence in flux
     #vak = x.grdtospec(vx*u + vy*v)
+    # (2)
     #uak = x.grdtospec(ux*u*dp + uy*v*dp + div*u*dp + Geox*dp + k_b*u*dp)  # including the full flux
     #vak = x.grdtospec(vx*u*dp + vy*v*dp + div*v*dp + Geoy*dp + k_b*v*dp)
-    uak = x.grdtospec(ux*u + uy*v + div*u)  # only non-linear divergence and divergent component in flux
-    vak = x.grdtospec(vx*u + vy*v + div*v)
+    # (3)
+    uak = x.grdtospec(dp*ux*u + dp*uy*v + dp*div*u/4.*3.)  # only non-linear divergence and divergent component in flux
+    vak = x.grdtospec(dp*vx*u + dp*vy*v + dp*div*v/4.*3.)
+    # (4)
+    #uak = x.grdtospec(dp*ux*u + dp*uy*v + dp*div*u/2.)  # only non-linear divergence and divergent component in flux
+    #vak = x.grdtospec(dp*vx*u + dp*vy*v + dp*div*v/2.)
 
 
     Usp = -1.*uak*uk.conj()
@@ -142,17 +155,25 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
     # build spectrum
     Ek_sum = np.zeros(np.amax(l)+1)
     Ek = np.zeros(np.amax(l)+1)
-    k = np.arange(np.amax(l)+1)
+    ks = np.arange(np.amax(l)+1)
 
     # running sum (Integral)
-    for i in range(0,np.amax(l)):
+    for i in range(0,np.amax(l)+1):
         Ek[i] = np.sum(Esp[np.logical_and(l>=i-0.5 , l<i+0.5)])
-    for i in range(0,np.amax(l)):
-        for j in range(i,np.amax(l)):
-            Ek_sum[i]+=Ek[j]
+        #print('Ek['+str(i)+'] ', Ek[i])
+        #exit()
 
-    #return [Ek_sum,k]
-    return [Ek_sum,k]
+    #print('l ',l)
+    #exit()
+    for i in range(0,np.amax(l)+1):
+        for j in range(i,np.amax(l)+1):
+            Ek_sum[i]+=Ek[j]
+            #print('Ek_sum['+str(i)+'] j', Ek_sum[i], j)
+    print('Ek_sum[0] ', Ek_sum[0])
+    print('Ek_sum[9] ', Ek_sum[9])
+    #exit()
+
+    return [Ek_sum,ks]
 
 
 
@@ -184,6 +205,8 @@ def keSpectral_flux(u,v):
             Ek_sum[i]+=Ek[j]
 
     return [Ek_sum,k]
+
+
 
 def CrossSpectral_flux(u,v):
     vrtsp,divsp = x.getvrtdivspec(u,v)
@@ -449,6 +472,7 @@ for it in np.arange(0,630,14):
            #[KE_flux,ks] = keSpectral_flux(u,v)
            #[KE_flux_dp,ks] = keSpectral_flux_dp(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True),Geo-Geo.mean(axis=1, keepdims=True),pU,pD)
            [KE_flux_dp,ks] = keSpectral_flux_dp(u,v,Geo,pU,pD)
+           [KE_flux_dp_grid] = ke_flux_dp(u,v,pU,pD)
            #[Cross_flux,ks] = CrossSpectral_flux(u,v)
            #[KErot_flux,ks] = keSpectral_flux(u_vrt,v_vrt)
            #[KEdiv_flux,ks] = keSpectral_flux(u_div,v_div)
@@ -469,6 +493,7 @@ for it in np.arange(0,630,14):
            np.save('EkRot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkRot)
            np.save('EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkDiv)
            np.save('Ek_flux_dp_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux_dp)
+           np.save('Ek_flux_dp_grid_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',np.array(KE_flux_dp_grid))
            #np.save('Ek_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux)
            np.save('Enstrophy_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',E_flux)
            #np.save('EkRot_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KErot_flux)
