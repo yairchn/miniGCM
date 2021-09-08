@@ -12,7 +12,7 @@ def main():
     args = parser.parse_args()
     varname = args.varname
 
-    folder = os.getcwd() + '/Output.HeldSuarez.o_truncation/stats/'
+    folder = os.getcwd() + '/../Output.HeldSuarez.osetp_planet/stats/'
     ncfile = folder + 'Stats.HeldSuarez.nc'
     data = nc.Dataset(ncfile, 'r')
 
@@ -41,15 +41,15 @@ def main():
     print(np.shape(var))
     globle_mean_var = np.mean(np.mean(var, axis = 1), axis = 1)
     norm_var  = np.divide(np.subtract(globle_mean_var,globle_mean_var[0]),globle_mean_var[0])
-    plt.figure('global mean')
-    plt.plot(t, norm_var)
-    print(np.max(np.divide(np.subtract(globle_mean_var,globle_mean_var[0]),globle_mean_var[0])))
-    plt.figure('time mean ' + varname)
-    plt.plot(np.mean(var[700:799,:,0],axis = 0),Y, 'k')
-    plt.plot(np.mean(var[700:799,:,1],axis = 0),Y, 'r')
-    plt.plot(np.mean(var[700:799,:,2],axis = 0),Y, 'b')
+    #plt.figure('global mean')
+    #plt.plot(t, norm_var)
+    #print(np.max(np.divide(np.subtract(globle_mean_var,globle_mean_var[0]),globle_mean_var[0])))
+    #plt.figure('time mean ' + varname)
+    #plt.plot(np.mean(var[700:799,:,0],axis = 0),Y, 'k')
+    #plt.plot(np.mean(var[700:799,:,1],axis = 0),Y, 'r')
+    #plt.plot(np.mean(var[700:799,:,2],axis = 0),Y, 'b')
     plt.xlabel('time days')
-    plt.show()
+    plt.savefig('hov.png')
 
 if __name__ == '__main__':
     main()
