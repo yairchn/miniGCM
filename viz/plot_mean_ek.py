@@ -13,15 +13,15 @@ from scipy.signal import savgol_filter
 ks=np.load('ks.npy')
 
 Layer=0
-it=500
+it=280
 EkTot=np.load('EkTot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy')*0.
 EkRot=np.load('EkRot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy')*0.
 EkDiv=np.load('EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy')*0.
 
 icount=0
-for Layer in np.arange(0,3):
+for Layer in np.arange(0,1):
     print("Layer ",Layer)
-    for it in np.arange(600,801,5):
+    for it in np.arange(280,501,14):
         print('it ',it)
         icount+=1
         #
@@ -43,8 +43,8 @@ plt.clf()
 plt.loglog(ks,EkTot,'-',color='black',alpha=0.4,linewidth=4,label='KE')
 plt.loglog(ks,EkRot,'-',color='red',label='KE vortical')
 plt.loglog(ks,EkDiv,'-',color='blue',label='KE divergent')
-plt.loglog(ks,8.e5*ks**(-3.),'-k',linewidth=2,label='-3')
-#plt.loglog(ks[15:400],5.e1*ks[15:400]**(-5./3.),'--k',linewidth=2,label='-5/3')
+#plt.loglog(ks,8.e5*ks**(-3.),'-k',linewidth=2,label='-3')
+plt.loglog(ks[5:400],5.e1*ks[5:400]**(-5./3.),'--k',linewidth=2,label='-5/3')
 plt.title('KE Spectra / m$^2$ s$^{-2}$')
 plt.legend(loc='upper right')
 plt.grid()
