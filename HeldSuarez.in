@@ -54,12 +54,12 @@
         "noise_amplitude": 1,
         "noise_type": "red",
         "restart": false,
-        "restart folder": "/Output.HeldSuarez.48-test9lay/",
+        "restart folder": "/Output.HeldSuarez.48-test3lay/",
         "restart time": "864000",
         "restart type": "3D_output"
     },
     "io": {
-        "output_frequency": 14.0,
+        "output_frequency": 1.0,
         "stats_dir": "stats",
         "stats_frequency": 1.0
     },
