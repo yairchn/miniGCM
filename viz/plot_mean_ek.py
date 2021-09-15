@@ -24,7 +24,7 @@ EkDiv =np.load(path+'EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy')*0.
 #EkMean=np.load(path+'EkMean_'+str(Layer)+'_'+str(it).zfill(10)+'.npy')*0.
 
 icount=0
-for Layer in np.arange(0,3):
+for Layer in np.arange(0,1):
     print("Layer ",Layer)
     for it in np.arange(420,630,14):
         print('it ',it)
@@ -53,8 +53,6 @@ EkDiv=savgol_filter(EkDiv,5,1)
 plt.loglog(ks,EkTot,'-',color='black',alpha=0.4,linewidth=4,label='KE')
 plt.loglog(ks,EkRot,'-',color='red',label='KE vortical')
 plt.loglog(ks,EkDiv,'-',color='blue',label='KE divergent')
-#plt.loglog(ks,EkMean,'--',linewidth=2,color='black',alpha=0.4,label='KE zonal mean flow')
-#plt.loglog(ks,8.e5*ks**(-3.),'-k',linewidth=2,label='-3')
 plt.loglog(ks[10:100],5.e1*ks[10:100]**(-5./3.),'--k',linewidth=2,label='-5/3')
 plt.title('KE Spectra / m$^2$ s$^{-2}$')
 plt.legend(loc='upper right')

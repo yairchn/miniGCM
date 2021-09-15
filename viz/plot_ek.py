@@ -145,10 +145,7 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
     # (3)
     #uak = x.grdtospec(dp*ux*u + dp*uy*v + dp*div*u)  # only non-linear divergence and divergent component in flux
     #vak = x.grdtospec(dp*vx*u + dp*vy*v + dp*div*v)
-    # (4)  # correction with Nili
-    #uak = x.grdtospec(dp*ux*u + dp*uy*v + dp*div*u/2. + dp*Geox)  # only non-linear divergence and divergent component in flux
-    #vak = x.grdtospec(dp*vx*u + dp*vy*v + dp*div*v/2. + dp*Geoy)
-    # (5)  
+    # (4)
     uak = x.grdtospec(dp*ux*u + dp*uy*v + dp*div*u/2.)  # only non-linear divergence and divergent component in flux
     vak = x.grdtospec(dp*vx*u + dp*vy*v + dp*div*v/2.)
 
@@ -298,8 +295,7 @@ path = '/home/josefs/miniGCM/Output.HeldSuarez.JustAtestRun/Fields_restart_facto
 path = '/home/josefs/miniGCM/Output.HeldSuarez.JustAtestRun/Fields_restart_factor16/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez..44-test3lay/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.o_truncation/Fields/'
-#path = '/home/scoty/miniGCM/Output.HeldSuarez.oistp_plane4/Fields/'
-
+path = '/home/suhas/miniGCM/miniGCM/Output.HeldSuarez.oneLayerExpe/Fields/'
 
 
 #ke=np.zeros((3,801))
@@ -315,10 +311,10 @@ p1=250.; p2=500.; p3=750. # [hPa]
 
 icount=0
 #for it in np.arange(420,801,14):
-for it in np.arange(0,630,14):
+for it in np.arange(0,510,14):
     print('it ',it)
 
-    for Layer in np.arange(0,3):
+    for Layer in np.arange(0,1):
         print("day ", it," Layer ",Layer)
         ps=netCDF4.Dataset(path+'Pressure_'+str(it*3600*24)+'.nc').variables['Pressure'][:,:]
         u=netCDF4.Dataset(path+'U_'+str(it*3600*24)+'.nc').variables['U'][:,:,Layer]

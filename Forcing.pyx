@@ -201,8 +201,8 @@ cdef class StochasticTropicalPlanet(ForcingBase):
 			#print('Add stochastic forcing for vorticity equation')
 			F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
 			fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,
-				                Pr.Fo_noise_lmin, Pr.Fo_noise_lmax, Pr.Fo_noise_magnitude,
-				                correlation =Pr.Fo_noise_correlation, noise_type=Pr.Fo_noise_type)
+						Pr.Fo_noise_lmin, Pr.Fo_noise_lmax, Pr.Fo_noise_magnitude,
+						correlation =Pr.Fo_noise_correlation, noise_type=Pr.Fo_noise_type)
 
 			forcing_noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(F0))*Pr.Fo_noise_amplitude
 			sp_noise = Gr.SphericalGrid.grdtospec(forcing_noise.base)
