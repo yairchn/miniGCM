@@ -23,16 +23,16 @@
     "forcing": {
         "equator_to_pole_dT": 60.0,
         "equatorial_temperature": 315.0,
-        "forcing_model": "StochasticTropicalPlanet",
-        "k_a": 2.8935185185185185e-17,
-        "k_b": 2.3148148148148148e-08,
-        "k_f": 1.1574074074074073e-15,
-        "k_s": 2.8935185185185184e-16,
+        "forcing_model": "HeldSuarez",
+        "k_a": 2.8935185185185185e-07,
+        "k_b": 2.8935185185185185e-07,
+        "k_f": 1.1574074074074073e-05,
+        "k_s": 2.8935185185185184e-06,
         "lapse_rate": 10.0,
-        "max_noise_wavenumber": 102,
-        "min_noise_wavenumber": 98,
-        "noise": true,
-        "noise_amplitude": 1.0e-8,
+        "max_noise_wavenumber": 42,
+        "min_noise_wavenumber": 38,
+        "noise": false,
+        "noise_amplitude": 1e-15,
         "noise_correlation": 0.0,
         "noise_magnitude": 0.05,
         "noise_type": "local",
@@ -41,28 +41,24 @@
     "grid": {
         "dims": 1,
         "gw": 2,
-        "number_of_latitute_points": 256,
-        "number_of_longitude_points": 512,
+        "number_of_latitute_points": 64,
+        "number_of_longitude_points": 128,
         "pressure_levels": [
             25000.0,
+            50000.0,
+            75000.0,
             100000.0
         ]
     },
     "initialize": {
         "T_init": 300.0,
-        "noise": false,
+        "noise": true,
         "noise_amplitude": 1,
         "noise_type": "red",
         "restart": false,
-<<<<<<< HEAD
         "restart folder": "./",
         "restart time": "none",
         "restart type": "zonal_mean"
-=======
-        "restart folder": "/Output.HeldSuarez.48-test3lay/",
-        "restart time": "864000",
-        "restart type": "3D_output"
->>>>>>> 5d00aafc225b27de971b579b0dd8ae42d8403c44
     },
     "io": {
         "output_frequency": 1.0,
@@ -72,11 +68,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-<<<<<<< HEAD
-        "uuid": "f90bfc3e-97a6-480e-abcd-a851699bf442"
-=======
-        "uuid": "f6bfc4a1-e1d4-48a3-b6e8-oneLayerExpe"
->>>>>>> 5d00aafc225b27de971b579b0dd8ae42d8403c44
+        "uuid": "dd136d0f-a5c6-46c0-a2ed-704ff582701f"
     },
     "microphysics": {
         "microphysics_model": "None"
@@ -104,7 +96,7 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 800.0
+        "t_max": 1000.0
     },
     "turbulence": {
         "turbulence_model": "None"
