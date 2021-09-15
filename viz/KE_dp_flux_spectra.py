@@ -24,19 +24,19 @@ dP=750. # [hPa]
 
 icount=0
 for it in np.arange(280,630,14):
-    #Ek+=np.load(path+'Ek_flux_dp_0_0000000'+str(it)+'.npy')/2.
     Ek+=np.load(path+'Ek_flux_dp_0_0000000'+str(it)+'.npy')
     Ek+=np.load(path+'Ek_flux_dp_1_0000000'+str(it)+'.npy')
-    Ek+=np.load(path+'Ek_flux_dp_2_0000000'+str(it)+'.npy'); icount+=1.
+    Ek+=np.load(path+'Ek_flux_dp_2_0000000'+str(it)+'.npy');
+    icount+=1.
 
-Ek/=icount/3.
+Ek/=icount
 Ek/=dP
 
 
 fig, ax = plt.subplots(constrained_layout=True,figsize=(5,4.))
 
-#ax.plot(ks,Ek,'-k',linewidth=2,alpha=0.8)#,label='KE flux')
-ax.semilogx(ks,Ek,'-k',linewidth=2,alpha=0.8)#,label='KE flux')
+ax.plot(ks,Ek,'-k',linewidth=2,alpha=0.8)#,label='KE flux')
+#ax.semilogx(ks,Ek,'-k',linewidth=2,alpha=0.8)#,label='KE flux')
 
 ax.set_xlabel('Wavenumber $k$',size='12', fontname = 'Dejavu Sans')
 
