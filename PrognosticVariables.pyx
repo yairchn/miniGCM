@@ -297,7 +297,6 @@ cdef class PrognosticVariables:
                 for i in range(nlm):
                     PV.Vorticity.tendency[i,k]  = (Vort_forc[i] - Divergent_momentum_flux[i]- w_vort_up[i] - w_vort_dn[i]
                                                      + Vort_sur_flux[i] + PV.Vorticity.ConvectiveFlux[i,k] + PV.Vorticity.sp_forcing[i,k])
-                    #PV.Vorticity.tendency[i,k]  =- Divergent_momentum_flux[i] + PV.Vorticity.sp_forcing[i,k] # barotropic vorticity eq. only
                     PV.Divergence.tendency[i,k] = (Vortical_momentum_flux[i] - Dry_Energy_laplacian[i]- w_div_up[i] - w_div_dn[i]
                                                     + Div_forc[i] + Div_sur_flux[i] + PV.Divergence.ConvectiveFlux[i,k])
 
