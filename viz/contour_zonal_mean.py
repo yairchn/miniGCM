@@ -12,8 +12,8 @@ def main():
     args = parser.parse_args()
     varname = args.varname
 
-    folder = os.getcwd() + '/Output.HeldSuarezMoist.o_truncation/stats/'
-    ncfile = folder + 'Stats.HeldSuarezMoist.Rerun_3.nc'
+    folder = os.getcwd() + '/Output.HeldSuarez.a851699bf442/stats/'
+    ncfile = folder + 'Stats.HeldSuarez.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
@@ -38,20 +38,26 @@ def main():
         else:
             ax1.set_xlabel('time days')
         fig.colorbar(im1)
-    globle_mean_var = np.mean(np.mean(var, axis = 1), axis = 1)
-    norm_var  = np.divide(np.subtract(globle_mean_var,globle_mean_var[0]),globle_mean_var[0])
-    pressure_levels = np.flipud(np.array([250.0, 350.0, 450.0, 550.0, 650.0, 750.0, 850.0, 950.0]))
-    y,z = np.meshgrid(lat_list,pressure_levels)
-    plt.figure('global mean')
-    plt.plot(t, norm_var)
-    print(np.shape(np.fliplr(np.rot90(np.squeeze(np.mean(var[700:799,:,0:],axis = 0))))))
-    print(np.shape(y))
-    print(np.shape(z))
-    plt.figure('time mean ' + varname)
-    plt.contourf(y,z, np.rot90(np.squeeze(np.mean(var[700:799,:,0:],axis = 0))))
-    plt.gca().invert_yaxis()
-    plt.colorbar()
-    plt.xlabel('degree latitude')
+
+    fig = plt.figure(varname + "zonal mean")
+    for i in range(n):
+        plt.plot(np.squeeze(np.mean(var[700:799,:,i], axis = 0)),lat_list)
+        plt.ylabel('lat')
+        plt.xlabel('zonal mean u')
+    # globle_mean_var = np.mean(np.mean(var, axis = 1), axis = 1)
+    # norm_var  = np.divide(np.subtract(globle_mean_var,globle_mean_var[0]),globle_mean_var[0])
+    # pressure_levels = np.flipud(np.array([250.0, 350.0, 450.0, 550.0, 650.0, 750.0, 850.0, 950.0]))
+    # y,z = np.meshgrid(lat_list,pressure_levels)
+    # plt.figure('global mean')
+    # plt.plot(t, norm_var)
+    # print(np.shape(np.fliplr(np.rot90(np.squeeze(np.mean(var[700:799,:,0:],axis = 0))))))
+    # print(np.shape(y))
+    # print(np.shape(z))
+    # plt.figure('time mean ' + varname)
+    # plt.contourf(y,z, np.rot90(np.squeeze(np.mean(var[700:799,:,0:],axis = 0))))
+    # plt.gca().invert_yaxis()
+    # plt.colorbar()
+    # plt.xlabel('degree latitude')
     plt.show()
 
 if __name__ == '__main__':
