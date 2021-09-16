@@ -126,7 +126,6 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
     # pressure Down pi-1
     # for pressure weighted ke flux
     dp=pU-pD
-    #dp=250.
 
     uk      = x.grdtospec(u)
     vk      = x.grdtospec(v)
@@ -146,8 +145,8 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
     #uak = x.grdtospec(dp*ux*u + dp*uy*v + dp*div*u)  # only non-linear divergence and divergent component in flux
     #vak = x.grdtospec(dp*vx*u + dp*vy*v + dp*div*v)
     # (4)
-    uak = x.grdtospec(dp*ux*u + dp*uy*v + dp*div*u/2.)  # only non-linear divergence and divergent component in flux
-    vak = x.grdtospec(dp*vx*u + dp*vy*v + dp*div*v/2.)
+    uak = x.grdtospec(dp*ux*u + dp*uy*v)# + dp*div*u/2.)  # only non-linear divergence and divergent component in flux
+    vak = x.grdtospec(dp*vx*u + dp*vy*v)# + dp*div*v/2.)
 
     Usp = -1.*uak*uk.conj()
     Vsp = -1.*vak*vk.conj()
@@ -213,7 +212,12 @@ def keSpectral_flux(u,v):
 
 
 
-def CrossSpectral_flux(u,v):
+def CrossSpectral_flux_dp(u,v,Geo,pU,pD):
+    # pressure Up is pi+1
+    # pressure Down pi-1
+    # for pressure weighted ke flux
+    dp=pU-pD
+
     vrtsp,divsp = x.getvrtdivspec(u,v)
     u_vrt,v_vrt = x.getuv(vrtsp,divsp*0.)
     u_div,v_div = x.getuv(vrtsp*0.,divsp)
@@ -238,14 +242,14 @@ def CrossSpectral_flux(u,v):
     #     +uk_div.conj()*advecting_cross_terms_row3 \
     #     +vk_div.conj()*advecting_cross_terms_row4
 
-    advecting_cross_terms_row1 = x.grdtospec(ux_vrt*u_div + uy_vrt*v_div) #cross advection of vortical and divergent terms
-    advecting_cross_terms_row2 = x.grdtospec(vx_vrt*u_div + vy_vrt*v_div)
-    advecting_cross_terms_row3 = x.grdtospec(ux_div*u_vrt + uy_div*v_vrt)
-    advecting_cross_terms_row4 = x.grdtospec(vx_div*u_vrt + vy_div*v_vrt)
-    advecting_cross_terms_row5 = x.grdtospec(ux_vrt*u_vrt + uy_vrt*v_vrt) #advecting cross terms
-    advecting_cross_terms_row6 = x.grdtospec(vx_vrt*u_vrt + vy_vrt*v_vrt)
-    advecting_cross_terms_row7 = x.grdtospec(ux_div*u_div + uy_div*v_div)
-    advecting_cross_terms_row8 = x.grdtospec(vx_div*u_div + vy_div*v_div)
+    advecting_cross_terms_row1 = x.grdtospec(dp*ux_vrt*u_div + dp*uy_vrt*v_div) #cross advection of vortical and divergent terms
+    advecting_cross_terms_row2 = x.grdtospec(dp*vx_vrt*u_div + dp*vy_vrt*v_div)
+    advecting_cross_terms_row3 = x.grdtospec(dp*ux_div*u_vrt + dp*uy_div*v_vrt)
+    advecting_cross_terms_row4 = x.grdtospec(dp*vx_div*u_vrt + dp*vy_div*v_vrt)
+    advecting_cross_terms_row5 = x.grdtospec(dp*ux_vrt*u_vrt + dp*uy_vrt*v_vrt) #advecting cross terms
+    advecting_cross_terms_row6 = x.grdtospec(dp*vx_vrt*u_vrt + dp*vy_vrt*v_vrt)
+    advecting_cross_terms_row7 = x.grdtospec(dp*ux_div*u_div + dp*uy_div*v_div)
+    advecting_cross_terms_row8 = x.grdtospec(dp*vx_div*u_div + dp*vy_div*v_div)
 
     asp = uk_vrt.conj()*advecting_cross_terms_row1 \
          +vk_vrt.conj()*advecting_cross_terms_row2 \
@@ -296,12 +300,14 @@ path = '/home/josefs/miniGCM/Output.HeldSuarez.JustAtestRun/Fields_restart_facto
 path = '/home/scoty/miniGCM/Output.HeldSuarez..44-test3lay/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.o_truncation/Fields/'
 path = '/home/suhas/miniGCM/miniGCM/Output.HeldSuarez.oneLayerExpe/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.aRunFor20yrs/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.oneLayerExpe/Fields/'
 
 
 #ke=np.zeros((3,801))
 #time=np.arange(0,801)
 #time=np.arange(0,801,14)
-time=np.arange(0,630,14)
+time=np.arange(0,601,14)
 print('time.shape',time.shape)
 print('time',time)
 ke=np.zeros((3,time.shape[0]))
@@ -311,7 +317,7 @@ p1=250.; p2=500.; p3=750. # [hPa]
 
 icount=0
 #for it in np.arange(420,801,14):
-for it in np.arange(0,510,14):
+for it in np.arange(0,630,14):
     print('it ',it)
 
     for Layer in np.arange(0,1):
@@ -475,11 +481,11 @@ for it in np.arange(0,510,14):
            #[KE,ks] = keSpectra(u,v)
            #[KE_flux,ks] = keSpectral_flux(u,v)
            #[KE_flux_dp,ks] = keSpectral_flux_dp(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True),Geo-Geo.mean(axis=1, keepdims=True),pU,pD)
-           [KE_flux_dp,ks] = keSpectral_flux_dp(u,v,Geo,pU,pD)
+           [KE_flux,ks] = keSpectral_flux_dp(u,v,Geo,pU,pD)
            [KE_flux_dp_grid] = ke_flux_dp(u,v,pU,pD)
-           #[Cross_flux,ks] = CrossSpectral_flux(u,v)
-           #[KErot_flux,ks] = keSpectral_flux(u_vrt,v_vrt)
-           #[KEdiv_flux,ks] = keSpectral_flux(u_div,v_div)
+           [Cross_flux,ks] = CrossSpectral_flux_dp(u,v,Geo,pU,pD)
+           [KErot_flux,ks] = keSpectral_flux_dp(u_vrt,v_vrt,Geo,pU,pD)
+           [KEdiv_flux,ks] = keSpectral_flux_dp(u_div,v_div,Geo,pU,pD)
            #plt.loglog(ks,savgol_filter(KE,5,1))
            [EkTot,EkRot,EkDiv,ks] = energy(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True),l)
            #plt.loglog(ks,EkTot,'-k',alpha=0.4,linewidth=4)
@@ -496,13 +502,13 @@ for it in np.arange(0,510,14):
            np.save('EkTot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkTot)
            np.save('EkRot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkRot)
            np.save('EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkDiv)
-           np.save('Ek_flux_dp_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux_dp)
+           np.save('Ek_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux)
            np.save('Ek_flux_dp_grid_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',np.array(KE_flux_dp_grid))
            #np.save('Ek_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux)
            np.save('Enstrophy_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',E_flux)
-           #np.save('EkRot_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KErot_flux)
-           #np.save('EkDiv_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KEdiv_flux)
-           #np.save('EkCross_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',Cross_flux)
+           np.save('EkRot_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KErot_flux)
+           np.save('EkDiv_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KEdiv_flux)
+           np.save('EkCross_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',Cross_flux)
            np.save('ks.npy',ks)
         #
     icount+=1

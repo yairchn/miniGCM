@@ -23,10 +23,10 @@ dP=750. # [hPa]
     #for it in np.arange(280,630,14): Ek+=np.load(path+'Ek_flux_dp_'+str(Layer)+'_0000000'+str(it)+'.npy'); icount+=1.
 
 icount=0
-for it in np.arange(280,630,14):
-    Ek+=np.load(path+'Ek_flux_dp_0_0000000'+str(it)+'.npy')
-    Ek+=np.load(path+'Ek_flux_dp_1_0000000'+str(it)+'.npy')
-    Ek+=np.load(path+'Ek_flux_dp_2_0000000'+str(it)+'.npy');
+for it in np.arange(406,602,14):
+    Ek+=np.load(path+'Ek_flux_0_0000000'+str(it)+'.npy')
+    #Ek+=np.load(path+'Ek_flux_dp_1_0000000'+str(it)+'.npy')
+    #Ek+=np.load(path+'Ek_flux_dp_2_0000000'+str(it)+'.npy');
     icount+=1.
 
 Ek/=icount
