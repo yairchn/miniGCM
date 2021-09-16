@@ -55,8 +55,6 @@ cdef class PrognosticVariable:
             self.mp_tendency = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
             self.SurfaceFlux = np.zeros((nx,ny)   ,dtype=np.float64, order='c')
             self.TurbFlux    = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
-
-
         return
 
 cdef class PrognosticVariables:
@@ -190,7 +188,7 @@ cdef class PrognosticVariables:
         Stats.write_3D_variable(Pr, int(TS.t),nl, 'Temperature',       self.T.values)
         Stats.write_2D_variable(Pr, int(TS.t),    'Pressure',          self.P.values[:,:,nl])
         Stats.write_2D_variable(Pr, int(TS.t),    'T_SurfaceFlux',     self.T.SurfaceFlux)
-        # Stats.write_spectral_field(Pr, int(TS.t),nlm, nl, 'Vorticity_forcing', self.Vorticity.sp_forcing)
+        Stats.write_spectral_field(Pr, int(TS.t),nlm, nl, 'Vorticity_forcing', self.Vorticity.sp_forcing)
         # Stats.write_spectral_field(Pr, int(TS.t),nlm, nl, 'Vorticity_ConvectiveFlux', self.Vorticity.ConvectiveFlux)
         # Stats.write_spectral_field(Pr, int(TS.t),nlm, nl, 'Divergence_ConvectiveFlux', self.Divergence.ConvectiveFlux)
         # Stats.write_spectral_field(Pr, int(TS.t),nlm, nl, 'Temperature_ConvectiveFlux', self.T.ConvectiveFlux)

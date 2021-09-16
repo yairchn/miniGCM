@@ -18,6 +18,7 @@ from scipy import signal
 #exit()
 
 hres=1
+hres=4
 nlons = 128*hres  # number of longitudes
 ntrunc = int(nlons/3)  # spectral truncation (for alias-free computations)
 nlats = int(nlons/2)   # for gaussian grid.
@@ -134,13 +135,14 @@ tmax =  800
 dt   = 1.
 
 path     = '../Output.HeldSuarez..44-test3lay/Fields/'
+path     = '../Output.HeldSuarez.oistp_plane6/Fields/'
 filename = 'T_merge.nc'
 
 #lmin= 45.; lmax=65.
 lmin=-15.; lmax=15.
 sp1     = calcFlux(path+filename,tmin,tmax,lmin,lmax,dt,Layer=0)
-sp2     = calcFlux(path+filename,tmin,tmax,lmin,lmax,dt,Layer=1)
-sp3     = calcFlux(path+filename,tmin,tmax,lmin,lmax,dt,Layer=2)
+#sp2     = calcFlux(path+filename,tmin,tmax,lmin,lmax,dt,Layer=1)
+#sp3     = calcFlux(path+filename,tmin,tmax,lmin,lmax,dt,Layer=2)
 
 
 
@@ -152,11 +154,12 @@ seaborn.set_style('whitegrid',rc={"axes.edgecolor":'black'})
 
 
 [power1,kx,kt] = sp1
-[power2,kx,kt] = sp2
-[power3,kx,kt] = sp3
-power=np.log10(power1)-np.log10(power2)
+#[power2,kx,kt] = sp2
+#[power3,kx,kt] = sp3
+#power=np.log10(power1)-np.log10(power2)
 #power=np.log10(power2)-np.log10(power3)
 #power=np.log10(power3)
+power=np.log10(power1)
 print('calculated power')
 print("power.shape ", power.shape)
 print("min max power ", np.amin(power), np.amax(power))
@@ -166,8 +169,8 @@ print("min max power ", np.amin(power), np.amax(power))
 #plt.figure(figsize=(8,8))
 plt.figure(figsize=(5,5.5))
 #contours = plt.contourf(kx,kt,power,levels=np.linspace(-4.4,4.4,20),cmap='RdYlBu_r') 
-contours = plt.contourf(kx,kt,power,levels=np.linspace(-1.2,2.2,20),cmap='RdYlBu_r',extend='both') 
-#contours = plt.contourf(kx,kt,power,levels=np.linspace(2.4,8.4,20),cmap='RdYlBu_r') 
+#contours = plt.contourf(kx,kt,power,levels=np.linspace(-1.2,2.2,20),cmap='RdYlBu_r',extend='both') 
+contours = plt.contourf(kx,kt,power,levels=np.linspace(2.4,8.4,20),cmap='RdYlBu_r') 
 plotDispCurves(Hbar)
 plt.colorbar(contours,orientation='horizontal',shrink=0.95,aspect=30,pad=0.14,ticks=np.arange(-28.,28.1,2.0))
 plt.ticklabel_format(style='sci',scilimits=(-2,2),axis='x')
