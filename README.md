@@ -72,15 +72,15 @@ B - **clone miniGCM**
 submitting to a cluster
 
 1. create submit_minigcm.sh
-#!/bin/bash
-cd /home/josefs/miniGCM/
-ls -ltrh *.py;
-source activate minigcm
-python /home/josefs/minigcm/main.py HeldSuarez.in
+> #!/bin/bash
+> cd /home/josefs/miniGCM/
+> ls -ltrh *.py;
+> source activate minigcm
+> python /home/josefs/minigcm/main.py HeldSuarez.in
 
 
 2. submit to cluster
-qsub -l nodes=compute-0-13:ppn=8+compute-0-14:ppn=8+compute-0-15:ppn=8+compute-0-16:ppn=8 submit_minigcm.sh
+> qsub -l nodes=compute-0-13:ppn=8+compute-0-14:ppn=8+compute-0-15:ppn=8+compute-0-16:ppn=8 submit_minigcm.sh
 
 [http://docs.adaptivecomputing.com/torque/3-0-5/2.1jobsubmission.php]
 
