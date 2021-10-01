@@ -12,8 +12,8 @@ def main():
     args = parser.parse_args()
     varname = args.varname
 
-    folder = os.getcwd() + '/Output.HeldSuarez.d44-9_layers/stats/'
-    ncfile = folder + 'Stats.HeldSuarez.Rerun_2.nc'
+    folder = os.getcwd() + '/Output.HeldSuarezMoist.3-moist_evap/stats/'
+    ncfile = folder + 'Stats.HeldSuarezMoist.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
@@ -47,7 +47,7 @@ def main():
     fig = plt.figure('time mean ' + varname)
     for i in range(n):
         ax1 = fig.add_subplot(n, 1, i+1)
-        im1 = ax1.plot(np.mean(var[50:-1,:,i],axis = 0),Y)
+        im1 = ax1.plot(np.mean(var[-100:-1,:,i],axis = 0),Y)
         ax1.set_ylabel('degree latitude')
         ax1.set_xlim([0.0,0.005])
         if i<n-1:
@@ -56,6 +56,12 @@ def main():
             ax1.set_xticklabels(xempty_string_labels)
         else:
             ax1.set_xlabel('time days')
+    fig = plt.figure('time mean merged' + varname)
+    plt.plot(np.mean(var[-100:-1,:,0],axis = 0),Y)
+    plt.plot(np.mean(var[-100:-1,:,1],axis = 0),Y)
+    plt.plot(np.mean(var[-100:-1,:,2],axis = 0),Y)
+    # fig = plt.figure('contour time mean' + varname)
+    # plt.contourf(np.mean(var[-100:-1,:,:],axis = 0))
     plt.show()
 
 if __name__ == '__main__':

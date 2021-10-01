@@ -57,9 +57,9 @@ void microphysics_cutoff(
                 p_half = 0.5*(p[ijkp]+p[ijkp+1]);
                 qv_star[ijk] = (pv0epsv/p_half)*exp(-Lv_Rv*(1.0/T[ijk]-T_0_inv)); // Eq. (1) Tatcher and Jabolonski 2016
                 denom = (1.0+Lv_cpRv*qv_star[ijk]/(T[ijk]*T[ijk]))*dt;
-                ql[ijk] = fmax(qt[ijk] - qv_star[ijk],0.0);
-                T_mp[ijk]  =  fmax((qt[ijk] - qv_star[ijk]), 0.0)/denom; // Eq. (2) Tatcher and Jabolonski 2016
-                qt_mp[ijk] = -fmax((qt[ijk] - (1.0+max_ss)*qv_star[ijk]), 0.0)/denom; // Eq. (3) Tatcher and Jabolonski 2016
+                ql[ijk] = qt[ijk] - qv_star[ijk];
+                T_mp[ijk]  =  (qt[ijk] - qv_star[ijk])/denom; // Eq. (2) Tatcher and Jabolonski 2016
+                qt_mp[ijk] = -(qt[ijk] - (1.0+max_ss)*qv_star[ijk])/denom; // Eq. (3) Tatcher and Jabolonski 2016
                 rain_rate[ij] = rain_rate[ij] - (qt_mp[ijk]/rho_w*g*(p[ijkmax_p]-p[0,0,0]))/(kmax); // Eq. (5) Tatcher and Jabolonski 2016
             } // end k loop
         } // end j loop

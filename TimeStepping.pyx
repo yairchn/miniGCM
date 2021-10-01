@@ -45,46 +45,50 @@ cdef class TimeStepping:
 		# self.CFL_limiter(Pr, Gr, DV, namelist)
 		dt = namelist['timestepping']['dt']
 
+		F_P          = PV.P.spectral[:,nl]
 		F_Divergence = PV.Divergence.spectral
 		F_Vorticity  = PV.Vorticity.spectral
 		F_T          = PV.T.spectral
-		F_QT         = PV.QT.spectral
-		F_P          = PV.P.spectral[:,nl]
+		if Pr.moist_index > 0.0:
+			F_QT         = PV.QT.spectral
 
 		if self.ncycle==0:
 			PV.set_now_with_tendencies()
 			with nogil:
 				for i in range(nlm):
+					PV.P.spectral[i,nl]             = F_P[i]            + self.dt*PV.P.tendency[i,nl]
 					for k in range(nl):
 						# Euler
 						# new                                old                      tendency
 						PV.Divergence.spectral[i,k] = F_Divergence[i,k] + self.dt*PV.Divergence.tendency[i,k]
 						PV.Vorticity.spectral[i,k]  = F_Vorticity[i,k]  + self.dt*PV.Vorticity.tendency[i,k]
 						PV.T.spectral[i,k]          = F_T[i,k]          + self.dt*PV.T.tendency[i,k]
-						PV.QT.spectral[i,k]         = F_QT[i,k]         + self.dt*PV.QT.tendency[i,k]
-					PV.P.spectral[i,nl]             = F_P[i]            + self.dt*PV.P.tendency[i,nl]
+						if Pr.moist_index > 0.0:
+							PV.QT.spectral[i,k]         = F_QT[i,k]         + self.dt*PV.QT.tendency[i,k]
 		elif self.ncycle==1:
 			with nogil:
 				for i in range(nlm):
+					PV.P.spectral[i,nl]             = F_P[i]            + self.dt*(1.5*PV.P.tendency[i,nl]         - 0.5*PV.P.now[i,nl])
 					for k in range(nl):
 						#2nd order AB
 						#           new                     old                        tendency                            tendency now
 						PV.Divergence.spectral[i,k] = F_Divergence[i,k] + self.dt*(1.5*PV.Divergence.tendency[i,k] - 0.5*PV.Divergence.now[i,k])
 						PV.Vorticity.spectral[i,k]  = F_Vorticity[i,k]  + self.dt*(1.5*PV.Vorticity.tendency[i,k]  - 0.5*PV.Vorticity.now[i,k])
 						PV.T.spectral[i,k]          = F_T[i,k]          + self.dt*(1.5*PV.T.tendency[i,k]          - 0.5*PV.T.now[i,k])
-						PV.QT.spectral[i,k]         = F_QT[i,k]         + self.dt*(1.5*PV.QT.tendency[i,k]         - 0.5*PV.QT.now[i,k])
-					PV.P.spectral[i,nl]             = F_P[i]            + self.dt*(1.5*PV.P.tendency[i,nl]         - 0.5*PV.P.now[i,nl])
+						if Pr.moist_index > 0.0:
+							PV.QT.spectral[i,k]         = F_QT[i,k]         + self.dt*(1.5*PV.QT.tendency[i,k]         - 0.5*PV.QT.now[i,k])
 		else:
 			with nogil:
 				for i in range(nlm):
+					PV.P.spectral[i,nl]             = F_P[i]            + self.dt*(23.0/12.0*PV.P.tendency[i,nl]         - 16.0/12.0*PV.P.now[i,nl]         + 5.0/12.0*PV.P.old[i,nl]        )
 					for k in range(nl):
 						#3nd order AB
 						#           new                    old                               tendency                                tendency now                         tendency old
 						PV.Divergence.spectral[i,k] = F_Divergence[i,k] + self.dt*(23.0/12.0*PV.Divergence.tendency[i,k] - 16.0/12.0*PV.Divergence.now[i,k] + 5.0/12.0*PV.Divergence.old[i,k])
 						PV.Vorticity.spectral[i,k]  = F_Vorticity[i,k]  + self.dt*(23.0/12.0*PV.Vorticity.tendency[i,k]  - 16.0/12.0*PV.Vorticity.now[i,k]  + 5.0/12.0*PV.Vorticity.old[i,k] )
 						PV.T.spectral[i,k]          = F_T[i,k]          + self.dt*(23.0/12.0*PV.T.tendency[i,k]          - 16.0/12.0*PV.T.now[i,k]          + 5.0/12.0*PV.T.old[i,k]         )
-						PV.QT.spectral[i,k]         = F_QT[i,k]         + self.dt*(23.0/12.0*PV.QT.tendency[i,k]         - 16.0/12.0*PV.QT.now[i,k]         + 5.0/12.0*PV.QT.old[i,k]        )
-					PV.P.spectral[i,nl]             = F_P[i]            + self.dt*(23.0/12.0*PV.P.tendency[i,nl]         - 16.0/12.0*PV.P.now[i,nl]         + 5.0/12.0*PV.P.old[i,nl]        )
+						if Pr.moist_index > 0.0:
+							PV.QT.spectral[i,k]         = F_QT[i,k]         + self.dt*(23.0/12.0*PV.QT.tendency[i,k]         - 16.0/12.0*PV.QT.now[i,k]         + 5.0/12.0*PV.QT.old[i,k]        )
 
 		DF.update(Pr, Gr, PV, self.dt)
 		self.t = self.t+self.dt

@@ -85,9 +85,15 @@ cdef class PrognosticVariables:
         Stats.add_meridional_mean('meridional_mean_T')
         Stats.add_surface_meridional_mean('meridional_mean_Ps')
         if Pr.moist_index > 0.0:
+            Stats.add_zonal_mean('zonal_mean_dTdt')
+            Stats.add_meridional_mean('meridional_mean_dTdt')
+            Stats.add_global_mean('global_mean_dTdt')
             Stats.add_global_mean('global_mean_QT')
             Stats.add_zonal_mean('zonal_mean_QT')
             Stats.add_meridional_mean('meridional_mean_QT')
+            # Stats.add_global_mean('global_mean_dQTdt')
+            # Stats.add_zonal_mean('zonal_mean_dQTdt')
+            # Stats.add_meridional_mean('meridional_mean_dQTdt')
         return
 
     # convert spherical data to spectral
@@ -98,12 +104,13 @@ cdef class PrognosticVariables:
         cdef:
             Py_ssize_t k
             Py_ssize_t nl = Pr.n_layers
+        self.P.spectral.base[:,nl] = Gr.SphericalGrid.grdtospec(self.P.values.base[:,:,nl])
         for k in range(nl):
             self.Vorticity.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.Vorticity.values.base[:,:,k])
             self.Divergence.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.Divergence.values.base[:,:,k])
             self.T.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.T.values.base[:,:,k])
-            self.QT.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.QT.values.base[:,:,k])
-        self.P.spectral.base[:,nl] = Gr.SphericalGrid.grdtospec(self.P.values.base[:,:,nl])
+            if Pr.moist_index > 0.0:
+                self.QT.spectral.base[:,k] = Gr.SphericalGrid.grdtospec(self.QT.values.base[:,:,k])
         return
 
     @cython.wraparound(False)
@@ -113,12 +120,13 @@ cdef class PrognosticVariables:
             Py_ssize_t k
             Py_ssize_t nl = Pr.n_layers
 
+        self.P.values.base[:,:,nl] = Gr.SphericalGrid.spectogrd(np.copy(self.P.spectral.base[:,nl]))
         for k in range(nl):
             self.Vorticity.values.base[:,:,k]  = Gr.SphericalGrid.spectogrd(self.Vorticity.spectral.base[:,k])
             self.Divergence.values.base[:,:,k] = Gr.SphericalGrid.spectogrd(self.Divergence.spectral.base[:,k])
             self.T.values.base[:,:,k]          = Gr.SphericalGrid.spectogrd(self.T.spectral.base[:,k])
-            self.QT.values.base[:,:,k]         = Gr.SphericalGrid.spectogrd(self.QT.spectral.base[:,k])
-        self.P.values.base[:,:,nl] = Gr.SphericalGrid.spectogrd(np.copy(self.P.spectral.base[:,nl]))
+            if Pr.moist_index > 0.0:
+                self.QT.values.base[:,:,k]         = np.clip(Gr.SphericalGrid.spectogrd(self.QT.spectral.base[:,k]), 0.0, 1.0)
         return
 
     # quick utility to set arrays with values in the "new" arrays
@@ -165,16 +173,16 @@ cdef class PrognosticVariables:
         Stats.write_meridional_mean('meridional_mean_T',self.T.values)
         Stats.write_meridional_mean('meridional_mean_divergence',self.Divergence.values)
         Stats.write_meridional_mean('meridional_mean_vorticity',self.Vorticity.values)
-        Stats.write_zonal_mean('zonal_mean_dTdt',self.T.mp_tendency)
-        Stats.write_meridional_mean('meridional_mean_dTdt',self.T.mp_tendency)
-        Stats.write_global_mean('global_mean_dTdt', self.T.mp_tendency)
         if Pr.moist_index > 0.0:
+            Stats.write_zonal_mean('zonal_mean_dTdt',self.T.mp_tendency)
+            Stats.write_meridional_mean('meridional_mean_dTdt',self.T.mp_tendency)
+            Stats.write_global_mean('global_mean_dTdt', self.T.mp_tendency)
             Stats.write_global_mean('global_mean_QT', self.QT.values)
             Stats.write_zonal_mean('zonal_mean_QT',self.QT.values)
             Stats.write_meridional_mean('meridional_mean_QT',self.QT.values)
-            Stats.write_global_mean('global_mean_dQTdt', self.QT.mp_tendency)
-            Stats.write_zonal_mean('zonal_mean_dQTdt',self.QT.mp_tendency)
-            Stats.write_meridional_mean('meridional_mean_dQTdt',self.QT.mp_tendency)
+            # Stats.write_global_mean('global_mean_dQTdt', self.QT.mp_tendency)
+            # Stats.write_zonal_mean('zonal_mean_dQTdt',self.QT.mp_tendency)
+            # Stats.write_meridional_mean('meridional_mean_dQTdt',self.QT.mp_tendency)
         return
 
     cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
