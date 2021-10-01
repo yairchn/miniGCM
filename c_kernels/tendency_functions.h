@@ -70,8 +70,8 @@ void rhs_T(double cp,
                 T_turbfluxdiv = -(T_sur[ij] - turbflux[ijk])*dpi;
             }
             rhs_T[ij] = T_turbfluxdiv + dwTdp_dn + dwTdp_up;
-            //rhs_T[ij] -= 0.5*(wp[ijkp+1]+wp[ijkp])*(gz[ijkp+1]-gz[ijkp])*dpi/cp;
-            rhs_T[ij] -= wp[ijkp+1]*(gz[ijkp+1]-gz[ijkp])*dpi/cp;
+            rhs_T[ij] -= 0.5*(wp[ijkp+1]+wp[ijkp])*(gz[ijkp+1]-gz[ijkp])*dpi/cp;
+            //rhs_T[ij] -= wp[ijkp+1]*(gz[ijkp+1]-gz[ijkp])*dpi/cp;
             rhs_T[ij] += T_mp[ijk];
             rhs_T[ij] += T_forc[ijk];
         } // End j loop
@@ -206,8 +206,8 @@ void vertical_uv_fluxes(double* restrict p,
                     wdvdp_dn[ij] = 0.5*wp[ijkp+1]*(v[ijk+1] - v[ijk])*dpi;
                 } // end else
             } // end if
-            //e_dry[ij]  = (gz[ijkp+1]+gz[ijkp])/2.0 + ke[ijk];
-            e_dry[ij]  = gz[ijkp] + ke[ijk];
+            e_dry[ij]  = (gz[ijkp+1]+gz[ijkp])/2.0 + ke[ijk];
+            //e_dry[ij]  = gz[ijkp] + ke[ijk];
             u_vort[ij] = u[ijk] * (vort[ijk]+f[ij]);
             v_vort[ij] = v[ijk] * (vort[ijk]+f[ij]);
         } // end j loop
