@@ -25,7 +25,7 @@
         "equatorial_temperature": 315.0,
         "forcing_model": "StochasticTropicalPlanet",
         "k_a": 2.8935185185185185e-17,
-        "k_b": 2.8935185185185185e-07,
+        "k_b": 2.3148148148148148e-08,
         "k_f": 1.1574074074074073e-15,
         "k_s": 2.8935185185185184e-16,
         "lapse_rate": 10.0,
@@ -94,7 +94,7 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 10.0
+        "t_max": 800.0
     },
     "turbulence": {
         "turbulence_model": "None"

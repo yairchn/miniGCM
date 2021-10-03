@@ -26,7 +26,7 @@ EkDiv =np.load(path+'EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy')*0.
 icount=0
 for Layer in np.arange(0,1):
     print("Layer ",Layer)
-    for it in np.arange(420,630,14):
+    for it in np.arange(588,801,14):
         print('it ',it)
         icount+=1
         #
@@ -59,7 +59,7 @@ plt.legend(loc='upper right')
 plt.grid()
 plt.xlabel('Wavenumber')
 #plt.ylim(1.e-3,1.e5)
-plt.ylim(5.e-3,5.e2)
+#plt.ylim(5.e-3,5.e2)
 plt.xlim(1.,2.e2)
 plt.tight_layout()
 #plt.savefig(path+'Ek.pdf')

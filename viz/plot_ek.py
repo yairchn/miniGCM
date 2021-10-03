@@ -127,6 +127,7 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
     # for pressure weighted ke flux
     dp=pU-pD
 
+    k_b = 2.8935185185185185e-07
     uk      = x.grdtospec(u)
     vk      = x.grdtospec(v)
     dpk     = x.grdtospec(dp)
@@ -147,14 +148,17 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
     # (4)
     uak = x.grdtospec(dp*ux*u + dp*uy*v)# + dp*div*u/2.)  # only non-linear divergence and divergent component in flux
     vak = x.grdtospec(dp*vx*u + dp*vy*v)# + dp*div*v/2.)
+    # (6)
+    #uak = x.grdtospec(dp*ux*u + dp*uy*v + dp*div*u/2. + dp*k_b*u)  # only non-linear divergence and divergent component in flux
+    #vak = x.grdtospec(dp*vx*u + dp*vy*v + dp*div*v/2. + dp*k_b*v)
 
     Usp = -1.*uak*uk.conj()
     Vsp = -1.*vak*vk.conj()
     Esp = Usp + Vsp 
 
     # (5)
-    pressure_contribution = x.grdtospec(u*dpx/2. + v*dpy/2.) 
-    Esp-= pressure_contribution*uk*uk.conj() + pressure_contribution*vk*vk.conj() 
+    #pressure_contribution = x.grdtospec(u*dpx/2. + v*dpy/2.) 
+    #Esp-= pressure_contribution*uk*uk.conj() + pressure_contribution*vk*vk.conj() 
 
     # build spectrum
     Ek_sum = np.zeros(np.amax(l)+1)
@@ -302,12 +306,12 @@ path = '/home/scoty/miniGCM/Output.HeldSuarez.o_truncation/Fields/'
 path = '/home/suhas/miniGCM/miniGCM/Output.HeldSuarez.oneLayerExpe/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.aRunFor20yrs/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.oneLayerExpe/Fields/'
-
+path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701f/Fields/'
 
 #ke=np.zeros((3,801))
 #time=np.arange(0,801)
 #time=np.arange(0,801,14)
-time=np.arange(0,601,14)
+time=np.arange(0,801,14)
 print('time.shape',time.shape)
 print('time',time)
 ke=np.zeros((3,time.shape[0]))
@@ -317,7 +321,7 @@ p1=250.; p2=500.; p3=750. # [hPa]
 
 icount=0
 #for it in np.arange(420,801,14):
-for it in np.arange(0,630,14):
+for it in np.arange(0,801,14):
     print('it ',it)
 
     for Layer in np.arange(0,1):

@@ -19,11 +19,11 @@ Ek_cross=np.copy(ks)*0.
 #Layer=2
 
 icount=0
-for Layer in np.arange(0,3):
-    for it in np.arange(420,800,14): Ek+=np.load(path+'Ek_flux_'+str(Layer)+'_0000000'+str(it)+'.npy'); icount+=1.
-    for it in np.arange(420,800,14): Ek_vrt+=np.load(path+'EkRot_flux_'+str(Layer)+'_0000000'+str(it)+'.npy')
-    for it in np.arange(420,800,14): Ek_div+=np.load(path+'EkDiv_flux_'+str(Layer)+'_0000000'+str(it)+'.npy')
-    for it in np.arange(420,800,14): Ek_cross+=np.load(path+'EkCross_flux_'+str(Layer)+'_0000000'+str(it)+'.npy')
+for Layer in np.arange(0,1):
+    for it in np.arange(420,601,14): Ek+=np.load(path+'Ek_flux_'+str(Layer)+'_0000000'+str(it)+'.npy'); icount+=1.
+    #for it in np.arange(420,601,14): Ek_vrt+=np.load(path+'EkRot_flux_'+str(Layer)+'_0000000'+str(it)+'.npy')
+    #for it in np.arange(420,601,14): Ek_div+=np.load(path+'EkDiv_flux_'+str(Layer)+'_0000000'+str(it)+'.npy')
+    #for it in np.arange(420,601,14): Ek_cross+=np.load(path+'EkCross_flux_'+str(Layer)+'_0000000'+str(it)+'.npy')
 
 
 Ek/=icount
@@ -34,11 +34,11 @@ Ek_cross/=icount
 
 fig, ax = plt.subplots(constrained_layout=True,figsize=(5,4.))
 
-ax.semilogx(ks,Ek,'-k',linewidth=4,alpha=0.4,label='KE flux')
-ax.semilogx(ks,Ek_vrt,'-r',label='KE rotational flux')
-ax.semilogx(ks,Ek_div,'-b',label='KE divergent flux')
-ax.semilogx(ks,Ek_cross,'--k',label='KE cross flux')
-ax.semilogx(ks,Ek_vrt+Ek_div+Ek_cross,':r',label='KE overall flux')
+ax.plot(ks,Ek,'-k',linewidth=2,alpha=0.8,label='KE flux')
+#ax.semilogx(ks,Ek_vrt,'-r',label='KE rotational flux')
+#ax.semilogx(ks,Ek_div,'-b',label='KE divergent flux')
+#ax.semilogx(ks,Ek_cross,'--k',label='KE cross flux')
+#ax.semilogx(ks,Ek_vrt+Ek_div+Ek_cross,':r',label='KE overall flux')
 
 ax.set_xlabel('Wavenumber $k$',size='12', fontname = 'Dejavu Sans')
 
@@ -46,9 +46,9 @@ ax.set_ylabel('Kinetic Energy Flux [W/kg]',size='12', fontname = 'Dejavu Sans')
 
 plt.grid(alpha=0.7,color='k',linestyle='dotted',dashes=[1,5 ],linewidth=1,zorder=100)
 
-plt.xlim(1,700)
+#plt.xlim(1,700)
 
-plt.ylim(-6.e-4,6.e-4)
+#plt.ylim(-6.e-4,6.e-4)
 
 plt.legend(loc='lower right')
 
@@ -61,8 +61,8 @@ def forward(x):
 def inverse(x):
     return circumference / x 
 
-secax = ax.secondary_xaxis('top', functions=(forward, inverse))
-secax.set_xlabel('Wavelength [km]',size='12', fontname = 'Dejavu Sans')
+#secax = ax.secondary_xaxis('top', functions=(forward, inverse))
+#secax.set_xlabel('Wavelength [km]',size='12', fontname = 'Dejavu Sans')
 plt.tight_layout()
 #plt.show()
 plt.savefig('Kinetic_Energy_flux.pdf',dpi=150)
