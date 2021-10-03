@@ -146,11 +146,11 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
     #uak = x.grdtospec(dp*ux*u + dp*uy*v + dp*div*u)  # only non-linear divergence and divergent component in flux
     #vak = x.grdtospec(dp*vx*u + dp*vy*v + dp*div*v)
     # (4)
-    uak = x.grdtospec(dp*ux*u + dp*uy*v)# - dp*div*u/2.)  # only non-linear divergence and divergent component in flux
-    vak = x.grdtospec(dp*vx*u + dp*vy*v)# - dp*div*v/2.)
+    uak = x.grdtospec(dp*ux*u + dp*uy*v)# + dp*div*u/2.)  # only non-linear divergence and divergent component in flux
+    vak = x.grdtospec(dp*vx*u + dp*vy*v)# + dp*div*v/2.)
     # (6)
-    #uak = x.grdtospec(dp*ux*u + dp*uy*v - dp*div*u/2. + dp*k_b*u)  # only non-linear divergence and divergent component in flux
-    #vak = x.grdtospec(dp*vx*u + dp*vy*v - dp*div*v/2. + dp*k_b*v)
+    #uak = x.grdtospec(dp*ux*u + dp*uy*v + dp*div*u/2. + dp*k_b*u)  # only non-linear divergence and divergent component in flux
+    #vak = x.grdtospec(dp*vx*u + dp*vy*v + dp*div*v/2. + dp*k_b*v)
 
     Usp = -1.*uak*uk.conj()
     Vsp = -1.*vak*vk.conj()
@@ -158,7 +158,7 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
 
     # (5)
     #pressure_contribution = x.grdtospec(u*dpx/2. + v*dpy/2.) 
-    #Esp+= pressure_contribution*uk*uk.conj() + pressure_contribution*vk*vk.conj() 
+    #Esp-= pressure_contribution*uk*uk.conj() + pressure_contribution*vk*vk.conj() 
 
     # build spectrum
     Ek_sum = np.zeros(np.amax(l)+1)
