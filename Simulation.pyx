@@ -46,7 +46,7 @@ class Simulation:
 
     def run(self, namelist):
         print('run')
-        print('until '+str((self.TS.t_max)/3600./24.)+' days')
+        print('until day '+str((self.TS.t_max)/3600./24.))
         start_time = time.time()
         while self.TS.t <= self.TS.t_max:
             self.PV.reset_pressures_and_bcs(self.Pr, self.DV)

@@ -94,7 +94,7 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 1000.0
+        "t_max": 10.0
     },
     "turbulence": {
         "turbulence_model": "None"
