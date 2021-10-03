@@ -146,11 +146,11 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
     #uak = x.grdtospec(dp*ux*u + dp*uy*v + dp*div*u)  # only non-linear divergence and divergent component in flux
     #vak = x.grdtospec(dp*vx*u + dp*vy*v + dp*div*v)
     # (4)
-    uak = x.grdtospec(dp*ux*u + dp*uy*v)# + dp*div*u/2.)  # only non-linear divergence and divergent component in flux
-    vak = x.grdtospec(dp*vx*u + dp*vy*v)# + dp*div*v/2.)
+    uak = x.grdtospec(dp*ux*u + dp*uy*v)# - dp*div*u/2.)  # only non-linear divergence and divergent component in flux
+    vak = x.grdtospec(dp*vx*u + dp*vy*v)# - dp*div*v/2.)
     # (6)
-    #uak = x.grdtospec(dp*ux*u + dp*uy*v + dp*div*u/2. + dp*k_b*u)  # only non-linear divergence and divergent component in flux
-    #vak = x.grdtospec(dp*vx*u + dp*vy*v + dp*div*v/2. + dp*k_b*v)
+    #uak = x.grdtospec(dp*ux*u + dp*uy*v - dp*div*u/2. + dp*k_b*u)  # only non-linear divergence and divergent component in flux
+    #vak = x.grdtospec(dp*vx*u + dp*vy*v - dp*div*v/2. + dp*k_b*v)
 
     Usp = -1.*uak*uk.conj()
     Vsp = -1.*vak*vk.conj()
@@ -158,7 +158,7 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
 
     # (5)
     #pressure_contribution = x.grdtospec(u*dpx/2. + v*dpy/2.) 
-    #Esp-= pressure_contribution*uk*uk.conj() + pressure_contribution*vk*vk.conj() 
+    #Esp+= pressure_contribution*uk*uk.conj() + pressure_contribution*vk*vk.conj() 
 
     # build spectrum
     Ek_sum = np.zeros(np.amax(l)+1)
@@ -307,6 +307,8 @@ path = '/home/suhas/miniGCM/miniGCM/Output.HeldSuarez.oneLayerExpe/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.aRunFor20yrs/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.oneLayerExpe/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701f/Fields/'
+#path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701g/Fields/'
+
 
 #ke=np.zeros((3,801))
 #time=np.arange(0,801)
@@ -486,7 +488,7 @@ for it in np.arange(0,801,14):
            #[KE_flux,ks] = keSpectral_flux(u,v)
            #[KE_flux_dp,ks] = keSpectral_flux_dp(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True),Geo-Geo.mean(axis=1, keepdims=True),pU,pD)
            [KE_flux,ks] = keSpectral_flux_dp(u,v,Geo,pU,pD)
-           [KE_flux_dp_grid] = ke_flux_dp(u,v,pU,pD)
+           #[KE_flux_dp_grid] = ke_flux_dp(u,v,pU,pD)
            [Cross_flux,ks] = CrossSpectral_flux_dp(u,v,Geo,pU,pD)
            [KErot_flux,ks] = keSpectral_flux_dp(u_vrt,v_vrt,Geo,pU,pD)
            [KEdiv_flux,ks] = keSpectral_flux_dp(u_div,v_div,Geo,pU,pD)
@@ -507,12 +509,12 @@ for it in np.arange(0,801,14):
            np.save('EkRot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkRot)
            np.save('EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkDiv)
            np.save('Ek_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux)
-           np.save('Ek_flux_dp_grid_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',np.array(KE_flux_dp_grid))
+           #np.save('Ek_flux_dp_grid_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',np.array(KE_flux_dp_grid))
            #np.save('Ek_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux)
-           np.save('Enstrophy_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',E_flux)
-           np.save('EkRot_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KErot_flux)
-           np.save('EkDiv_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KEdiv_flux)
-           np.save('EkCross_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',Cross_flux)
+           #np.save('Enstrophy_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',E_flux)
+           #np.save('EkRot_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KErot_flux)
+           #np.save('EkDiv_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KEdiv_flux)
+           #np.save('EkCross_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',Cross_flux)
            np.save('ks.npy',ks)
         #
     icount+=1

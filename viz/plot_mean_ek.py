@@ -10,8 +10,6 @@ import netCDF4
 from scipy.signal import savgol_filter
 
 
-path='./res1/'
-path='./res4/'
 path='./'
 
 ks=np.load(path+'ks.npy')
