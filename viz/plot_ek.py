@@ -308,12 +308,10 @@ path = '/home/scoty/miniGCM/Output.HeldSuarez.aRunFor20yrs/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.oneLayerExpe/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701f/Fields/'
 #path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701g/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701h/Fields/'
 
 
-#ke=np.zeros((3,801))
-#time=np.arange(0,801)
-#time=np.arange(0,801,14)
-time=np.arange(0,801,14)
+time=np.arange(0,350,14)
 print('time.shape',time.shape)
 print('time',time)
 ke=np.zeros((3,time.shape[0]))
@@ -322,8 +320,7 @@ dPressure=750. # pressure difference between p1 and <ps>_area_mean [hPa]
 p1=250.; p2=500.; p3=750. # [hPa]
 
 icount=0
-#for it in np.arange(420,801,14):
-for it in np.arange(0,801,14):
+for it in time: 
     print('it ',it)
 
     for Layer in np.arange(0,1):
