@@ -15,7 +15,7 @@ from TimeStepping import TimeStepping
 from Parameters cimport Parameters
 
 cdef extern from "diagnostic_variables.h":
-    void diagnostic_variables(double Rd, double Rv, double Omega, double a,
+    void diagnostic_variables(double kappa, double Rd, double Rv, double Omega, double a,
            double* lat,  double* p,  double* T,  double* qt, double* ql, double* u,  double* v,
            double* div, double* ke, double* wp, double* gz, double* uv, double* TT, double* vT,
            double* M, Py_ssize_t k, Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
@@ -125,7 +125,7 @@ cdef class DiagnosticVariables:
             self.U.values.base[:,:,k], self.V.values.base[:,:,k] = Gr.SphericalGrid.getuv(
                          PV.Vorticity.spectral.base[:,k],PV.Divergence.spectral.base[:,k])
             with nogil:
-                diagnostic_variables(Pr.Rd, Pr.Rv, Pr.Omega, Pr.rsphere, &Gr.lat[0,0], &PV.P.values[0,0,0], &PV.T.values[0,0,0],
+                diagnostic_variables(Pr.kappa, Pr.Rd, Pr.Rv, Pr.Omega, Pr.rsphere, &Gr.lat[0,0], &PV.P.values[0,0,0], &PV.T.values[0,0,0],
                                      &PV.QT.values[0,0,0],   &self.QL.values[0,0,0], &self.U.values[0,0,0],
                                      &self.V.values[0,0,0],  &PV.Divergence.values[0,0,0],
                                      &self.KE.values[0,0,0], &self.Wp.values[0,0,0], &self.gZ.values[0,0,0],
