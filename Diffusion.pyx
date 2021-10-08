@@ -39,8 +39,8 @@ cdef class Diffusion:
                 diffusion_factor_meso_scale = (1.0/Pr.efold_meso*((laplacian[i]/laplacian[-1])**(Pr.dissipation_order/2.0)))
                 diffusion_factor_grid_scale= (1.0/Pr.efold_grid*((laplacian[i]/laplacian[-1])**Pr.dissipation_order))
                 HyperDiffusionFactor = exp(-dt*(diffusion_factor_meso_scale+diffusion_factor_grid_scale))
-                if shtns_l[i]>=Pr.truncation_number:
-                    HyperDiffusionFactor = 0.0
+                #if shtns_l[i]>=Pr.truncation_number:
+                #    HyperDiffusionFactor = 0.0
                 for k in range(nl):
                     PV.P.spectral[i,k]          = HyperDiffusionFactor * PV.P.spectral[i,k]
                     PV.Vorticity.spectral[i,k]  = HyperDiffusionFactor * PV.Vorticity.spectral[i,k]

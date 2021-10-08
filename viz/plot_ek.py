@@ -309,9 +309,12 @@ path = '/home/scoty/miniGCM/Output.HeldSuarez.oneLayerExpe/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701f/Fields/'
 #path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701g/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701h/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701j/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701l/Fields/'
+#path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701k/Fields/'
 
 
-time=np.arange(0,350,14)
+time=np.arange(0,532,14)
 print('time.shape',time.shape)
 print('time',time)
 ke=np.zeros((3,time.shape[0]))
