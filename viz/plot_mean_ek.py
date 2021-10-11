@@ -22,9 +22,9 @@ EkDiv =np.load(path+'EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy')*0.
 #EkMean=np.load(path+'EkMean_'+str(Layer)+'_'+str(it).zfill(10)+'.npy')*0.
 
 icount=0
-for Layer in np.arange(0,1):
+for Layer in np.arange(2,3):
     print("Layer ",Layer)
-    for it in np.arange(224,228,14):
+    for it in np.arange(21,22,1):
         print('it ',it)
         icount+=1
         #
@@ -53,7 +53,7 @@ plt.loglog(ks,EkRot,'-',color='red',label='KE vortical')
 plt.loglog(ks,EkDiv,'-',color='blue',label='KE divergent')
 plt.loglog(ks[10:100],5.e1*ks[10:100]**(-5./3.),'--k',linewidth=2,label='-5/3')
 plt.title('KE Spectra / m$^2$ s$^{-2}$')
-plt.legend(loc='upper right')
+plt.legend(loc='upper left')
 plt.grid()
 plt.xlabel('Wavenumber')
 #plt.ylim(1.e-3,1.e5)

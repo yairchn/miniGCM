@@ -17,9 +17,9 @@ Ek_cross=np.copy(ks)*0.
 #Layer=1
 #Layer=2
 
-icount=0
-for Layer in np.arange(0,1):
-    for it in np.arange(350,504,14): Ek+=np.load(path+'Ek_flux_'+str(Layer)+'_0000000'+str(it).zfill(3)+'.npy'); icount+=1.
+for Layer in np.arange(0,3):
+    icount=0
+    for it in np.arange(21,22,14): Ek+=np.load(path+'Ek_flux_'+str(Layer)+'_0000000'+str(it).zfill(3)+'.npy'); icount+=1.
     #for it in np.arange(420,601,14): Ek_vrt+=np.load(path+'EkRot_flux_'+str(Layer)+'_0000000'+str(it)+'.npy')
     #for it in np.arange(420,601,14): Ek_div+=np.load(path+'EkDiv_flux_'+str(Layer)+'_0000000'+str(it)+'.npy')
     #for it in np.arange(420,601,14): Ek_cross+=np.load(path+'EkCross_flux_'+str(Layer)+'_0000000'+str(it)+'.npy')
@@ -38,6 +38,9 @@ fig, ax = plt.subplots(constrained_layout=True,figsize=(5,4.))
 ax.semilogx(ks,Ek,'-k',linewidth=2,alpha=0.8,label='KE flux')
 #ax.semilogx(ks,Ek,'-k',linewidth=2,alpha=0.8,label='KE flux')
 #ax.semilogx(ks,Ek,'-k',linewidth=2,alpha=0.8,label='KE flux')
+#ax.semilogx(ks,Ek,'-k',linewidth=2,alpha=0.8,label='KE flux')
+#ax.semilogx(ks,Ek,'-k',linewidth=2,alpha=0.8,label='KE flux')
+#ax.semilogx(ks,Ek,'-k',linewidth=2,alpha=0.8,label='KE flux')
 #ax.semilogx(ks,Ek_vrt,'-r',label='KE rotational flux')
 #ax.semilogx(ks,Ek_div,'-b',label='KE divergent flux')
 #ax.semilogx(ks,Ek_cross,'--k',label='KE cross flux')
@@ -51,9 +54,9 @@ plt.grid(alpha=0.7,color='k',linestyle='dotted',dashes=[1,5 ],linewidth=1,zorder
 
 #plt.xlim(1,700)
 
-#plt.ylim(-6.e-4,6.e-4)
+#plt.ylim(-3.e-4,1.e-3)
 
-plt.legend(loc='lower right')
+plt.legend(loc='upper left')
 
 circumference=6371.*pi*2. # [km]
 

@@ -65,12 +65,12 @@ void rhs_T(double cp,
                     T_turbfluxdiv = -(turbflux[ijk+1] - turbflux[ijk])*dpi;
                 } // end else
             } // end if
-            else{ // in a single layer we have a change in mass (ps)
+            else if (1==0){ // in a single layer we have a change in mass (ps)
                 dwTdp_dn = -0.5*wp[ijkp+1]*(T[ijk] + T[ijk])*dpi;
                 T_turbfluxdiv = -(T_sur[ij] - turbflux[ijk])*dpi;
             }
             rhs_T[ij] = T_turbfluxdiv + dwTdp_dn + dwTdp_up;
-            //rhs_T[ij] -= 0.5*(wp[ijkp+1]+wp[ijkp])*(gz[ijkp+1]-gz[ijkp])*dpi/cp;
+            rhs_T[ij] -= 0.5*(wp[ijkp+1]+wp[ijkp])*(gz[ijkp+1]-gz[ijkp])*dpi/cp;
             //rhs_T[ij] -= wp[ijkp+1]*(gz[ijkp+1]-gz[ijkp])*dpi/cp;
             rhs_T[ij] += T_mp[ijk];
             rhs_T[ij] += T_forc[ijk];

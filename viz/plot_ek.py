@@ -146,8 +146,8 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
     #uak = x.grdtospec(dp*ux*u + dp*uy*v + dp*div*u)  # only non-linear divergence and divergent component in flux
     #vak = x.grdtospec(dp*vx*u + dp*vy*v + dp*div*v)
     # (4)
-    uak = x.grdtospec(dp*ux*u + dp*uy*v)# + dp*div*u/2.)  # only non-linear divergence and divergent component in flux
-    vak = x.grdtospec(dp*vx*u + dp*vy*v)# + dp*div*v/2.)
+    uak = x.grdtospec(dp*ux*u + dp*uy*v + dp*div*u/2.)  # only non-linear divergence and divergent component in flux
+    vak = x.grdtospec(dp*vx*u + dp*vy*v + dp*div*v/2.)
     # (6)
     #uak = x.grdtospec(dp*ux*u + dp*uy*v + dp*div*u/2. + dp*k_b*u)  # only non-linear divergence and divergent component in flux
     #vak = x.grdtospec(dp*vx*u + dp*vy*v + dp*div*v/2. + dp*k_b*v)
@@ -157,8 +157,8 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
     Esp = Usp + Vsp 
 
     # (5)
-    #pressure_contribution = x.grdtospec(u*dpx/2. + v*dpy/2.) 
-    #Esp-= pressure_contribution*uk*uk.conj() + pressure_contribution*vk*vk.conj() 
+    pressure_contribution = x.grdtospec(u*dpx/2. + v*dpy/2.) 
+    Esp-= pressure_contribution*uk*uk.conj() + pressure_contribution*vk*vk.conj() 
 
     # build spectrum
     Ek_sum = np.zeros(np.amax(l)+1)
@@ -311,22 +311,27 @@ path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701f/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701h/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701j/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701l/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701m/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701n/Fields/'
 #path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701k/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701p/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701q/Fields/'
 
 
-time=np.arange(0,532,14)
+time=np.arange(0,22,1)
 print('time.shape',time.shape)
 print('time',time)
 ke=np.zeros((3,time.shape[0]))
 
 dPressure=750. # pressure difference between p1 and <ps>_area_mean [hPa]
 p1=250.; p2=500.; p3=750. # [hPa]
+p1=250.; p2=500.; # [hPa]
 
 icount=0
 for it in time: 
     print('it ',it)
 
-    for Layer in np.arange(0,1):
+    for Layer in np.arange(0,3):
         print("day ", it," Layer ",Layer)
         ps=netCDF4.Dataset(path+'Pressure_'+str(it*3600*24)+'.nc').variables['Pressure'][:,:]
         u=netCDF4.Dataset(path+'U_'+str(it*3600*24)+'.nc').variables['U'][:,:,Layer]
@@ -346,6 +351,9 @@ for it in time:
             pD=ps*0.+p3
             pU=ps/100.
             print('pU ',pU[1,1],' pD',pD[1,1],' Layer',Layer)
+        #pD=ps*0.+p1
+        #pU=ps*0.+ps/100.
+        print('pU ',pU[1,1],' pD',pD[1,1],' Layer',Layer)
         #
 
         vrtsp,divsp = x.getvrtdivspec(u,v)
