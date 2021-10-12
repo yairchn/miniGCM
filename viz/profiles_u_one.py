@@ -16,7 +16,7 @@ def main():
     folder = args.folder
 
     ncfile = '/home/scoty/miniGCM/' + folder + '/stats/Stats.HeldSuarez.nc'
-    #ncfile = '/home/yair/' + folder + '/stats/Stats.HeldSuarezMoist.nc'
+    ncfile = '/home/yair/' + folder + '/stats/Stats.HeldSuarezMoist.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
@@ -35,14 +35,14 @@ def main():
     i = 0
     li=[2,2,2,2,2,2,2,2]
     al=[0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.]
-    #la=['125 hPa','250 hPa','500 hPa','750 hPa','850 hPa']
-    la=['200 hPa','300 hPa','400 hPa','500 hPa','600 hPa','700 hPa','800 hPa','900 hPa']
+    #la=['200 hPa','300 hPa','400 hPa','500 hPa','600 hPa','700 hPa','800 hPa','900 hPa']
+    la=['250 hPa','500 hPa','750 hPa']
     print('al.shape',len(al))
     print('li.shape',len(li))
     print('la.shape',len(la))
     #la=['250 hPa','350 hPa','450 hPa','550 hPa','650 hPa','750 hPa','850 hPa','950 hPa']
     fig,ax = plt.subplots(1,len(la), sharey='all',figsize=(16, 7),squeeze=False)
-    for j in range(0,8):
+    for j in range(0,3):
         ax[i,j].plot(np.mean(var[t1:t2,:,j],axis=0),np.array(lat_list),'-k',linewidth=li[j],alpha=al[j],label=la[j])
         ax[i,j].grid(alpha=0.7,color='k',linestyle='dotted',dashes=[1,5 ],linewidth=1,zorder=10)
         ax[i,j].set_yticks(np.linspace(-90,90,7))

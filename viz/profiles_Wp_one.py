@@ -17,7 +17,7 @@ def main():
 
     #ncfile = '/home/josefs/miniGCM/' + folder + '/stats/Stats.HeldSuarez.nc'
     ncfile = '/home/scoty/miniGCM/' + folder + '/stats/Stats.HeldSuarez.nc'
-    #ncfile = '/home/yair/' + folder + '/stats/Stats.HeldSuarezMoist.nc'
+    ncfile = '/home/yair/' + folder + '/stats/Stats.HeldSuarezMoist.nc'
     data = nc.Dataset(ncfile, 'r')
 
 
@@ -30,15 +30,15 @@ def main():
     t1 = 300
     t2 = 500
 
-    fig,ax = plt.subplots(1,8, sharey='all',figsize=(16, 7),squeeze=False)
+    fig,ax = plt.subplots(1,3, sharey='all',figsize=(16, 7),squeeze=False)
 
     i = 0
     li=[2,2,2,2,2,2,2,2]
     al=[0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.]
     la=['200 hPa','300 hPa','400 hPa','500 hPa','600 hPa','700 hPa','800 hPa','900 hPa']
     #la=['500 hPa','850 hPa', '$p_s$']
-    #la=['500 hPa','750 hPa', '$p_s$']
-    for j in range(8):
+    la=['500 hPa','750 hPa', '$p_s$']
+    for j in range(3):
         ax[i,j].plot(np.mean(var[t1:t2,:,j],axis=0),np.array(lat_list),'-k',linewidth=li[j],alpha=al[j],label=la[j])
         ax[i,j].grid(alpha=0.7,color='k',linestyle='dotted',dashes=[1,5 ],linewidth=1,zorder=10)
         ax[i,j].set_yticks(np.linspace(-90,90,7))
