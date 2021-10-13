@@ -319,7 +319,7 @@ path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701q/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701r/Fields/'
 
 
-time=np.arange(0,3,1)
+time=np.arange(0,21,1)
 print('time.shape',time.shape)
 print('time',time)
 ke=np.zeros((3,time.shape[0]))

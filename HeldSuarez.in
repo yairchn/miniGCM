@@ -24,7 +24,7 @@
         "equator_to_pole_dT": 60.0,
         "equatorial_temperature": 315.0,
         "forcing_model": "StochasticTropicalPlanet",
-        "k_a": 2.8935185185185185e-17,
+        "k_a": 2.8935185185185185e-07,
         "k_b": 2.8935185185185185e-07,
         "k_f": 1.1574074074074073e-15,
         "k_s": 2.8935185185185184e-16,
@@ -68,7 +68,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "dd136d0f-a5c6-46c0-a2ed-704ff582701r"
+        "uuid": "dd136d0f-a5c6-46c0-a2ed-704ff582701s"
     },
     "microphysics": {
         "microphysics_model": "None"

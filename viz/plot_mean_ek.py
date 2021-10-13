@@ -22,9 +22,9 @@ EkDiv =np.load(path+'EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy')*0.
 #EkMean=np.load(path+'EkMean_'+str(Layer)+'_'+str(it).zfill(10)+'.npy')*0.
 
 icount=0
-for Layer in np.arange(2,3):
+for Layer in np.arange(0,3):
     print("Layer ",Layer)
-    for it in np.arange(21,22,1):
+    for it in np.arange(14,15,1):
         print('it ',it)
         icount+=1
         #

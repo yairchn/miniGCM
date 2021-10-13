@@ -19,7 +19,7 @@ Ek_cross=np.copy(ks)*0.
 
 for Layer in np.arange(0,3):
     icount=0
-    for it in np.arange(1,2,14): Ek+=np.load(path+'Ek_flux_'+str(Layer)+'_0000000'+str(it).zfill(3)+'.npy'); icount+=1.
+    for it in np.arange(14,15,14): Ek+=np.load(path+'Ek_flux_'+str(Layer)+'_0000000'+str(it).zfill(3)+'.npy'); icount+=1.
     #for it in np.arange(420,601,14): Ek_vrt+=np.load(path+'EkRot_flux_'+str(Layer)+'_0000000'+str(it)+'.npy')
     #for it in np.arange(420,601,14): Ek_div+=np.load(path+'EkDiv_flux_'+str(Layer)+'_0000000'+str(it)+'.npy')
     #for it in np.arange(420,601,14): Ek_cross+=np.load(path+'EkCross_flux_'+str(Layer)+'_0000000'+str(it)+'.npy')
