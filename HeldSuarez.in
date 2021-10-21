@@ -23,16 +23,16 @@
     "forcing": {
         "equator_to_pole_dT": 60.0,
         "equatorial_temperature": 315.0,
-        "forcing_model": "StochasticTropicalPlanet",
+        "forcing_model": "HeldSuarez",
         "k_a": 2.8935185185185185e-07,
         "k_b": 2.8935185185185185e-07,
-        "k_f": 1.1574074074074073e-15,
-        "k_s": 2.8935185185185184e-16,
+        "k_f": 1.1574074074074073e-05,
+        "k_s": 2.8935185185185184e-06,
         "lapse_rate": 10.0,
         "max_noise_wavenumber": 102,
         "min_noise_wavenumber": 98,
-        "noise": true,
-        "noise_amplitude": 10.0e-8,
+        "noise": false,
+        "noise_amplitude": 1.0e-8,
         "noise_correlation": 0.0,
         "noise_magnitude": 0.05,
         "noise_type": "local",
@@ -52,7 +52,7 @@
     },
     "initialize": {
         "T_init": 300.0,
-        "noise": false,
+        "noise": true,
         "noise_amplitude": 1,
         "noise_type": "red",
         "restart": false,
@@ -68,7 +68,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "dd136d0f-a5c6-46c0-a2ed-704ff582701s"
+        "uuid": "dd136d0f-a5c6-46c0-a2ed-704ff582702a"
     },
     "microphysics": {
         "microphysics_model": "None"
