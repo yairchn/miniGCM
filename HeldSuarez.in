@@ -56,9 +56,9 @@
         "noise_amplitude": 1,
         "noise_type": "red",
         "restart": false,
-        "restart folder": "./",
-        "restart time": "none",
-        "restart type": "zonal_mean"
+        "restart folder": "/Output.HeldSuarez.704ff582702a/Fields/",
+        "restart time": "43200000",
+        "restart type": "3D_output"
     },
     "io": {
         "output_frequency": 1.0,
@@ -68,7 +68,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "dd136d0f-a5c6-46c0-a2ed-704ff582702a"
+        "uuid": "dd136d0f-a5c6-46c0-a2ed-704ff582702b"
     },
     "microphysics": {
         "microphysics_model": "None"

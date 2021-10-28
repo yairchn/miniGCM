@@ -321,9 +321,10 @@ path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701v/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701w/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701x/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701z/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582702a/Fields_restart/'
 
-
-time=np.arange(0,3,1)
+#time=np.arange(0,3,1)
+time=np.arange(504,770,14)
 print('time.shape',time.shape)
 print('time',time)
 ke=np.zeros((3,time.shape[0]))
@@ -376,6 +377,7 @@ for it in time:
            dp=pU-pD
            #eke[Layer,it]=np.mean(0.5*(u-u.mean(axis=1,keepdims=True))**2 + 0.5*(v-v.mean(axis=1,keepdims=True))**2)
            ke[Layer,icount]=np.mean(0.5*dp*u**2 + 0.5*dp*v**2)
+           print('layer ', Layer, 'mean KE ', ke[Layer,icount]/dp)
 
         iplot_mean=0
         if (iplot_mean==1):
