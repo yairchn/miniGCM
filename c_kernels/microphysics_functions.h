@@ -20,7 +20,6 @@ void microphysics_cutoff(
            double* restrict T,
            double* restrict qt,
            double* restrict ql,
-           double* restrict T_mp,
            double* restrict qt_mp,
            double* restrict rain_rate,
            double* restrict qv_star,
@@ -58,7 +57,6 @@ void microphysics_cutoff(
                 qv_star[ijk] = (pv0epsv/p_half)*exp(-Lv_Rv*(1.0/T[ijk]-T_0_inv)); // Eq. (1) Tatcher and Jabolonski 2016
                 denom = (1.0+Lv_cpRv*qv_star[ijk]/(T[ijk]*T[ijk]))*dt;
                 ql[ijk] = qt[ijk] - qv_star[ijk];
-                T_mp[ijk]  =  (qt[ijk] - qv_star[ijk])/denom; // Eq. (2) Tatcher and Jabolonski 2016
                 qt_mp[ijk] = -(qt[ijk] - (1.0+max_ss)*qv_star[ijk])/denom; // Eq. (3) Tatcher and Jabolonski 2016
                 rain_rate[ij] = rain_rate[ij] - (qt_mp[ijk]/rho_w*g*(p[ijkmax_p]-p[0,0,0]))/(kmax); // Eq. (5) Tatcher and Jabolonski 2016
             } // end k loop

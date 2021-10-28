@@ -4,20 +4,20 @@
 #pragma once
 #include <math.h>
 
-void rhs_T(double cp,
+void rhs_E(double cp,
            double* restrict p,
            double* restrict gz,
-           double* restrict T,
+           double* restrict E,
            double* restrict u,
            double* restrict v,
            double* restrict wp,
-           double* restrict T_mp,
-           double* restrict T_sur,
-           double* restrict T_forc,
+           double* restrict E_mp,
+           double* restrict E_sur,
+           double* restrict E_forc,
            double* restrict turbflux,
-           double* restrict rhs_T,
-           double* restrict u_T,
-           double* restrict v_T,
+           double* restrict rhs_E,
+           double* restrict u_E_gz,
+           double* restrict v_E_gz,
            ssize_t imax,
            ssize_t jmax,
            ssize_t kmax,
@@ -38,27 +38,27 @@ void rhs_T(double cp,
             const ssize_t ij = ishift_2d + j;
             const ssize_t ijk = ishift + jshift + k;
             const ssize_t ijkp = ishift_p + jshift_p + k;
-            u_T[ij] = u[ijk] * T[ijk];
-            v_T[ij] = v[ijk] * T[ijk];
+            u_E_gz[ij] = u[ijk] * (E[ijk] + gz[ijk]);
+            v_E_gz[ij] = v[ijk] * (E[ijk] + gz[ijk]);
             dpi = 1.0/(p[ijkp+1] - p[ijkp]);
-            rhs_T[ij] = 0.0;
+            rhs_E[ij] = 0.0;
             if (k==0){
-                rhs_T[ij] -= 0.5*wp[ijkp+1]*(T[ijk+1] + T[ijk])*dpi;
-                rhs_T[ij] -= (turbflux[ijk+1] - turbflux[ijk])*dpi;
+                rhs_E[ij] -= 0.5*wp[ijkp+1]*(E[ijk+1] + E[ijk])*dpi;
+                rhs_E[ij] -= (turbflux[ijk+1] - turbflux[ijk])*dpi;
             } // end if
             else if (k==kmax-1){
-                rhs_T[ij] += 0.5*wp[ijkp]  *(T[ijk] + T[ijk-1])*dpi;
-                rhs_T[ij] -= 0.5*wp[ijkp+1]*(T[ijk] + T[ijk])*dpi;
-                rhs_T[ij] -= (T_sur[ij] - turbflux[ijk])*dpi;
+                rhs_E[ij] += 0.5*wp[ijkp]  *(E[ijk] + E[ijk-1])*dpi;
+                rhs_E[ij] -= 0.5*wp[ijkp+1]*(E[ijk] + E[ijk])*dpi;
+                rhs_E[ij] -= (E_sur[ij] - turbflux[ijk])*dpi;
             } // end else if
             else{
-                rhs_T[ij] += 0.5*wp[ijkp]  *(T[ijk]   + T[ijk-1])*dpi;
-                rhs_T[ij] -= 0.5*wp[ijkp+1]*(T[ijk+1] + T[ijk])*dpi;
-                rhs_T[ij] -= (turbflux[ijk+1] - turbflux[ijk])*dpi;
+                rhs_E[ij] += 0.5*wp[ijkp]  *(E[ijk]   + E[ijk-1])*dpi;
+                rhs_E[ij] -= 0.5*wp[ijkp+1]*(E[ijk+1] + E[ijk])*dpi;
+                rhs_E[ij] -= (turbflux[ijk+1] - turbflux[ijk])*dpi;
             } // end else
-            rhs_T[ij] -= 0.5*(wp[ijkp+1]+wp[ijkp])*(gz[ijkp+1]-gz[ijkp])*dpi/cp;
-            rhs_T[ij] += T_mp[ijk];
-            rhs_T[ij] += T_forc[ijk];
+            rhs_E[ij] -= 0.5*(wp[ijkp+1]+wp[ijkp])*(gz[ijkp+1]-gz[ijkp])*dpi/cp;
+            rhs_E[ij] += E_mp[ijk];
+            rhs_E[ij] += E_forc[ijk];
         } // End j loop
     } // end i loop
     return;

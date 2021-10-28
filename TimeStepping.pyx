@@ -38,7 +38,7 @@ cdef class TimeStepping:
 			Py_ssize_t nlm = Gr.SphericalGrid.nlm
 			double complex [:,:] F_Divergence = np.zeros((nlm, nl), dtype = np.complex, order='c')
 			double complex [:,:] F_Vorticity  = np.zeros((nlm, nl), dtype = np.complex, order='c')
-			double complex [:,:] F_T          = np.zeros((nlm, nl), dtype = np.complex, order='c')
+			double complex [:,:] F_E          = np.zeros((nlm, nl), dtype = np.complex, order='c')
 			double complex [:,:] F_QT         = np.zeros((nlm, nl), dtype = np.complex, order='c')
 			double complex [:]   F_P          = np.zeros((nlm),     dtype = np.complex, order='c')
 
@@ -48,7 +48,7 @@ cdef class TimeStepping:
 		F_P          = PV.P.spectral[:,nl]
 		F_Divergence = PV.Divergence.spectral
 		F_Vorticity  = PV.Vorticity.spectral
-		F_T          = PV.T.spectral
+		E_T          = PV.E.spectral
 		if Pr.moist_index > 0.0:
 			F_QT         = PV.QT.spectral
 
@@ -62,7 +62,7 @@ cdef class TimeStepping:
 						# new                                old                      tendency
 						PV.Divergence.spectral[i,k] = F_Divergence[i,k] + self.dt*PV.Divergence.tendency[i,k]
 						PV.Vorticity.spectral[i,k]  = F_Vorticity[i,k]  + self.dt*PV.Vorticity.tendency[i,k]
-						PV.T.spectral[i,k]          = F_T[i,k]          + self.dt*PV.T.tendency[i,k]
+						PV.E.spectral[i,k]          = F_E[i,k]          + self.dt*PV.E.tendency[i,k]
 						if Pr.moist_index > 0.0:
 							PV.QT.spectral[i,k]         = F_QT[i,k]         + self.dt*PV.QT.tendency[i,k]
 		elif self.ncycle==1:
@@ -74,7 +74,7 @@ cdef class TimeStepping:
 						#           new                     old                        tendency                            tendency now
 						PV.Divergence.spectral[i,k] = F_Divergence[i,k] + self.dt*(1.5*PV.Divergence.tendency[i,k] - 0.5*PV.Divergence.now[i,k])
 						PV.Vorticity.spectral[i,k]  = F_Vorticity[i,k]  + self.dt*(1.5*PV.Vorticity.tendency[i,k]  - 0.5*PV.Vorticity.now[i,k])
-						PV.T.spectral[i,k]          = F_T[i,k]          + self.dt*(1.5*PV.T.tendency[i,k]          - 0.5*PV.T.now[i,k])
+						PV.E.spectral[i,k]          = F_E[i,k]          + self.dt*(1.5*PV.E.tendency[i,k]          - 0.5*PV.E.now[i,k])
 						if Pr.moist_index > 0.0:
 							PV.QT.spectral[i,k]         = F_QT[i,k]         + self.dt*(1.5*PV.QT.tendency[i,k]         - 0.5*PV.QT.now[i,k])
 		else:
@@ -86,7 +86,7 @@ cdef class TimeStepping:
 						#           new                    old                               tendency                                tendency now                         tendency old
 						PV.Divergence.spectral[i,k] = F_Divergence[i,k] + self.dt*(23.0/12.0*PV.Divergence.tendency[i,k] - 16.0/12.0*PV.Divergence.now[i,k] + 5.0/12.0*PV.Divergence.old[i,k])
 						PV.Vorticity.spectral[i,k]  = F_Vorticity[i,k]  + self.dt*(23.0/12.0*PV.Vorticity.tendency[i,k]  - 16.0/12.0*PV.Vorticity.now[i,k]  + 5.0/12.0*PV.Vorticity.old[i,k] )
-						PV.T.spectral[i,k]          = F_T[i,k]          + self.dt*(23.0/12.0*PV.T.tendency[i,k]          - 16.0/12.0*PV.T.now[i,k]          + 5.0/12.0*PV.T.old[i,k]         )
+						PV.E.spectral[i,k]          = F_E[i,k]          + self.dt*(23.0/12.0*PV.E.tendency[i,k]          - 16.0/12.0*PV.E.now[i,k]          + 5.0/12.0*PV.E.old[i,k]         )
 						if Pr.moist_index > 0.0:
 							PV.QT.spectral[i,k]         = F_QT[i,k]         + self.dt*(23.0/12.0*PV.QT.tendency[i,k]         - 16.0/12.0*PV.QT.now[i,k]         + 5.0/12.0*PV.QT.old[i,k]        )
 

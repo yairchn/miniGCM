@@ -46,7 +46,7 @@ cdef class Restart:
                 sys.exit("Restart files do not match exiting files: " + filepath + 'Temperature_' + timestring+'.nc')
 
             Pressure             = np.array(nc.Dataset(filepath + 'Pressure_' + timestring+'.nc', 'r').variables['Pressure'])
-            Temperature          = np.array(nc.Dataset(filepath + 'Temperature_' + timestring+'.nc', 'r').variables['Temperature'])
+            Total_Energy         = np.array(nc.Dataset(filepath + 'Total_Energy_' + timestring+'.nc', 'r').variables['Total_Energy'])
             Vorticity            = np.array(nc.Dataset(filepath + 'Vorticity_' + timestring+'.nc', 'r').variables['Vorticity'])
             Divergence           = np.array(nc.Dataset(filepath + 'Divergence_' + timestring+'.nc', 'r').variables['Divergence'])
             if Pr.moist_index > 0.0:
@@ -55,10 +55,10 @@ cdef class Restart:
             f_Pressure = interp2d(old_lon, old_lat, Pressure, kind='linear')
             PV.P.values.base[:,:,nl]    = f_Pressure(Gr.longitude_list,Gr.latitude_list)
             for k in range(Pr.n_layers):
-                f_Temperature = interp2d(old_lon, old_lat, Temperature[:,:,k], kind='linear')
+                f_Enenrgy = interp2d(old_lon, old_lat, Total_Energy[:,:,k], kind='linear')
                 f_Vorticity   = interp2d(old_lon, old_lat, Vorticity[:,:,k], kind='linear')
                 f_Divergence  = interp2d(old_lon, old_lat, Divergence[:,:,k], kind='linear')
-                PV.T.values.base[:,:,k]          = f_Temperature(Gr.longitude_list,Gr.latitude_list)
+                PV.E.values.base[:,:,k]          = f_Enenrgy(Gr.longitude_list,Gr.latitude_list)
                 PV.Vorticity.values.base[:,:,k]  = f_Vorticity(Gr.longitude_list,Gr.latitude_list)
                 PV.Divergence.values.base[:,:,k] = f_Divergence(Gr.longitude_list,Gr.latitude_list)
                 if Pr.moist_index > 0.0:
@@ -76,7 +76,7 @@ cdef class Restart:
                     PV.P.values[i,j,Pr.n_layers]    = np.array(data.groups['surface_zonal_mean'].variables['zonal_mean_Ps'])[-1,i]
                     for k in range(Pr.n_layers):
                         PV.P.values[i,j,k]          = Pr.pressure_levels[k]
-                        PV.T.values[i,j,k]          = np.array(data.groups['zonal_mean'].variables['zonal_mean_T'])[-1,i,k]
+                        PV.E.values[i,j,k]          = np.array(data.groups['zonal_mean'].variables['zonal_mean_E'])[-1,i,k]
                         PV.Vorticity.values[i,j,k]  = np.array(data.groups['zonal_mean'].variables['zonal_mean_vorticity'])[-1,i,k]
                         PV.Divergence.values[i,j,k] = np.array(data.groups['zonal_mean'].variables['zonal_mean_divergence'])[-1,i,k]
                         if Pr.moist_index > 0.0:

@@ -132,13 +132,13 @@ cdef class ConvectionRandomFlux(ConvectionBase):
                         if k==nl:
                             self.wVort[i,k] = 0.0
                             self.wDiv[i,k]  = 0.0
-                            self.wT[i,k]    = Pr.Vort_conv_amp*Wp[i]*(PV.T.spectral[i,k-1] + PV.T.spectral[i,k-1])*0.5
+                            # self.wT[i,k]    = Pr.Vort_conv_amp*Wp[i]*(PV.T.spectral[i,k-1] + PV.T.spectral[i,k-1])*0.5
                             if Pr.moist_index > 0.0:
                                 self.wT[i,k]    = Pr.Vort_conv_amp*Wp[i]*(PV.QT.spectral[i,k-1] + PV.QT.spectral[i,k-1])*0.5
                         else:
                             self.wVort[i,k] = Pr.Vort_conv_amp*Wp[i]*(PV.Vorticity.spectral[i,k] - PV.Vorticity.spectral[i,k-1])*dpi[i,k]
                             self.wDiv[i,k]  = Pr.Vort_conv_amp*Wp[i]*(PV.Divergence.spectral[i,k] - PV.Divergence.spectral[i,k-1])*dpi[i,k]
-                            self.wT[i,k]    = Pr.Vort_conv_amp*Wp[i]*(PV.T.spectral[i,k] + PV.T.spectral[i,k-1])*0.5*dpi[i,k]
+                            # self.wT[i,k]    = Pr.Vort_conv_amp*Wp[i]*(PV.T.spectral[i,k] + PV.T.spectral[i,k-1])*0.5*dpi[i,k]
                             if Pr.moist_index > 0.0:
                                 self.wT[i,k]    = Pr.Vort_conv_amp*Wp[i]*(PV.QT.spectral[i,k] + PV.QT.spectral[i,k-1])*0.5*dpi[i,k]
 
@@ -148,7 +148,7 @@ cdef class ConvectionRandomFlux(ConvectionBase):
                     for i in range(nlm):
                         PV.Vorticity.ConvectiveFlux[i,k]  = -(self.wVort[i,k+1] - self.wVort[i,k])*dpi[i,k+1]
                         PV.Divergence.ConvectiveFlux[i,k] = -(self.wDiv[i,k+1]  - self.wDiv[i,k])*dpi[i,k+1]
-                        PV.T.ConvectiveFlux[i,k]          = -(self.wT[i,k+1]    - self.wT[i,k])*dpi[i,k+1]
+                        # PV.T.ConvectiveFlux[i,k]          = -(self.wT[i,k+1]    - self.wT[i,k])*dpi[i,k+1]
                         if Pr.moist_index > 0.0:
                             PV.QT.ConvectiveFlux[i,k]     = -(self.wQT[i,k+1]   - self.wQT[i,k])*dpi[i,k+1]
 
@@ -272,7 +272,7 @@ cdef class ConvectionRandomTransport(ConvectionBase):
                     for i in range(nlm):
                         PV.Vorticity.ConvectiveFlux[i,k]  = -(self.wVort[i,k+1] - self.wVort[i,k])*dpi[i,k+1]
                         PV.Divergence.ConvectiveFlux[i,k] = -(self.wDiv[i,k+1]  - self.wDiv[i,k])*dpi[i,k+1]
-                        PV.T.ConvectiveFlux[i,k]          = -(self.wT[i,k+1]    - self.wT[i,k])*dpi[i,k+1]
+                        # PV.T.ConvectiveFlux[i,k]          = -(self.wT[i,k+1]    - self.wT[i,k])*dpi[i,k+1]
                         if Pr.moist_index > 0.0:
                             PV.QT.ConvectiveFlux[i,k]     = -(self.wQT[i,k+1]   - self.wQT[i,k])*dpi[i,k+1]
 

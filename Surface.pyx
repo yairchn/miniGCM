@@ -10,7 +10,7 @@ from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
 
 cdef extern from "surface_functions.h":
-    void surface_bulk_formula(double g, double Rv, double Lv, double T_0, double Ch, double Cq,
+    void surface_bulk_formula(double cp, double g, double Rv, double Lv, double T_0, double Ch, double Cq,
                               double Cd, double pv_star0, double eps_v, double* p, double* gz, double* T,
                               double* qt, double* T_surf, double* u, double* v, double* u_surf_flux,
                               double* v_surf_flux, double* T_surf_flux, double* qt_surf_flux,
@@ -83,16 +83,14 @@ cdef class SurfaceBulkFormula(SurfaceBase):
             Py_ssize_t nl = Pr.n_layers
 
         with nogil:
-            surface_bulk_formula(Pr.g, Pr.Rv, Pr.Lv, Pr.T_0, Pr.Ch, Pr.Cq,
+            surface_bulk_formula(Pr.cp, Pr.g, Pr.Rv, Pr.Lv, Pr.T_0, Pr.Ch, Pr.Cq,
                               Pr.Cd, Pr.pv_star0, Pr.eps_v, &PV.P.values[0,0,0],
-                              &DV.gZ.values[0,0,0], &PV.T.values[0,0,0],
+                              &DV.gZ.values[0,0,0], &DV.T.values[0,0,0],
                               &PV.QT.values[0,0,0], &self.T_surf[0,0],
                               &DV.U.values[0,0,0], &DV.V.values[0,0,0],
                               &DV.U.SurfaceFlux[0,0], &DV.V.SurfaceFlux[0,0],
-                              &PV.T.SurfaceFlux[0,0], &PV.QT.SurfaceFlux[0,0],
+                              &PV.E.SurfaceFlux[0,0], &PV.QT.SurfaceFlux[0,0],
                               nx, ny, nl)
-        # print(np.max(PV.T.SurfaceFlux))
-        # print(np.max(PV.QT.SurfaceFlux))
 
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):

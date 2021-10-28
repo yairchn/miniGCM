@@ -5,6 +5,8 @@
 #include <math.h>
 
 void vertical_turbulent_flux(
+           double cp,
+           double lv,
            double g,
            double Dh,
            double Dq,
@@ -18,7 +20,7 @@ void vertical_turbulent_flux(
            double* restrict qt,
            double* restrict u,
            double* restrict v,
-           double* restrict wTh,
+           double* restrict wE,
            double* restrict wqt,
            ssize_t imax,
            ssize_t jmax,
@@ -28,6 +30,8 @@ void vertical_turbulent_flux(
     const ssize_t imin = 0;
     const ssize_t jmin = 0;
     const ssize_t kmin = 0;
+    double wT;
+    double wKe;
     double windspeed;
     double za;
     double Kh;
@@ -52,7 +56,7 @@ void vertical_turbulent_flux(
                 const ssize_t ijk = ishift + jshift + k;
                 const ssize_t ijkp = ishift_p + jshift_p + k;
                 if (k==0){
-                    wTh[ijk]   =  0.0;
+                    wE[ijk]   =  0.0;
                     wqt[ijk]   =  0.0;
                 } // end if
                 else{
@@ -63,8 +67,10 @@ void vertical_turbulent_flux(
                     Th_dn = T[ijk]  *pow((p[ijkp]   + p[ijkp+1])/2.0/p_ref, kappa);
                     Th_up = T[ijk-1]*pow((p[ijkp-1] + p[ijkp])/2.0/p_ref, kappa);
                     dpi = 2.0/(p[ijkp+1]-p[ijkp-1]); // pressure differnece from mid-layer values for ijk
-                    wTh[ijk] = -Kh*(Th_dn - Th_up)*dpi;
                     wqt[ijk] = -Kq*(qt[ijk] - qt[ijk-1])*dpi;
+                    wT = -Kh*(Th_dn - Th_up)*dpi;
+                    wKe = 0;
+                    wE[ijk] = cp*wT + lv*wqt[ijk] + wKe;
                 } // end else
             } // end k loop
         } // end j loop

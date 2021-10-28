@@ -10,9 +10,9 @@ from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
 
 cdef extern from "turbulence_functions.h":
-    void vertical_turbulent_flux(double g, double Ch, double Cq, double kappa, double p_ref,
+    void vertical_turbulent_flux(double cp, double lv, double g, double Ch, double Cq, double kappa, double p_ref,
                                  double Ppbl, double Pstrato, double* p, double* gz,
-                                 double* T, double* qt, double* u, double* v, double* wTh,
+                                 double* T, double* qt, double* u, double* v, double* wE,
                                  double* wqt, Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
 
 def TurbulenceFactory(namelist):
@@ -81,11 +81,11 @@ cdef class DownGradientTurbulence(TurbulenceBase):
             Py_ssize_t nl = Pr.n_layers
 
         with nogil:
-            vertical_turbulent_flux(Pr.g, Pr.Dh, Pr.Dq, Pr.kappa, Pr.p_ref, Pr.Ppbl, Pr.Pstrato,
+            vertical_turbulent_flux(Pr.cp, Pr.Lv, Pr.g, Pr.Dh, Pr.Dq, Pr.kappa, Pr.p_ref, Pr.Ppbl, Pr.Pstrato,
                               &PV.P.values[0,0,0],&DV.gZ.values[0,0,0],
-                              &PV.T.values[0,0,0],&PV.QT.values[0,0,0],
+                              &DV.T.values[0,0,0],&PV.QT.values[0,0,0],
                               &DV.U.values[0,0,0],&DV.V.values[0,0,0],
-                              &PV.T.TurbFlux[0,0,0],&PV.QT.TurbFlux[0,0,0],
+                              &PV.E.TurbFlux[0,0,0],&PV.QT.TurbFlux[0,0,0],
                                nx, ny, nl)
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):

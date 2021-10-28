@@ -5,6 +5,7 @@
 #include <math.h>
 
 void focring_hs(
+           double cp,
            double kappa,
            double p_ref,
            double sigma_b,
@@ -24,7 +25,7 @@ void focring_hs(
            double* restrict v,
            double* restrict u_forc,
            double* restrict v_forc,
-           double* restrict T_forc,
+           double* restrict E_forc,
            ssize_t imax,
            ssize_t jmax,
            ssize_t kmax)
@@ -37,6 +38,8 @@ void focring_hs(
     double sigma_ratio;
     double k_T;
     double k_v;
+    double Ke_forc;
+    double T_forc;
 
     for(ssize_t i=imin;i<imax;i++){
         const ssize_t ishift_2d = i*jmax;
@@ -63,7 +66,9 @@ void focring_hs(
 
                 u_forc[ijk] = -k_v *  u[ijk];
                 v_forc[ijk] = -k_v *  v[ijk];
-                T_forc[ijk] = -k_T * (T[ijk] - T_bar[ijk]);
+                Ke_forc = - (k_v *  u[ijk]*u[ijk] + k_v *  v[ijk]*v[ijk]);
+                T_forc = k_T * (T[ijk] - T_bar[ijk]);
+                E_forc[ijk] = cp *T_forc + Ke_forc;
 
             } // end k loop
         } // end j loop

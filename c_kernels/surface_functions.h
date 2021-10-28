@@ -5,6 +5,7 @@
 #include <math.h>
 
 void surface_bulk_formula(
+           double cp,
            double g,
            double Rv,
            double Lv,
@@ -23,7 +24,7 @@ void surface_bulk_formula(
            double* restrict v,
            double* restrict u_surf_flux,
            double* restrict v_surf_flux,
-           double* restrict T_surf_flux,
+           double* restrict E_surf_flux,
            double* restrict qt_surf_flux,
            ssize_t imax,
            ssize_t jmax,
@@ -33,6 +34,8 @@ void surface_bulk_formula(
     const ssize_t imin = 0;
     const ssize_t jmin = 0;
     double z_a;
+    double T_surf_flux;
+    double Ke_surf_flux;
     double windspeed;
     double qt_surf;
     double Lv_Rv=Lv/Rv;
@@ -54,8 +57,10 @@ void surface_bulk_formula(
             z_a = gz[ijkmax_p-1]/g/2.0;
             u_surf_flux[ij]  = -Cd/z_a*windspeed*u[ijkmax-1];
             v_surf_flux[ij]  = -Cd/z_a*windspeed*v[ijkmax-1];
-            T_surf_flux[ij]  = -Ch/z_a*windspeed*(T[ijkmax-1] - T_surf[ij]);
             qt_surf_flux[ij] = -Cq/z_a*windspeed*(qt[ijkmax-1] - qt_surf);
+            T_surf_flux      = -Ch/z_a*windspeed*(T[ijkmax-1] - T_surf[ij]);
+            Ke_surf_flux     = u[ijkmax-1]*u_surf_flux[ij] + v[ijkmax-1]*v_surf_flux[ij];
+            E_surf_flux[ij]  = cp*T_surf_flux + Lv*qt_surf_flux[ij] + Ke_surf_flux;
         } // end j loop
     } // end i loop
     return;

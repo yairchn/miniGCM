@@ -7,13 +7,15 @@
 #include <math.h>
 
 void diagnostic_variables(
+           double cp,
+           double lv,
            double Rd,
            double Rv,
            double Omega,
            double a,
            double* restrict lat,
            double* restrict p,
-           double* restrict T,
+           double* restrict E,
            double* restrict qt,
            double* restrict ql,
            double* restrict u,
@@ -26,6 +28,7 @@ void diagnostic_variables(
            double* restrict TT,
            double* restrict vT,
            double* restrict M,
+           double* restrict T,
            ssize_t k,
            ssize_t imax,
            ssize_t jmax,
@@ -51,6 +54,7 @@ void diagnostic_variables(
             const ssize_t ijk_rev = ishift + jshift + k_rev;
             const ssize_t ijkp_rev = ishift_p + jshift_p + k_rev;
             ke[ijk]      = 0.5*(u[ijk]*u[ijk] + v[ijk]*v[ijk]);
+            T[ijk] = (E[ijk] - ke[ijk] - lv*qt[ijk])/cp;
             wp[ijkp+1]   = wp[ijkp] - (p[ijkp+1]-p[ijkp])*div[ijk];
             Rm           = Rd*(1.0-qt[ijk_rev]) + Rv*(qt[ijk_rev] - ql[ijk_rev]);
             gz[ijkp_rev] = Rm*T[ijk_rev]*log(p[ijkp_rev+1]/p[ijkp_rev]) + gz[ijkp_rev+1];

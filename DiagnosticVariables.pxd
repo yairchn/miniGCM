@@ -19,6 +19,7 @@ cdef class DiagnosticVariable:
 
 cdef class DiagnosticVariables:
     cdef:
+        DiagnosticVariable T
         DiagnosticVariable QL
         DiagnosticVariable U
         DiagnosticVariable V
