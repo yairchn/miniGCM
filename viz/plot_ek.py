@@ -19,8 +19,8 @@ import warnings
 warnings.filterwarnings("ignore")
 
 hres_scaling=16
-hres_scaling=1
 hres_scaling=4
+#hres_scaling=1
 
 nlons  = hres_scaling*128  # number of longitudes
 ntrunc = int(nlons/3)  # spectral truncation (for alias-free computations)
@@ -322,9 +322,19 @@ path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701w/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701x/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701z/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582702a/Fields_restart/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582702b/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582703b/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582702c/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582704b/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582705b/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582707b/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582708b/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582709b/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582r10b/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582r11b/Fields/'
 
-#time=np.arange(0,3,1)
-time=np.arange(504,770,14)
+time=np.arange(0,5,1)
+#time=np.arange(504,770,14)
 print('time.shape',time.shape)
 print('time',time)
 ke=np.zeros((3,time.shape[0]))
@@ -379,47 +389,47 @@ for it in time:
            ke[Layer,icount]=np.mean(0.5*dp*u**2 + 0.5*dp*v**2)
            print('layer ', Layer, 'mean KE ', ke[Layer,icount]/dp)
 
-        iplot_mean=0
+        iplot_mean=1
         if (iplot_mean==1):
 
            zonalmean=T.mean(axis=1)
-           #zonalstd=T.std(axis=1)
-           #print("zonal mean of T: ", zonalmean, zonalmean.shape)
-           #maxAnomaly = np.amax(abs(zonalmean))
-           #plt.figure(3,figsize=(4,8))
-           #plt.clf()
-           #plt.title("Zonal means at day "+str(it))
-           #plt.plot(zonalmean,latDeg,'-k',linewidth='2')
-           #plt.plot(zonalmean-zonalstd,latDeg,'-k')
-           #plt.plot(zonalmean+zonalstd,latDeg,'-k')
-           #plt.savefig('T_zonalmean_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
+           zonalstd=T.std(axis=1)
+           print("zonal mean of T: ", zonalmean, zonalmean.shape)
+           maxAnomaly = np.amax(abs(zonalmean))
+           plt.figure(53,figsize=(4,8))
+           plt.clf()
+           plt.title("Zonal means at day "+str(it))
+           plt.plot(zonalmean,latDeg,'-k',linewidth='2')
+           plt.plot(zonalmean-zonalstd,latDeg,'-k')
+           plt.plot(zonalmean+zonalstd,latDeg,'-k')
+           plt.savefig('T_zonalmean_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
            np.save('T_zonalmean_'+str(Layer)+'_'+str(it).zfill(10),np.array(zonalmean))
 
 
            zonalmean=u.mean(axis=1)
-           #zonalstd=u.std(axis=1)
-           #print("zonal mean of u: ", zonalmean, zonalmean.shape)
-           #maxAnomaly = np.amax(abs(zonalmean))
-           #plt.figure(3,figsize=(4,8))
-           #plt.clf()
-           #plt.title("Zonal means at day "+str(it))
-           #plt.plot(zonalmean,latDeg,'-k',linewidth='2')
-           #plt.plot(zonalmean-zonalstd,latDeg,'-k')
-           #plt.plot(zonalmean+zonalstd,latDeg,'-k')
-           #plt.savefig('u_zonalmean_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
+           zonalstd=u.std(axis=1)
+           print("zonal mean of u: ", zonalmean, zonalmean.shape)
+           maxAnomaly = np.amax(abs(zonalmean))
+           plt.figure(53,figsize=(4,8))
+           plt.clf()
+           plt.title("Zonal means at day "+str(it))
+           plt.plot(zonalmean,latDeg,'-k',linewidth='2')
+           plt.plot(zonalmean-zonalstd,latDeg,'-k')
+           plt.plot(zonalmean+zonalstd,latDeg,'-k')
+           plt.savefig('u_zonalmean_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
            np.save('u_zonalmean_'+str(Layer)+'_'+str(it).zfill(10),np.array(zonalmean))
 
            zonalmean=v.mean(axis=1)
-           #zonalstd=v.std(axis=1)
-           #print("zonal mean of v: ", zonalmean, zonalmean.shape)
-           #maxAnomaly = np.amax(abs(zonalmean))
-           #plt.figure(3,figsize=(4,8))
-           #plt.clf()
-           #plt.title("Zonal means at day "+str(it))
-           #plt.plot(zonalmean,latDeg,'-k',linewidth='2')
-           #plt.plot(zonalmean-zonalstd,latDeg,'-k')
-           #plt.plot(zonalmean+zonalstd,latDeg,'-k')
-           #plt.savefig('v_zonalmean_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
+           zonalstd=v.std(axis=1)
+           print("zonal mean of v: ", zonalmean, zonalmean.shape)
+           maxAnomaly = np.amax(abs(zonalmean))
+           plt.figure(53,figsize=(4,8))
+           plt.clf()
+           plt.title("Zonal means at day "+str(it))
+           plt.plot(zonalmean,latDeg,'-k',linewidth='2')
+           plt.plot(zonalmean-zonalstd,latDeg,'-k')
+           plt.plot(zonalmean+zonalstd,latDeg,'-k')
+           plt.savefig('v_zonalmean_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
            np.save('v_zonalmean_'+str(Layer)+'_'+str(it).zfill(10),np.array(zonalmean))
            np.save('latDeg',latDeg)
            #
@@ -538,7 +548,7 @@ for it in time:
 iplot_timsr=1
 if (iplot_timsr==1):
    zonalstd=T.std(axis=1)
-   plt.figure(3,figsize=(5,2.5))
+   plt.figure(3,figsize=(5,5))
    plt.clf()
    plt.title("Global Mean Kinetic Energy")
    ke_global_mean=(ke[0,:]+ke[1,:]+ke[2,:])/dPressure

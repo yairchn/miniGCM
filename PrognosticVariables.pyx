@@ -225,6 +225,8 @@ cdef class PrognosticVariables:
             double complex [:] Vortical_QT_flux = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] Vortical_P_flux  = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] Divergent_P_flux = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] Vortical_P_flux2  = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] Divergent_P_flux2 = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] Div = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] Vort = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] Divergent_QT_flux = np.zeros((nlm), dtype = np.complex, order ='c')
@@ -257,6 +259,10 @@ cdef class PrognosticVariables:
             np.multiply(DV.U.values[:,:,nl-1],np.subtract(PV.P.values[:,:,nl-1],PV.P.values[:,:,nl])),
             np.multiply(DV.V.values[:,:,nl-1],np.subtract(PV.P.values[:,:,nl-1],PV.P.values[:,:,nl])))
 
+        #Vortical_P_flux2, Divergent_P_flux2 = Gr.SphericalGrid.getvrtdivspec(
+        #    np.multiply(np.divide(DV.U.values[:,:,nl-1],10.), np.subtract(PV.P.values[:,:,nl-1],PV.P.values[:,:,nl])),
+        #    np.multiply(np.divide(DV.V.values[:,:,nl-1],10.), np.subtract(PV.P.values[:,:,nl-1],PV.P.values[:,:,nl])))
+
         Vort, Div = Gr.SphericalGrid.getvrtdivspec(
             np.multiply(DV.U.values[:,:,nl-1],1.),
             np.multiply(DV.V.values[:,:,nl-1],1,))
@@ -265,8 +271,9 @@ cdef class PrognosticVariables:
         m3_spectral = Gr.SphericalGrid.grdtospec(np.subtract(PV.P.values[:,:,nl-1],PV.P.values[:,:,nl]))
         with nogil:
             for i in range(nlm):
-                #PV.P.tendency[i,nl] = Divergent_P_flux[i] + Wp3_spectral[i]
-                PV.P.tendency[i,nl] = Div[i]*m3_spectral[i] + Wp3_spectral[i]
+                PV.P.tendency[i,nl] = Divergent_P_flux[i] + Wp3_spectral[i]
+                #2b PV.P.tendency[i,nl] = Div[i]*m3_spectral[i] + Wp3_spectral[i]
+                #2c PV.P.tendency[i,nl] = Divergent_P_flux2[i] + Div[i]*m3_spectral[i] + Wp3_spectral[i]
 
         for k in range(nl):
             if k==nl-1:

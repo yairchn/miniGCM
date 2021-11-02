@@ -23,7 +23,7 @@
     "forcing": {
         "equator_to_pole_dT": 60.0,
         "equatorial_temperature": 315.0,
-        "forcing_model": "HeldSuarez",
+        "forcing_model": "StochasticHeldSuarez",
         "k_a": 2.8935185185185185e-07,
         "k_b": 2.8935185185185185e-07,
         "k_f": 1.1574074074074073e-05,
@@ -31,8 +31,8 @@
         "lapse_rate": 10.0,
         "max_noise_wavenumber": 102,
         "min_noise_wavenumber": 98,
-        "noise": false,
-        "noise_amplitude": 1.0e-8,
+        "noise": true,
+        "noise_amplitude": 1.0e-18,
         "noise_correlation": 0.0,
         "noise_magnitude": 0.05,
         "noise_type": "local",
@@ -53,10 +53,10 @@
     "initialize": {
         "T_init": 300.0,
         "noise": true,
-        "noise_amplitude": 1,
+        "noise_amplitude": 10,
         "noise_type": "red",
         "restart": false,
-        "restart folder": "/Output.HeldSuarez.704ff582702a/Fields/",
+        "restart folder": "/Output.HeldSuarez.704ff582706b/Fields/",
         "restart time": "43200000",
         "restart type": "3D_output"
     },
@@ -68,7 +68,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "dd136d0f-a5c6-46c0-a2ed-704ff582702b"
+        "uuid": "dd136d0f-a5c6-46c0-a2ed-704ff582r15b"
     },
     "microphysics": {
         "microphysics_model": "None"

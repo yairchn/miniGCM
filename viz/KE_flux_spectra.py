@@ -19,7 +19,7 @@ Ek_cross=np.copy(ks)*0.
 
 for Layer in np.arange(0,3):
     icount=0
-    for it in np.arange(700,714,14): Ek+=np.load(path+'Ek_flux_'+str(Layer)+'_0000000'+str(it).zfill(3)+'.npy'); icount+=1.
+    for it in np.arange(2,8,8): Ek+=np.load(path+'Ek_flux_'+str(Layer)+'_0000000'+str(it).zfill(3)+'.npy'); icount+=1.
     #for it in np.arange(420,601,14): Ek_vrt+=np.load(path+'EkRot_flux_'+str(Layer)+'_0000000'+str(it)+'.npy')
     #for it in np.arange(420,601,14): Ek_div+=np.load(path+'EkDiv_flux_'+str(Layer)+'_0000000'+str(it)+'.npy')
     #for it in np.arange(420,601,14): Ek_cross+=np.load(path+'EkCross_flux_'+str(Layer)+'_0000000'+str(it)+'.npy')
@@ -48,10 +48,11 @@ ax.set_ylabel('Kinetic Energy Flux [W/kg]',size='12', fontname = 'Dejavu Sans')
 plt.grid(alpha=0.7,color='k',linestyle='dotted',dashes=[1,5 ],linewidth=1,zorder=100)
 
 #plt.xlim(1,700)
+#plt.xlim(-1,25)
 
 #plt.ylim(-3.e-4,1.e-3)
 
-plt.legend(loc='upper left')
+plt.legend(loc='upper right')
 
 circumference=6371.*pi*2. # [km]
 

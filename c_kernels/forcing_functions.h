@@ -37,6 +37,8 @@ void forcing_hs(
     double sigma_ratio;
     double k_T;
     double k_v;
+    double exner;
+    double exner_inverse;
 
     for(ssize_t i=imin;i<imax;i++){
         const ssize_t ishift_2d = i*jmax;
@@ -52,9 +54,10 @@ void forcing_hs(
                 const ssize_t ijk = ishift + jshift + k;
                 const ssize_t ijkp = ishift_p + jshift_p + k;
                 p_half = (p[ijkp]+p[ijkp+1])/2.0;
+		//exner_inverse=pow((100000./p_half), kappa);
                 T_bar[ijk] = fmax(((T_equator - DT_y*sin_lat[ij]*sin_lat[ij] -
                                 Dtheta_z*log(p_half/p_ref)*cos_lat[ij]*cos_lat[ij])*
-                                pow(p_half/p_ref, kappa)),200.0);
+                                pow(p_half/p_ref, kappa)),200.0);//*exner_inverse;
 
 
                 sigma_ratio = fmax((p_half/p[ijkmax_p]-sigma_b)/(1-sigma_b),0.0);

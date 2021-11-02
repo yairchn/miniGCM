@@ -24,7 +24,7 @@ EkDiv =np.load(path+'EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy')*0.
 icount=0
 for Layer in np.arange(0,3):
     print("Layer ",Layer)
-    for it in np.arange(700,770,14):
+    for it in np.arange(1,11,14):
         print('it ',it)
         icount+=1
         #
