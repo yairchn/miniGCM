@@ -111,12 +111,19 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
             Py_ssize_t ny = Pr.nlons
             Py_ssize_t nl = Pr.n_layers
 
-        with nogil:
-            microphysics_cutoff(Pr.cp, Pr.mp_dt, Pr.Rv, Pr.Lv, Pr.T_0, Pr.rho_w,
-                                Pr.g, Pr.max_ss, Pr.pv_star0, Pr.eps_v, &PV.P.values[0,0,0],
-                                &PV.T.values[0,0,0], &PV.QT.values[0,0,0], &DV.QL.values[0,0,0], &PV.T.mp_tendency[0,0,0],
-                                &PV.QT.mp_tendency[0,0,0], &self.RainRate[0,0], &self.qv_star[0,0,0],
-                                nx, ny, nl)
+        if (TS.t%Pr.mp_dt == 0.0):
+            with nogil:
+                microphysics_cutoff(Pr.cp, Pr.mp_dt, Pr.Rv, Pr.Lv, Pr.T_0, Pr.rho_w,
+                                    Pr.g, Pr.max_ss, Pr.pv_star0, Pr.eps_v, &PV.P.values[0,0,0],
+                                    &PV.T.values[0,0,0], &PV.QT.values[0,0,0], &DV.QL.values[0,0,0], &PV.T.mp_tendency[0,0,0],
+                                    &PV.QT.mp_tendency[0,0,0], &self.RainRate[0,0], &self.qv_star[0,0,0],
+                                    nx, ny, nl)
+        else:
+            PV.QT.mp_tendency = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
+            PV.T.mp_tendency = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
+            self.RainRate = np.zeros((nx,ny),dtype=np.float64, order='c')
+            self.qv_star = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
+
 
         return
 

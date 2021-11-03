@@ -12,15 +12,15 @@ def main():
     args = parser.parse_args()
     varname = args.varname
 
-    folder = os.getcwd() + '/Output.HeldSuarezMoist.3-moist_evap/stats/'
-    ncfile = folder + 'Stats.HeldSuarezMoist.nc'
+    folder = os.getcwd() + '/Output.HeldSuarez.704ff582701f/stats/'
+    ncfile = folder + 'Stats.HeldSuarez.Rerun_3.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
     n = int(np.multiply(data.groups['coordinates'].variables['layers'],1.0))
 
     lat_list = np.array(data.groups['coordinates'].variables['latitude_list'])
-    var = np.array(data.groups['zonal_mean'].variables[varname])
+    var = np.multiply(np.array(data.groups['zonal_mean'].variables[varname]) ,1000.0)
     t = np.divide(data.groups['zonal_mean'].variables['t'],3600.0*24.0)
 
     X, Y = np.meshgrid(t,lat_list)
@@ -30,7 +30,7 @@ def main():
     for i in range(n):
         ax1 = fig.add_subplot(n, 1, i+1)
         im1 = ax1.contourf(X,Y,np.fliplr(np.rot90(np.squeeze(var[:,:,i]), k=3)))
-        ax1.set_ylabel('degree latitude')
+        ax1.set_ylabel('lat')
         if i<n-1:
             xlabels = [item.get_text() for item in ax1.get_xticklabels()]
             xempty_string_labels = [''] * len(xlabels)
@@ -38,13 +38,8 @@ def main():
         else:
             ax1.set_xlabel('time days')
         fig.colorbar(im1)
-    print(np.shape(var))
-    globle_mean_var = np.mean(np.mean(var, axis = 1), axis = 1)
-    norm_var  = np.divide(np.subtract(globle_mean_var,globle_mean_var[0]),globle_mean_var[0])
-    plt.figure('global mean')
-    plt.plot(t, norm_var)
-    print(np.max(np.divide(np.subtract(globle_mean_var,globle_mean_var[0]),globle_mean_var[0])))
-    fig = plt.figure('time mean ' + varname)
+
+    fig = plt.figure(varname + "zonal mean")
     for i in range(n):
         ax1 = fig.add_subplot(n, 1, i+1)
         im1 = ax1.plot(np.mean(var[-100:-1,:,i],axis = 0),Y)
@@ -60,8 +55,6 @@ def main():
     plt.plot(np.mean(var[-100:-1,:,0],axis = 0),Y)
     plt.plot(np.mean(var[-100:-1,:,1],axis = 0),Y)
     plt.plot(np.mean(var[-100:-1,:,2],axis = 0),Y)
-    # fig = plt.figure('contour time mean' + varname)
-    # plt.contourf(np.mean(var[-100:-1,:,:],axis = 0))
     plt.show()
 
 if __name__ == '__main__':

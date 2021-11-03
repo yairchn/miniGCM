@@ -23,9 +23,6 @@ def CasesFactory(namelist):
         return HeldSuarez(namelist)
     elif namelist['meta']['casename'] == 'HeldSuarezMoist':
         return HeldSuarezMoist(namelist)
-    # anthoer example
-    # elif namelist['meta']['casename'] == 'StochasticHeldSuarez':
-    #     return Stochastic_Frorcing(paramlist)
     else:
         print('case not recognized')
     return
@@ -98,7 +95,6 @@ cdef class HeldSuarez(CaseBase):
             PV.T.values          = np.multiply(np.ones((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c'),Pr.T_init)
 
         PV.physical_to_spectral(Pr, Gr)
-        print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
         if namelist['initialize']['noise']:
              # calculate noise
              F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
@@ -286,6 +282,6 @@ cdef class HeldSuarezMoist(CaseBase):
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         self.Sur.update(Pr, Gr, PV, DV)
         self.Fo.update(Pr, Gr, PV, DV)
-        self.MP.update(Pr, PV, DV, TS)
         self.Tr.update(Pr, Gr, PV, DV)
+        self.MP.update(Pr, PV, DV, TS)
         return

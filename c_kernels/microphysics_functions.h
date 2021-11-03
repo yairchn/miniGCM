@@ -14,7 +14,7 @@ void microphysics_cutoff(
            double rho_w,
            double g,
            double max_ss,
-           double pv_star0,
+           double e0,
            double eps_v,
            double* restrict p,
            double* restrict T,
@@ -37,7 +37,7 @@ void microphysics_cutoff(
     double Lv_Rv=Lv/Rv;
     double Lv_cpRv=pow(Lv,2.0)/cp/Rv;
     double Lv_cp=Lv/cp;
-    double pv0epsv=pv_star0*eps_v;
+    double e0_epsv=e0*eps_v;
     double T_0_inv=1.0/T_0;
 
     for(ssize_t i=imin;i<imax;i++){
@@ -55,7 +55,7 @@ void microphysics_cutoff(
                 const ssize_t ijk = ishift + jshift + k;
                 const ssize_t ijkp = ishift_p + jshift_p + k;
                 p_half = 0.5*(p[ijkp]+p[ijkp+1]);
-                qv_star[ijk] = (pv0epsv/p_half)*exp(-Lv_Rv*(1.0/T[ijk]-T_0_inv)); // Eq. (1) Tatcher and Jabolonski 2016
+                qv_star[ijk] = (e0_epsv/p_half)*exp(-Lv_Rv*(1.0/T[ijk]-T_0_inv)); // Eq. (1) Tatcher and Jabolonski 2016
                 denom = (1.0+Lv_cpRv*qv_star[ijk]/(T[ijk]*T[ijk]))*dt;
                 ql[ijk] = qt[ijk] - qv_star[ijk];
                 T_mp[ijk]  =  (qt[ijk] - qv_star[ijk])/denom; // Eq. (2) Tatcher and Jabolonski 2016

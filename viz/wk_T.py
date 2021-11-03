@@ -17,6 +17,7 @@ from scipy import signal
 
 #exit()
 
+hres=1
 hres=4
 nlons = 128*hres  # number of longitudes
 ntrunc = int(nlons/3)  # spectral truncation (for alias-free computations)
@@ -68,17 +69,17 @@ def plotDispCurves(Hbar):
     plt.plot(kIGW5,freqIGW5,'--k',linewidth='.5',alpha=0.5)
 
 def calcFlux(name,tmin,tmax,lmin,lmax,dt,dx=1.,Layer=0):
-
-    data = xarray.open_dataset(name)
+    data = netCDF4.Dataset(name)
+    data=data.variables['Temperature'][:,:,:,:]
+    print("data.shape ", data.shape)
     #u    = data['uwind']
     #v    = data['vwind']
     #vort = data['vorticity']
     #field = data['Temperature'][500:800,28:36,:,2]-np.mean(data['Temperature'][500:800,28:36,:,2],axis=(0,2))
-    field = data['Temperature'][0:30000,112:144,:,Layer]-np.mean(data['Temperature'][0:30000,112:144,:,Layer],axis=(0,2))
-    field -= np.mean(field,axis=(2))
+    field = np.array(data[0:300,28:36,:,Layer])
+
     #qp   = data['qprime']
     #vrt  = data['vorticity']
-    print("field.shape ", field.shape)
     #print("time[0] ", time[0])
     #ntim = len(time)
     #nlon = len(lon)
@@ -93,6 +94,7 @@ def calcFlux(name,tmin,tmax,lmin,lmax,dt,dx=1.,Layer=0):
     #htsel = ht.loc[sel]
     out = field
     print("out.shape ", out.shape)
+    #print("out ", out)
     #out   = vrtsel
     #taper with Hanning window
     taper= signal.windows.hann(out.shape[0])
@@ -106,12 +108,10 @@ def calcFlux(name,tmin,tmax,lmin,lmax,dt,dx=1.,Layer=0):
     #ntim = len(time)
     #nlon = len(lon)
     #print("ntim, nlon", ntim, nlon)
-    nlon=512
     ntim=out.shape[0]
     dt=1.
-    dt=.01
-    dx   = dx/nlon
-    kxx  = fftfreq(nlon,dx)
+    dx   = dx/nlons
+    kxx  = fftfreq(nlons,dx)
     ktt  = fftfreq(ntim,dt)
     [kx,kt] = np.meshgrid(kxx,ktt)
     kx   = fftshift(kx)
@@ -130,18 +130,19 @@ def calcPower(data):
     return np.flip(power,axis=0)
 ########################################################
 
-tmin =  50000
-tmax = 100000
-dt   = 1.e-1
-dt   = 1.e-2
-#dt   = 1.
+tmin =  500
+tmax =  800
+dt   = 1.
 
-path     = '../Output.HeldSuarez.HighResToRun/Fields/'
+path     = '../Output.HeldSuarez..44-test3lay/Fields/'
+path     = '../Output.HeldSuarez.oistp_plane6/Fields/'
 filename = 'T_merge.nc'
 
 #lmin= 45.; lmax=65.
 lmin=-15.; lmax=15.
-sp3     = calcFlux(path+filename,tmin,tmax,lmin,lmax,dt,Layer=2)
+sp1     = calcFlux(path+filename,tmin,tmax,lmin,lmax,dt,Layer=0)
+#sp2     = calcFlux(path+filename,tmin,tmax,lmin,lmax,dt,Layer=1)
+#sp3     = calcFlux(path+filename,tmin,tmax,lmin,lmax,dt,Layer=2)
 
 
 
@@ -153,19 +154,13 @@ seaborn.set_style('whitegrid',rc={"axes.edgecolor":'black'})
 
 
 [power1,kx,kt] = sp1
-print('calculated power - Layer 0')
 #[power2,kx,kt] = sp2
-#print('calculated power - Layer 1')
-[power3,kx,kt] = sp3
-power3=np.log10(power3)
-print('calculated power - Layer 2')
+#[power3,kx,kt] = sp3
 #power=np.log10(power1)-np.log10(power2)
+#power=np.log10(power2)-np.log10(power3)
+#power=np.log10(power3)
 power=np.log10(power1)
 print('calculated power')
-power_diff_Layer0_Layer1=np.load(filename+"hp_power_tropics_m15_p15_diff_Layer0_Layer1.npy")
-#power=np.load(filename+"hp_power_tropics_m15_p15.npy")
-#kx=np.load(filename+"power_kx.npy")
-#kt=np.load(filename+"power_kt.npy")
 print("power.shape ", power.shape)
 print("min max power ", np.amin(power), np.amax(power))
 #np.save(filename+"hp_power_tropics_m15_p15.npy",power)
@@ -173,12 +168,9 @@ print("min max power ", np.amin(power), np.amax(power))
 #np.save(filename+"power_kt.npy",kt)
 #plt.figure(figsize=(8,8))
 plt.figure(figsize=(5,5.5))
-contours = plt.contourf(kx,kt,power,levels=np.linspace(7.4,11.8,20),cmap='RdYlBu_r') 
-#contour_lines_red = plt.contour(kx,kt,power3,levels=np.arange(10.5,12.6,.5),colors='red',linestyle='dashed',linewidths=0.25) 
-contour_lines = plt.contour(kx,kt,power_diff_Layer0_Layer1,levels=np.arange(0.75,2.1,.25),colors='black',linewidths=0.25) 
-#plotDispCurves(Hbar)
-#contours = plt.contourf(kx,kt,power,levels=np.linspace(7.8,15.1,30),cmap='RdYlBu_r') #run b 
-#contours = plt.contourf(kx,kt,power,levels=np.linspace(4.4,10.1,30),cmap='RdYlBu_r') #run b 
+#contours = plt.contourf(kx,kt,power,levels=np.linspace(-4.4,4.4,20),cmap='RdYlBu_r') 
+#contours = plt.contourf(kx,kt,power,levels=np.linspace(-1.2,2.2,20),cmap='RdYlBu_r',extend='both') 
+contours = plt.contourf(kx,kt,power,levels=np.linspace(2.4,8.4,20),cmap='RdYlBu_r') 
 plotDispCurves(Hbar)
 plt.colorbar(contours,orientation='horizontal',shrink=0.95,aspect=30,pad=0.14,ticks=np.arange(-28.,28.1,2.0))
 plt.ticklabel_format(style='sci',scilimits=(-2,2),axis='x')
