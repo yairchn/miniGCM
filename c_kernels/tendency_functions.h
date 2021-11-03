@@ -150,7 +150,7 @@ void rhs_qt(double* restrict p,
 }
 
 // u,v equations are in advective form
-void vertical_uv_fluxes(double* restrict p,
+void momentum_tendecies(double* restrict p,
                         double* restrict gz,
                         double* restrict vort,
                         double* restrict f,
@@ -165,6 +165,7 @@ void vertical_uv_fluxes(double* restrict p,
                         double* restrict e_dry,
                         double* restrict u_vort,
                         double* restrict v_vort,
+                        double* restrict pgf_correction,
                         ssize_t imax,
                         ssize_t jmax,
                         ssize_t kmax,
@@ -198,6 +199,8 @@ void vertical_uv_fluxes(double* restrict p,
                 else if (k==kmax-1){
                     wdudp_up[ij] = 0.5*wp[ijkp]*(u[ijk] - u[ijk-1])*dpi;
                     wdvdp_up[ij] = 0.5*wp[ijkp]*(v[ijk] - v[ijk-1])*dpi;
+                    pgf_correction[ij] = 0.0
+                    pgf_correction[ij] = 0.0
                 } // end else if
                 else { // if not @ boundaries you can access k+1 and k-1
                     wdudp_up[ij] = 0.5*wp[ijkp]*(u[ijk] - u[ijk-1])*dpi;
