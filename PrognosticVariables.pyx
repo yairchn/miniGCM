@@ -29,7 +29,8 @@ cdef extern from "tendency_functions.h":
     void momentum_tendecies(double* p, double* gz, double* vort, double* f,
                             double* u, double* v, double* wp, double* ke, double* wdudp_up, double* wdvdp_up,
                             double* wdudp_dn, double* wdvdp_dn, double* e_dry, double* u_vort, double* v_vort,
-                            double* pgf_correction, ssize_t imax, ssize_t jmax, ssize_t kmax, ssize_t k) nogil
+                            double* u_pgf_correction, double* v_pgf_correction, double* dpsdx, double* dpsdy
+                            ssize_t imax, ssize_t jmax, ssize_t kmax, ssize_t k) nogil
 
 
 
@@ -219,8 +220,12 @@ cdef class PrognosticVariables:
             double complex [:] w_vort_dn = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] w_div_up  = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] w_div_dn  = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] pgf_vort  = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] pgf_div   = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] Vort_forc = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] Div_forc  = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] dpsdx     = np.zeros((nlm), dtype = np.complex, order ='c')
+            double complex [:] dpsdy     = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] RHS_T     = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] RHS_QT    = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] Vort_sur_flux = np.zeros((nlm), dtype = np.complex, order ='c')
@@ -251,7 +256,8 @@ cdef class PrognosticVariables:
             double [:,:] RHS_grid_QT = np.zeros((nx, ny),dtype=np.float64, order ='c')
             double [:,:] T_sur_flux  = np.zeros((nx, ny),dtype=np.float64, order ='c')
             double [:,:] QT_sur_flux = np.zeros((nx, ny),dtype=np.float64, order ='c')
-            double [:,:] pgf_correction = np.zeros((nx, ny),dtype=np.float64, order ='c')
+            double [:,:] u_pgf_correction = np.zeros((nx, ny),dtype=np.float64, order ='c')
+            double [:,:] v_pgf_correction = np.zeros((nx, ny),dtype=np.float64, order ='c')
             double [:,:] u_vertical_flux = np.zeros((nx, ny),dtype=np.float64, order ='c')
             double [:,:] v_vertical_flux = np.zeros((nx, ny),dtype=np.float64, order ='c')
 
@@ -261,6 +267,8 @@ cdef class PrognosticVariables:
             np.multiply(DV.V.values[:,:,nl-1],np.subtract(PV.P.values[:,:,nl-1],PV.P.values[:,:,nl])))
 
         Wp3_spectral = Gr.SphericalGrid.grdtospec(DV.Wp.values.base[:,:,nl-1])
+        # here we ned in the end the physical space gradient of ps - make sure what getgrad returns
+        dpsdx, dpsdy = Gr.SphericalGrid.getgrad(PV.P.values.base[:,:,nl])
         with nogil:
             for i in range(nlm):
                 PV.P.tendency[i,nl] = Divergent_P_flux[i] + Wp3_spectral[i]
@@ -275,8 +283,8 @@ cdef class PrognosticVariables:
                 momentum_tendecies(&PV.P.values[0,0,0], &DV.gZ.values[0,0,0], &PV.Vorticity.values[0,0,0],
                             &Gr.Coriolis[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
                             &DV.Wp.values[0,0,0], &DV.KE.values[0,0,0], &wu_up[0,0], &wv_up[0,0], &wu_dn[0,0], &wv_dn[0,0],
-                            &Dry_Energy[0,0], &u_vorticity[0,0], &v_vorticity[0,0],  &pgf_correction[0,0],
-                            nx, ny, nl, k)
+                            &Dry_Energy[0,0], &u_vorticity[0,0], &v_vorticity[0,0],  &u_pgf_correction[0,0], 
+                            &v_pgf_correction[0,0], &dpsdx[0,0], &dpsdy[0,0], nx, ny, nl, k)
 
                 rhs_T(Pr.cp, &PV.P.values[0,0,0], &DV.gZ.values[0,0,0], &PV.T.values[0,0,0], &DV.U.values[0,0,0],
                            &DV.V.values[0,0,0], &DV.Wp.values[0,0,0], &PV.T.mp_tendency[0,0,0], &T_sur_flux[0,0],
