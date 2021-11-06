@@ -29,7 +29,7 @@ cdef extern from "tendency_functions.h":
     void momentum_tendecies(double* p, double* gz, double* vort, double* f,
                             double* u, double* v, double* wp, double* ke, double* wdudp_up, double* wdvdp_up,
                             double* wdudp_dn, double* wdvdp_dn, double* e_dry, double* u_vort, double* v_vort,
-                            double* u_pgf_correction, double* v_pgf_correction, double* dpsdx, double* dpsdy
+                            double* u_pgf_correction, double* v_pgf_correction, double* dpsdx, double* dpsdy,
                             ssize_t imax, ssize_t jmax, ssize_t kmax, ssize_t k) nogil
 
 
@@ -224,8 +224,6 @@ cdef class PrognosticVariables:
             double complex [:] pgf_div   = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] Vort_forc = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] Div_forc  = np.zeros((nlm), dtype = np.complex, order ='c')
-            double complex [:] dpsdx     = np.zeros((nlm), dtype = np.complex, order ='c')
-            double complex [:] dpsdy     = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] RHS_T     = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] RHS_QT    = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] Vort_sur_flux = np.zeros((nlm), dtype = np.complex, order ='c')
@@ -243,6 +241,8 @@ cdef class PrognosticVariables:
 
             double [:,:] uT  = np.zeros((nx, ny),dtype=np.float64, order ='c')
             double [:,:] vT  = np.zeros((nx, ny),dtype=np.float64, order ='c')
+            double [:,:] dpsdx = np.zeros((nx, ny),dtype = np.float64, order ='c')
+            double [:,:] dpsdy = np.zeros((nx, ny),dtype = np.float64, order ='c')
             double [:,:] uQT = np.zeros((nx, ny),dtype=np.float64, order ='c')
             double [:,:] vQT = np.zeros((nx, ny),dtype=np.float64, order ='c')
             double [:,:] wu_dn = np.zeros((nx, ny),dtype=np.float64, order ='c')
@@ -267,8 +267,7 @@ cdef class PrognosticVariables:
             np.multiply(DV.V.values[:,:,nl-1],np.subtract(PV.P.values[:,:,nl-1],PV.P.values[:,:,nl])))
 
         Wp3_spectral = Gr.SphericalGrid.grdtospec(DV.Wp.values.base[:,:,nl-1])
-        # here we ned in the end the physical space gradient of ps - make sure what getgrad returns
-        dpsdx, dpsdy = Gr.SphericalGrid.getgrad(PV.P.values.base[:,:,nl])
+        dpsdx, dpsdy = Gr.SphericalGrid.getgrad(Gr.SphericalGrid.grdtospec(PV.P.values.base[:,:,nl]))
         with nogil:
             for i in range(nlm):
                 PV.P.tendency[i,nl] = Divergent_P_flux[i] + Wp3_spectral[i]
@@ -301,7 +300,7 @@ cdef class PrognosticVariables:
             Vort_forc ,Div_forc = Gr.SphericalGrid.getvrtdivspec(DV.U.forcing.base[:,:,k],DV.V.forcing.base[:,:,k])
             w_vort_up ,w_div_up = Gr.SphericalGrid.getvrtdivspec(wu_up.base, wv_up.base)
             w_vort_dn ,w_div_dn = Gr.SphericalGrid.getvrtdivspec(wu_dn.base, wv_dn.base)
-            pgf_vort ,pgf_div = Gr.SphericalGrid.getvrtdivspec(pgf_correction.base, pgf_correction.base)
+            pgf_vort ,pgf_div = Gr.SphericalGrid.getvrtdivspec(u_pgf_correction.base, v_pgf_correction.base)
             RHS_T  = Gr.SphericalGrid.grdtospec(RHS_grid_T.base)
 
             if Pr.moist_index > 0.0:
