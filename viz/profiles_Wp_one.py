@@ -27,13 +27,14 @@ def main():
     var = np.array(data.groups['zonal_mean'].variables[varname])
     t = np.divide(data.groups['zonal_mean'].variables['t'],3600.0*24.0)
     t1 = 300
-    t2 = 500
+    t2 = 700
 
     fig,ax = plt.subplots(1,3, sharey='all',figsize=(16, 7),squeeze=False)
 
     i = 0
     li=[2,2,2,2,2,2,2,2]
     al=[0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.]
+    al=[0.8,0.8,0.8,0.6,0.7,0.8,0.9,1.]
     la=['200 hPa','300 hPa','400 hPa','500 hPa','600 hPa','700 hPa','800 hPa','900 hPa']
     #la=['500 hPa','850 hPa', '$p_s$']
     la=['500 hPa','750 hPa', '$p_s$']
