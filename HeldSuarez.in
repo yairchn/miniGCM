@@ -23,16 +23,16 @@
     "forcing": {
         "equator_to_pole_dT": 60.0,
         "equatorial_temperature": 315.0,
-        "forcing_model": "StochasticHeldSuarez",
-        "k_a": 2.8935185185185185e-17,
+        "forcing_model": "HeldSuarez",
+        "k_a": 2.8935185185185185e-07,
         "k_b": 2.8935185185185185e-07,
-        "k_f": 1.1574074074074073e-15,
-        "k_s": 2.8935185185185184e-16,
+        "k_f": 1.1574074074074073e-05,
+        "k_s": 2.8935185185185184e-06,
         "lapse_rate": 10.0,
-        "max_noise_wavenumber": 102,
-        "min_noise_wavenumber": 98,
+        "max_noise_wavenumber": 42,
+        "min_noise_wavenumber": 38,
         "noise": false,
-        "noise_amplitude": 1.0e-8,
+        "noise_amplitude": 1e-15,
         "noise_correlation": 0.0,
         "noise_magnitude": 0.05,
         "noise_type": "local",
@@ -41,8 +41,8 @@
     "grid": {
         "dims": 1,
         "gw": 2,
-        "number_of_latitute_points": 256,
-        "number_of_longitude_points": 512,
+        "number_of_latitute_points": 64,
+        "number_of_longitude_points": 128,
         "pressure_levels": [
             25000.0,
             50000.0,
@@ -68,7 +68,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "dd136d0f-a5c6-46c0-a2ed-704ff58aa16b"
+        "uuid": "d6fe59b9-88d1-4ea5-b85e-energy_correction"
     },
     "microphysics": {
         "microphysics_model": "None"
@@ -96,7 +96,7 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 10.0
+        "t_max": 1000.0
     },
     "turbulence": {
         "turbulence_model": "None"
