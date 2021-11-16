@@ -5,27 +5,25 @@ import argparse
 import os
 
 # command line:
-# python viz/contour_zonal_mean.py zonal_mean_QT
+# python viz/contour_zonal_mean.py zonal_mean_U
 def main():
     parser = argparse.ArgumentParser(prog='miniGCM')
     parser.add_argument("varname")
     args = parser.parse_args()
     varname = args.varname
 
-    folder = os.getcwd() + '/Output.HeldSuarez.704ff582701f/stats/'
-    ncfile = folder + 'Stats.HeldSuarez.Rerun_3.nc'
+    folder = os.getcwd() + '/Output.HeldSuarez.energy_correction/stats/'
+    ncfile = folder + 'Stats.HeldSuarez.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
     n = int(np.multiply(data.groups['coordinates'].variables['layers'],1.0))
 
     lat_list = np.array(data.groups['coordinates'].variables['latitude_list'])
-    var = np.multiply(np.array(data.groups['zonal_mean'].variables[varname]) ,1000.0)
+    var = np.multiply(np.array(data.groups['zonal_mean'].variables[varname]) ,1.0)
     t = np.divide(data.groups['zonal_mean'].variables['t'],3600.0*24.0)
 
     X, Y = np.meshgrid(t,lat_list)
-    print(np.shape(var))
-    print(np.shape(X))
     fig = plt.figure(varname)
     for i in range(n):
         ax1 = fig.add_subplot(n, 1, i+1)
@@ -39,12 +37,12 @@ def main():
             ax1.set_xlabel('time days')
         fig.colorbar(im1)
 
+    colors = ['r','b','g']
     fig = plt.figure(varname + "zonal mean")
     for i in range(n):
         ax1 = fig.add_subplot(n, 1, i+1)
-        im1 = ax1.plot(np.mean(var[-100:-1,:,i],axis = 0),Y)
+        im1 = ax1.plot(np.mean(var,axis = 0),Y, colors[i])
         ax1.set_ylabel('degree latitude')
-        ax1.set_xlim([0.0,0.005])
         if i<n-1:
             xlabels = [item.get_text() for item in ax1.get_xticklabels()]
             xempty_string_labels = [''] * len(xlabels)
@@ -52,9 +50,9 @@ def main():
         else:
             ax1.set_xlabel('time days')
     fig = plt.figure('time mean merged' + varname)
-    plt.plot(np.mean(var[-100:-1,:,0],axis = 0),Y)
-    plt.plot(np.mean(var[-100:-1,:,1],axis = 0),Y)
-    plt.plot(np.mean(var[-100:-1,:,2],axis = 0),Y)
+    plt.plot(np.mean(var[:,:,0],axis = 0),Y,'r')
+    plt.plot(np.mean(var[:,:,1],axis = 0),Y,'b')
+    plt.plot(np.mean(var[:,:,2],axis = 0),Y,'g')
     plt.show()
 
 if __name__ == '__main__':

@@ -282,7 +282,7 @@ cdef class PrognosticVariables:
                 momentum_tendecies(&PV.P.values[0,0,0], &DV.gZ.values[0,0,0], &PV.Vorticity.values[0,0,0],
                             &Gr.Coriolis[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
                             &DV.Wp.values[0,0,0], &DV.KE.values[0,0,0], &wu_up[0,0], &wv_up[0,0], &wu_dn[0,0], &wv_dn[0,0],
-                            &Dry_Energy[0,0], &u_vorticity[0,0], &v_vorticity[0,0],  &u_pgf_correction[0,0], 
+                            &Dry_Energy[0,0], &u_vorticity[0,0], &v_vorticity[0,0],  &u_pgf_correction[0,0],
                             &v_pgf_correction[0,0], &dpsdx[0,0], &dpsdy[0,0], nx, ny, nl, k)
 
                 rhs_T(Pr.cp, &PV.P.values[0,0,0], &DV.gZ.values[0,0,0], &PV.T.values[0,0,0], &DV.U.values[0,0,0],
