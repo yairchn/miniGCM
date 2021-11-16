@@ -15,7 +15,7 @@ path='./'
 ks=np.load(path+'ks.npy')
 
 Layer=0
-it=0
+it=600
 EkTot =np.load(path+'EkTot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy')*0.
 EkRot =np.load(path+'EkRot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy')*0.
 EkDiv =np.load(path+'EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy')*0.
@@ -24,7 +24,7 @@ EkDiv =np.load(path+'EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy')*0.
 icount=0
 for Layer in np.arange(0,3):
     print("Layer ",Layer)
-    for it in np.arange(1,11,14):
+    for it in np.arange(600,800,4):
         print('it ',it)
         icount+=1
         #

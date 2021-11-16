@@ -107,12 +107,61 @@ def ke_flux_dp(u,v,pU,pD):
     tmpa, tmpb = x.getvrtdivspec(tmp1, tmp2)
 
     Flux = x.spectogrd(tmpb)
-    print('shape Flux',Flux.shape)
-    print('shape dp',dp.shape)
+    #print('shape Flux',Flux.shape)
+    #print('shape dp',dp.shape)
 
     return [Flux]
 
 
+def keSpectral_flux_error_dp(u,v,Geo,pU,pD,uD,vD,Wp):
+    uk  = x.grdtospec(u)
+    vk  = x.grdtospec(v)
+    ukD = x.grdtospec(uD)
+    vkD = x.grdtospec(vD)
+    uak = x.grdtospec(Wp*u)
+    vak = x.grdtospec(Wp*v)
+    uakD= x.grdtospec(Wp*uD)
+    vakD= x.grdtospec(Wp*vD)
+
+    Usp = -0.5*uak*uk.conj()
+    Vsp = -0.5*vak*vk.conj()
+    UspD= +0.5*uakD*ukD.conj()
+    VspD= +0.5*vakD*vkD.conj()
+    Esp = Usp  + Vsp
+    Esp+= UspD + VspD
+
+    # build spectrum
+    Ek_sum = np.zeros(np.amax(l)+1)
+    Ek = np.zeros(np.amax(l)+1)
+    ks = np.arange(np.amax(l)+1)
+
+    # running sum (Integral)
+    for i in range(0,np.amax(l)+1):
+        Ek[i] = np.sum(Esp[np.logical_and(l>=i-0.5 , l<i+0.5)])
+        #print('Ek['+str(i)+'] ', Ek[i])
+        #exit()
+
+    #print('l ',l)
+    #exit()
+    for i in range(0,np.amax(l)+1):
+        for j in range(i,np.amax(l)+1):
+            Ek_sum[i]+=Ek[j]
+            #print('Ek_sum['+str(i)+'] j', Ek_sum[i], j)
+    #print('Ek_sum[0] ', Ek_sum[0])
+    #print('Ek_sum[9] ', Ek_sum[9])
+    #exit()
+
+    return [Ek_sum,ks]
+
+
+
+def keSpectral_flux(u,v):
+    uk = x.grdtospec(u)
+    vk = x.grdtospec(v)
+    ux, uy = x.getgrad(uk) # get gradients in grid space
+    vx, vy = x.getgrad(vk) # get gradients in grid space
+    #uak = x.grdtospec(ux*u + uy*v)
+    #vak = x.grdtospec(vx*u + vy*v)
 
 def keSpectral_flux_dp(u,v,Geo,pU,pD):
     zero=np.copy(u)*0.
@@ -177,8 +226,8 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
         for j in range(i,np.amax(l)+1):
             Ek_sum[i]+=Ek[j]
             #print('Ek_sum['+str(i)+'] j', Ek_sum[i], j)
-    print('Ek_sum[0] ', Ek_sum[0])
-    print('Ek_sum[9] ', Ek_sum[9])
+    #print('Ek_sum[0] ', Ek_sum[0])
+    #print('Ek_sum[9] ', Ek_sum[9])
     #exit()
 
     return [Ek_sum,ks]
@@ -298,45 +347,13 @@ lonDeg = np.degrees(lons)
 
 folder='Output.HeldSuarez.HighResolRun'
 path = '/home/josefs/miniGCM/'+folder+'/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.ReferenceRun/Fields_restart_factor4/'
-path = '/home/josefs/miniGCM/Output.HeldSuarez.JustAtestRun/Fields_restart_factor8/'
-path = '/home/josefs/miniGCM/Output.HeldSuarez.JustAtestRun/Fields_restart_factor16/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez..44-test3lay/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.o_truncation/Fields/'
-path = '/home/suhas/miniGCM/miniGCM/Output.HeldSuarez.oneLayerExpe/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.aRunFor20yrs/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.oneLayerExpe/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701f/Fields/'
-#path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701g/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701h/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701j/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701l/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701m/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701n/Fields/'
-#path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701k/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701p/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701q/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701s/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701v/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701w/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701x/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582701z/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582702a/Fields_restart/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582702b/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582703b/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582702c/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582704b/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582705b/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582707b/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582708b/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582709b/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582r10b/Fields/'
-path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582r11b/Fields/'
+path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582r15b/Fields/'
 
-time=np.arange(0,5,1)
-#time=np.arange(504,770,14)
+#time=np.arange(0,5,1)
+#time=np.arange(600,800,4)
+time=np.arange(700,708,4)
 print('time.shape',time.shape)
-print('time',time)
+#print('time',time)
 ke=np.zeros((3,time.shape[0]))
 
 dPressure=750. # pressure difference between p1 and <ps>_area_mean [hPa]
@@ -350,8 +367,16 @@ for it in time:
     for Layer in np.arange(0,3):
         print("day ", it," Layer ",Layer)
         ps=netCDF4.Dataset(path+'Pressure_'+str(it*3600*24)+'.nc').variables['Pressure'][:,:]
+        Phi=netCDF4.Dataset(path+'Geopotential_'+str(it*3600*24)+'.nc').variables['Geopotential'][:,:,Layer]
+        Wp=netCDF4.Dataset(path+'Wp_'+str(it*3600*24)+'.nc').variables['Wp'][:,:,Layer]/100.#hPa
         u=netCDF4.Dataset(path+'U_'+str(it*3600*24)+'.nc').variables['U'][:,:,Layer]
         v=netCDF4.Dataset(path+'V_'+str(it*3600*24)+'.nc').variables['V'][:,:,Layer]
+        if Layer==1: uU=netCDF4.Dataset(path+'U_'+str(it*3600*24)+'.nc').variables['U'][:,:,Layer+1]
+        if Layer==1: vU=netCDF4.Dataset(path+'V_'+str(it*3600*24)+'.nc').variables['V'][:,:,Layer+1]
+        if Layer==1: uD=netCDF4.Dataset(path+'U_'+str(it*3600*24)+'.nc').variables['U'][:,:,Layer-1]
+        if Layer==1: vD=netCDF4.Dataset(path+'V_'+str(it*3600*24)+'.nc').variables['V'][:,:,Layer-1]
+        if Layer==2: uD=netCDF4.Dataset(path+'U_'+str(it*3600*24)+'.nc').variables['U'][:,:,Layer-1]
+        if Layer==2: vD=netCDF4.Dataset(path+'V_'+str(it*3600*24)+'.nc').variables['V'][:,:,Layer-1]
         T=netCDF4.Dataset(path+'Temperature_'+str(it*3600*24)+'.nc').variables['Temperature'][:,:,Layer]
         Geo=netCDF4.Dataset(path+'Geopotential_'+str(it*3600*24)+'.nc').variables['Geopotential'][:,:,Layer]
 
@@ -375,6 +400,12 @@ for it in time:
         vrtsp,divsp = x.getvrtdivspec(u,v)
         u_vrt,v_vrt = x.getuv(vrtsp,divsp*0.)
         u_div,v_div = x.getuv(vrtsp*0.,divsp)
+        ke_vrtsp,ke_divsp = x.getvrtdivspec((pD-pU)*u*0.5*(u*u+v*v),(pD-pU)*v*0.5*(u*u+v*v))
+        ke_div = x.spectogrd(ke_divsp)
+        if Layer==1: ke_error = Wp*(0.5*(u*u+v*v) - 0.5*(uU*uU+vU*vU)) 
+        if Layer==2:
+           psx,psy=x.getgrad(x.grdtospec(ps/100.))
+           total_energy_error = Phi*(u*psx+v*psy)/(pU-pD) 
         #u=u_vrt+u_div
         #v=v_vrt+v_div
 
@@ -387,14 +418,54 @@ for it in time:
            dp=pU-pD
            #eke[Layer,it]=np.mean(0.5*(u-u.mean(axis=1,keepdims=True))**2 + 0.5*(v-v.mean(axis=1,keepdims=True))**2)
            ke[Layer,icount]=np.mean(0.5*dp*u**2 + 0.5*dp*v**2)
-           print('layer ', Layer, 'mean KE ', ke[Layer,icount]/dp)
+           #print('layer ', Layer, 'mean KE ', ke[Layer,icount]/dp)
 
         iplot_mean=1
         if (iplot_mean==1):
+           if Layer==1 or Layer==2:
+              zonalmean=ke_error.mean(axis=1)
+              zonalstd=ke_error.std(axis=1)
+              #print("zonal mean of ke-error: ", zonalmean, zonalmean.shape)
+              maxAnomaly = np.amax(abs(zonalmean))
+              plt.figure(53,figsize=(4,8))
+              plt.clf()
+              plt.title("Zonal means at day "+str(it))
+              plt.plot(zonalmean,latDeg,'-k',linewidth='2')
+              #plt.plot(zonalmean-zonalstd,latDeg,'-k')
+              #plt.plot(zonalmean+zonalstd,latDeg,'-k')
+              plt.savefig('keError_zonalmean_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
+              np.save('keError_zonalmean_'+str(Layer)+'_'+str(it).zfill(10),np.array(zonalmean))
+
+           if Layer==2:
+              zonalmean=total_energy_error.mean(axis=1)
+              zonalstd=total_energy_error.std(axis=1)
+              #print("zonal mean of ke-error: ", zonalmean, zonalmean.shape)
+              maxAnomaly = np.amax(abs(zonalmean))
+              plt.figure(53,figsize=(4,8))
+              plt.clf()
+              plt.title("Zonal means at day "+str(it))
+              plt.plot(zonalmean,latDeg,'-k',linewidth='2')
+              #plt.plot(zonalmean-zonalstd,latDeg,'-k')
+              #plt.plot(zonalmean+zonalstd,latDeg,'-k')
+              plt.savefig('totalEnergyError_zonalmean_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
+              np.save('total_energy_error_zonalmean_'+str(Layer)+'_'+str(it).zfill(10),np.array(zonalmean))
+
+           zonalmean=ke_div.mean(axis=1)
+           zonalstd=ke_div.std(axis=1)
+           #print("zonal mean of kediv: ", zonalmean, zonalmean.shape)
+           maxAnomaly = np.amax(abs(zonalmean))
+           plt.figure(53,figsize=(4,8))
+           plt.clf()
+           plt.title("Zonal means at day "+str(it))
+           plt.plot(zonalmean,latDeg,'-k',linewidth='2')
+           #plt.plot(zonalmean-zonalstd,latDeg,'-k')
+           #plt.plot(zonalmean+zonalstd,latDeg,'-k')
+           plt.savefig('kediv_zonalmean_'+str(Layer)+'_'+str(it).zfill(10)+'.png')
+           np.save('kediv_zonalmean_'+str(Layer)+'_'+str(it).zfill(10),np.array(zonalmean))
 
            zonalmean=T.mean(axis=1)
            zonalstd=T.std(axis=1)
-           print("zonal mean of T: ", zonalmean, zonalmean.shape)
+           #print("zonal mean of T: ", zonalmean, zonalmean.shape)
            maxAnomaly = np.amax(abs(zonalmean))
            plt.figure(53,figsize=(4,8))
            plt.clf()
@@ -408,7 +479,7 @@ for it in time:
 
            zonalmean=u.mean(axis=1)
            zonalstd=u.std(axis=1)
-           print("zonal mean of u: ", zonalmean, zonalmean.shape)
+           #print("zonal mean of u: ", zonalmean, zonalmean.shape)
            maxAnomaly = np.amax(abs(zonalmean))
            plt.figure(53,figsize=(4,8))
            plt.clf()
@@ -421,7 +492,7 @@ for it in time:
 
            zonalmean=v.mean(axis=1)
            zonalstd=v.std(axis=1)
-           print("zonal mean of v: ", zonalmean, zonalmean.shape)
+           #print("zonal mean of v: ", zonalmean, zonalmean.shape)
            maxAnomaly = np.amax(abs(zonalmean))
            plt.figure(53,figsize=(4,8))
            plt.clf()
@@ -513,6 +584,8 @@ for it in time:
            #[KE_flux,ks] = keSpectral_flux(u,v)
            #[KE_flux_dp,ks] = keSpectral_flux_dp(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True),Geo-Geo.mean(axis=1, keepdims=True),pU,pD)
            [KE_flux,ks] = keSpectral_flux_dp(u,v,Geo,pU,pD)
+           if Layer==1: [KE_flux_error,ks] = keSpectral_flux_error_dp(u,v,Geo,pU,pD,uD,vD,Wp)
+           if Layer==2: [KE_flux_error,ks] = keSpectral_flux_error_dp(u,v,Geo,pU,pD,uD,vD,Wp)
            #[KE_flux_dp_grid] = ke_flux_dp(u,v,pU,pD)
            [Cross_flux,ks] = CrossSpectral_flux_dp(u,v,Geo,pU,pD)
            [KErot_flux,ks] = keSpectral_flux_dp(u_vrt,v_vrt,Geo,pU,pD)
@@ -534,6 +607,8 @@ for it in time:
            np.save('EkRot_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkRot)
            np.save('EkDiv_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',EkDiv)
            np.save('Ek_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux)
+           if Layer==1: np.save('Ek_flux_error_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux_error)
+           if Layer==2: np.save('Ek_flux_error_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux_error)
            #np.save('Ek_flux_dp_grid_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',np.array(KE_flux_dp_grid))
            #np.save('Ek_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',KE_flux)
            #np.save('Enstrophy_flux_'+str(Layer)+'_'+str(it).zfill(10)+'.npy',E_flux)
