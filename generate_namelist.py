@@ -93,6 +93,8 @@ def main():
         namelist = HeldSuarez(namelist_defaults)
     elif case_name == 'HeldSuarezMoist':
         namelist = HeldSuarezMoist(namelist_defaults)
+    elif case_name == 'TropicalPlanet':
+        namelist = TropicalPlanet(namelist_defaults)
     else:
         print('Not a valid case name')
         exit()
@@ -199,6 +201,42 @@ def HeldSuarezMoist(namelist_defaults):
     namelist['surface']['surface_temp_diff'] = 29.0 # [K]
     namelist['surface']['surface_temp_min'] = 271.0 # [K]
     namelist['surface']['surface_temp_lat_dif'] = 26.0*3.14/180.0
+
+    return namelist
+
+def TropicalPlanet(namelist_defaults):
+
+    namelist = copy.deepcopy(namelist_defaults)
+
+    namelist['meta']['simname'] = 'TropicalPlanet'
+    namelist['meta']['casename'] = 'TropicalPlanet'
+
+    namelist['thermodynamics']['thermodynamics_type'] = 'dry'
+
+    namelist['microphysics'] = {}
+    namelist['microphysics']['microphysics_model'] = 'None'
+
+    namelist['forcing']['forcing_model'] = 'TropicalPlanet'
+    namelist['forcing']['sigma_b']      = 0.7                   # sigma coordiantes as sigma=p/ps
+    namelist['forcing']['k_a']          = 1.e-10/40.0/(24.0*3600.0) # [1/sec]
+    namelist['forcing']['k_s']          = 1.e-10/4.0/(24.0*3600.0)  # [1/sec]
+    namelist['forcing']['k_f']          = 1.e-10/(24.0*3600.0)     # [1/sec]
+    namelist['forcing']['k_b']          = 1./40.0/(24.0*3600.0) # [1/sec]
+    namelist['forcing']['equator_to_pole_dT']         = 0.0                    # Characteristic temperature change in meridional direction [K]
+    namelist['forcing']['equatorial_temperature']    = 315.0                   # Characteristic temperature at the equator [K]
+    namelist['forcing']['lapse_rate']   = 10.0                   # Characteristic potential temperature change in vertical [K]
+    namelist['forcing']['noise_amplitude'] = 0.000000000000001
+
+    namelist['initialize']['T_init']   = 300.0 # initial temperature of all layers
+
+    namelist['surface'] = {}
+    namelist['surface']['surface_model'] = 'None'
+
+    namelist['turbulence'] = {}
+    namelist['turbulence']['turbulence_model'] = 'None'
+
+    namelist['diffusion']['type'] = 'hyperdiffusion'
+    namelist['diffusion']['order'] = 4.0
 
     return namelist
 
