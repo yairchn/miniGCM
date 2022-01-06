@@ -41,8 +41,8 @@
     "grid": {
         "dims": 1,
         "gw": 2,
-        "number_of_latitute_points": 256,
-        "number_of_longitude_points": 512,
+        "number_of_latitute_points": 64,
+        "number_of_longitude_points": 128,
         "pressure_levels": [
             25000.0,
             50000.0,
@@ -53,7 +53,7 @@
     "initialize": {
         "T_init": 300.0,
         "noise": true,
-        "noise_amplitude": 1,
+        "noise_amplitude": 0.001,
         "noise_type": "red",
         "restart": false,
         "restart folder": "./",
@@ -68,7 +68,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "d6fe59b9-88d1-4ea5-b85e-correction2"
+        "uuid": "3549541f-5061-43f7-9f33-6f27209b2552"
     },
     "microphysics": {
         "microphysics_model": "None"
@@ -95,7 +95,7 @@
     },
     "timestepping": {
         "CFL_limit": 0.8,
-        "dt": 40.0,
+        "dt": 100.0,
         "t_max": 1000.0
     },
     "turbulence": {

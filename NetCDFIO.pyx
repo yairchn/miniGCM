@@ -113,7 +113,7 @@ cdef class NetCDFIO_Stats:
         coordinate_grp = root_grp.createGroup('coordinates')
         coordinate_grp.createDimension('lat', Pr.nlats)
         coordinate_grp.createDimension('lon', Pr.nlons)
-        coordinate_grp.createDimension('lay', 1)
+        coordinate_grp.createDimension('lay', Pr.n_layers+1)
 
         latitude = coordinate_grp.createVariable('latitude', 'f8',  ('lat', 'lon'))
         latitude[:,:] = np.array(Gr.latitude)
@@ -123,9 +123,9 @@ cdef class NetCDFIO_Stats:
         longitude[:,:] = np.array(Gr.longitude)
         longitude_list = coordinate_grp.createVariable('longitude_list', 'f8', ('lon'))
         longitude_list[:] = np.array(Gr.longitude_list)
-        layer = coordinate_grp.createVariable('layers', 'f8',('lay'))
-        layer[:] = np.array(Pr.n_layers)
-        del latitude, latitude_list, longitude, longitude_list, layer
+        pressure_levels = coordinate_grp.createVariable('pressure_levels', 'f8',('lay'))
+        pressure_levels[:] = np.array(Pr.pressure_levels.base)
+        del latitude, latitude_list, longitude, longitude_list, pressure_levels
 
         # Set maridional mean
         meridional_mean_grp = root_grp.createGroup('meridional_mean')

@@ -4,7 +4,7 @@ import pylab as plt
 import argparse
 import os
 
-# command line:
+# command line from main folder:
 # python viz/contour_zonal_mean.py zonal_mean_U
 def main():
     parser = argparse.ArgumentParser(prog='miniGCM')
@@ -12,12 +12,12 @@ def main():
     args = parser.parse_args()
     varname = args.varname
 
-    folder = os.getcwd() + '/Output.HeldSuarez.energy_correction/stats/'
-    ncfile = folder + 'Stats.HeldSuarez.nc'
+    ncfile = os.getcwd() + '/Output.HeldSuarezMoist.1228aad51950/stats/Stats.HeldSuarezMoist.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
-    n = int(np.multiply(data.groups['coordinates'].variables['layers'],1.0))
+    pressure_levels = np.array(data.groups["coordinates"].variables["pressure_levels"])
+    n = np.size(pressure_levels) - 1
 
     lat_list = np.array(data.groups['coordinates'].variables['latitude_list'])
     var = np.multiply(np.array(data.groups['zonal_mean'].variables[varname]) ,1.0)
@@ -37,11 +37,11 @@ def main():
             ax1.set_xlabel('time days')
         fig.colorbar(im1)
 
-    colors = ['r','b','g']
+    colors = ['r','b','g','r','b','g']
     fig = plt.figure(varname + "zonal mean")
     for i in range(n):
         ax1 = fig.add_subplot(n, 1, i+1)
-        im1 = ax1.plot(np.mean(var,axis = 0),Y, colors[i])
+        im1 = ax1.plot(np.mean(var[:,:,i],axis = 0),Y, colors[i])
         ax1.set_ylabel('degree latitude')
         if i<n-1:
             xlabels = [item.get_text() for item in ax1.get_xticklabels()]
@@ -49,10 +49,17 @@ def main():
             ax1.set_xticklabels(xempty_string_labels)
         else:
             ax1.set_xlabel('time days')
-    fig = plt.figure('time mean merged' + varname)
-    plt.plot(np.mean(var[:,:,0],axis = 0),Y,'r')
-    plt.plot(np.mean(var[:,:,1],axis = 0),Y,'b')
-    plt.plot(np.mean(var[:,:,2],axis = 0),Y,'g')
+
+    fig = plt.figure('unified plot')
+    plt.ylabel('degree latitude')
+    for i in range(n):
+        plt.plot(np.mean(var[400:-1,:,i], axis = 0), lat_list,  label=str(i))
+    plt.legend()
+
+    X, Y = np.meshgrid(lat_list,pressure_levels[0:-1])
+    fig = plt.figure('pressure-latitude contours')
+    plt.contourf(X,Y,np.rot90(np.mean(var, axis = 0), k=1))
+    plt.colorbar()
     plt.show()
 
 if __name__ == '__main__':
