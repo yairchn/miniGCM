@@ -53,7 +53,7 @@ def main():
     namelist_defaults['initialize']['restart folder']           = './'         # input directory for restart
     namelist_defaults['initialize']['restart type']             = 'zonal_mean' # restart from zonal mean
     namelist_defaults['initialize']['noise']                   = True            # flag for noise in initial condition
-    namelist_defaults['initialize']['noise_amplitude']          = 1            # amplitude of initial noise in K
+    namelist_defaults['initialize']['noise_amplitude']          = 0.001            # amplitude of initial noise in K
     namelist_defaults['initialize']['noise_type'] = 'red' # 'white', 'red', 'blue', or 'local' 
 
 
@@ -168,11 +168,7 @@ def HeldSuarezMoist(namelist_defaults):
     namelist['forcing']['initial_surface_qt'] = 0.018
     namelist['forcing']['Gamma_init'] = 0.005
 
-    namelist['initialize']['T1']   = 229.0 # initial temperature of layer 1 [K]
-    namelist['initialize']['T2']   = 257.0 # initial temperature of layer 2 [K]
-    namelist['initialize']['T3']   = 300.0 # initial temperature of layer 3 [K]
-    namelist['initialize']['T_init']   = 300.0 # initial temperature of layer 1 [K]
-
+    namelist['initialize']['T_init']   = 300.0 # not used in moist cases
 
     namelist['thermodynamics']['thermodynamics_type'] = 'moist'
     namelist['thermodynamics']['verical_half_width_of_the_q'] = 30000.0 # pasc
@@ -253,8 +249,8 @@ def TropicalPlanetMoist(namelist_defaults):
     namelist['timestepping']['dt'] = 100.0 # sec
     namelist['timestepping']['t_max'] = 100.0 # days
 
-    namelist['meta']['simname'] = 'HeldSuarezMoist'
-    namelist['meta']['casename'] = 'HeldSuarezMoist'
+    namelist['meta']['simname'] = 'TropicalPlanetMoist'
+    namelist['meta']['casename'] = 'TropicalPlanetMoist'
 
     namelist['forcing']['forcing_model'] = 'TropicalPlanet'
     namelist['forcing']['sigma_b']      = 0.7                    # sigma coordiantes as sigma=p/ps
@@ -270,11 +266,7 @@ def TropicalPlanetMoist(namelist_defaults):
     namelist['forcing']['initial_surface_qt'] = 0.018
     namelist['forcing']['Gamma_init'] = 0.005
 
-    namelist['initialize']['T1']   = 229.0 # initial temperature of layer 1 [K]
-    namelist['initialize']['T2']   = 257.0 # initial temperature of layer 2 [K]
-    namelist['initialize']['T3']   = 300.0 # initial temperature of layer 3 [K]
-    namelist['initialize']['T_init']   = 300.0 # initial temperature of layer 1 [K]
-
+    namelist['initialize']['T_init']   = 300.0 # not used in moist cases
 
     namelist['thermodynamics']['thermodynamics_type'] = 'moist'
     namelist['thermodynamics']['verical_half_width_of_the_q'] = 30000.0 # pasc

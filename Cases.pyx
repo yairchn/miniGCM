@@ -92,7 +92,6 @@ cdef class HeldSuarez(CaseBase):
         if Pr.restart:
             RS.initialize(Pr, Gr, PV, TS, namelist)
         else:
-            # PV.T_init            = Pr.T_init
             PV.Vorticity.values  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
             PV.Divergence.values = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
             PV.QT.values         = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),   dtype=np.double, order='c')
