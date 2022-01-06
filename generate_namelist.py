@@ -26,7 +26,7 @@ def main():
     namelist_defaults['diffusion']['truncation_order'] = 3
     namelist_defaults['diffusion']['e_folding_timescale_grid_scale'] = 7200
     namelist_defaults['diffusion']['e_folding_timescale_meso_scale'] = 100000000
-    
+
     namelist_defaults['grid'] = {}
     namelist_defaults['grid']['dims'] = 1
     namelist_defaults['grid']['gw']   = 2
@@ -95,6 +95,8 @@ def main():
         namelist = HeldSuarezMoist(namelist_defaults)
     elif case_name == 'TropicalPlanet':
         namelist = TropicalPlanet(namelist_defaults)
+    elif case_name == 'TropicalPlanetMoist':
+        namelist = TropicalPlanetMoist(namelist_defaults)
     else:
         print('Not a valid case name')
         exit()
@@ -237,6 +239,72 @@ def TropicalPlanet(namelist_defaults):
 
     namelist['diffusion']['type'] = 'hyperdiffusion'
     namelist['diffusion']['order'] = 4.0
+
+    return namelist
+
+def TropicalPlanetMoist(namelist_defaults):
+
+    namelist = copy.deepcopy(namelist_defaults)
+
+    namelist['grid']['n_layers'] = 3
+    namelist['grid']['nx'] = 3
+    namelist['grid']['ny'] = 3
+
+    namelist['timestepping']['dt'] = 100.0 # sec
+    namelist['timestepping']['t_max'] = 100.0 # days
+
+    namelist['meta']['simname'] = 'HeldSuarezMoist'
+    namelist['meta']['casename'] = 'HeldSuarezMoist'
+
+    namelist['forcing']['forcing_model'] = 'TropicalPlanet'
+    namelist['forcing']['sigma_b']      = 0.7                    # sigma coordiantes as sigma=p/ps
+    namelist['forcing']['k_a']          = 1.0/40.0/(24.0*3600.0)  # [1/sec]
+    namelist['forcing']['k_s']          = 1.0/4.0/(24.0*3600.0)  # [1/sec]
+    namelist['forcing']['k_f']          = 1.0/(24.0*3600.0)      # [1/sec]
+    namelist['forcing']['k_b']          = 1.0/40.0/(24.0*3600.0)  # [1/sec]
+    namelist['forcing']['equatorial_temperature'] = 294.0 # Surface temperature at the equator [K]
+    namelist['forcing']['polar_temperature']      = 240.0 # Surface temperature at the pole [K]
+    namelist['forcing']['equator_to_pole_dT']     = 65.0  # Characteristic temperature change in meridional direction [K]
+    namelist['forcing']['lapse_rate']             = 10.0 # Characteristic potential temperature change in vertical [K]
+    namelist['forcing']['initial_profile_power'] = 3.0
+    namelist['forcing']['initial_surface_qt'] = 0.018
+    namelist['forcing']['Gamma_init'] = 0.005
+
+    namelist['initialize']['T1']   = 229.0 # initial temperature of layer 1 [K]
+    namelist['initialize']['T2']   = 257.0 # initial temperature of layer 2 [K]
+    namelist['initialize']['T3']   = 300.0 # initial temperature of layer 3 [K]
+    namelist['initialize']['T_init']   = 300.0 # initial temperature of layer 1 [K]
+
+
+    namelist['thermodynamics']['thermodynamics_type'] = 'moist'
+    namelist['thermodynamics']['verical_half_width_of_the_q'] = 30000.0 # pasc
+    namelist['thermodynamics']['horizontal_half_width_of_the_q'] = 0.6981 # radians lat
+
+    namelist['turbulence'] = {}
+    namelist['turbulence']['turbulence_model'] = 'DownGradient'
+    namelist['turbulence']['stratospheric_pressure'] = 10000.0
+    namelist['turbulence']['boundary_layer_top_pressure'] = 85000.0
+    namelist['turbulence']['sensible_heat_transfer_coeff'] = 0.0044
+    namelist['turbulence']['latent_heat_transfer_coeff'] = 0.0044
+
+    namelist['microphysics'] = {}
+    namelist['microphysics']['microphysics_model'] = 'Cutoff'
+    namelist['microphysics']['water_density'] = 1000.0            # g/m^3
+    namelist['microphysics']['Magnus_formula_A'] = 6.1094
+    namelist['microphysics']['Magnus_formula_B'] = 17.625
+    namelist['microphysics']['Magnus_formula_C'] = 243.04
+    namelist['microphysics']['molar_mass_ratio'] = 1.60745384883
+    namelist['microphysics']['max_supersaturation'] = 0.0
+    namelist['microphysics']['autoconversion_timescale'] = 3600.0 # sec
+
+    namelist['surface'] = {}
+    namelist['surface']['surface_model'] = 'BulkFormula'
+    namelist['surface']['momentum_transfer_coeff'] = 0.0
+    namelist['surface']['sensible_heat_transfer_coeff'] = 0.0044
+    namelist['surface']['latent_heat_transfer_coeff'] = 0.0044
+    namelist['surface']['surface_temp_diff'] = 29.0 # [K]
+    namelist['surface']['surface_temp_min'] = 271.0 # [K]
+    namelist['surface']['surface_temp_lat_dif'] = 26.0*3.14/180.0
 
     return namelist
 
