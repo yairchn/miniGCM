@@ -132,15 +132,15 @@ cdef class ConvectionRandomFlux(ConvectionBase):
                         if k==nl:
                             self.wVort[i,k] = 0.0
                             self.wDiv[i,k]  = 0.0
-                            self.wT[i,k]    = Pr.Vort_conv_amp*Wp[i]*(PV.T.spectral[i,k-1] + PV.T.spectral[i,k-1])*0.5
+                            self.wT[i,k]    = Pr.T_conv_amp*Wp[i]*(PV.T.spectral[i,k-1] + PV.T.spectral[i,k-1])*0.5
                             if Pr.moist_index > 0.0:
-                                self.wT[i,k]    = Pr.Vort_conv_amp*Wp[i]*(PV.QT.spectral[i,k-1] + PV.QT.spectral[i,k-1])*0.5
+                                self.wQT[i,k]    = Pr.QT_conv_amp*Wp[i]*(PV.QT.spectral[i,k-1] + PV.QT.spectral[i,k-1])*0.5
                         else:
                             self.wVort[i,k] = Pr.Vort_conv_amp*Wp[i]*(PV.Vorticity.spectral[i,k] - PV.Vorticity.spectral[i,k-1])*dpi[i,k]
-                            self.wDiv[i,k]  = Pr.Vort_conv_amp*Wp[i]*(PV.Divergence.spectral[i,k] - PV.Divergence.spectral[i,k-1])*dpi[i,k]
-                            self.wT[i,k]    = Pr.Vort_conv_amp*Wp[i]*(PV.T.spectral[i,k] + PV.T.spectral[i,k-1])*0.5*dpi[i,k]
+                            self.wDiv[i,k]  = Pr.Div_conv_amp*Wp[i]*(PV.Divergence.spectral[i,k] - PV.Divergence.spectral[i,k-1])*dpi[i,k]
+                            self.wT[i,k]    = Pr.T_conv_amp*Wp[i]*(PV.T.spectral[i,k] + PV.T.spectral[i,k-1])*0.5*dpi[i,k]
                             if Pr.moist_index > 0.0:
-                                self.wT[i,k]    = Pr.Vort_conv_amp*Wp[i]*(PV.QT.spectral[i,k] + PV.QT.spectral[i,k-1])*0.5*dpi[i,k]
+                                self.wQT[i,k]    = Pr.QT_conv_amp*Wp[i]*(PV.QT.spectral[i,k] + PV.QT.spectral[i,k-1])*0.5*dpi[i,k]
 
             # we compute the flux divergence at the middle of the k'th layer
             for k in range(nl):

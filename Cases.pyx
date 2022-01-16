@@ -266,6 +266,7 @@ cdef class HeldSuarezMoist(CaseBase):
         self.Fo.initialize_io(Stats)
         self.Sur.initialize_io(Stats)
         self.MP.initialize_io(Stats)
+        # self.Co.initialize_io(Stats)
         return
 
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
@@ -273,6 +274,7 @@ cdef class HeldSuarezMoist(CaseBase):
         self.Fo.io(Pr, TS, Stats)
         self.Sur.io(Pr, TS, Stats)
         self.MP.io(Pr, TS, Stats)
+        # self.Co.io(Pr, TS, Stats)
         return
 
     cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
@@ -280,6 +282,7 @@ cdef class HeldSuarezMoist(CaseBase):
         self.Fo.stats_io(Stats)
         self.Sur.stats_io(Stats)
         self.MP.stats_io(PV, Stats)
+        # self.Co.stats_io(Stats)
         return
 
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
@@ -287,6 +290,7 @@ cdef class HeldSuarezMoist(CaseBase):
         self.Fo.update(Pr, Gr, PV, DV)
         self.Tr.update(Pr, Gr, PV, DV)
         self.MP.update(Pr, PV, DV, TS)
+        self.Co.update(Pr, Gr, PV, DV)
         return
 
 cdef class TropicalPlanet(CaseBase):

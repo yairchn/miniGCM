@@ -5,19 +5,20 @@ import argparse
 import os
 
 # command line from main folder:
-# python viz/contour_zonal_mean.py zonal_mean_U
+# python viz/contour_zonal_mean.py zonal_mean_T
 def main():
     parser = argparse.ArgumentParser(prog='miniGCM')
     parser.add_argument("varname")
     args = parser.parse_args()
     varname = args.varname
 
-    ncfile = os.getcwd() + '/Output.HeldSuarezMoist.1228aad51950/stats/Stats.HeldSuarezMoist.nc'
+    ncfile = os.getcwd() + '/Output.HeldSuarezMoist.conv_thermo2/stats/Stats.HeldSuarezMoist.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
     pressure_levels = np.array(data.groups["coordinates"].variables["pressure_levels"])
     n = np.size(pressure_levels) - 1
+    pressure_layers = np.flipud((pressure_levels[0:-1]+pressure_levels[1:])/2)
 
     lat_list = np.array(data.groups['coordinates'].variables['latitude_list'])
     var = np.multiply(np.array(data.groups['zonal_mean'].variables[varname]) ,1.0)
@@ -41,12 +42,12 @@ def main():
     fig = plt.figure(varname + "zonal mean")
     for i in range(n):
         ax1 = fig.add_subplot(n, 1, i+1)
-        im1 = ax1.plot(np.mean(var[:,:,i],axis = 0),Y, colors[i])
+        im1 = ax1.plot(np.mean(var[400:-1,:,i],axis = 0),Y, colors[i])
         ax1.set_ylabel('degree latitude')
         if i<n-1:
             xlabels = [item.get_text() for item in ax1.get_xticklabels()]
             xempty_string_labels = [''] * len(xlabels)
-            ax1.set_xticklabels(xempty_string_labels)
+            # ax1.set_xticklabels(xempty_string_labels)
         else:
             ax1.set_xlabel('time days')
 
@@ -56,9 +57,9 @@ def main():
         plt.plot(np.mean(var[400:-1,:,i], axis = 0), lat_list,  label=str(i))
     plt.legend()
 
-    X, Y = np.meshgrid(lat_list,pressure_levels[0:-1])
+    X, Y = np.meshgrid(lat_list,pressure_layers)
     fig = plt.figure('pressure-latitude contours')
-    plt.contourf(X,Y,np.rot90(np.mean(var, axis = 0), k=1))
+    plt.contourf(X,Y,np.rot90(np.mean(var, axis = 0), k=3))
     plt.colorbar()
     plt.show()
 

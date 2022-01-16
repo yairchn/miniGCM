@@ -204,8 +204,8 @@ void momentum_tendecies(double* restrict p,
                 else if (k==kmax-1){
                     wdudp_up[ij] = 0.5*wp[ijkp]*(u[ijk] - u[ijk-1])*dpi;
                     wdvdp_up[ij] = 0.5*wp[ijkp]*(v[ijk] - v[ijk-1])*dpi;
-                    u_pgf_correction[ij] =-0.5*(gz[ijkp+1]+gz[ijkp])*dpsdx[ij]*dpi;
-                    v_pgf_correction[ij] = -0.5*(gz[ijkp+1]+gz[ijkp])*dpsdy[ij]*dpi;
+                    u_pgf_correction[ij] = 0.0; //-0.5*(gz[ijkp+1]+gz[ijkp])*dpsdx[ij]*dpi;
+                    v_pgf_correction[ij] = 0.0; //-0.5*(gz[ijkp+1]+gz[ijkp])*dpsdy[ij]*dpi;
                 } // end else if
                 else { // if not @ boundaries you can access k+1 and k-1
                     wdudp_up[ij] = 0.5*wp[ijkp]*(u[ijk] - u[ijk-1])*dpi;
