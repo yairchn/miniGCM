@@ -31,6 +31,6 @@ cdef class DiagnosticVariables:
         DiagnosticVariable M
 
     cpdef initialize_io(self, Parameters Pr, NetCDFIO_Stats Stats)
-    cpdef stats_io(self, Parameters Pr, NetCDFIO_Stats Stats)
+    cpdef stats_io(self, Grid Gr, Parameters Pr, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV)

@@ -58,7 +58,7 @@ cdef class CaseBase:
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
 
-    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
+    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
         return
 
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
@@ -146,10 +146,10 @@ cdef class HeldSuarez(CaseBase):
         # self.Co.io(Pr, TS, Stats)
         return
 
-    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
-        CaseBase.stats_io(self, PV, Stats)
+    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
+        CaseBase.stats_io(self, Gr, PV, Stats)
         self.Fo.stats_io(Stats)
-        self.Sur.stats_io(Stats)
+        self.Sur.stats_io(Gr,Stats)
         # self.Co.stats_io(Stats)
         return
 
@@ -277,11 +277,11 @@ cdef class HeldSuarezMoist(CaseBase):
         # self.Co.io(Pr, TS, Stats)
         return
 
-    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
-        CaseBase.stats_io(self, PV, Stats)
+    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
+        CaseBase.stats_io(self, Gr, PV, Stats)
         self.Fo.stats_io(Stats)
-        self.Sur.stats_io(Stats)
-        self.MP.stats_io(PV, Stats)
+        self.Sur.stats_io(Gr,Stats)
+        self.MP.stats_io(Gr,PV, Stats)
         # self.Co.stats_io(Stats)
         return
 
@@ -375,11 +375,11 @@ cdef class TropicalPlanet(CaseBase):
         # self.Co.io(Pr, TS, Stats)
         return
 
-    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
-        CaseBase.stats_io(self, PV, Stats)
+    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
+        CaseBase.stats_io(self, Gr, PV, Stats)
         self.Fo.stats_io(Stats)
-        self.Sur.stats_io(Stats)
-        # self.Co.stats_io(Stats)
+        self.Sur.stats_io(Gr,Stats)
+        # self.Co.stats_io(Gr,Stats)
         return
 
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
@@ -501,11 +501,11 @@ cdef class TropicalPlanetMoist(CaseBase):
         self.MP.io(Pr, TS, Stats)
         return
 
-    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
-        CaseBase.stats_io(self, PV, Stats)
+    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
+        CaseBase.stats_io(self, Gr, PV, Stats)
         self.Fo.stats_io(Stats)
-        self.Sur.stats_io(Stats)
-        self.MP.stats_io(PV, Stats)
+        self.Sur.stats_io(Gr,Stats)
+        self.MP.stats_io(Gr,PV, Stats)
         return
 
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):

@@ -23,16 +23,16 @@
     "forcing": {
         "equator_to_pole_dT": 60.0,
         "equatorial_temperature": 315.0,
-        "forcing_model": "HeldSuarez",
+        "forcing_model": "StochasticHeldSuarez",
         "k_a": 2.8935185185185185e-07,
         "k_b": 2.8935185185185185e-07,
         "k_f": 1.1574074074074073e-05,
         "k_s": 2.8935185185185184e-06,
         "lapse_rate": 10.0,
-        "max_noise_wavenumber": 42,
-        "min_noise_wavenumber": 38,
-        "noise": false,
-        "noise_amplitude": 1e-15,
+        "max_noise_wavenumber": 102,
+        "min_noise_wavenumber": 98,
+        "noise": true,
+        "noise_amplitude": 1.0e-18,
         "noise_correlation": 0.0,
         "noise_magnitude": 0.05,
         "noise_type": "local",
@@ -53,12 +53,12 @@
     "initialize": {
         "T_init": 300.0,
         "noise": true,
-        "noise_amplitude": 0.001,
+        "noise_amplitude": 10,
         "noise_type": "red",
         "restart": false,
-        "restart folder": "./",
-        "restart time": "none",
-        "restart type": "zonal_mean"
+        "restart folder": "/Output.HeldSuarez.704ff582706b/Fields/",
+        "restart time": "43200000",
+        "restart type": "3D_output"
     },
     "io": {
         "output_frequency": 1.0,
@@ -68,7 +68,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "34aa8b2c-8342-43c4-98b9-no_pgf_corr"
+        "uuid": "dd136d0f-a5c6-46c0-a2ed-test_test"
     },
     "microphysics": {
         "microphysics_model": "None"

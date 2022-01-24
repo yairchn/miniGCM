@@ -21,3 +21,4 @@ _templates/
 *.log
 __pycache__/
 *.plan
+*.npy

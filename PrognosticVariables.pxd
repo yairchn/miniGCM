@@ -51,6 +51,6 @@ cdef class PrognosticVariables:
     cpdef set_old_with_now(self)
     cpdef set_now_with_tendencies(self)
     cpdef reset_pressures_and_bcs(self, Parameters Pr, DiagnosticVariables DV)
-    cpdef stats_io(self, Parameters Pr, NetCDFIO_Stats Stats)
+    cpdef stats_io(self, Grid Gr,  Parameters Pr, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats)
     cpdef compute_tendencies(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)

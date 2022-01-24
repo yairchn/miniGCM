@@ -11,6 +11,7 @@ cdef class Grid:
 		object SphericalGrid
 		double [:] longitude_list
 		double [:] latitude_list
+		double [:] lat_weights
 		double [:,:] lon
 		double [:,:] lat
 		double [:,:] longitude

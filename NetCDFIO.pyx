@@ -209,10 +209,10 @@ cdef class NetCDFIO_Stats:
         root_grp.close()
         return
 
-
-    cpdef write_global_mean(self, var_name, data):
+    cpdef write_global_mean(self, Grid Gr, var_name, data):
         var = self.global_mean_grp.variables[var_name]
-        var[-1,:] = np.array(np.mean(np.mean(data,0),0))
+        zonal_mean = np.array(np.mean(data, axis = (1,2)))
+        var[-1,:] = np.sum(np.multiply(Gr.lat_weights, zonal_mean))
         return
 
     cpdef write_zonal_mean(self, var_name, data):
@@ -225,9 +225,10 @@ cdef class NetCDFIO_Stats:
         var[-1,:,:] = np.array(np.mean(data,0))
         return
 
-    cpdef write_surface_global_mean(self, var_name, data):
+    cpdef write_surface_global_mean(self, Grid Gr, var_name, data):
         var = self.global_mean_grp.variables[var_name]
-        var[-1] = np.array(np.mean(np.mean(data,0),0))
+        zonal_mean = np.array(np.mean(data,1))
+        var[-1] = np.sum(np.multiply(Gr.lat_weights, zonal_mean))
         return
 
     cpdef write_surface_zonal_mean(self, var_name, data):

@@ -5,6 +5,7 @@ cimport numpy as np
 import shtns
 import sphTrans as sph
 from Parameters cimport Parameters
+from math import *
 
 cdef class Grid:
 	def __init__(self, Parameters Pr, namelist):
@@ -18,5 +19,7 @@ cdef class Grid:
 		self.dx = np.abs(np.multiply(np.multiply(np.gradient(self.lon,axis=1),Pr.rsphere),np.cos(self.lat)))
 		self.dy = np.abs(np.multiply(np.gradient(self.lat,axis=0),Pr.rsphere))
 		self.laplacian = self.SphericalGrid.lap
+		self.lat_weights = np.cos(2.*pi*np.linspace(-90.,90.,Pr.nlats)/360.)
+		self.lat_weights /= np.sum(self.lat_weights)
 		return
 

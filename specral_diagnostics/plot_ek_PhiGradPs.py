@@ -8,8 +8,15 @@
 #  spectra (iplot_spctr)
 #  spectra (iplot_timsr)
 #
+import os
+import sys
+import inspect
 import numpy as np
 import shtns
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
+
 import sphTrans as sph
 import matplotlib.pyplot as plt
 import time
@@ -159,8 +166,6 @@ def keSpectral_flux(u,v):
     vk = x.grdtospec(v)
     ux, uy = x.getgrad(uk) # get gradients in grid space
     vx, vy = x.getgrad(vk) # get gradients in grid space
-    #uak = x.grdtospec(ux*u + uy*v)
-    #vak = x.grdtospec(vx*u + vy*v)
 
 def keSpectral_flux_dp(u,v,Geo,pU,pD):
     zero=np.copy(u)*0.
@@ -180,6 +185,7 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
     vk      = x.grdtospec(v)
     dpk     = x.grdtospec(dp)
     dpx,dpy = x.getgrad(dpk) # get gradients in grid space
+    psx,psy = x.getgrad(x.grdtospec(pU)) # get gradients in grid space
     ux, uy  = x.getgrad(uk) # get gradients in grid space
     vx, vy  = x.getgrad(vk) # get gradients in grid space
     Geok = x.grdtospec(Geo)
@@ -207,6 +213,12 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
     # (5)
     pressure_contribution = x.grdtospec(u*dpx/2. + v*dpy/2.) 
     Esp-= pressure_contribution*uk*uk.conj() + pressure_contribution*vk*vk.conj() 
+
+    # (7)
+    momentum_error_x = x.grdtospec(0.5*Geo*psx) 
+    momentum_error_y = x.grdtospec(0.5*Geo*psy) 
+    Esp+= momentum_error_x*uk.conj() + momentum_error_y*vk.conj()
+
 
     # build spectrum
     Ek_sum = np.zeros(np.amax(l)+1)
@@ -344,13 +356,14 @@ lons,lats = np.meshgrid(x.lons, x.lats)
 latDeg = np.degrees(lats)
 lonDeg = np.degrees(lons)
 
-folder='Output.HeldSuarez.HighResolRun'
-path = '/home/josefs/miniGCM/'+folder+'/Fields/'
+# folder='Output.HeldSuarez.HighResolRun'
+# path = '/home/josefs/miniGCM/'+folder+'/Fields/'
 # path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582r15b/Fields/'
 path = '/Users/yaircohen/Documents/codes/miniGCM/Output.HeldSuarez.704ff582r15b/Fields/'
 
 #time=np.arange(0,5,1)
 time=np.arange(0,800,4)
+# time=np.arange(0,797,1)
 #time=np.arange(120,145,1)
 #time=np.arange(700,708,4)
 print('time.shape',time.shape)
@@ -362,7 +375,8 @@ p1=250.; p2=500.; p3=750. # [hPa]
 p1=250.; p2=500.; # [hPa]
 
 icount=0
-for it in time:
+for it in time: 
+#for it in time[0:2]: 
     print('it ',it)
 
     for Layer in np.arange(0,3):
@@ -372,6 +386,7 @@ for it in time:
         v=netCDF4.Dataset(path+'V_'+str(it*3600*24)+'.nc').variables['V'][:,:,Layer]
         T=netCDF4.Dataset(path+'Temperature_'+str(it*3600*24)+'.nc').variables['Temperature'][:,:,Layer]
         Geo=netCDF4.Dataset(path+'Geopotential_'+str(it*3600*24)+'.nc').variables['Geopotential'][:,:,Layer]
+        print('Layer', Layer , 'Geo[0,0,Layer]',Geo[0,0]) 
         Wp=netCDF4.Dataset(path+'Wp_'+str(it*3600*24)+'.nc').variables['Wp'][:,:,Layer-1]/100.#hPa
 
         if Layer == 0:

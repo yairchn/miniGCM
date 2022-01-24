@@ -29,7 +29,6 @@ cdef extern from "tendency_functions.h":
     void momentum_tendecies(double* p, double* gz, double* vort, double* f,
                             double* u, double* v, double* wp, double* ke, double* wdudp_up, double* wdvdp_up,
                             double* wdudp_dn, double* wdvdp_dn, double* e_dry, double* u_vort, double* v_vort,
-                            double* u_pgf_correction, double* v_pgf_correction, double* dpsdx, double* dpsdy,
                             ssize_t imax, ssize_t jmax, ssize_t kmax, ssize_t k) nogil
 
 
@@ -90,9 +89,6 @@ cdef class PrognosticVariables:
             Stats.add_global_mean('global_mean_QT')
             Stats.add_zonal_mean('zonal_mean_QT')
             Stats.add_meridional_mean('meridional_mean_QT')
-            # Stats.add_global_mean('global_mean_dQTdt')
-            # Stats.add_zonal_mean('zonal_mean_dQTdt')
-            # Stats.add_meridional_mean('meridional_mean_dQTdt')
         return
 
     # convert spherical data to spectral
@@ -157,11 +153,11 @@ cdef class PrognosticVariables:
         return
     # this should be done in time intervals and save each time new files,not part of stats
 
-    cpdef stats_io(self, Parameters Pr, NetCDFIO_Stats Stats):
+    cpdef stats_io(self, Grid Gr, Parameters Pr, NetCDFIO_Stats Stats):
         cdef:
             Py_ssize_t nl = Pr.n_layers
 
-        Stats.write_global_mean('global_mean_T', self.T.values)
+        Stats.write_global_mean(Gr, 'global_mean_T', self.T.values)
         Stats.write_surface_zonal_mean('zonal_mean_Ps',self.P.values[:,:,nl])
         Stats.write_surface_zonal_mean('T_SurfaceFlux', self.T.SurfaceFlux)
         Stats.write_surface_zonal_mean('QT_SurfaceFlux',self.QT.SurfaceFlux)
@@ -175,13 +171,10 @@ cdef class PrognosticVariables:
         if Pr.moist_index > 0.0:
             Stats.write_zonal_mean('zonal_mean_dTdt',self.T.mp_tendency)
             Stats.write_meridional_mean('meridional_mean_dTdt',self.T.mp_tendency)
-            Stats.write_global_mean('global_mean_dTdt', self.T.mp_tendency)
-            Stats.write_global_mean('global_mean_QT', self.QT.values)
+            Stats.write_global_mean(Gr, 'global_mean_dTdt', self.T.mp_tendency)
+            Stats.write_global_mean(Gr, 'global_mean_QT', self.QT.values)
             Stats.write_zonal_mean('zonal_mean_QT',self.QT.values)
             Stats.write_meridional_mean('meridional_mean_QT',self.QT.values)
-            # Stats.write_global_mean('global_mean_dQTdt', self.QT.mp_tendency)
-            # Stats.write_zonal_mean('zonal_mean_dQTdt',self.QT.mp_tendency)
-            # Stats.write_meridional_mean('meridional_mean_dQTdt',self.QT.mp_tendency)
         return
 
     cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
@@ -195,10 +188,6 @@ cdef class PrognosticVariables:
         Stats.write_2D_variable(Pr, int(TS.t),    'Pressure',          self.P.values[:,:,nl])
         Stats.write_2D_variable(Pr, int(TS.t),    'T_SurfaceFlux',     self.T.SurfaceFlux)
         Stats.write_spectral_field(Pr, int(TS.t),nlm, nl, 'Vorticity_forcing', self.Vorticity.sp_forcing)
-        # Stats.write_spectral_field(Pr, int(TS.t),nlm, nl, 'Vorticity_ConvectiveFlux', self.Vorticity.ConvectiveFlux)
-        # Stats.write_spectral_field(Pr, int(TS.t),nlm, nl, 'Divergence_ConvectiveFlux', self.Divergence.ConvectiveFlux)
-        # Stats.write_spectral_field(Pr, int(TS.t),nlm, nl, 'Temperature_ConvectiveFlux', self.T.ConvectiveFlux)
-        # Stats.write_spectral_field(Pr, int(TS.t),nlm, nl, 'Specific_humidity_ConvectiveFlux', self.QT.ConvectiveFlux)
         if Pr.moist_index > 0.0:
             Stats.write_3D_variable(Pr, int(TS.t),nl, 'Specific_humidity', self.QT.values)
             Stats.write_3D_variable(Pr, int(TS.t),nl, 'dQTdt',             self.QT.mp_tendency[:,:,0:nl])
@@ -220,8 +209,6 @@ cdef class PrognosticVariables:
             double complex [:] w_vort_dn = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] w_div_up  = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] w_div_dn  = np.zeros((nlm), dtype = np.complex, order ='c')
-            double complex [:] pgf_vort  = np.zeros((nlm), dtype = np.complex, order ='c')
-            double complex [:] pgf_div   = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] Vort_forc = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] Div_forc  = np.zeros((nlm), dtype = np.complex, order ='c')
             double complex [:] RHS_T     = np.zeros((nlm), dtype = np.complex, order ='c')
@@ -241,8 +228,6 @@ cdef class PrognosticVariables:
 
             double [:,:] uT  = np.zeros((nx, ny),dtype=np.float64, order ='c')
             double [:,:] vT  = np.zeros((nx, ny),dtype=np.float64, order ='c')
-            double [:,:] dpsdx = np.zeros((nx, ny),dtype = np.float64, order ='c')
-            double [:,:] dpsdy = np.zeros((nx, ny),dtype = np.float64, order ='c')
             double [:,:] uQT = np.zeros((nx, ny),dtype=np.float64, order ='c')
             double [:,:] vQT = np.zeros((nx, ny),dtype=np.float64, order ='c')
             double [:,:] wu_dn = np.zeros((nx, ny),dtype=np.float64, order ='c')
@@ -256,8 +241,6 @@ cdef class PrognosticVariables:
             double [:,:] RHS_grid_QT = np.zeros((nx, ny),dtype=np.float64, order ='c')
             double [:,:] T_sur_flux  = np.zeros((nx, ny),dtype=np.float64, order ='c')
             double [:,:] QT_sur_flux = np.zeros((nx, ny),dtype=np.float64, order ='c')
-            double [:,:] u_pgf_correction = np.zeros((nx, ny),dtype=np.float64, order ='c')
-            double [:,:] v_pgf_correction = np.zeros((nx, ny),dtype=np.float64, order ='c')
             double [:,:] u_vertical_flux = np.zeros((nx, ny),dtype=np.float64, order ='c')
             double [:,:] v_vertical_flux = np.zeros((nx, ny),dtype=np.float64, order ='c')
 
@@ -281,9 +264,9 @@ cdef class PrognosticVariables:
             with nogil:
                 momentum_tendecies(&PV.P.values[0,0,0], &DV.gZ.values[0,0,0], &PV.Vorticity.values[0,0,0],
                             &Gr.Coriolis[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
-                            &DV.Wp.values[0,0,0], &DV.KE.values[0,0,0], &wu_up[0,0], &wv_up[0,0], &wu_dn[0,0], &wv_dn[0,0],
-                            &Dry_Energy[0,0], &u_vorticity[0,0], &v_vorticity[0,0],  &u_pgf_correction[0,0],
-                            &v_pgf_correction[0,0], &dpsdx[0,0], &dpsdy[0,0], nx, ny, nl, k)
+                            &DV.Wp.values[0,0,0], &DV.KE.values[0,0,0], &wu_up[0,0], &wv_up[0,0],
+                            &wu_dn[0,0], &wv_dn[0,0], &Dry_Energy[0,0], &u_vorticity[0,0], &v_vorticity[0,0],
+                            nx, ny, nl, k)
 
                 rhs_T(Pr.cp, &PV.P.values[0,0,0], &DV.gZ.values[0,0,0], &PV.T.values[0,0,0], &DV.U.values[0,0,0],
                            &DV.V.values[0,0,0], &DV.Wp.values[0,0,0], &PV.T.mp_tendency[0,0,0], &T_sur_flux[0,0],
@@ -300,7 +283,6 @@ cdef class PrognosticVariables:
             Vort_forc ,Div_forc = Gr.SphericalGrid.getvrtdivspec(DV.U.forcing.base[:,:,k],DV.V.forcing.base[:,:,k])
             w_vort_up ,w_div_up = Gr.SphericalGrid.getvrtdivspec(wu_up.base, wv_up.base)
             w_vort_dn ,w_div_dn = Gr.SphericalGrid.getvrtdivspec(wu_dn.base, wv_dn.base)
-            pgf_vort ,pgf_div = Gr.SphericalGrid.getvrtdivspec(u_pgf_correction.base, v_pgf_correction.base)
             RHS_T  = Gr.SphericalGrid.grdtospec(RHS_grid_T.base)
 
             if Pr.moist_index > 0.0:
@@ -309,9 +291,9 @@ cdef class PrognosticVariables:
 
             with nogil:
                 for i in range(nlm):
-                    PV.Vorticity.tendency[i,k]  = (Vort_forc[i] - Divergent_momentum_flux[i]- w_vort_up[i] - w_vort_dn[i] + pgf_vort[i]
+                    PV.Vorticity.tendency[i,k]  = (Vort_forc[i] - Divergent_momentum_flux[i]- w_vort_up[i] - w_vort_dn[i]
                                                      + Vort_sur_flux[i] + PV.Vorticity.ConvectiveFlux[i,k] + PV.Vorticity.sp_forcing[i,k])
-                    PV.Divergence.tendency[i,k] = (Vortical_momentum_flux[i] - Dry_Energy_laplacian[i]- w_div_up[i] - w_div_dn[i] + pgf_div[i]
+                    PV.Divergence.tendency[i,k] = (Vortical_momentum_flux[i] - Dry_Energy_laplacian[i]- w_div_up[i] - w_div_dn[i]
                                                     + Div_forc[i] + Div_sur_flux[i] + PV.Divergence.ConvectiveFlux[i,k])
 
                     PV.T.tendency[i,k]  = RHS_T[i]  - Divergent_T_flux[i] + PV.T.ConvectiveFlux[i,k]

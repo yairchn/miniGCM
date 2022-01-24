@@ -39,7 +39,7 @@ cdef class CaseBase:
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
-    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats)
+    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS)
 
 cdef class HeldSuarez(CaseBase):
@@ -51,7 +51,7 @@ cdef class HeldSuarez(CaseBase):
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
-    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats)
+    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS)
 
@@ -64,7 +64,7 @@ cdef class HeldSuarezMoist(CaseBase):
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
-    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats)
+    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS)
 
 cdef class TropicalPlanet(CaseBase):
@@ -76,7 +76,7 @@ cdef class TropicalPlanet(CaseBase):
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
-    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats)
+    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS)
 
 cdef class TropicalPlanetMoist(CaseBase):
@@ -88,5 +88,5 @@ cdef class TropicalPlanetMoist(CaseBase):
     cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist)
     cpdef initialize_io(self, NetCDFIO_Stats Stats)
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
-    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats)
+    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats)
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS)

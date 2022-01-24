@@ -17,7 +17,7 @@ Ek_cross=np.copy(ks)*0.
 #Layer=1
 #Layer=2
 
-time=np.arange(100,797,1)
+time=np.arange(200,600,4)
 
 for Layer in np.arange(0,3):
     icount=0

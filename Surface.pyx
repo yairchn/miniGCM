@@ -35,7 +35,7 @@ cdef class SurfaceBase:
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         return
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
+    cpdef stats_io(self, Grid Gr, NetCDFIO_Stats Stats):
         return
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
@@ -50,7 +50,7 @@ cdef class SurfaceNone(SurfaceBase):
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         return
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
+    cpdef stats_io(self, Grid Gr, NetCDFIO_Stats Stats):
         return
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
@@ -100,9 +100,11 @@ cdef class SurfaceBulkFormula(SurfaceBase):
         Stats.add_surface_zonal_mean('zonal_mean_QT_surf')
         return
 
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
-        Stats.write_surface_zonal_mean('zonal_mean_QT_surf', self.T_surf)
+    cpdef stats_io(self, Grid Gr, NetCDFIO_Stats Stats):
+        Stats.write_surface_zonal_mean('zonal_mean_T_surf', self.T_surf)
         Stats.write_surface_zonal_mean('zonal_mean_QT_surf', self.QT_surf)
+        Stats.write_surface_global_mean(Gr, 'global_mean_T_surf', self.T_surf)
+        Stats.write_surface_global_mean(Gr, 'global_mean_QT_surf', self.QT_surf)
         return
 
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):

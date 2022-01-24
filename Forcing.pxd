@@ -44,7 +44,29 @@ cdef class HelzSuarez(ForcingBase):
 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
 	cpdef stats_io(self, NetCDFIO_Stats Stats)
 
-cdef class TropicalPlanet(ForcingBase):
+# cdef class TropicalPlanet(ForcingBase):
+# 	cdef:
+# 		Py_ssize_t nx
+# 		Py_ssize_t ny
+# 		Py_ssize_t nl
+# 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
+# 	cpdef initialize_io(self, NetCDFIO_Stats Stats)
+# 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
+# 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
+# 	cpdef stats_io(self, NetCDFIO_Stats Stats)
+
+cdef class StochasticTropicalPlanet(ForcingBase):
+	cdef:
+		Py_ssize_t nx
+		Py_ssize_t ny
+		Py_ssize_t nl
+	cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
+	cpdef initialize_io(self, NetCDFIO_Stats Stats)
+	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
+	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats)
+	cpdef stats_io(self, NetCDFIO_Stats Stats)
+
+cdef class StochasticHeldSuarez(ForcingBase):
 	cdef:
 		Py_ssize_t nx
 		Py_ssize_t ny

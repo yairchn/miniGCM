@@ -41,7 +41,7 @@ cdef class MicrophysicsBase:
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         return
-    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
+    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
         return
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
@@ -59,7 +59,7 @@ cdef class MicrophysicsNone(MicrophysicsBase):
         return
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         return
-    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
+    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
         return
     cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
@@ -124,13 +124,13 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
 
         return
 
-    cpdef stats_io(self, PrognosticVariables PV, NetCDFIO_Stats Stats):
-        Stats.write_global_mean('global_mean_dQTdt', PV.QT.mp_tendency)
-        Stats.write_surface_global_mean('global_mean_RainRate', self.RainRate)
+    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
+        Stats.write_global_mean(Gr, 'global_mean_dQTdt', PV.QT.mp_tendency)
+        Stats.write_surface_global_mean(Gr, 'global_mean_RainRate', self.RainRate)
         Stats.write_zonal_mean('zonal_mean_dQTdt',PV.QT.mp_tendency)
         Stats.write_meridional_mean('meridional_mean_dQTdt',PV.QT.mp_tendency)
         Stats.write_surface_zonal_mean('zonal_mean_RainRate',self.RainRate)
-        Stats.write_global_mean('global_mean_qv_star',self.qv_star)
+        Stats.write_global_mean(Gr, 'global_mean_qv_star',self.qv_star)
         Stats.write_zonal_mean('zonal_mean_qv_star',self.qv_star)
         Stats.write_meridional_mean('meridional_mean_qv_star',self.qv_star)
         return

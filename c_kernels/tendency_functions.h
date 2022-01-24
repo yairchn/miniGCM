@@ -165,10 +165,6 @@ void momentum_tendecies(double* restrict p,
                         double* restrict e_dry,
                         double* restrict u_vort,
                         double* restrict v_vort,
-                        double* restrict u_pgf_correction,
-                        double* restrict v_pgf_correction,
-                        double* restrict dpsdx,
-                        double* restrict dpsdy,
                         ssize_t imax,
                         ssize_t jmax,
                         ssize_t kmax,
@@ -194,8 +190,6 @@ void momentum_tendecies(double* restrict p,
             wdvdp_up[ij] = 0.0;
             wdudp_dn[ij] = 0.0;
             wdvdp_dn[ij] = 0.0;
-            u_pgf_correction[ij] = 0.0;
-            v_pgf_correction[ij] = 0.0;
             if (kmax-1>0){
                 if (k==0){
                     wdudp_dn[ij] = 0.5*wp[ijkp+1]*(u[ijk+1] - u[ijk])*dpi;
@@ -204,8 +198,6 @@ void momentum_tendecies(double* restrict p,
                 else if (k==kmax-1){
                     wdudp_up[ij] = 0.5*wp[ijkp]*(u[ijk] - u[ijk-1])*dpi;
                     wdvdp_up[ij] = 0.5*wp[ijkp]*(v[ijk] - v[ijk-1])*dpi;
-                    u_pgf_correction[ij] = 0.0; //-0.5*(gz[ijkp+1]+gz[ijkp])*dpsdx[ij]*dpi;
-                    v_pgf_correction[ij] = 0.0; //-0.5*(gz[ijkp+1]+gz[ijkp])*dpsdy[ij]*dpi;
                 } // end else if
                 else { // if not @ boundaries you can access k+1 and k-1
                     wdudp_up[ij] = 0.5*wp[ijkp]*(u[ijk] - u[ijk-1])*dpi;
@@ -215,7 +207,6 @@ void momentum_tendecies(double* restrict p,
                 } // end else
             } // end if
             e_dry[ij]  = (gz[ijkp+1]+gz[ijkp])/2.0 + ke[ijk];
-            //e_dry[ij]  = gz[ijkp] + ke[ijk];
             u_vort[ij] = u[ijk] * (vort[ijk]+f[ij]);
             v_vort[ij] = v[ijk] * (vort[ijk]+f[ij]);
         } // end j loop
