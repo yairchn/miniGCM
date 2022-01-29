@@ -3,7 +3,7 @@ import netCDF4 as nc
 import pylab as plt
 import argparse
 import os
-
+import glob, os
 
 def keSpectral_flux_error_dp(u,v,Geo,pU,pD,uD,vD,Wp):
     uk  = x.grdtospec(u)
@@ -142,6 +142,13 @@ def keSpectral_flux_dp(u,v,Geo,pU,pD):
 # command line from main folder:
 # python viz/contour_zonal_mean.py zonal_mean_T
 def main():
+    parser = argparse.ArgumentParser(prog='miniGCM')
+    parser.add_argument("path")
+    args = parser.parse_args()
+    path = args.varname
+    for file in glob.glob("*.in"):
+        print(file)
+        namelist_path = path + ''
 
 	for Layer in np.arange(0,3):
 		# load data
