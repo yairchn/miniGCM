@@ -26,8 +26,8 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # hres_scaling=16
-hres_scaling=4
-# hres_scaling=1
+# hres_scaling=4
+hres_scaling=1
 
 nlons  = hres_scaling*128  # number of longitudes
 ntrunc = int(nlons/3)  # spectral truncation (for alias-free computations)
@@ -359,7 +359,7 @@ lonDeg = np.degrees(lons)
 # folder='Output.HeldSuarez.HighResolRun'
 # path = '/home/josefs/miniGCM/'+folder+'/Fields/'
 # path = '/home/scoty/miniGCM/Output.HeldSuarez.704ff582r15b/Fields/'
-path = '/Users/yaircohen/Documents/codes/miniGCM/Output.HeldSuarez.704ff582r15b/Fields/'
+path = '/Users/yaircohen/Documents/codes/miniGCM/Output.HeldSuarezMoist.7_convection/Fields/'
 
 #time=np.arange(0,5,1)
 time=np.arange(0,800,4)
