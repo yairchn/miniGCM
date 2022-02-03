@@ -149,53 +149,67 @@ def main():
     for file in glob.glob("*.in"):
         print(file)
         namelist_path = path + ''
+        file_namelist = open(namelist_path).read()
+        namelist = json.loads(file_namelist)
+        del file_namelist
 
-	for Layer in np.arange(0,3):
-		# load data
-        print("day ", it," Layer ",Layer)
-        ps=netCDF4.Dataset(path+'Pressure_'+str(it*3600*24)+'.nc').variables['Pressure'][:,:]
-        u=netCDF4.Dataset(path+'U_'+str(it*3600*24)+'.nc').variables['U'][:,:,Layer]
-        v=netCDF4.Dataset(path+'V_'+str(it*3600*24)+'.nc').variables['V'][:,:,Layer]
-        T=netCDF4.Dataset(path+'Temperature_'+str(it*3600*24)+'.nc').variables['Temperature'][:,:,Layer]
-        Geo=netCDF4.Dataset(path+'Geopotential_'+str(it*3600*24)+'.nc').variables['Geopotential'][:,:,Layer]
-        print('Layer', Layer , 'Geo[0,0,Layer]',Geo[0,0]) 
-        Wp=netCDF4.Dataset(path+'Wp_'+str(it*3600*24)+'.nc').variables['Wp'][:,:,Layer-1]/100.#hPa
+        nlats   = namelist['grid']['number_of_latitute_points']
+        nlons   = namelist['grid']['number_of_longitude_points']
+        n_layers  = np.shape(namelist['grid']['pressure_levels'])[0] - 1
+        pressure_levels = np.zeros((n_layers+1),dtype=np.float64, order='c')
+        for i in range(n_layers+1):
+            pressure_levels.base[i] = np.float(namelist['grid']['pressure_levels'][i])
 
-        if Layer == 0:
-            pD=ps*0.+p1
-            pU=ps*0.+p2
-            print('pU ',pU[1,1],' pD',pD[1,1],' Layer',Layer)
-        elif Layer == 1:
-            pD=ps*0.+p2
-            pU=ps*0.+p3
-            print('pU ',pU[1,1],' pD',pD[1,1],' Layer',Layer)
-        elif Layer == 2:
-            pD=ps*0.+p3
-            pU=ps/100.
-            print('pU ',pU[1,1],' pD',pD[1,1],' Layer',Layer)
-        #pD=ps*0.+p1
-        #pU=ps*0.+ps/100.
-        print('pU ',pU[1,1],' pD',pD[1,1],' Layer',Layer)
+        simulation_length = namelist['timestepping']['t_max']*24.0*3600.0 # sec/day
+        output_frequency = namelist['io']['output_frequency']*24.0*3600.0 # sec/day
 
-		vrtsp,divsp = x.getvrtdivspec(u,v)
-		u_vrt,v_vrt = x.getuv(vrtsp,divsp*0.)
-		u_div,v_div = x.getuv(vrtsp*0.,divsp)
-		ke_vrtsp,ke_divsp = x.getvrtdivspec((pD-pU)*u*0.5*(u*u+v*v),(pD-pU)*v*0.5*(u*u+v*v))
-		ke_div = x.spectogrd(ke_divsp)
-		if Layer==1 or Layer==2:
-			uD=netCDF4.Dataset(path+'U_'+str(it*3600*24)+'.nc').variables['U'][:,:,Layer-1]
-			vD=netCDF4.Dataset(path+'V_'+str(it*3600*24)+'.nc').variables['V'][:,:,Layer-1]
-			print('Wp min ', np.amax(Wp), 'max', np.amin(Wp),' Layer',Layer)
-			ke_error = Wp*(0.5*(uD*uD+vD*vD) - 0.5*(u*u+v*v)) 
-		if Layer==2:
-			Phi=netCDF4.Dataset(path+'Geopotential_'+str(it*3600*24)+'.nc').variables['Geopotential'][:,:,Layer]
-			psx,psy=x.getgrad(x.grdtospec(ps/100.))
-			total_energy_error = Phi*(u*psx+v*psy)/(pU-pD) 
+    	for it in np.arange(simulation_length):
+            for Layer in np.arange(n_layers):
+        		# load data
+                print("day ", it," Layer ",Layer)
+                ps = nc.Dataset(path+'Pressure_'+str(it*3600*24)+'.nc').variables['Pressure'][:,:]
+                u = nc.Dataset(path+'U_'+str(it*3600*24)+'.nc').variables['U'][:,:,Layer]
+                v = nc.Dataset(path+'V_'+str(it*3600*24)+'.nc').variables['V'][:,:,Layer]
+                T = nc.Dataset(path+'Temperature_'+str(it*3600*24)+'.nc').variables['Temperature'][:,:,Layer]
+                Geo = nc.Dataset(path+'Geopotential_'+str(it*3600*24)+'.nc').variables['Geopotential'][:,:,Layer]
+                print('Layer', Layer , 'Geo[0,0,Layer]',Geo[0,0])
+                Wp = nc.Dataset(path+'Wp_'+str(it*3600*24)+'.nc').variables['Wp'][:,:,Layer-1]/100.#hPa
 
-		uD=netCDF4.Dataset(path+'U_'+str(it*3600*24)+'.nc').variables['U'][:,:,Layer-1]
-		vD=netCDF4.Dataset(path+'V_'+str(it*3600*24)+'.nc').variables['V'][:,:,Layer-1]
-		[KE_flux,ks] = keSpectral_flux_dp(u,v,Geo,pU,pD)
-		[KE_flux_error,ks] = keSpectral_flux_error_dp(u,v,Geo,pU,pD,uD,vD,Wp)
+                if Layer == 0:
+                    pD=ps*0.+p1
+                    pU=ps*0.+p2
+                    print('pU ',pU[1,1],' pD',pD[1,1],' Layer',Layer)
+                elif Layer == 1:
+                    pD=ps*0.+p2
+                    pU=ps*0.+p3
+                    print('pU ',pU[1,1],' pD',pD[1,1],' Layer',Layer)
+                elif Layer == 2:
+                    pD=ps*0.+p3
+                    pU=ps/100.
+                    print('pU ',pU[1,1],' pD',pD[1,1],' Layer',Layer)
+                #pD=ps*0.+p1
+                #pU=ps*0.+ps/100.
+                print('pU ',pU[1,1],' pD',pD[1,1],' Layer',Layer)
+
+        		vrtsp,divsp = x.getvrtdivspec(u,v)
+        		u_vrt,v_vrt = x.getuv(vrtsp,divsp*0.)
+        		u_div,v_div = x.getuv(vrtsp*0.,divsp)
+        		ke_vrtsp,ke_divsp = x.getvrtdivspec((pD-pU)*u*0.5*(u*u+v*v),(pD-pU)*v*0.5*(u*u+v*v))
+        		ke_div = x.spectogrd(ke_divsp)
+        		if Layer==1 or Layer==2:
+        			uD=nc.Dataset(path+'U_'+str(it*3600*24)+'.nc').variables['U'][:,:,Layer-1]
+        			vD=nc.Dataset(path+'V_'+str(it*3600*24)+'.nc').variables['V'][:,:,Layer-1]
+        			print('Wp min ', np.amax(Wp), 'max', np.amin(Wp),' Layer',Layer)
+        			ke_error = Wp*(0.5*(uD*uD+vD*vD) - 0.5*(u*u+v*v)) 
+        		if Layer==2:
+        			Phi=nc.Dataset(path+'Geopotential_'+str(it*3600*24)+'.nc').variables['Geopotential'][:,:,Layer]
+        			psx,psy=x.getgrad(x.grdtospec(ps/100.))
+        			total_energy_error = Phi*(u*psx+v*psy)/(pU-pD) 
+
+        		uD=nc.Dataset(path+'U_'+str(it*3600*24)+'.nc').variables['U'][:,:,Layer-1]
+        		vD=nc.Dataset(path+'V_'+str(it*3600*24)+'.nc').variables['V'][:,:,Layer-1]
+        		[KE_flux,ks] = keSpectral_flux_dp(u,v,Geo,pU,pD)
+        		[KE_flux_error,ks] = keSpectral_flux_error_dp(u,v,Geo,pU,pD,uD,vD,Wp)
 
 
 
