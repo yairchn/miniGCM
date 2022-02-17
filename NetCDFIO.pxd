@@ -45,5 +45,6 @@ cdef class NetCDFIO_Stats:
     cpdef write_surface_meridional_mean(self, var_name, data)
     cpdef write_3D_variable(self, Parameters Pr, t, n_layers, var_name, data)
     cpdef write_spectral_field(self, Parameters Pr, t, nlm, n_layers, var_name, data)
+    cpdef write_spectral_analysis(self, n_wavenumbers, n_layers, var_name, data)
     cpdef write_2D_variable(self, Parameters Pr, t, var_name, data)
     cpdef write_simulation_time(self, t)

@@ -20,3 +20,5 @@ cdef class Grid:
 		double [:,:] dx
 		double [:,:] dy
 		double complex [:] laplacian
+		int [:] shtns_l
+		int [:] wavenumbers

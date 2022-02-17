@@ -65,6 +65,8 @@ class Spharmt(object):
         vrtspec, divspec = self._shtns.analys(u, v)
         return self.lap*self.rsphere*vrtspec, self.lap*self.rsphere*divspec
 
+        # vrtspec = self._shtns.analys(u)
+        # divspec = self._shtns.analys(v)
     def getgrad(self,divspec):
         """compute gradient vector from spectral coeffs"""
         vrtspec = np.zeros(divspec.shape, dtype=np.complex)

@@ -25,13 +25,11 @@ cdef class Diffusion:
             Py_ssize_t i,j,k
             Py_ssize_t nl = Pr.n_layers
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
-            int [:] shtns_l
             double complex diffusion_factor_meso_scale
             double complex diffusion_factor_grid_scale
             double complex HyperDiffusionFactor
             double complex [:] laplacian
 
-        shtns_l = np.copy(Gr.SphericalGrid._shtns.l)
         laplacian  = Gr.SphericalGrid.lap
 
         with nogil:

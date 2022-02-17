@@ -27,6 +27,12 @@ def main():
     namelist_defaults['diffusion']['e_folding_timescale_grid_scale'] = 7200
     namelist_defaults['diffusion']['e_folding_timescale_meso_scale'] = 100000000
 
+    namelist_defaults['spectral_analysis'] = {}
+    namelist_defaults['spectral_analysis']['spinup_time'] = 200.0 # days
+    namelist_defaults['spectral_analysis']['sa_flag'] = True
+    namelist_defaults['spectral_analysis']['flux_frequency'] = namelist_defaults['timestepping']['dt']
+    namelist_defaults['spectral_analysis']['spectral_frequency'] = namelist_defaults['timestepping']['dt']
+
     namelist_defaults['grid'] = {}
     namelist_defaults['grid']['dims'] = 1
     namelist_defaults['grid']['gw']   = 2

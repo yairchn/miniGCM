@@ -15,6 +15,7 @@ from PrognosticVariables import PrognosticVariables, PrognosticVariable
 import time
 from TimeStepping import TimeStepping
 from Microphysics import MicrophysicsBase
+from SpectralAnalysis import SpectralAnalysis
 from LogFile import LogFile
 class Simulation:
 
@@ -29,6 +30,7 @@ class Simulation:
         self.DF = Diffusion()
         self.TS = TimeStepping(namelist)
         self.Stats = NetCDFIO_Stats(self.Pr, self.Gr, namelist)
+        self.SA = SpectralAnalysis()
         return
 
     def initialize(self, namelist):
@@ -62,6 +64,15 @@ class Simulation:
                 self.stats_io()
             if (self.TS.t%self.Stats.output_frequency < self.TS.dt or self.TS.t == self.TS.t_max):
                 self.io()
+            if self.SA.spetral_analysis:
+                if self.TS.t > self.SA.spinup_time:
+                    if (self.TS.t%self.SA.flux_frequency < self.TS.dt or self.TS.t == self.TS.t_max):
+                        self.SA.compute_spectral_flux()
+                    if (self.TS.t%self.SA.spectrum_frequency < self.TS.dt or self.TS.t == self.TS.t_max):
+                        self.SA.compute_turbulence_spectrum()
+
+        if self.SA.spetral_analysis:
+            self.SA.io()
         return
 
     def initialize_io(self, namelist):
