@@ -68,7 +68,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "9cc5d715-c0d0-4ff1-ab07-vrt_div_test"
+        "uuid": "e3eacfad-a839-4864-a67c-347417c05968"
     },
     "microphysics": {
         "microphysics_model": "None"
@@ -80,6 +80,12 @@
         "Omega_rotation": 7.292e-05,
         "gravity": 9.80616,
         "planet_radius": 6371220.0
+    },
+    "spectral_analysis": {
+        "flux_frequency": 100.0,
+        "sa_flag": true,
+        "spectral_frequency": 100.0,
+        "spinup_time": 200.0
     },
     "surface": {
         "surface_model": "None"

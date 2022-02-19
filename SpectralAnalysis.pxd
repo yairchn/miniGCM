@@ -15,11 +15,14 @@ cdef class SpectralAnalysis:
     cdef:
         double flux_frequency
         double spectral_frequency
-        double spinup_time
-        bint spectral_analysis
+        public double spinup_time
+        public bint spectral_analysis
         double [:,:] KE_spectrum
         double [:,:] KE_Rot_spectrum
         double [:,:] KE_Div_spectrum
+        double [:,:] int_KE_spec_flux_div
+        double [:,:] KE_spec_flux_div
+
     cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
     cpdef compute_spectral_flux(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV)
     cpdef compute_turbulence_spectrum(self, Parameters Pr, Grid Gr, PrognosticVariables PV)

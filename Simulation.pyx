@@ -30,7 +30,7 @@ class Simulation:
         self.DF = Diffusion()
         self.TS = TimeStepping(namelist)
         self.Stats = NetCDFIO_Stats(self.Pr, self.Gr, namelist)
-        self.SA = SpectralAnalysis()
+        self.SA = SpectralAnalysis(namelist)
         return
 
     def initialize(self, namelist):
@@ -45,6 +45,7 @@ class Simulation:
         self.TS.initialize(self.Pr)
         self.initialize_io(namelist)
         self.io()
+        self.SA.initialize(self.Pr, self.Gr, namelist)
 
     def run(self, namelist):
         print('run')
@@ -64,12 +65,12 @@ class Simulation:
                 self.stats_io()
             if (self.TS.t%self.Stats.output_frequency < self.TS.dt or self.TS.t == self.TS.t_max):
                 self.io()
-            if self.SA.spetral_analysis:
-                if self.TS.t > self.SA.spinup_time:
-                    if (self.TS.t%self.SA.flux_frequency < self.TS.dt or self.TS.t == self.TS.t_max):
-                        self.SA.compute_spectral_flux()
-                    if (self.TS.t%self.SA.spectrum_frequency < self.TS.dt or self.TS.t == self.TS.t_max):
-                        self.SA.compute_turbulence_spectrum()
+            # if self.SA.spetral_analysis:
+            # if self.TS.t > self.SA.spinup_time:
+            # if (self.TS.t%self.SA.flux_frequency < self.TS.dt or self.TS.t == self.TS.t_max):
+            self.SA.compute_spectral_flux(self.Pr, self.Gr, self.PV, self.DV)
+            # if (self.TS.t%self.SA.spectrum_frequency < self.TS.dt or self.TS.t == self.TS.t_max):
+            self.SA.compute_turbulence_spectrum(self.Pr, self.Gr, self.PV)
 
         if self.SA.spetral_analysis:
             self.SA.io()
