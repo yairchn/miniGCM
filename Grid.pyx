@@ -21,9 +21,6 @@ cdef class Grid:
 		self.laplacian = self.SphericalGrid.lap
 		self.lat_weights = np.cos(2.*pi*np.linspace(-90.,90.,Pr.nlats)/360.)
 		self.lat_weights /= np.sum(self.lat_weights)
-		# self.shtns_l = np.int(np.copy(Gr.SphericalGrid._shtns.l))
-		print(type(self.SphericalGrid._shtns.l[1]))
-		print(self.SphericalGrid._shtns.l[1])
 		self.shtns_l = np.array(self.SphericalGrid._shtns.l, dtype=int)
 		self.wavenumbers = np.arange(np.amax(self.shtns_l)+1)
 		return

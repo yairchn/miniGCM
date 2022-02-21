@@ -126,9 +126,9 @@ cdef class SpectralAnalysis:
         return
 
     cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
-        Stats.write_spectral_analysis(Gr.wavenumbers.len(), Pr.n_layers, 'KE_spectrum', self.KE_spectrum)
-        Stats.write_spectral_analysis(Gr.wavenumbers.len(), Pr.n_layers, 'KE_Rot_spectrum', self.KE_Rot_spectrum)
-        Stats.write_spectral_analysis(Gr.wavenumbers.len(), Pr.n_layers, 'KE_Div_spectrum', self.KE_Div_spectrum)
-        Stats.write_spectral_analysis(Gr.wavenumbers.len(), Pr.n_layers, 'KE_spec_flux_div', self.KE_spec_flux_div)
-        Stats.write_spectral_analysis(Gr.wavenumbers.len(), Pr.n_layers, 'int_KE_spec_flux_div', self.int_KE_spec_flux_div)
+        Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_spectrum', self.KE_spectrum)
+        Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_Rot_spectrum', self.KE_Rot_spectrum)
+        Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_Div_spectrum', self.KE_Div_spectrum)
+        Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_spec_flux_div', self.KE_spec_flux_div)
+        Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'int_KE_spec_flux_div', self.int_KE_spec_flux_div)
         return
