@@ -13,8 +13,8 @@ from NetCDFIO cimport NetCDFIO_Stats
 
 cdef class SpectralAnalysis:
     cdef:
-        double flux_frequency
-        double spectral_frequency
+        public double flux_frequency
+        public double spectral_frequency
         public double spinup_time
         public bint spectral_analysis
         double [:,:] KE_spectrum

@@ -15,15 +15,15 @@ cdef class SpectralAnalysis:
 
     def __init__(self, namelist):
         self.spectral_analysis = namelist['spectral_analysis']['sa_flag']
-        return
-
-    cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
         self.flux_frequency = namelist['spectral_analysis']['flux_frequency']
         self.spectral_frequency = namelist['spectral_analysis']['spectral_frequency']
         self.spinup_time = namelist['spectral_analysis']['spinup_time']*24.0*3600.0 # to days
-        # self.KE_spectrum = np.zeros((Gr.SphericalGrid.nlm,Pr.n_layers),dtype = np.complex, order='c')
+        return
+
+    cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
         # self.KE_Rot_spectrum = np.zeros((Gr.SphericalGrid.nlm,Pr.n_layers),dtype = np.complex, order='c')
         # self.KE_Div_spectrum = np.zeros((Gr.SphericalGrid.nlm,Pr.n_layers),dtype = np.complex, order='c')
+        # self.KE_spectrum = np.zeros((Gr.SphericalGrid.nlm,Pr.n_layers),dtype = np.complex, order='c')
         self.KE_spectrum = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')
         self.KE_Rot_spectrum = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')
         self.KE_Div_spectrum = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')

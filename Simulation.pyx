@@ -65,14 +65,13 @@ class Simulation:
                 self.stats_io()
             if (self.TS.t%self.Stats.output_frequency < self.TS.dt or self.TS.t == self.TS.t_max):
                 self.io()
-            # if self.SA.spetral_analysis:
-            # if self.TS.t > self.SA.spinup_time:
-            # if (self.TS.t%self.SA.flux_frequency < self.TS.dt or self.TS.t == self.TS.t_max):
-            self.SA.compute_spectral_flux(self.Pr, self.Gr, self.PV, self.DV)
-            # if (self.TS.t%self.SA.spectrum_frequency < self.TS.dt or self.TS.t == self.TS.t_max):
-            self.SA.compute_turbulence_spectrum(self.Pr, self.Gr, self.PV)
+            if self.SA.spectral_analysis and self.TS.t > self.SA.spinup_time:
+                if (self.TS.t%self.SA.flux_frequency < self.TS.dt or self.TS.t == self.TS.t_max):
+                    self.SA.compute_spectral_flux(self.Pr, self.Gr, self.PV, self.DV)
+                if (self.TS.t%self.SA.spectrum_frequency < self.TS.dt or self.TS.t == self.TS.t_max):
+                    self.SA.compute_turbulence_spectrum(self.Pr, self.Gr, self.PV)
 
-        if self.SA.spetral_analysis:
+        if self.SA.spectral_analysis:
             self.SA.io()
         return
 
