@@ -21,18 +21,14 @@ cdef class SpectralAnalysis:
         return
 
     cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
-        # self.KE_Rot_spectrum = np.zeros((Gr.SphericalGrid.nlm,Pr.n_layers),dtype = np.complex, order='c')
-        # self.KE_Div_spectrum = np.zeros((Gr.SphericalGrid.nlm,Pr.n_layers),dtype = np.complex, order='c')
-        # self.KE_spectrum = np.zeros((Gr.SphericalGrid.nlm,Pr.n_layers),dtype = np.complex, order='c')
         self.KE_spectrum = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')
         self.KE_Rot_spectrum = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')
         self.KE_Div_spectrum = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')
         self.int_KE_spec_flux_div = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')
         self.KE_spec_flux_div = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')
         return
-    #@cython.wraparound(False)
-    # @cython.boundscheck(False)
-    cpdef compute_spectral_flux(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+
+    cpdef compute_spectral_flux(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         cdef:
             Py_ssize_t k, i
             Py_ssize_t nl = Pr.n_layers
@@ -102,12 +98,12 @@ cdef class SpectralAnalysis:
             # running sum (Integral)
             for i in range(0,np.amax(Gr.shtns_l)+1):
                 for j in range(i,np.amax(Gr.shtns_l)+1):
-                    self.int_KE_spec_flux_div[i,k] += self.KE_spec_flux_div[j,k]
+                    self.int_KE_spec_flux_div[i,k] += self.KE_spec_flux_div[j,k]/TS.nt
             # for i in range(0,np.amax(l)+1):
             #     self.int_KE_spec_flux_div[i,k] = np.sum(self.KE_spec_flux_div[i:,k])
         return
 
-    cpdef compute_turbulence_spectrum(self, Parameters Pr, Grid Gr, PrognosticVariables PV):
+    cpdef compute_turbulence_spectrum(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS):
         cdef:
             # Py_ssize_t i,j,k
             Py_ssize_t nl = Pr.n_layers
@@ -120,9 +116,9 @@ cdef class SpectralAnalysis:
             Div2_spect = np.multiply(factor, np.multiply(PV.Divergence.spectral.base[:,k], np.conj(PV.Divergence.spectral.base[:,k])))
             KE_spectrum = np.add(Vort2_spect, Div2_spect)
             for i in range(0,np.amax(Gr.shtns_l)):
-                self.KE_spectrum[i,k] += np.sum(np.real(KE_spectrum[np.double(Gr.shtns_l)==i]), axis = 0)
-                self.KE_Rot_spectrum[i,k] += np.sum(np.real(Vort2_spect.real[np.double(Gr.shtns_l)==i]), axis = 0)
-                self.KE_Div_spectrum[i,k] += np.sum(np.real(Div2_spect.real[np.double(Gr.shtns_l)==i]), axis = 0)
+                self.KE_spectrum[i,k] += np.sum(np.real(KE_spectrum[np.double(Gr.shtns_l)==i]), axis = 0)/TS.nt
+                self.KE_Rot_spectrum[i,k] += np.sum(np.real(Vort2_spect.real[np.double(Gr.shtns_l)==i]), axis = 0)/TS.nt
+                self.KE_Div_spectrum[i,k] += np.sum(np.real(Div2_spect.real[np.double(Gr.shtns_l)==i]), axis = 0)/TS.nt
         return
 
     cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
@@ -130,5 +126,5 @@ cdef class SpectralAnalysis:
         Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_Rot_spectrum', self.KE_Rot_spectrum)
         Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_Div_spectrum', self.KE_Div_spectrum)
         Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_spec_flux_div', self.KE_spec_flux_div)
-        Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'int_KE_spec_flux_div', self.int_KE_spec_flux_div)
+        Stats.write_spectral_analysis(len(Gr.wavenumbers), 1, 'int_KE_spec_flux_div', self.int_KE_spec_flux_div)
         return

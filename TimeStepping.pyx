@@ -19,6 +19,7 @@ cdef class TimeStepping:
 	def __init__(self, namelist):
 		self.dt = namelist['timestepping']['dt']
 		self.t_max = namelist['timestepping']['t_max']*24.0*3600.0 # sec/day
+		self.nt = self.t_max/self.dt
 		return
 
 	cpdef initialize(self, Parameters Pr):
