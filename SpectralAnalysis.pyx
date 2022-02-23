@@ -68,6 +68,12 @@ cdef class SpectralAnalysis:
                 momentum_error_y = 0.5*Gr.SphericalGrid.grdtospec(np.multiply(DV.gZ.values.base[:,:,k],dps_dy))
                 E_spec += momentum_error_x*np.conj(u_spec) + momentum_error_y*np.conj(v_spec)
 
+                uak = Gr.SphericalGrid.grdtospec(np.multiply(DV.Wp.values[:,:,k+1], DV.U.values[:,:,k]))
+                vak = Gr.SphericalGrid.grdtospec(np.multiply(DV.Wp.values[:,:,k+1], DV.V.values[:,:,k]))
+                usp  = 0.5*np.multiply(uak, np.conj(u_spec))
+                vsp  = 0.5*np.multiply(vak, np.conj(v_spec))
+                E_spec -= (usp + vsp)
+
             # descritization error
             if k>0:
                 uak = Gr.SphericalGrid.grdtospec(np.multiply(DV.Wp.values[:,:,k], DV.U.values[:,:,k]))
@@ -84,21 +90,15 @@ cdef class SpectralAnalysis:
                 E_spec -= (uspD - usp + vspD - vsp)
 
             # boundary condition error
-            if k==nl:
-                uak = Gr.SphericalGrid.grdtospec(np.multiply(DV.Wp.values[:,:,k+1], DV.U.values[:,:,k]))
-                vak = Gr.SphericalGrid.grdtospec(np.multiply(DV.Wp.values[:,:,k+1], DV.V.values[:,:,k]))
 
-                usp  = 0.5*np.multiply(uak, np.conj(u_spec))
-                vsp  = 0.5*np.multiply(vak, np.conj(v_spec))
-                E_spec -= (usp + vsp)
-
+            E_spec /= TS.nt
             # Selection of wavenumbers
             for i in range(0,np.amax(Gr.shtns_l)+1):
                 self.KE_spec_flux_div[i,k] = np.sum(E_spec.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
             # running sum (Integral)
             for i in range(0,np.amax(Gr.shtns_l)+1):
                 for j in range(i,np.amax(Gr.shtns_l)+1):
-                    self.int_KE_spec_flux_div[i,k] += self.KE_spec_flux_div[j,k]/TS.nt
+                    self.int_KE_spec_flux_div[i,k] += self.KE_spec_flux_div[j,k]
             # for i in range(0,np.amax(l)+1):
             #     self.int_KE_spec_flux_div[i,k] = np.sum(self.KE_spec_flux_div[i:,k])
         return
