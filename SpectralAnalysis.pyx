@@ -96,6 +96,9 @@ cdef class SpectralAnalysis:
                 vsp  = 0.5*np.multiply(vak, np.conj(v_spec))
                 E_spec -= (usp + vsp)
 
+            # boundary condition error
+            E_spec = np.multiply(E_spec,1./(24*36*100)) # divide by all timesteps within 100 days (josef, first attempt to online average)
+
             # Selection of wavenumbers
             for i in range(0,np.amax(Gr.shtns_l)+1):
                 self.KE_spec_flux_div[i,k] = np.sum(E_spec.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
@@ -112,12 +115,21 @@ cdef class SpectralAnalysis:
             # Py_ssize_t i,j,k
             Py_ssize_t nl = Pr.n_layers
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
+            double factor 
+            double [:,:] u, v, u_vrt, v_vrt, u_div, v_div, Vort2_spect, Div2_spect, Vort_spect, Div_spect
 
-        factor = np.divide(np.divide(Pr.rsphere**2,Gr.shtns_l),np.add(Gr.shtns_l,1))
+        factor = 0.5/(24*36*100) # 0.5 for KE divide by all timesteps within 100 days (josef, first attempt to online average)
 
         for k in range(nl):
-            Vort2_spect = np.multiply(factor, np.multiply(PV.Vorticity.spectral.base[:,k], np.conj(PV.Vorticity.spectral.base[:,k])))
-            Div2_spect = np.multiply(factor, np.multiply(PV.Divergence.spectral.base[:,k], np.conj(PV.Divergence.spectral.base[:,k])))
+            Vort_spect = PV.Vorticity.spectral.base[:,k]
+            Div_spect = PV.Divergence.spectral.base[:,k]
+            u_vrt, v_vrt = Gr.SphericalGrid.getuv(Vort_spect,np.multiply(Div_spect,0.))
+            u_div, v_div = Gr.SphericalGrid.getuv(np.multiply(Vort_spect,0.),Div_spect)
+            #take off zonal mean wind, to retrieve primed quantities u', v' for divergent and vortical wind
+            u_vrt, v_vrt = np.subtract(u_vrt-np.mean(u_vrt,axis=1)), np.subtract(v_vrt-np.mean(v_vrt,axis=1))
+            u_div, v_div = np.subtract(u_div-np.mean(u_div,axis=1)), np.subtract(v_div-np.mean(v_div,axis=1))
+            Vort2_spect = np.multiply(factor, np.add(np.multiply(u_vrt, np.conj(u_vrt)),np.multiply(v_vrt, np.conj(v_vrt))))
+            Div2_spect = np.multiply(factor, np.add(np.multiply(u_div, np.conj(u_div)),np.multiply(v_div, np.conj(v_div))))
             KE_spectrum = np.add(Vort2_spect, Div2_spect)
             for i in range(0,np.amax(Gr.shtns_l)):
                 self.KE_spectrum[i,k] += np.sum(np.real(KE_spectrum[np.double(Gr.shtns_l)==i]), axis = 0)
