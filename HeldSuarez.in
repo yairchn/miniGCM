@@ -41,8 +41,8 @@
     "grid": {
         "dims": 1,
         "gw": 2,
-        "number_of_latitute_points": 64,
-        "number_of_longitude_points": 128,
+        "number_of_latitute_points": 256,
+        "number_of_longitude_points": 512,
         "pressure_levels": [
             25000.0,
             50000.0,
@@ -61,14 +61,14 @@
         "restart type": "zonal_mean"
     },
     "io": {
-        "output_frequency": 1.0,
+        "output_frequency": 14.0,
         "stats_dir": "stats",
         "stats_frequency": 1.0
     },
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "e3eacfad-a839-4864-a67c-test_flux"
+        "uuid": "e3eacfad-a839-4864-spt_flux2_24"
     },
     "microphysics": {
         "microphysics_model": "None"
