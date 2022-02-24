@@ -122,7 +122,7 @@ cdef class SpectralAnalysis:
             double [:,:] u, v, u0, v0, u_vrt, v_vrt, u_div, v_div, u_vrt_mean, v_vrt_mean, u_div_mean, v_div_mean
 
         #factor = 0.5/(24*36*100) # 0.5 for KE divide by all timesteps within 100 days (josef, first attempt to online average)
-        factor = 0.5/(24*36*4) # 0.5 for KE divide by all timesteps within 100 days (josef, first attempt to online average)
+        factor = 0.5/(24*36*100) # 0.5 for KE divide by all timesteps within 100 days (josef, first attempt to online average)
         wavenumbers=np.double(Gr.shtns_l)
 
         for k in range(nl):
@@ -133,14 +133,11 @@ cdef class SpectralAnalysis:
             #take off zonal mean wind, to retrieve primed quantities u', v' for divergent and vortical wind
             #print('u_vrt.shape, v_vrt.shape', u_vrt.shape, v_vrt.shape); exit()
             u0, v0 = np.mean(u_vrt,axis=1,keepdims=True), np.mean(v_vrt,axis=1,keepdims=True)
-            #print('u_vrt.shape, u0.shape', u_vrt.shape, u0.shape)#; exit()
             u_vrt_mean, v_vrt_mean = np.repeat(u0,Pr.nlons,axis=1), np.repeat(v0,Pr.nlons,axis=1) 
-            #print('u_vrt.shape, u_vrt_mean.shape', u_vrt.shape, u_vrt_mean.shape); exit()
             u0, v0 = np.mean(u_div,axis=1,keepdims=True), np.mean(v_div,axis=1,keepdims=True)
             u_div_mean, v_div_mean = np.repeat(u0,Pr.nlons,axis=1), np.repeat(v0,Pr.nlons,axis=1) 
             u_vrt, v_vrt = np.subtract(u_vrt,u_vrt_mean), np.subtract(v_vrt,v_vrt_mean)
             u_div, v_div = np.subtract(u_div,u_div_mean), np.subtract(v_div,v_div_mean)
-            #print('u_vrt.shape, u_vrt_mean.shape', u_vrt.shape, u_vrt_mean.shape); exit()
             u_vrt_spect, v_vrt_spect = Gr.SphericalGrid.grdtospec(np.array(u_vrt)), Gr.SphericalGrid.grdtospec(np.array(v_vrt))
             u_div_spect, v_div_spect = Gr.SphericalGrid.grdtospec(np.array(u_div)), Gr.SphericalGrid.grdtospec(np.array(v_div)) 
             Vort2_spect = np.multiply(factor, np.add(np.multiply(u_vrt_spect, np.conj(u_vrt_spect)), np.multiply(v_vrt_spect, np.conj(v_vrt_spect))))
