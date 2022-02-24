@@ -68,13 +68,13 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "b7036f77-59b9-4754-ab52-9265c7336076"
+        "uuid": "b7036f77-59b9-4754-ab52-9265c7336078"
     },
     "microphysics": {
         "microphysics_model": "None"
     },
     "output": {
-        "output_root": "./"
+        "output_root": "/DATA/suhas/miniGCM/"
     },
     "planet": {
         "Omega_rotation": 7.292e-05,
@@ -85,7 +85,7 @@
         "flux_frequency": 100.0,
         "sa_flag": true,
         "spectral_frequency": 100.0,
-        "spinup_time": 200.0
+        "spinup_time": 0.0
     },
     "surface": {
         "surface_model": "None"
@@ -102,7 +102,7 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 400.0
+        "t_max": 4.0
     },
     "turbulence": {
         "turbulence_model": "None"

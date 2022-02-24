@@ -116,9 +116,14 @@ cdef class SpectralAnalysis:
             Py_ssize_t nl = Pr.n_layers
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
             double factor 
-            double [:,:] u, v, u_vrt, v_vrt, u_div, v_div, Vort2_spect, Div2_spect, Vort_spect, Div_spect
+            double [:] wavenumbers
+            double complex [:] Vort2_spect, Div2_spect, Vort_spect, Div_spect, Vort2_Div2_spect 
+            double complex [:] u_vrt_spect, v_vrt_spect, u_div_spect, v_div_spect
+            double [:,:] u, v, u0, v0, u_vrt, v_vrt, u_div, v_div, u_vrt_mean, v_vrt_mean, u_div_mean, v_div_mean
 
-        factor = 0.5/(24*36*100) # 0.5 for KE divide by all timesteps within 100 days (josef, first attempt to online average)
+        #factor = 0.5/(24*36*100) # 0.5 for KE divide by all timesteps within 100 days (josef, first attempt to online average)
+        factor = 0.5/(24*36*4) # 0.5 for KE divide by all timesteps within 100 days (josef, first attempt to online average)
+        wavenumbers=np.double(Gr.shtns_l)
 
         for k in range(nl):
             Vort_spect = PV.Vorticity.spectral.base[:,k]
@@ -126,15 +131,25 @@ cdef class SpectralAnalysis:
             u_vrt, v_vrt = Gr.SphericalGrid.getuv(Vort_spect,np.multiply(Div_spect,0.))
             u_div, v_div = Gr.SphericalGrid.getuv(np.multiply(Vort_spect,0.),Div_spect)
             #take off zonal mean wind, to retrieve primed quantities u', v' for divergent and vortical wind
-            u_vrt, v_vrt = np.subtract(u_vrt-np.mean(u_vrt,axis=1)), np.subtract(v_vrt-np.mean(v_vrt,axis=1))
-            u_div, v_div = np.subtract(u_div-np.mean(u_div,axis=1)), np.subtract(v_div-np.mean(v_div,axis=1))
-            Vort2_spect = np.multiply(factor, np.add(np.multiply(u_vrt, np.conj(u_vrt)),np.multiply(v_vrt, np.conj(v_vrt))))
-            Div2_spect = np.multiply(factor, np.add(np.multiply(u_div, np.conj(u_div)),np.multiply(v_div, np.conj(v_div))))
-            KE_spectrum = np.add(Vort2_spect, Div2_spect)
+            #print('u_vrt.shape, v_vrt.shape', u_vrt.shape, v_vrt.shape); exit()
+            u0, v0 = np.mean(u_vrt,axis=1,keepdims=True), np.mean(v_vrt,axis=1,keepdims=True)
+            #print('u_vrt.shape, u0.shape', u_vrt.shape, u0.shape)#; exit()
+            u_vrt_mean, v_vrt_mean = np.repeat(u0,Pr.nlons,axis=1), np.repeat(v0,Pr.nlons,axis=1) 
+            #print('u_vrt.shape, u_vrt_mean.shape', u_vrt.shape, u_vrt_mean.shape); exit()
+            u0, v0 = np.mean(u_div,axis=1,keepdims=True), np.mean(v_div,axis=1,keepdims=True)
+            u_div_mean, v_div_mean = np.repeat(u0,Pr.nlons,axis=1), np.repeat(v0,Pr.nlons,axis=1) 
+            u_vrt, v_vrt = np.subtract(u_vrt,u_vrt_mean), np.subtract(v_vrt,v_vrt_mean)
+            u_div, v_div = np.subtract(u_div,u_div_mean), np.subtract(v_div,v_div_mean)
+            #print('u_vrt.shape, u_vrt_mean.shape', u_vrt.shape, u_vrt_mean.shape); exit()
+            u_vrt_spect, v_vrt_spect = Gr.SphericalGrid.grdtospec(np.array(u_vrt)), Gr.SphericalGrid.grdtospec(np.array(v_vrt))
+            u_div_spect, v_div_spect = Gr.SphericalGrid.grdtospec(np.array(u_div)), Gr.SphericalGrid.grdtospec(np.array(v_div)) 
+            Vort2_spect = np.multiply(factor, np.add(np.multiply(u_vrt_spect, np.conj(u_vrt_spect)), np.multiply(v_vrt_spect, np.conj(v_vrt_spect))))
+            Div2_spect = np.multiply(factor, np.add(np.multiply(u_div_spect, np.conj(u_div_spect)), np.multiply(v_div_spect, np.conj(v_div_spect))))
+            Vort2_Div2_spect = np.add(Vort2_spect, Div2_spect)
             for i in range(0,np.amax(Gr.shtns_l)):
-                self.KE_spectrum[i,k] += np.sum(np.real(KE_spectrum[np.double(Gr.shtns_l)==i]), axis = 0)
-                self.KE_Rot_spectrum[i,k] += np.sum(np.real(Vort2_spect.real[np.double(Gr.shtns_l)==i]), axis = 0)
-                self.KE_Div_spectrum[i,k] += np.sum(np.real(Div2_spect.real[np.double(Gr.shtns_l)==i]), axis = 0)
+                self.KE_spectrum[i,k] += np.sum(Vort2_Div2_spect.base[np.logical_and(wavenumbers>=np.double(i-0.5) , wavenumbers< np.double(i+0.5))], axis = 0)
+                self.KE_Rot_spectrum[i,k] += np.sum(Vort2_spect.base[np.logical_and(wavenumbers>=np.double(i-0.5) , wavenumbers< np.double(i+0.5))], axis = 0)
+                self.KE_Div_spectrum[i,k] += np.sum(Div2_spect.base[np.logical_and(wavenumbers>=np.double(i-0.5) , wavenumbers< np.double(i+0.5))], axis = 0)
         return
 
     cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):

@@ -262,7 +262,7 @@ cdef class NetCDFIO_Stats:
         return
 
     cpdef write_spectral_analysis(self, n_wavenumbers, n_layers, var_name, data):
-        root_grp = nc.Dataset(self.stats_path+var_name+'.nc', 'w', format='NETCDF4')
+        root_grp = nc.Dataset(self.stats_path+'/'+var_name+'.nc', 'w', format='NETCDF4')
         root_grp.createDimension('n_wn', n_wavenumbers)
         root_grp.createDimension('lay', n_layers)
         var = root_grp.createVariable(var_name, 'f8', ('n_wn', 'lay'))
