@@ -10,7 +10,7 @@ import Forcing
 import Surface
 import Microphysics
 import Convection
-#import Turbulence
+import Turbulence
 import sys
 from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
@@ -43,6 +43,7 @@ cdef class CaseBase:
 
     cpdef initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         return
+
     cpdef initialize_turbulence(self, Parameters Pr, namelist):
         return
 
@@ -71,7 +72,7 @@ cdef class HeldSuarez(CaseBase):
         self.Sur = Surface.SurfaceFactory(namelist)
         self.MP  = Microphysics.MicrophysicsFactory(namelist)
         self.Co = Convection.ConvectionFactory(namelist)
-        #self.Tr = Turbulence.TurbulenceFactory(namelist)
+        self.Tr = Turbulence.TurbulenceFactory(namelist)
         return
 
     cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist):
@@ -117,9 +118,9 @@ cdef class HeldSuarez(CaseBase):
         self.Sur.initialize(Pr, Gr, PV, namelist)
         return
 
-#    cpdef initialize_turbulence(self, Parameters Pr, namelist):
-#        self.Tr.initialize(Pr, namelist)
-#        return
+    cpdef initialize_turbulence(self, Parameters Pr, namelist):
+        self.Tr.initialize(Pr, namelist)
+        return
 
     cpdef initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Co.initialize(Pr, Gr, namelist)
@@ -158,7 +159,7 @@ cdef class HeldSuarez(CaseBase):
         self.Fo.update(Pr, Gr, PV, DV)
         self.Co.update(Pr, Gr, PV, DV)
         self.MP.update(Pr, PV, DV, TS)
-        #self.Tr.update(Pr, Gr, PV, DV)
+        self.Tr.update(Pr, Gr, PV, DV)
         return
 
 cdef class HeldSuarezMoist(CaseBase):
@@ -168,7 +169,7 @@ cdef class HeldSuarezMoist(CaseBase):
         self.Sur = Surface.SurfaceFactory(namelist)
         self.MP  = Microphysics.MicrophysicsFactory(namelist)
         self.Co = Convection.ConvectionFactory(namelist)
-        #self.Tr = Turbulence.TurbulenceFactory(namelist)
+        self.Tr = Turbulence.TurbulenceFactory(namelist)
         return
 
 
@@ -250,9 +251,9 @@ cdef class HeldSuarezMoist(CaseBase):
         self.Co.initialize(Pr, Gr, namelist)
         return
 
-#    cpdef initialize_turbulence(self, Parameters Pr, namelist):
-#        self.Tr.initialize(Pr, namelist)
-#        return
+    cpdef initialize_turbulence(self, Parameters Pr, namelist):
+        self.Tr.initialize(Pr, namelist)
+        return
 
     cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
         self.Fo.initialize(Pr, Gr, namelist)
@@ -289,7 +290,7 @@ cdef class HeldSuarezMoist(CaseBase):
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         self.Sur.update(Pr, Gr, PV, DV)
         self.Fo.update(Pr, Gr, PV, DV)
-        #self.Tr.update(Pr, Gr, PV, DV)
+        self.Tr.update(Pr, Gr, PV, DV)
         self.MP.update(Pr, PV, DV, TS)
         self.Co.update(Pr, Gr, PV, DV)
         return
@@ -301,7 +302,7 @@ cdef class TropicalPlanet(CaseBase):
         self.Sur = Surface.SurfaceFactory(namelist)
         self.MP  = Microphysics.MicrophysicsFactory(namelist)
         self.Co = Convection.ConvectionFactory(namelist)
-        #self.Tr = Turbulence.TurbulenceFactory(namelist)
+        self.Tr = Turbulence.TurbulenceFactory(namelist)
         return
 
     cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist):
@@ -347,9 +348,9 @@ cdef class TropicalPlanet(CaseBase):
         self.Sur.initialize(Pr, Gr, PV, namelist)
         return
 
-#    cpdef initialize_turbulence(self, Parameters Pr, namelist):
-#        self.Tr.initialize(Pr, namelist)
-#        return
+    cpdef initialize_turbulence(self, Parameters Pr, namelist):
+        self.Tr.initialize(Pr, namelist)
+        return
 
     cpdef initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Co.initialize(Pr, Gr, namelist)
@@ -388,7 +389,7 @@ cdef class TropicalPlanet(CaseBase):
         self.Fo.update(Pr, Gr, PV, DV)
         self.Co.update(Pr, Gr, PV, DV)
         self.MP.update(Pr, PV, DV, TS)
-        #self.Tr.update(Pr, Gr, PV, DV)
+        self.Tr.update(Pr, Gr, PV, DV)
         return
 
 cdef class TropicalPlanetMoist(CaseBase):
@@ -398,7 +399,7 @@ cdef class TropicalPlanetMoist(CaseBase):
         self.Sur = Surface.SurfaceFactory(namelist)
         self.MP  = Microphysics.MicrophysicsFactory(namelist)
         self.Co = Convection.ConvectionFactory(namelist)
-        #self.Tr = Turbulence.TurbulenceFactory(namelist)
+        self.Tr = Turbulence.TurbulenceFactory(namelist)
         return
 
 
@@ -476,9 +477,9 @@ cdef class TropicalPlanetMoist(CaseBase):
     cpdef initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Co.initialize(Pr, Gr, namelist)
 
-#    cpdef initialize_turbulence(self, Parameters Pr, namelist):
-#        self.Tr.initialize(Pr, namelist)
-#        return
+    cpdef initialize_turbulence(self, Parameters Pr, namelist):
+        self.Tr.initialize(Pr, namelist)
+        return
 
     cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
         self.Fo.initialize(Pr, Gr, namelist)
@@ -512,6 +513,6 @@ cdef class TropicalPlanetMoist(CaseBase):
     cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         self.Sur.update(Pr, Gr, PV, DV)
         self.Fo.update(Pr, Gr, PV, DV)
-        #self.Tr.update(Pr, Gr, PV, DV)
+        self.Tr.update(Pr, Gr, PV, DV)
         self.MP.update(Pr, PV, DV, TS)
         return
