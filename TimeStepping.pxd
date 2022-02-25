@@ -13,6 +13,7 @@ cdef class TimeStepping:
 		public double dt
 		public double t_max
 		public double t
+		public double nt
 		double ncycle
 		double [:,:] dx
 		double [:,:] dy
