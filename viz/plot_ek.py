@@ -303,11 +303,12 @@ path = '/home/suhas/miniGCM/miniGCM/Output.HeldSuarez.oneLayerExpe/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.aRunFor20yrs/Fields/'
 path = '/home/scoty/miniGCM/Output.HeldSuarez.oneLayerExpe/Fields/'
 
+path = '/DATA/suhas/miniGCM/Output.HeldSuarez.9265c7336082/Fields/'
 
 #ke=np.zeros((3,801))
 #time=np.arange(0,801)
 #time=np.arange(0,801,14)
-time=np.arange(0,601,14)
+time=np.arange(0,301,1)
 print('time.shape',time.shape)
 print('time',time)
 ke=np.zeros((3,time.shape[0]))
@@ -317,7 +318,7 @@ p1=250.; p2=500.; p3=750. # [hPa]
 
 icount=0
 #for it in np.arange(420,801,14):
-for it in np.arange(0,630,14):
+for it in time: 
     print('it ',it)
 
     for Layer in np.arange(0,1):
@@ -487,7 +488,10 @@ for it in np.arange(0,630,14):
            [KErot_flux,ks] = keSpectral_flux_dp(u_vrt,v_vrt,Geo,pU,pD)
            [KEdiv_flux,ks] = keSpectral_flux_dp(u_div,v_div,Geo,pU,pD)
            #plt.loglog(ks,savgol_filter(KE,5,1))
-           [EkTot,EkRot,EkDiv,ks] = energy(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True),l)
+           #[EkTot,EkRot,EkDiv,ks] = energy(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True),l)
+           [EkTot,ks] = keSpectra(u-u.mean(axis=1, keepdims=True),v-v.mean(axis=1, keepdims=True))
+           [EkRot,ks] = keSpectra(u_vrt-u_vrt.mean(axis=1, keepdims=True),v_vrt-v_vrt.mean(axis=1, keepdims=True))
+           [EkDiv,ks] = keSpectra(u_div-u_div.mean(axis=1, keepdims=True),v_div-v_div.mean(axis=1, keepdims=True))
            #plt.loglog(ks,EkTot,'-k',alpha=0.4,linewidth=4)
            #plt.loglog(ks,EkRot,'-r')
            #plt.loglog(ks,EkDiv,'-b')
