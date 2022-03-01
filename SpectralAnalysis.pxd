@@ -22,6 +22,10 @@ cdef class SpectralAnalysis:
         double [:,:] KE_Div_spectrum
         double [:,:] int_KE_spec_flux_div
         double [:,:] KE_spec_flux_div
+        double [:,:] KE_ps_grad
+        double [:,:] KE_flux_corr
+        double [:,:] KE_surf_corr
+        double [:,:] KE_grad_ps_corr
 
     cpdef initialize(self, Parameters Pr, Grid Gr, namelist)
     cpdef compute_spectral_flux(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS)

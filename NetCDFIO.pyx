@@ -46,10 +46,12 @@ cdef class NetCDFIO_Stats:
         except:
             pass
 
-        self.stats_path = str( os.path.join(outpath, namelist['io']['stats_dir']))
+        self.stats_path = str(os.path.join(outpath, namelist['io']['stats_dir']))
+        self.spec_analy_path = str(os.path.join(outpath, 'SpectralAnalysis'))
 
         try:
             os.mkdir(self.stats_path)
+            os.mkdir(self.spec_analy_path)
         except:
             pass
 
@@ -262,7 +264,7 @@ cdef class NetCDFIO_Stats:
         return
 
     cpdef write_spectral_analysis(self, n_wavenumbers, n_layers, var_name, data):
-        root_grp = nc.Dataset(self.stats_path+var_name+'.nc', 'w', format='NETCDF4')
+        root_grp = nc.Dataset(self.spec_analy_path+'/'+var_name+'.nc', 'w', format='NETCDF4')
         root_grp.createDimension('n_wn', n_wavenumbers)
         root_grp.createDimension('lay', n_layers)
         var = root_grp.createVariable(var_name, 'f8', ('n_wn', 'lay'))
