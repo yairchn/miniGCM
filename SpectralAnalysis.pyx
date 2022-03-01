@@ -161,8 +161,12 @@ cdef class SpectralAnalysis:
         Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_Div_spectrum', self.KE_Div_spectrum)
         Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_spec_flux_div', self.KE_spec_flux_div)
         Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'int_KE_spec_flux_div', self.int_KE_spec_flux_div)
+<<<<<<< HEAD
         Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_ps_grad', self.KE_ps_grad)
         Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_flux_corr', self.KE_flux_corr)
         Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_surf_corr', self.KE_surf_corr)
         Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_grad_ps_corr', self.KE_grad_ps_corr)
         return
+=======
+        return
+>>>>>>> 41f69f8677b57275d668f030e3f2be9e3ced2967

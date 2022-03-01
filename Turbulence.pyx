@@ -9,6 +9,7 @@ from PrognosticVariables cimport PrognosticVariables
 from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
 
+
 cdef extern from "turbulence_functions.h":
     void vertical_turbulent_flux(double g, double Ch, double Cq, double kappa, double p_ref,
                                  double Ppbl, double Pstrato, double* p, double* gz,
@@ -88,6 +89,7 @@ cdef class DownGradientTurbulence(TurbulenceBase):
                               &PV.T.TurbFlux[0,0,0],&PV.QT.TurbFlux[0,0,0],
                                nx, ny, nl)
         return
+
     cpdef initialize_io(self, NetCDFIO_Stats Stats):
         # Stats.add_zonal_mean('zonal_mean_QT_Turb')
         # Stats.add_zonal_mean('zonal_mean_T_Turb')

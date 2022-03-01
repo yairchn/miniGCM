@@ -43,6 +43,7 @@ cdef class CaseBase:
 
     cpdef initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         return
+
     cpdef initialize_turbulence(self, Parameters Pr, namelist):
         return
 
@@ -248,6 +249,7 @@ cdef class HeldSuarezMoist(CaseBase):
 
     cpdef initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Co.initialize(Pr, Gr, namelist)
+        return
 
     cpdef initialize_turbulence(self, Parameters Pr, namelist):
         self.Tr.initialize(Pr, namelist)

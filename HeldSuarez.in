@@ -68,13 +68,17 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
+<<<<<<< HEAD
         "uuid": "e3eacfad-a839-4864-spt_fluxtest"
+=======
+        "uuid": "b7036f77-59b9-4754-ab52-9265c7336082"
+>>>>>>> 41f69f8677b57275d668f030e3f2be9e3ced2967
     },
     "microphysics": {
         "microphysics_model": "None"
     },
     "output": {
-        "output_root": "./"
+        "output_root": "/DATA/suhas/miniGCM/"
     },
     "planet": {
         "Omega_rotation": 7.292e-05,
@@ -102,7 +106,7 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 100.0
+        "t_max": 1000.0
     },
     "turbulence": {
         "turbulence_model": "None"
