@@ -20,9 +20,15 @@ cdef class SpectralAnalysis:
         double [:,:] KE_spectrum
         double [:,:] KE_Rot_spectrum
         double [:,:] KE_Div_spectrum
-        double [:,:] int_KE_spec_flux_div
-        double [:,:] KE_spec_flux_div
+        double [:,:] int_KE_ps_grad
+        double [:,:] int_KE_div_flux
+        double [:,:] int_KE_adv_flux
+        double [:,:] int_KE_flux_corr
+        double [:,:] int_KE_surf_corr
+        double [:,:] int_KE_grad_ps_corr
         double [:,:] KE_ps_grad
+        double [:,:] KE_div_flux
+        double [:,:] KE_adv_flux
         double [:,:] KE_flux_corr
         double [:,:] KE_surf_corr
         double [:,:] KE_grad_ps_corr
