@@ -26,6 +26,13 @@ cdef class SpectralAnalysis:
         self.KE_Div_spectrum = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')
         self.int_KE_spec_flux_div = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')
         self.KE_spec_flux_div = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')
+        self.KE_ps_grad = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')
+        # -ωᵢΔKeᵢ
+        self.KE_flux_corr = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')
+        # ωₛKeₙ
+        self.KE_surf_corr = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')
+        # -ϕₙvₙ∇pₛ
+        self.KE_grad_ps_corr = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')
         return
     #@cython.wraparound(False)
     # @cython.boundscheck(False)
@@ -55,20 +62,23 @@ cdef class SpectralAnalysis:
             uak = Gr.SphericalGrid.grdtospec(np.multiply(dp, U_adv + U_vert_adv))
             vak = Gr.SphericalGrid.grdtospec(np.multiply(dp, V_adv + V_vert_adv))
 
-            E_spec = -np.add(np.multiply(uak, np.conj(u_spec)), np.multiply(vak, np.conj(v_spec)))
+            self.KE_ps_grad[:, k] = -np.add(np.multiply(uak, np.conj(u_spec)), np.multiply(vak, np.conj(v_spec)))
+            E_spec = self.KE_ps_grad.base[:, k]
 
             if k==nl:
                 dps_dx, dps_dy = Gr.SphericalGrid.getgrad(Gr.SphericalGrid.grdtospec(PV.P.values.base[:,:,k+1])) # get gradients in grid space
                 # Kinetic Energy flux due to mass gradients (third term in Appendix B1)
                 pressure_contribution = 0.5*Gr.SphericalGrid.grdtospec(np.add(np.multiply(DV.U.values[:,:,k],dps_dx),
                                                                               np.multiply(DV.V.values[:,:,k],dps_dy)))
-                E_spec -= np.multiply(pressure_contribution,
+                self.KE_ps_grad[:, k] = -np.multiply(pressure_contribution,
                             np.add(np.multiply(u_spec, np.conj(u_spec)) ,np.multiply(v_spec, np.conj(v_spec))))
+                E_spec = np.add(E_spec,self.KE_ps_grad[:, k])
 
                 # Kinetic Energy flux error due to mass flux inbalance in momentum equation (E2, equation 38)
                 momentum_error_x = 0.5*Gr.SphericalGrid.grdtospec(np.multiply(DV.gZ.values.base[:,:,k],dps_dx))
                 momentum_error_y = 0.5*Gr.SphericalGrid.grdtospec(np.multiply(DV.gZ.values.base[:,:,k],dps_dy))
-                E_spec += momentum_error_x*np.conj(u_spec) + momentum_error_y*np.conj(v_spec)
+                self.KE_grad_ps_corr[:, k] = momentum_error_x*np.conj(u_spec) + momentum_error_y*np.conj(v_spec)
+                E_spec = np.add(E_spec,self.KE_grad_ps_corr[:, k])
 
             # descritization error
             if k>0:
@@ -83,7 +93,8 @@ cdef class SpectralAnalysis:
                 vsp  = 0.5*np.multiply(vak, np.conj(v_spec))
                 uspD = 0.5*np.multiply(uakD, np.conj(u_specD))
                 vspD = 0.5*np.multiply(vakD, np.conj(v_specD))
-                E_spec -= (uspD - usp + vspD - vsp)
+                self.KE_flux_corr[:, k] = (uspD - usp + vspD - vsp)
+                E_spec = np.subtract(E_spec,self.KE_flux_corr[:, k])
 
             # boundary condition error
             if k==nl:
@@ -92,10 +103,11 @@ cdef class SpectralAnalysis:
 
                 usp  = 0.5*np.multiply(uak, np.conj(u_spec))
                 vsp  = 0.5*np.multiply(vak, np.conj(v_spec))
-                E_spec -= (usp + vsp)
+                self.KE_surf_corr[:, k] = (usp + vsp)
+                E_spec = np.subtract(E_spec, self.KE_surf_corr[:, k])
 
             # boundary condition error
-            E_spec = np.multiply(E_spec,1./(24*36*100)) # divide by all timesteps within 100 days (josef, first attempt to online average)
+            E_spec = np.multiply(E_spec, factor) # divide by all timesteps within the sampling period
 
             # Selection of wavenumbers
             for i in range(0,np.amax(Gr.shtns_l)+1):
@@ -149,4 +161,12 @@ cdef class SpectralAnalysis:
         Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_Div_spectrum', self.KE_Div_spectrum)
         Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_spec_flux_div', self.KE_spec_flux_div)
         Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'int_KE_spec_flux_div', self.int_KE_spec_flux_div)
+<<<<<<< HEAD
+        Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_ps_grad', self.KE_ps_grad)
+        Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_flux_corr', self.KE_flux_corr)
+        Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_surf_corr', self.KE_surf_corr)
+        Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_grad_ps_corr', self.KE_grad_ps_corr)
         return
+=======
+        return
+>>>>>>> 41f69f8677b57275d668f030e3f2be9e3ced2967

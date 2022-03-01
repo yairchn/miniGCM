@@ -20,6 +20,7 @@ cdef class NetCDFIO_Stats:
 
         str stats_file_name
         str stats_path
+        str spec_analy_path
         str output_path
         str path_plus_file
         str output_folder
