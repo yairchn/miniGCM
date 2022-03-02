@@ -49,10 +49,18 @@ cdef class SpectralAnalysis:
             double factor = self.spectral_frequency/(TS.t_max - self.spinup_time) # normalization with number of timesteps
             double complex [:] uak, vak, uakD, vakD # temporary fields in spectral space
             double complex [:] E_spec_adv, E_spec_div, E_spec_mass, E_spec_surf_corr, E_spec_flux_corr, E_spec_ps_corr # temporary fields in spectral space
+            double [:] E_spec_adv_k, E_spec_div_k, E_spec_mass_k, E_spec_surf_corr_k, E_spec_flux_corr_k, E_spec_ps_corr_k # temporary array for functions of wavenumber
             double complex [:] u_spec, v_spec, u2_spec, v2_spec
             double complex [:] u_specD, v_specD, u2_specD, v2_specD
             double [:,:] dp, dps_dx, dps_dy, dudx, dudy, dvdx, dvdy # fields in grid space
-            double [:,:] U_adv, V_adv, U_vert_adv, V_vert_adv 
+            double [:,:] U_adv, V_adv, U_vert_adv, V_vert_adv
+ 
+            E_spec_adv_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c') 
+            E_spec_div_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c')  
+            E_spec_mass_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c') 
+            E_spec_ps_corr_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c') 
+            E_spec_surf_corr_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c') 
+            E_spec_flux_corr_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c') 
 
         for k in range(nl):
             dp=np.subtract(PV.P.values[:,:,k+1],PV.P.values[:,:,k])
@@ -119,21 +127,28 @@ cdef class SpectralAnalysis:
 
             # Selection of wavenumbers
             for i in range(0,np.amax(Gr.shtns_l)+1):
-                self.KE_adv_flux[i,k] = np.sum(E_spec_adv.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
-                self.KE_div_flux[i,k] = np.sum(E_spec_div.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
-                self.KE_ps_grad[i,k] = np.sum(E_spec_mass.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
-                self.KE_grad_ps_corr[i,k] = np.sum(E_spec_ps_corr.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
-                self.KE_surf_corr[i,k] = np.sum(E_spec_surf_corr.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
-                self.KE_flux_corr[i,k] = np.sum(E_spec_flux_corr.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
-            # running sum (Integral)
+                E_spec_adv_k[i] = np.sum(E_spec_adv.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
+                E_spec_div_k[i] = np.sum(E_spec_div.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
+                E_spec_mass_k[i] = np.sum(E_spec_mass.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
+                E_spec_ps_corr_k[i] = np.sum(E_spec_ps_corr.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
+                E_spec_surf_corr_k[i] = np.sum(E_spec_surf_corr.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
+                E_spec_flux_corr_k[i] = np.sum(E_spec_flux_corr.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
+            # Keep track of temporal running sum (Integral)
+            self.KE_adv_flux[:,k] = np.add(self.KE_adv_flux[:,k], E_spec_adv_k)
+            self.KE_div_flux[:,k] = np.add(self.KE_div_flux[:,k], E_spec_div_k) 
+            self.KE_ps_grad[:,k] = np.add(self.KE_ps_grad[:,k], E_spec_mass_k)
+            self.KE_grad_ps_corr[:,k] = np.add(self.KE_grad_ps_corr[:,k], E_spec_ps_corr_k)
+            self.KE_surf_corr[:,k] = np.add(self.KE_surf_corr[:,k], E_spec_surf_corr_k)
+            self.KE_flux_corr[:,k] = np.add(self.KE_flux_corr[:,k], E_spec_flux_corr_k)
+            # Wavenumber integral 
             for i in range(0,np.amax(Gr.shtns_l)+1):
                 for j in range(i,np.amax(Gr.shtns_l)+1):
-                    self.int_KE_div_flux[i,k] += self.KE_div_flux[j,k]
-                    self.int_KE_adv_flux[i,k] += self.KE_adv_flux[j,k]
-                    self.int_KE_ps_grad[i,k] += self.KE_ps_grad[j,k]
-                    self.int_KE_flux_corr[i,k] += self.KE_flux_corr[j,k]
-                    self.int_KE_surf_corr[i,k] += self.KE_surf_corr[j,k]
-                    self.int_KE_grad_ps_corr[i,k] += self.KE_grad_ps_corr[j,k]
+                    self.int_KE_adv_flux[i,k] += E_spec_adv_k[j]
+                    self.int_KE_div_flux[i,k] += E_spec_div_k[j]
+                    self.int_KE_ps_grad[i,k] += E_spec_mass_k[j]
+                    self.int_KE_grad_ps_corr[i,k] += E_spec_ps_corr_k[j]
+                    self.int_KE_surf_corr[i,k] += E_spec_surf_corr_k[j]
+                    self.int_KE_flux_corr[i,k] += E_spec_flux_corr_k[j]
             # for i in range(0,np.amax(l)+1):
             #     self.int_KE_spec_flux_div[i,k] = np.sum(self.KE_spec_flux_div[i:,k])
         return
