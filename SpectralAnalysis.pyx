@@ -49,12 +49,13 @@ cdef class SpectralAnalysis:
             double factor = self.spectral_frequency/(TS.t_max - self.spinup_time) # normalization with number of timesteps
             double complex [:] uak, vak, uakD, vakD # temporary fields in spectral space
             double complex [:] E_spec_adv, E_spec_div, E_spec_mass, E_spec_surf_corr, E_spec_flux_corr, E_spec_ps_corr # temporary fields in spectral space
-            double [:] E_spec_adv_k, E_spec_div_k, E_spec_mass_k, E_spec_surf_corr_k, E_spec_flux_corr_k, E_spec_ps_corr_k # temporary array for functions of wavenumber
+            #double [:] E_spec_adv_k, E_spec_div_k, E_spec_mass_k, E_spec_surf_corr_k, E_spec_flux_corr_k, E_spec_ps_corr_k # temporary array for functions of wavenumber
             double complex [:] u_spec, v_spec, u2_spec, v2_spec
             double complex [:] u_specD, v_specD, u2_specD, v2_specD
             double [:,:] dp, dps_dx, dps_dy, dudx, dudy, dvdx, dvdy # fields in grid space
             double [:,:] U_adv, V_adv, U_vert_adv, V_vert_adv
  
+            # temporary array for functions of wavenumber
             E_spec_adv_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c') 
             E_spec_div_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c')  
             E_spec_mass_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c') 
