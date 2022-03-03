@@ -121,10 +121,12 @@ cdef class SpectralAnalysis:
             # divide by all timesteps within the sampling period
             E_spec_adv = np.multiply(E_spec_adv, factor)
             E_spec_div = np.multiply(E_spec_div, factor)
-            E_spec_mass = np.multiply(E_spec_mass, factor)
-            E_spec_ps_corr = np.multiply(E_spec_ps_corr, factor)
-            E_spec_surf_corr = np.multiply(E_spec_surf_corr, factor)
-            E_spec_flux_corr = np.multiply(E_spec_flux_corr, factor)
+            if k>0:
+                E_spec_flux_corr = np.multiply(E_spec_flux_corr, factor)
+            if k==nl:
+                E_spec_mass = np.multiply(E_spec_mass, factor) 
+                E_spec_ps_corr = np.multiply(E_spec_ps_corr, factor) 
+                E_spec_surf_corr = np.multiply(E_spec_surf_corr, factor) 
 
             # Selection of wavenumbers
             for i in range(0,np.amax(Gr.shtns_l)+1):

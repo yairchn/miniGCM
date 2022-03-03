@@ -85,7 +85,7 @@
         "flux_frequency": 100.0,
         "sa_flag": true,
         "spectral_frequency": 100.0,
-        "spinup_time": 200.0
+        "spinup_time": 2.0
     },
     "surface": {
         "surface_model": "None"
@@ -102,7 +102,7 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 300.0
+        "t_max": 4.0
     },
     "turbulence": {
         "turbulence_model": "None"
