@@ -121,28 +121,35 @@ cdef class SpectralAnalysis:
             # divide by all timesteps within the sampling period
             E_spec_adv = np.multiply(E_spec_adv, factor)
             E_spec_div = np.multiply(E_spec_div, factor)
-            if k>0:
-                E_spec_flux_corr = np.multiply(E_spec_flux_corr, factor)
-            if k==nl:
-                E_spec_mass = np.multiply(E_spec_mass, factor) 
-                E_spec_ps_corr = np.multiply(E_spec_ps_corr, factor) 
-                E_spec_surf_corr = np.multiply(E_spec_surf_corr, factor) 
-
             # Selection of wavenumbers
             for i in range(0,np.amax(Gr.shtns_l)+1):
                 E_spec_adv_k[i] = np.sum(E_spec_adv.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
                 E_spec_div_k[i] = np.sum(E_spec_div.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
-                E_spec_mass_k[i] = np.sum(E_spec_mass.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
-                E_spec_ps_corr_k[i] = np.sum(E_spec_ps_corr.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
-                E_spec_surf_corr_k[i] = np.sum(E_spec_surf_corr.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
-                E_spec_flux_corr_k[i] = np.sum(E_spec_flux_corr.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
-            # Keep track of temporal running sum (Integral)
-            self.KE_adv_flux[:,k] = np.add(self.KE_adv_flux[:,k], E_spec_adv_k)
-            self.KE_div_flux[:,k] = np.add(self.KE_div_flux[:,k], E_spec_div_k) 
-            self.KE_ps_grad[:,k] = np.add(self.KE_ps_grad[:,k], E_spec_mass_k)
-            self.KE_grad_ps_corr[:,k] = np.add(self.KE_grad_ps_corr[:,k], E_spec_ps_corr_k)
-            self.KE_surf_corr[:,k] = np.add(self.KE_surf_corr[:,k], E_spec_surf_corr_k)
-            self.KE_flux_corr[:,k] = np.add(self.KE_flux_corr[:,k], E_spec_flux_corr_k)
+
+            if k>0:
+                E_spec_flux_corr = np.multiply(E_spec_flux_corr, factor)
+                # Selection of wavenumbers
+                for i in range(0,np.amax(Gr.shtns_l)+1):
+                    E_spec_flux_corr_k[i] = np.sum(E_spec_flux_corr.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
+
+            if k==nl:
+                E_spec_mass = np.multiply(E_spec_mass, factor) 
+                E_spec_ps_corr = np.multiply(E_spec_ps_corr, factor) 
+                E_spec_surf_corr = np.multiply(E_spec_surf_corr, factor) 
+                # Selection of wavenumbers
+                for i in range(0,np.amax(Gr.shtns_l)+1):
+                    E_spec_mass_k[i] = np.sum(E_spec_mass.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
+                    E_spec_ps_corr_k[i] = np.sum(E_spec_ps_corr.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
+                    E_spec_surf_corr_k[i] = np.sum(E_spec_surf_corr.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
+
+            for i in range(0,np.amax(Gr.shtns_l)+1):
+                # Keep track of temporal running sum (Integral)
+                self.KE_adv_flux[i,k] += E_spec_adv_k[i]
+                self.KE_div_flux[i,k] += E_spec_div_k[i]
+                self.KE_ps_grad[i,k] += E_spec_mass_k[i]
+                self.KE_grad_ps_corr[i,k] += E_spec_ps_corr_k[i]
+                self.KE_surf_corr[i,k] += E_spec_surf_corr_k[i]
+                self.KE_flux_corr[i,k] += E_spec_flux_corr_k[i]
             # Wavenumber integral 
             for i in range(0,np.amax(Gr.shtns_l)+1):
                 for j in range(i,np.amax(Gr.shtns_l)+1):
