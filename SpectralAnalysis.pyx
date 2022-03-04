@@ -85,7 +85,7 @@ cdef class SpectralAnalysis:
             vak = Gr.SphericalGrid.grdtospec(np.multiply(dp, V_vert_adv))
             E_spec_div = -np.add(np.multiply(uak, np.conj(u_spec)), np.multiply(vak, np.conj(v_spec)))
 
-            if k==nl:
+            if k==nl-1:
                 dps_dx, dps_dy = Gr.SphericalGrid.getgrad(Gr.SphericalGrid.grdtospec(PV.P.values.base[:,:,k+1])) # get gradients in grid space
                 # Kinetic Energy flux due to mass gradients (third term in Appendix B1)
                 pressure_contribution = 0.5*Gr.SphericalGrid.grdtospec(np.add(np.multiply(DV.U.values[:,:,k],dps_dx),
@@ -132,7 +132,7 @@ cdef class SpectralAnalysis:
                 for i in range(0,np.amax(Gr.shtns_l)+1):
                     E_spec_flux_corr_k[i] = np.sum(E_spec_flux_corr.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
 
-            if k==nl:
+            if k==nl-1:
                 E_spec_mass = np.multiply(E_spec_mass, factor) 
                 E_spec_ps_corr = np.multiply(E_spec_ps_corr, factor) 
                 E_spec_surf_corr = np.multiply(E_spec_surf_corr, factor) 
