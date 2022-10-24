@@ -1,17 +1,14 @@
 import sys
-import cython
-from concurrent.futures import ThreadPoolExecutor
 import numpy as np
-cimport numpy as np
-from Parameters cimport Parameters
-from TimeStepping cimport TimeStepping
-from PrognosticVariables cimport PrognosticVariables
-from DiagnosticVariables cimport DiagnosticVariables
-from Grid cimport Grid
-from NetCDFIO cimport NetCDFIO_Stats
+from Parameters import Parameters
+from TimeStepping import TimeStepping
+from PrognosticVariables import PrognosticVariables
+from DiagnosticVariables import DiagnosticVariables
+from Grid import Grid
+from NetCDFIO import NetCDFIO_Stats
 
 
-def class SpectralAnalysis:
+class SpectralAnalysis:
 
     def __init__(self, namelist):
         self.spectral_analysis = namelist['spectral_analysis']['sa_flag']
@@ -20,7 +17,7 @@ def class SpectralAnalysis:
         self.spinup_time = namelist['spectral_analysis']['spinup_time']*24.0*3600.0 # to days
         return
 
-    def initialize(self, Parameters Pr, Grid Gr, namelist):
+    def initialize(self, Pr, Gr, namelist):
         self.KE_spectrum = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')
         self.KE_Rot_spectrum = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')
         self.KE_Div_spectrum = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')
@@ -39,29 +36,17 @@ def class SpectralAnalysis:
         return
 
 
-    @cython.wraparound(False)
-    @cython.boundscheck(False)
-    @cython.cdivision(True)
-    def compute_spectral_flux(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
-        def:
-            Py_ssize_t k, i
-            Py_ssize_t nl = Pr.n_layers
-            double factor = self.spectral_frequency/(TS.t_max - self.spinup_time) # normalization with number of timesteps
-            double complex [:] uak, vak, uakD, vakD # temporary fields in spectral space
-            double complex [:] E_spec_adv, E_spec_div, E_spec_mass, E_spec_surf_corr, E_spec_flux_corr, E_spec_ps_corr # temporary fields in spectral space
-            #double [:] E_spec_adv_k, E_spec_div_k, E_spec_mass_k, E_spec_surf_corr_k, E_spec_flux_corr_k, E_spec_ps_corr_k # temporary array for functions of wavenumber
-            double complex [:] u_spec, v_spec, u2_spec, v2_spec
-            double complex [:] u_specD, v_specD, u2_specD, v2_specD
-            double [:,:] dp, dps_dx, dps_dy, dudx, dudy, dvdx, dvdy # fields in grid space
-            double [:,:] U_adv, V_adv, U_vert_adv, V_vert_adv
- 
-            # temporary array for functions of wavenumber
-            E_spec_adv_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c') 
-            E_spec_div_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c')  
-            E_spec_mass_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c') 
-            E_spec_ps_corr_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c') 
-            E_spec_surf_corr_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c') 
-            E_spec_flux_corr_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c') 
+    def compute_spectral_flux(self, Pr, Gr, PV, DV, TS):
+        nl = Pr.n_layers
+        factor = self.spectral_frequency/(TS.t_max - self.spinup_time) # normalization with number of timesteps
+
+        # temporary array for functions of wavenumber
+        E_spec_adv_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c') 
+        E_spec_div_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c')  
+        E_spec_mass_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c') 
+        E_spec_ps_corr_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c') 
+        E_spec_surf_corr_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c') 
+        E_spec_flux_corr_k = np.zeros(np.amax(Gr.shtns_l)+1, dtype = np.float64, order='c') 
 
         for k in range(nl):
             dp=np.subtract(PV.P.values[:,:,k+1],PV.P.values[:,:,k])
@@ -163,17 +148,12 @@ def class SpectralAnalysis:
             #     self.int_KE_spec_flux_div[i,k] = np.sum(self.KE_spec_flux_div[i:,k])
         return
 
-    def compute_turbulence_spectrum(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS):
-        def:
-            # Py_ssize_t i,j,k
-            Py_ssize_t nl = Pr.n_layers
-            Py_ssize_t nlm = Gr.SphericalGrid.nlm
+    def compute_turbulence_spectrum(self, Pr, Gr, PV, TS):
+        nl = Pr.n_layers
+        nlm = Gr.SphericalGrid.nlm
             # 0.5 for KE divide by all timesteps within 100 days (josef, first attempt to online average)
-            double factor = 0.5*self.spectral_frequency/(TS.t_max - self.spinup_time)
-            double [:] wavenumbers = np.double(Gr.shtns_l)
-            double complex [:] Vort2_spect, Div2_spect, Vort_spect, Div_spect, Vort2_Div2_spect
-            double complex [:] u_vrt_spect, v_vrt_spect, u_div_spect, v_div_spect
-            double [:,:] u, v, u0, v0, u_vrt, v_vrt, u_div, v_div, u_vrt_mean, v_vrt_mean, u_div_mean, v_div_mean
+        factor = 0.5*self.spectral_frequency/(TS.t_max - self.spinup_time)
+        wavenumbers = np.double(Gr.shtns_l)
 
         for k in range(nl):
             Vort_spect = PV.Vorticity.spectral.base[:,k]
@@ -198,7 +178,7 @@ def class SpectralAnalysis:
                 self.KE_Div_spectrum[i,k] += np.sum(Div2_spect.base[np.logical_and(wavenumbers>=np.double(i-0.5) , wavenumbers< np.double(i+0.5))], axis = 0)
         return
 
-    def io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Pr, Gr, TS, Stats):
         Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_spectrum', self.KE_spectrum)
         Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_Rot_spectrum', self.KE_Rot_spectrum)
         Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_Div_spectrum', self.KE_Div_spectrum)

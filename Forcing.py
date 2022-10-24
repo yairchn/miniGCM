@@ -47,44 +47,44 @@ def ForcingFactory(namelist):
 		print('case not recognized')
 	return
 
-def class ForcingBase:
+class ForcingBase:
 	def __init__(self, namelist):
 		return
-	def initialize(self, Parameters Pr, Grid Gr, namelist):
+	def initialize(self, Pr, Gr, namelist):
 		self.Tbar = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
 		self.sin_lat = np.zeros((Pr.nlats, Pr.nlons), dtype=np.float64, order='c')
 		self.cos_lat = np.zeros((Pr.nlats, Pr.nlons), dtype=np.float64, order='c')
 		return
-	def initialize_io(self, NetCDFIO_Stats Stats):
+	def initialize_io(self, Stats):
 		return
-	def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+	def update(self, Pr, Gr, PV, DV):
 		return
-	def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+	def io(self, Pr, TS, Stats):
 		return
-	def stats_io(self, NetCDFIO_Stats Stats):
+	def stats_io(self, Stats):
 		return
 
-def class ForcingNone(ForcingBase):
+class ForcingNone(ForcingBase):
 	def __init__(self, namelist):
 		ForcingBase.__init__(self, namelist)
 		return
-	def initialize(self, Parameters Pr, Grid Gr, namelist):
+	def initialize(self, Pr, Gr, namelist):
 		return
-	def initialize_io(self, NetCDFIO_Stats Stats):
+	def initialize_io(self, Stats):
 		return
-	def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+	def update(self, Pr, Gr, PV, DV):
 		return
-	def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+	def io(self, Pr, TS, Stats):
 		return
-	def stats_io(self, NetCDFIO_Stats Stats):
+	def stats_io(self, Stats):
 		return
 
-def class HelzSuarez(ForcingBase):
+class HelzSuarez(ForcingBase):
 	def __init__(self, namelist):
 		ForcingBase.__init__(self, namelist)
 		return
 
-	def initialize(self, Parameters Pr, Grid Gr, namelist):
+	def initialize(self, Pr, Gr, namelist):
 		def:
 			Py_ssize_t i,j
 			Py_ssize_t nx = Pr.nlats
@@ -100,14 +100,13 @@ def class HelzSuarez(ForcingBase):
 		Pr.Fo_noise_type  = namelist['forcing']['noise_type']
 		Pr.Fo_noise_lmin  = namelist['forcing']['min_noise_wavenumber']
 		Pr.Fo_noise_lmax  = namelist['forcing']['max_noise_wavenumber']
-		with nogil:
-			for i in range(nx):
-				for j in range(ny):
-					self.sin_lat[i,j] = sin(Gr.lat[i,j])
-					self.cos_lat[i,j] = cos(Gr.lat[i,j])
+		for i in range(nx):
+			for j in range(ny):
+				self.sin_lat[i,j] = sin(Gr.lat[i,j])
+				self.cos_lat[i,j] = cos(Gr.lat[i,j])
 		return
 
-	def initialize_io(self, NetCDFIO_Stats Stats):
+	def initialize_io(self, Stats):
 		Stats.add_zonal_mean('zonal_mean_T_eq')
 		Stats.add_meridional_mean('meridional_mean_T_eq')
 		return
@@ -115,7 +114,7 @@ def class HelzSuarez(ForcingBase):
 	@cython.wraparound(False)
 	@cython.boundscheck(False)
 	@cython.cdivision(True)
-	def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+	def update(self, Pr, Gr, PV, DV):
 		def:
 			Py_ssize_t nx = Pr.nlats
 			Py_ssize_t ny = Pr.nlons
@@ -124,13 +123,12 @@ def class HelzSuarez(ForcingBase):
 			double [:,:] forcing_noise = np.zeros((nx,ny)   ,dtype=np.float64, order='c')
 			double complex [:] sp_noise = np.zeros(nlm    ,dtype=np.complex, order='c')
 
-		with nogil:
-			forcing_hs(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
-						Pr.Dtheta_z, Pr.T_equator, Pr.DT_y, &PV.P.values[0,0,0],
-						&PV.T.values[0,0,0],&self.Tbar[0,0,0], &self.sin_lat[0,0],
-						&self.cos_lat[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
-						&DV.U.forcing[0,0,0], &DV.V.forcing[0,0,0], &PV.T.forcing[0,0,0],
-						nx, ny, nl)
+		forcing_hs(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
+					Pr.Dtheta_z, Pr.T_equator, Pr.DT_y, &PV.P.values[0,0,0],
+					&PV.T.values[0,0,0],&self.Tbar[0,0,0], &self.sin_lat[0,0],
+					&self.cos_lat[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
+					&DV.U.forcing[0,0,0], &DV.V.forcing[0,0,0], &PV.T.forcing[0,0,0],
+					nx, ny, nl)
 		if self.noise:
 			#print('Add stochastic forcing for vorticity equation')
 			F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
@@ -145,90 +143,21 @@ def class HelzSuarez(ForcingBase):
 
 
 
-	def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+	def io(self, Pr, TS, Stats):
 		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'T_eq', self.Tbar)
 		return
 
-	def stats_io(self, NetCDFIO_Stats Stats):
+	def stats_io(self, Stats):
 		Stats.write_zonal_mean('zonal_mean_T_eq', self.Tbar)
 		Stats.write_meridional_mean('meridional_mean_T_eq', self.Tbar)
 		return
 
-# def class TropicalPlanet(ForcingBase):
-# 	def __init__(self, namelist):
-# 		ForcingBase.__init__(self, namelist)
-# 		return
-
-# 	def initialize(self, Parameters Pr, Grid Gr, namelist):
-# 		def:
-# 			Py_ssize_t i,j
-# 			Py_ssize_t nx = Pr.nlats
-# 			Py_ssize_t ny = Pr.nlons
-
-# 		self.Tbar = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
-# 		self.noise = namelist['forcing']['noise']
-# 		Pr.Fo_noise_amplitude  = namelist['forcing']['noise_amplitude']
-# 		Pr.Fo_noise_magnitude  = namelist['forcing']['noise_magnitude']
-# 		Pr.Fo_noise_correlation = namelist['forcing']['noise_correlation']
-# 		Pr.Fo_noise_type  = namelist['forcing']['noise_type']
-# 		Pr.Fo_noise_lmin  = namelist['forcing']['min_noise_wavenumber']
-# 		Pr.Fo_noise_lmax  = namelist['forcing']['max_noise_wavenumber']
-# 		return
-
-# 	def initialize_io(self, NetCDFIO_Stats Stats):
-# 		Stats.add_zonal_mean('zonal_mean_T_eq')
-# 		Stats.add_meridional_mean('meridional_mean_T_eq')
-# 		return
-
-# 	@cython.wraparound(False)
-# 	@cython.boundscheck(False)
-# 	@cython.cdivision(True)
-# 	def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
-# 		def:
-# 			Py_ssize_t nx = Pr.nlats
-# 			Py_ssize_t ny = Pr.nlons
-# 			Py_ssize_t nl = Pr.n_layers
-# 			Py_ssize_t nlm = Gr.SphericalGrid.nlm
-# 			double [:,:] forcing_noise = np.zeros((nx,ny)   ,dtype=np.float64, order='c')
-# 			double complex [:] sp_noise = np.zeros(nlm    ,dtype=np.complex, order='c')
-
-# 		with nogil:
-# 			forcing_tp(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
-# 						Pr.Dtheta_z, Pr.T_equator, Pr.DT_y, &PV.P.values[0,0,0],
-# 						&PV.T.values[0,0,0],&self.Tbar[0,0,0],
-# 						&DV.U.values[0,0,0], &DV.V.values[0,0,0],
-# 						&DV.U.forcing[0,0,0], &DV.V.forcing[0,0,0], &PV.T.forcing[0,0,0],
-# 						nx, ny, nl)
-# 		if self.noise:
-# 			#print('Add stochastic forcing for vorticity equation')
-# 			F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
-# 			fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,
-# 						Pr.Fo_noise_lmin, Pr.Fo_noise_lmax, Pr.Fo_noise_magnitude,
-# 						correlation =Pr.Fo_noise_correlation, noise_type=Pr.Fo_noise_type)
-
-# 			forcing_noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(F0))*Pr.Fo_noise_amplitude
-# 			sp_noise = Gr.SphericalGrid.grdtospec(forcing_noise.base)
-# 			PV.Vorticity.sp_forcing[:,Pr.n_layers-1] = sp_noise # forcing only in lowest layer
-# 		return
-
-
-
-# 	def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-# 		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'T_eq', self.Tbar)
-# 		return
-
-# 	def stats_io(self, NetCDFIO_Stats Stats):
-# 		Stats.write_zonal_mean('zonal_mean_T_eq', self.Tbar)
-# 		Stats.write_meridional_mean('meridional_mean_T_eq', self.Tbar)
-# 		return
-
-
-def class StochasticTropicalPlanet(ForcingBase):
+class StochasticTropicalPlanet(ForcingBase):
 	def __init__(self, namelist):
 		ForcingBase.__init__(self, namelist)
 		return
 
-	def initialize(self, Parameters Pr, Grid Gr, namelist):
+	def initialize(self, Pr, Gr, namelist):
 		def:
 			Py_ssize_t i,j
 			Py_ssize_t nx = Pr.nlats
@@ -244,7 +173,7 @@ def class StochasticTropicalPlanet(ForcingBase):
 		Pr.Fo_noise_lmax  = namelist['forcing']['max_noise_wavenumber']
 		return
 
-	def initialize_io(self, NetCDFIO_Stats Stats):
+	def initialize_io(self, Stats):
 		Stats.add_zonal_mean('zonal_mean_T_eq')
 		Stats.add_meridional_mean('meridional_mean_T_eq')
 		return
@@ -252,7 +181,7 @@ def class StochasticTropicalPlanet(ForcingBase):
 	@cython.wraparound(False)
 	@cython.boundscheck(False)
 	@cython.cdivision(True)
-	def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+	def update(self, Pr, Gr, PV, DV):
 		def:
 			Py_ssize_t nx = Pr.nlats
 			Py_ssize_t ny = Pr.nlons
@@ -261,13 +190,12 @@ def class StochasticTropicalPlanet(ForcingBase):
 			double [:,:] forcing_noise = np.zeros((nx,ny)   ,dtype=np.float64, order='c')
 			double complex [:] sp_noise = np.zeros(nlm    ,dtype=np.complex, order='c')
 
-		with nogil:
-			forcing_tp(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
-						Pr.Dtheta_z, Pr.T_equator, Pr.DT_y, &PV.P.values[0,0,0],
-						&PV.T.values[0,0,0],&self.Tbar[0,0,0],
-						&DV.U.values[0,0,0], &DV.V.values[0,0,0],
-						&DV.U.forcing[0,0,0], &DV.V.forcing[0,0,0], &PV.T.forcing[0,0,0],
-						nx, ny, nl)
+		forcing_tp(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
+					Pr.Dtheta_z, Pr.T_equator, Pr.DT_y, &PV.P.values[0,0,0],
+					&PV.T.values[0,0,0],&self.Tbar[0,0,0],
+					&DV.U.values[0,0,0], &DV.V.values[0,0,0],
+					&DV.U.forcing[0,0,0], &DV.V.forcing[0,0,0], &PV.T.forcing[0,0,0],
+					nx, ny, nl)
 		if self.noise:
 			#print('Add stochastic forcing for vorticity equation')
 			F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
@@ -282,21 +210,21 @@ def class StochasticTropicalPlanet(ForcingBase):
 
 
 
-	def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+	def io(self, Pr, TS, Stats):
 		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'T_eq', self.Tbar)
 		return
 
-	def stats_io(self, NetCDFIO_Stats Stats):
+	def stats_io(self, Stats):
 		Stats.write_zonal_mean('zonal_mean_T_eq', self.Tbar)
 		Stats.write_meridional_mean('meridional_mean_T_eq', self.Tbar)
 		return
 
-def class StochasticHeldSuarez(ForcingBase):
+class StochasticHeldSuarez(ForcingBase):
 	def __init__(self, namelist):
 		ForcingBase.__init__(self, namelist)
 		return
 
-	def initialize(self, Parameters Pr, Grid Gr, namelist):
+	def initialize(self, Pr, Gr, namelist):
 		def:
 			Py_ssize_t i,j
 			Py_ssize_t nx = Pr.nlats
@@ -312,14 +240,13 @@ def class StochasticHeldSuarez(ForcingBase):
 		Pr.Fo_noise_type  = namelist['forcing']['noise_type']
 		Pr.Fo_noise_lmin  = namelist['forcing']['min_noise_wavenumber']
 		Pr.Fo_noise_lmax  = namelist['forcing']['max_noise_wavenumber']
-		with nogil:
-			for i in range(nx):
-				for j in range(ny):
-					self.sin_lat[i,j] = sin(Gr.lat[i,j])
-					self.cos_lat[i,j] = cos(Gr.lat[i,j])
+		for i in range(nx):
+			for j in range(ny):
+				self.sin_lat[i,j] = sin(Gr.lat[i,j])
+				self.cos_lat[i,j] = cos(Gr.lat[i,j])
 		return
 
-	def initialize_io(self, NetCDFIO_Stats Stats):
+	def initialize_io(self, Stats):
 		Stats.add_zonal_mean('zonal_mean_T_eq')
 		Stats.add_meridional_mean('meridional_mean_T_eq')
 		return
@@ -327,7 +254,7 @@ def class StochasticHeldSuarez(ForcingBase):
 	@cython.wraparound(False)
 	@cython.boundscheck(False)
 	@cython.cdivision(True)
-	def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+	def update(self, Pr, Gr, PV, DV):
 		def:
 			Py_ssize_t nx = Pr.nlats
 			Py_ssize_t ny = Pr.nlons
@@ -336,13 +263,12 @@ def class StochasticHeldSuarez(ForcingBase):
 			double [:,:] forcing_noise = np.zeros((nx,ny)   ,dtype=np.float64, order='c')
 			double complex [:] sp_noise = np.zeros(nlm    ,dtype=np.complex, order='c')
 
-		with nogil:
-			forcing_hs(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
-						Pr.Dtheta_z, Pr.T_equator, Pr.DT_y, &PV.P.values[0,0,0],
-						&PV.T.values[0,0,0],&self.Tbar[0,0,0], &self.sin_lat[0,0],
-						&self.cos_lat[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
-						&DV.U.forcing[0,0,0], &DV.V.forcing[0,0,0], &PV.T.forcing[0,0,0],
-						nx, ny, nl)
+		forcing_hs(Pr.kappa, Pr.p_ref, Pr.sigma_b, Pr.k_a, Pr.k_b, Pr.k_f, Pr.k_s,
+					Pr.Dtheta_z, Pr.T_equator, Pr.DT_y, &PV.P.values[0,0,0],
+					&PV.T.values[0,0,0],&self.Tbar[0,0,0], &self.sin_lat[0,0],
+					&self.cos_lat[0,0], &DV.U.values[0,0,0], &DV.V.values[0,0,0],
+					&DV.U.forcing[0,0,0], &DV.V.forcing[0,0,0], &PV.T.forcing[0,0,0],
+					nx, ny, nl)
 		if self.noise:
 			#print('Add stochastic forcing for vorticity equation')
 			F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
@@ -355,11 +281,11 @@ def class StochasticHeldSuarez(ForcingBase):
 			PV.Vorticity.sp_forcing[:,Pr.n_layers-1] = sp_noise
 		return
 
-	def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+	def io(self, Pr, TS, Stats):
 		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'T_eq', self.Tbar)
 		return
 
-	def stats_io(self, NetCDFIO_Stats Stats):
+	def stats_io(self, Stats):
 		Stats.write_zonal_mean('zonal_mean_T_eq', self.Tbar)
 		Stats.write_meridional_mean('meridional_mean_T_eq', self.Tbar)
 		return

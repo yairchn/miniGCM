@@ -1,21 +1,17 @@
-import cython
-from Grid cimport Grid
+from Grid import Grid
 import numpy as np
-cimport numpy as np
-from PrognosticVariables cimport PrognosticVariables
-from Parameters cimport Parameters
+from PrognosticVariables import PrognosticVariables
+from Parameters import Parameters
 import os
 import sys
 import glob
 import netCDF4 as nc
 import sphericalForcing as spf
-from TimeStepping cimport TimeStepping
-import pylab as plt
+from TimeStepping import TimeStepping
 from scipy.interpolate import interp2d
 
-def class Restart:
-
-    def __init__(self, Parameters Pr, namelist):
+class Restart:
+    def __init__(self, Pr, namelist):
 
         if Pr.restart:
             if os.path.isdir(os.getcwd() + Pr.restart_folder)==False:
@@ -23,13 +19,10 @@ def class Restart:
                 sys.exit("Restart folder does not exists")
         return
 
-    def initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV,  TimeStepping TS, namelist):
-
-        def:
-            Py_ssize_t i,j,k
-            Py_ssize_t nx = Pr.nlats
-            Py_ssize_t ny = Pr.nlons
-            Py_ssize_t nl = Pr.n_layers
+    def initialize(self, Pr, Gr, PV,  TS, namelist):
+        nx = Pr.nlats
+        ny = Pr.nlons
+        nl = Pr.n_layers
 
         data = nc.Dataset(Pr.path_source_file, 'r')
 

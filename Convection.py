@@ -1,19 +1,10 @@
-#!python
-#cython: boundscheck=False
-#cython: wraparound=False
-#cython: initializedcheck=False
-#cython: cdivision=True
-
-import cython
-from concurrent.futures import ThreadPoolExecutor
 import numpy as np
-cimport numpy as np
-from Parameters cimport Parameters
-from TimeStepping cimport TimeStepping
-from PrognosticVariables cimport PrognosticVariables
-from DiagnosticVariables cimport DiagnosticVariables
-from Grid cimport Grid
-from NetCDFIO cimport NetCDFIO_Stats
+from Parameters import Parameters
+from TimeStepping import TimeStepping
+from PrognosticVariables import PrognosticVariables
+from DiagnosticVariables import DiagnosticVariables
+from Grid import Grid
+from NetCDFIO import NetCDFIO_Stats
 import sphericalForcing as spf
 
 def ConvectionFactory(namelist):
@@ -27,46 +18,45 @@ def ConvectionFactory(namelist):
         print('case not recognized')
     return
 
-def class ConvectionBase:
+class ConvectionBase:
     def __init__(self, namelist):
         return
-    def initialize(self, Parameters Pr, Grid Gr, namelist):
+    def initialize(self, Pr, Gr, namelist):
         return
-    def initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, Stats):
         return
-    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+    def update(self, Pr, Gr, PV, DV):
         return
-    def stats_io(self, NetCDFIO_Stats Stats):
+    def stats_io(self, Stats):
         return
-    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-        return
-
-def class ConvectionNone(ConvectionBase):
-    def __init__(self, namelist):
-        ConvectionBase.__init__(self, namelist)
-        return
-    def initialize(self, Parameters Pr, Grid Gr, namelist):
-        return
-    def initialize_io(self, NetCDFIO_Stats Stats):
-        return
-    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
-        return
-    def stats_io(self, NetCDFIO_Stats Stats):
-        return
-    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Pr, TS, Stats):
         return
 
-def class ConvectionRandomFlux(ConvectionBase):
+class ConvectionNone(ConvectionBase):
     def __init__(self, namelist):
         ConvectionBase.__init__(self, namelist)
         return
+    def initialize(self, Pr, Gr, namelist):
+        return
+    def initialize_io(self, Stats):
+        return
+    def update(self, Pr, Gr, PV, DV):
+        return
+    def stats_io(self, Stats):
+        return
+    def io(self, Pr, TS, Stats):
+        return
 
-    def initialize(self, Parameters Pr, Grid Gr, namelist):
-        def:
-            Py_ssize_t nx = Pr.nlats
-            Py_ssize_t ny = Pr.nlons
-            Py_ssize_t nl = Pr.n_layers
-            Py_ssize_t nlm = Gr.SphericalGrid.nlm
+class ConvectionRandomFlux(ConvectionBase):
+    def __init__(self, namelist):
+        ConvectionBase.__init__(self, namelist)
+        return
+
+    def initialize(self, Pr, Gr, namelist): 
+        nx = Pr.nlats
+        ny = Pr.nlons
+        nl = Pr.n_layers
+        nlm = Gr.SphericalGrid.nlm
 
         self.noise  = namelist['convection']['noise']
         Pr.Co_noise_magnitude  = namelist['convection']['noise_magnitude']
@@ -89,7 +79,7 @@ def class ConvectionRandomFlux(ConvectionBase):
             self.wQT = np.zeros((nlm, nl+1), dtype = np.complex, order ='c')
         return
 
-    def initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, Stats):
         Stats.add_global_mean('global_mean_conv_wT')
         Stats.add_global_mean('global_mean_conv_wQT')
         Stats.add_global_mean('global_mean_conv_wVort')
@@ -106,16 +96,14 @@ def class ConvectionRandomFlux(ConvectionBase):
 
     @cython.wraparound(False)
     @cython.boundscheck(False)
-    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
-        def:
-            Py_ssize_t i,k
-            Py_ssize_t nx = Pr.nlats
-            Py_ssize_t ny = Pr.nlons
-            Py_ssize_t nl = Pr.n_layers
-            Py_ssize_t nlm = Gr.SphericalGrid.nlm
-            double [:,:] dpi_grid    = np.zeros((nx, ny),  dtype = np.float64, order ='c')
-            double complex [:,:] dpi = np.zeros((nlm, nl+1), dtype = np.complex, order ='c')
-            double complex [:] Wp = np.zeros(nlm, dtype = np.complex, order ='c')
+    def update(self, Pr, Gr, PV, DV):
+        nx = Pr.nlats
+        ny = Pr.nlons
+        nl = Pr.n_layers
+        nlm = Gr.SphericalGrid.nlm
+        dpi_grid    = np.zeros((nx, ny),  dtype = np.float64, order ='c')
+        dpi = np.zeros((nlm, nl+1), dtype = np.complex, order ='c')
+        Wp = np.zeros(nlm, dtype = np.complex, order ='c')
 
         if self.noise:
             # we compute the flux from below to the layer k skipping k=0
@@ -127,34 +115,32 @@ def class ConvectionRandomFlux(ConvectionBase):
                                         Pr.Co_noise_lmin,Pr.Co_noise_lmax, Pr.Co_noise_magnitude,
                                         correlation = Pr.Co_noise_correlation, noise_type=Pr.Co_noise_type)
                 Wp = sph_noise.forcingFn(F0)
-                with nogil:
-                    for i in range(nlm):
-                        if k==nl:
-                            self.wVort[i,k] = 0.0
-                            self.wDiv[i,k]  = 0.0
-                            self.wT[i,k]    = Pr.T_conv_amp*Wp[i]*(PV.T.spectral[i,k-1] + PV.T.spectral[i,k-1])*0.5
-                            if Pr.moist_index > 0.0:
-                                self.wQT[i,k]    = Pr.QT_conv_amp*Wp[i]*(PV.QT.spectral[i,k-1] + PV.QT.spectral[i,k-1])*0.5
-                        else:
-                            self.wVort[i,k] = Pr.Vort_conv_amp*Wp[i]*(PV.Vorticity.spectral[i,k] - PV.Vorticity.spectral[i,k-1])*dpi[i,k]
-                            self.wDiv[i,k]  = Pr.Div_conv_amp*Wp[i]*(PV.Divergence.spectral[i,k] - PV.Divergence.spectral[i,k-1])*dpi[i,k]
-                            self.wT[i,k]    = Pr.T_conv_amp*Wp[i]*(PV.T.spectral[i,k] + PV.T.spectral[i,k-1])*0.5*dpi[i,k]
-                            if Pr.moist_index > 0.0:
-                                self.wQT[i,k]    = Pr.QT_conv_amp*Wp[i]*(PV.QT.spectral[i,k] + PV.QT.spectral[i,k-1])*0.5*dpi[i,k]
+                for i in range(nlm):
+                    if k==nl:
+                        self.wVort[i,k] = 0.0
+                        self.wDiv[i,k]  = 0.0
+                        self.wT[i,k]    = Pr.T_conv_amp*Wp[i]*(PV.T.spectral[i,k-1] + PV.T.spectral[i,k-1])*0.5
+                        if Pr.moist_index > 0.0:
+                            self.wQT[i,k]    = Pr.QT_conv_amp*Wp[i]*(PV.QT.spectral[i,k-1] + PV.QT.spectral[i,k-1])*0.5
+                    else:
+                        self.wVort[i,k] = Pr.Vort_conv_amp*Wp[i]*(PV.Vorticity.spectral[i,k] - PV.Vorticity.spectral[i,k-1])*dpi[i,k]
+                        self.wDiv[i,k]  = Pr.Div_conv_amp*Wp[i]*(PV.Divergence.spectral[i,k] - PV.Divergence.spectral[i,k-1])*dpi[i,k]
+                        self.wT[i,k]    = Pr.T_conv_amp*Wp[i]*(PV.T.spectral[i,k] + PV.T.spectral[i,k-1])*0.5*dpi[i,k]
+                        if Pr.moist_index > 0.0:
+                            self.wQT[i,k]    = Pr.QT_conv_amp*Wp[i]*(PV.QT.spectral[i,k] + PV.QT.spectral[i,k-1])*0.5*dpi[i,k]
 
             # we compute the flux divergence at the middle of the k'th layer
             for k in range(nl):
-                with nogil:
-                    for i in range(nlm):
-                        PV.Vorticity.ConvectiveFlux[i,k]  = -(self.wVort[i,k+1] - self.wVort[i,k])*dpi[i,k+1]
-                        PV.Divergence.ConvectiveFlux[i,k] = -(self.wDiv[i,k+1]  - self.wDiv[i,k])*dpi[i,k+1]
-                        PV.T.ConvectiveFlux[i,k]          = -(self.wT[i,k+1]    - self.wT[i,k])*dpi[i,k+1]
-                        if Pr.moist_index > 0.0:
-                            PV.QT.ConvectiveFlux[i,k]     = -(self.wQT[i,k+1]   - self.wQT[i,k])*dpi[i,k+1]
+                for i in range(nlm):
+                    PV.Vorticity.ConvectiveFlux[i,k]  = -(self.wVort[i,k+1] - self.wVort[i,k])*dpi[i,k+1]
+                    PV.Divergence.ConvectiveFlux[i,k] = -(self.wDiv[i,k+1]  - self.wDiv[i,k])*dpi[i,k+1]
+                    PV.T.ConvectiveFlux[i,k]          = -(self.wT[i,k+1]    - self.wT[i,k])*dpi[i,k+1]
+                    if Pr.moist_index > 0.0:
+                        PV.QT.ConvectiveFlux[i,k]     = -(self.wQT[i,k+1]   - self.wQT[i,k])*dpi[i,k+1]
 
         return
 
-    def stats_io(self, NetCDFIO_Stats Stats):
+    def stats_io(self, Stats):
         Stats.write_zonal_mean('zonal_mean_conv_wT',self.wT[:,1:])
         Stats.write_zonal_mean('zonal_mean_conv_wQT',self.wQT[:,1:])
         Stats.write_zonal_mean('zonal_mean_conv_wVort',self.wVort[:,1:])
@@ -169,9 +155,8 @@ def class ConvectionRandomFlux(ConvectionBase):
         Stats.write_surface_zonal_mean('zonal_mean_conv_wDiv',self.wDiv[:,1:])
         return
 
-    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-        def:
-            Py_ssize_t nl = Pr.n_layers
+    def io(self, Pr, TS, Stats):
+        nl = Pr.n_layers
         Stats.write_3D_variable(Pr, int(TS.t),nl, 'conv_wT',self.wT[:,1:])
         Stats.write_3D_variable(Pr, int(TS.t),nl, 'conv_wQT',self.wQT[:,1:])
         Stats.write_3D_variable(Pr, int(TS.t),nl, 'conv_wVort',self.wVort[:,1:])
@@ -179,17 +164,16 @@ def class ConvectionRandomFlux(ConvectionBase):
         return
 
 
-def class ConvectionRandomTransport(ConvectionBase):
+class ConvectionRandomTransport(ConvectionBase):
     def __init__(self, namelist):
         ConvectionBase.__init__(self, namelist)
         return
 
-    def initialize(self, Parameters Pr, Grid Gr, namelist):
-        def:
-            Py_ssize_t nx = Pr.nlats
-            Py_ssize_t ny = Pr.nlons
-            Py_ssize_t nl = Pr.n_layers
-            Py_ssize_t nlm = Gr.SphericalGrid.nlm
+    def initialize(self, Pr, Gr, namelist): 
+        nx = Pr.nlats
+        ny = Pr.nlons
+        nl = Pr.n_layers
+        nlm = Gr.SphericalGrid.nlm
 
         self.noise  = namelist['convection']['noise']
         Pr.Co_noise_magnitude  = namelist['convection']['noise_magnitude']
@@ -213,7 +197,7 @@ def class ConvectionRandomTransport(ConvectionBase):
             self.wQT = np.zeros((nlm, nl+1), dtype = np.complex, order ='c')
         return
 
-    def initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, Stats):
         Stats.add_global_mean('global_mean_conv_wT')
         Stats.add_global_mean('global_mean_conv_wQT')
         Stats.add_global_mean('global_mean_conv_wVort')
@@ -228,18 +212,14 @@ def class ConvectionRandomTransport(ConvectionBase):
         Stats.add_meridional_mean('meridional_mean_conv_wDiv')
         return
 
-    @cython.wraparound(False)
-    @cython.boundscheck(False)
-    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
-        def:
-            Py_ssize_t i,k
-            Py_ssize_t nx = Pr.nlats
-            Py_ssize_t ny = Pr.nlons
-            Py_ssize_t nl = Pr.n_layers
-            Py_ssize_t nlm = Gr.SphericalGrid.nlm
-            double [:,:] dpi_grid    = np.zeros((nx, ny),  dtype = np.float64, order ='c')
-            double complex [:,:] dpi = np.zeros((nlm, nl+1), dtype = np.complex, order ='c')
-            double complex [:] Wp = np.zeros(nlm, dtype = np.complex, order ='c')
+    def update(self, Pr, Gr, PV, DV):
+        nx = Pr.nlats
+        ny = Pr.nlons
+        nl = Pr.n_layers
+        nlm = Gr.SphericalGrid.nlm
+        dpi_grid    = np.zeros((nx, ny),  dtype = np.float64, order ='c')
+        dpi = np.zeros((nlm, nl+1), dtype = np.complex, order ='c')
+        Wp = np.zeros(nlm, dtype = np.complex, order ='c')
 
         if self.noise:
             #print('calculate convective fluxes here')
@@ -252,33 +232,31 @@ def class ConvectionRandomTransport(ConvectionBase):
                                         Pr.Co_noise_lmin,Pr.Co_noise_lmax, Pr.Co_noise_magnitude,
                                         correlation = Pr.Co_noise_correlation, noise_type=Pr.Co_noise_type)
                 Wp = sph_noise.forcingFn(F0)
-                with nogil:
-                    for i in range(nlm):
-                        if k==nl:
-                            self.wVort[i,k] = 0.0
-                            self.wDiv[i,k]  = 0.0
-                            self.wT[i,k]    = Pr.T_conv_amp*Wp[i]*dpi[i,k]
-                            if Pr.moist_index > 0.0:
-                                self.wQT[i,k] = Pr.QT_conv_amp*Wp[i]*dpi[i,k]
-                        else:
-                            self.wVort[i,k] = Pr.Vort_conv_amp*Wp[i]*dpi[i,k]
-                            self.wDiv[i,k]  = Pr.Div_conv_amp*Wp[i]*dpi[i,k]
-                            self.wT[i,k]    = Pr.T_conv_amp*Wp[i]*dpi[i,k]
-                            if Pr.moist_index > 0.0:
-                                self.wQT[i,k] = Pr.QT_conv_amp*Wp[i]*dpi[i,k]
+                for i in range(nlm):
+                    if k==nl:
+                        self.wVort[i,k] = 0.0
+                        self.wDiv[i,k]  = 0.0
+                        self.wT[i,k]    = Pr.T_conv_amp*Wp[i]*dpi[i,k]
+                        if Pr.moist_index > 0.0:
+                            self.wQT[i,k] = Pr.QT_conv_amp*Wp[i]*dpi[i,k]
+                    else:
+                        self.wVort[i,k] = Pr.Vort_conv_amp*Wp[i]*dpi[i,k]
+                        self.wDiv[i,k]  = Pr.Div_conv_amp*Wp[i]*dpi[i,k]
+                        self.wT[i,k]    = Pr.T_conv_amp*Wp[i]*dpi[i,k]
+                        if Pr.moist_index > 0.0:
+                            self.wQT[i,k] = Pr.QT_conv_amp*Wp[i]*dpi[i,k]
             # we compute the flux divergence at the middle of the k'th layer
             for k in range(nl):
-                with nogil:
-                    for i in range(nlm):
-                        PV.Vorticity.ConvectiveFlux[i,k]  = -(self.wVort[i,k+1] - self.wVort[i,k])*dpi[i,k+1]
-                        PV.Divergence.ConvectiveFlux[i,k] = -(self.wDiv[i,k+1]  - self.wDiv[i,k])*dpi[i,k+1]
-                        PV.T.ConvectiveFlux[i,k]          = -(self.wT[i,k+1]    - self.wT[i,k])*dpi[i,k+1]
-                        if Pr.moist_index > 0.0:
-                            PV.QT.ConvectiveFlux[i,k]     = -(self.wQT[i,k+1]   - self.wQT[i,k])*dpi[i,k+1]
+                for i in range(nlm):
+                    PV.Vorticity.ConvectiveFlux[i,k]  = -(self.wVort[i,k+1] - self.wVort[i,k])*dpi[i,k+1]
+                    PV.Divergence.ConvectiveFlux[i,k] = -(self.wDiv[i,k+1]  - self.wDiv[i,k])*dpi[i,k+1]
+                    PV.T.ConvectiveFlux[i,k]          = -(self.wT[i,k+1]    - self.wT[i,k])*dpi[i,k+1]
+                    if Pr.moist_index > 0.0:
+                        PV.QT.ConvectiveFlux[i,k]     = -(self.wQT[i,k+1]   - self.wQT[i,k])*dpi[i,k+1]
 
         return
 
-    def stats_io(self, NetCDFIO_Stats Stats):
+    def stats_io(self, Stats):
         Stats.write_zonal_mean('zonal_mean_conv_wT',self.wT[:,1:])
         Stats.write_zonal_mean('zonal_mean_conv_wQT',self.wQT[:,1:])
         Stats.write_zonal_mean('zonal_mean_conv_wVort',self.wVort[:,1:])
@@ -293,9 +271,8 @@ def class ConvectionRandomTransport(ConvectionBase):
         Stats.write_surface_zonal_mean('zonal_mean_conv_wDiv',self.wDiv[:,1:])
         return
 
-    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-        def:
-            Py_ssize_t nl = Pr.n_layers
+    def io(self, Pr, TS, Stats):
+        nl = Pr.n_layers
         Stats.write_3D_variable(Pr, int(TS.t),nl, 'conv_wT',self.wT[:,1:])
         Stats.write_3D_variable(Pr, int(TS.t),nl, 'conv_wQT',self.wQT[:,1:])
         Stats.write_3D_variable(Pr, int(TS.t),nl, 'conv_wVort',self.wVort[:,1:])

@@ -1,25 +1,18 @@
-#!python
-#cython: boundscheck=False
-#cython: wraparound=False
-#cython: initializedcheck=False
-#cython: cdivision=True
 import sys
-import cython
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np
-cimport numpy as np
-from Parameters cimport Parameters
-from TimeStepping cimport TimeStepping
-from PrognosticVariables cimport PrognosticVariables
-from DiagnosticVariables cimport DiagnosticVariables
-from Grid cimport Grid
-from NetCDFIO cimport NetCDFIO_Stats
+from Parameters import Parameters
+from TimeStepping import TimeStepping
+from PrognosticVariables import PrognosticVariables
+from DiagnosticVariables import DiagnosticVariables
+from Grid import Grid
+from NetCDFIO import NetCDFIO_Stats
 
-def extern from "microphysics_functions.h":
-    void microphysics_cutoff(double cp, double dt, double Rv, double Lv, double T_0, double rho_w,
-           double g, double max_ss, double pv_star0, double eps_v, double* p, double* T,
-           double* qt, double* ql, double* T_mp, double* qt_mp, double* rain_rate, double* qv_star,
-           Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
+# def extern from "microphysics_functions.h":
+#     void microphysics_cutoff(double cp, double dt, double Rv, double Lv, double T_0, double rho_w,
+#            double g, double max_ss, double pv_star0, double eps_v, double* p, double* T,
+#            double* qt, double* ql, double* T_mp, double* qt_mp, double* rain_rate, double* qv_star,
+#            Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
 
 def MicrophysicsFactory(namelist):
     if namelist['microphysics']['microphysics_model'] == 'None':
@@ -32,48 +25,45 @@ def MicrophysicsFactory(namelist):
         print('case not recognized')
     return
 
-def class MicrophysicsBase:
+class MicrophysicsBase:
     def __init__(self, namelist):
         return
-    def initialize(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
+    def initialize(self, Pr, PV, DV, namelist):
         return
-    def update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
+    def update(self, Pr, PV, DV, TS):
         return
-    def initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, Stats):
         return
-    def stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
+    def stats_io(self, Gr, PV, Stats):
         return
-    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Pr, TS, Stats):
         return
 
-def class MicrophysicsNone(MicrophysicsBase):
+class MicrophysicsNone(MicrophysicsBase):
     def __init__(self, namelist):
         MicrophysicsBase.__init__(self, namelist)
         return
-    def initialize(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
+    def initialize(self, Pr, PV, DV, namelist):
         PV.QT.mp_tendency = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         PV.T.mp_tendency  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         self.RainRate = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
         return
-    def update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
+    def update(self, Pr, PV, DV, TS):
         return
-    def initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, Stats):
         return
-    def stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
+    def stats_io(self, Gr, PV, Stats):
         return
-    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Pr, TS, Stats):
         return
 
-def class MicrophysicsCutoff(MicrophysicsBase):
+class MicrophysicsCutoff(MicrophysicsBase):
     def __init__(self, namelist):
         MicrophysicsBase.__init__(self, namelist)
         return
 
-    def initialize(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
-        def:
-            Py_ssize_t k
-            Py_ssize_t nl = Pr.n_layers
-            double [:,:] P_half
+    def initialize(self, Pr, PV, DV, namelist):
+        nl = Pr.n_layers
         self.RainRate = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
         self.qv_star  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         Pr.max_ss    =  namelist['microphysics']['max_supersaturation']
@@ -88,7 +78,7 @@ def class MicrophysicsCutoff(MicrophysicsBase):
             DV.QL.values.base[:,:,k] = np.clip(PV.QT.values[:,:,k] - qv_star,0.0, None)
         return
 
-    def initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, Stats):
         Stats.add_global_mean('global_mean_dQTdt')
         Stats.add_surface_global_mean('global_mean_RainRate')
         Stats.add_zonal_mean('zonal_mean_dQTdt')
@@ -99,22 +89,17 @@ def class MicrophysicsCutoff(MicrophysicsBase):
         Stats.add_meridional_mean('meridional_mean_qv_star')
         return
 
-    @cython.wraparound(False)
-    @cython.boundscheck(False)
-    @cython.cdivision(True)
-    def update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
-        def:
-            Py_ssize_t nx = Pr.nlats
-            Py_ssize_t ny = Pr.nlons
-            Py_ssize_t nl = Pr.n_layers
+    def update(self, Pr, PV, DV, TS):
+        nx = Pr.nlats
+        ny = Pr.nlons
+        nl = Pr.n_layers
 
         if (TS.t%Pr.mp_dt == 0.0):
-            with nogil:
-                microphysics_cutoff(Pr.cp, Pr.mp_dt, Pr.Rv, Pr.Lv, Pr.T_0, Pr.rho_w,
-                                    Pr.g, Pr.max_ss, Pr.pv_star0, Pr.eps_v, &PV.P.values[0,0,0],
-                                    &PV.T.values[0,0,0], &PV.QT.values[0,0,0], &DV.QL.values[0,0,0], &PV.T.mp_tendency[0,0,0],
-                                    &PV.QT.mp_tendency[0,0,0], &self.RainRate[0,0], &self.qv_star[0,0,0],
-                                    nx, ny, nl)
+            microphysics_cutoff(Pr.cp, Pr.mp_dt, Pr.Rv, Pr.Lv, Pr.T_0, Pr.rho_w,
+                                Pr.g, Pr.max_ss, Pr.pv_star0, Pr.eps_v, &PV.P.values[0,0,0],
+                                &PV.T.values[0,0,0], &PV.QT.values[0,0,0], &DV.QL.values[0,0,0], &PV.T.mp_tendency[0,0,0],
+                                &PV.QT.mp_tendency[0,0,0], &self.RainRate[0,0], &self.qv_star[0,0,0],
+                                nx, ny, nl)
         else:
             PV.QT.mp_tendency = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
             PV.T.mp_tendency = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
@@ -124,7 +109,7 @@ def class MicrophysicsCutoff(MicrophysicsBase):
 
         return
 
-    def stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
+    def stats_io(self, Gr, PV, Stats):
         Stats.write_global_mean(Gr, 'global_mean_dQTdt', PV.QT.mp_tendency)
         Stats.write_surface_global_mean(Gr, 'global_mean_RainRate', self.RainRate)
         Stats.write_zonal_mean('zonal_mean_dQTdt',PV.QT.mp_tendency)
@@ -135,6 +120,6 @@ def class MicrophysicsCutoff(MicrophysicsBase):
         Stats.write_meridional_mean('meridional_mean_qv_star',self.qv_star)
         return
 
-    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Pr, TS, Stats):
         Stats.write_2D_variable(Pr, int(TS.t) , 'Rain_Rate',self.RainRate)
         return

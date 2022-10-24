@@ -1,22 +1,20 @@
 import numpy as np
 import os
-from DiagnosticVariables cimport DiagnosticVariables, DiagnosticVariable
-from PrognosticVariables cimport PrognosticVariables, PrognosticVariable
-from TimeStepping cimport TimeStepping
-from Parameters cimport Parameters
+from DiagnosticVariables import DiagnosticVariables, DiagnosticVariable
+from PrognosticVariables import PrognosticVariables, PrognosticVariable
+from TimeStepping import TimeStepping
+from Parameters import Parameters
 
-def class LogFile:
+class LogFile:
     def __init__(self, namelist):
         return
 
-    def initialize(self,  Parameters Pr, namelist):
+    def initialize(self,  Pr, namelist):
         print('logfile ',Pr.logfilename)
         return
 
-    def update(self, Parameters Pr, TimeStepping TS, DiagnosticVariables DV, PrognosticVariables PV, wallclocktime):
-        def:
-            Py_ssize_t i
-            Py_ssize_t nl = Pr.n_layers
+    def update(self, Pr, TS, DV, PV, wallclocktime):
+        nl = Pr.n_layers
 
         os.system('echo elapsed time [days] about '
         	      +str(np.floor_divide(TS.t,(24.0*3600.0))) + '>> '+Pr.logfilename)

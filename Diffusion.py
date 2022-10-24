@@ -11,16 +11,16 @@ from libc.math cimport exp
 def extern from "complex.h" nogil:
     double complex exp(double complex z)
 
-def class Diffusion:
+class Diffusion:
 
     def __init__(self):
         return
 
-    def initialize(self, Parameters Pr, Grid Gr, namelist):
+    def initialize(self, Pr, Gr, namelist):
         return
     #@cython.wraparound(False)
     @cython.boundscheck(False)
-    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, double dt):
+    def update(self, Pr, Gr, PV, double dt):
         def:
             Py_ssize_t i,j,k
             Py_ssize_t nl = Pr.n_layers

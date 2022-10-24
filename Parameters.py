@@ -1,12 +1,11 @@
 import cython
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np
-cimport numpy as np
 import shtns
 import sphTrans as sph
 import os
 
-def class Parameters:
+class Parameters:
     def __init__(self, namelist):
 
         self.thermodynamics_type = namelist['thermodynamics']['thermodynamics_type']

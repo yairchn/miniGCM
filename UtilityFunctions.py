@@ -1,9 +1,6 @@
-import cython
-from concurrent.futures import ThreadPoolExecutor
-from Grid cimport Grid
+from Grid import Grid
 import numpy as np
-cimport numpy as np
-from Parameters cimport Parameters
+from Parameters import Parameters
 
 # make sure that total moisture content is non-negative
 def set_min_vapour(qp,qbar):
@@ -12,7 +9,7 @@ def set_min_vapour(qp,qbar):
     return (qtot-qbar)
 
 # Function for plotting KE spectra
-def keSpectra(Grid Gr, u, v):
+def keSpectra(Gr, u, v):
     uk = Gr.grdtospec(u)
     vk = Gr.grdtospec(v)
     Esp = 0.5*(uk*uk.conj()+vk*vk.conj())

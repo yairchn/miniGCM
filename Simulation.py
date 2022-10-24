@@ -1,24 +1,21 @@
-import cython
-from concurrent.futures import ThreadPoolExecutor
+
 import numpy as np
 from Cases import CasesFactory
 from Cases import CaseBase
-from DiagnosticVariables cimport DiagnosticVariables, DiagnosticVariable
 from DiagnosticVariables import DiagnosticVariables, DiagnosticVariable
 from Diffusion import Diffusion
-cimport Parameters
-from Restart cimport Restart
-cimport Grid
-from NetCDFIO cimport NetCDFIO_Stats
-from PrognosticVariables cimport PrognosticVariables, PrognosticVariable
+import Parameters
+from Restart import Restart
+import Grid
+from NetCDFIO import NetCDFIO_Stats
 from PrognosticVariables import PrognosticVariables, PrognosticVariable
 import time
 from TimeStepping import TimeStepping
 from Microphysics import MicrophysicsBase
 from SpectralAnalysis import SpectralAnalysis
 from LogFile import LogFile
-class Simulation:
 
+class Simulation:
     def __init__(self, namelist):
         self.Pr = Parameters.Parameters(namelist)
         self.LF = LogFile(namelist)

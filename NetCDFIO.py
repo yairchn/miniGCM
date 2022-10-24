@@ -1,15 +1,13 @@
-import cython
 from concurrent.futures import ThreadPoolExecutor
-from Grid cimport Grid
+from Grid import Grid
 import netCDF4 as nc
 import numpy as np
-cimport numpy as np
 import os
 import shutil
-from Parameters cimport Parameters
+from Parameters import Parameters
 
-def class NetCDFIO_Stats:
-    def __init__(self, Parameters Pr, Grid Gr, namelist):
+class NetCDFIO_Stats:
+    def __init__(self, Pr, Gr, namelist):
         self.root_grp = None
         self.variable_grp = None
         self.meridional_mean_grp = None
@@ -107,7 +105,7 @@ def class NetCDFIO_Stats:
         self.root_grp.close()
         return
 
-    def setup_stats_file(self, Parameters Pr, Grid Gr):
+    def setup_stats_file(self, Pr, Gr):
 
         root_grp = nc.Dataset(self.path_plus_file, 'w', format='NETCDF4')
 
@@ -211,7 +209,7 @@ def class NetCDFIO_Stats:
         root_grp.close()
         return
 
-    def write_global_mean(self, Grid Gr, var_name, data):
+    def write_global_mean(self, Gr, var_name, data):
         var = self.global_mean_grp.variables[var_name]
         zonal_mean = np.array(np.mean(data, axis = (1,2)))
         var[-1,:] = np.sum(np.multiply(Gr.lat_weights, zonal_mean))
@@ -227,7 +225,7 @@ def class NetCDFIO_Stats:
         var[-1,:,:] = np.array(np.mean(data,0))
         return
 
-    def write_surface_global_mean(self, Grid Gr, var_name, data):
+    def write_surface_global_mean(self, Gr, var_name, data):
         var = self.global_mean_grp.variables[var_name]
         zonal_mean = np.array(np.mean(data,1))
         var[-1] = np.sum(np.multiply(Gr.lat_weights, zonal_mean))
@@ -244,7 +242,7 @@ def class NetCDFIO_Stats:
         return
 
 
-    def write_3D_variable(self, Parameters Pr, t, n_layers, var_name, data):
+    def write_3D_variable(self, Pr, t, n_layers, var_name, data):
         root_grp = nc.Dataset(self.output_folder+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')
         root_grp.createDimension('lat', Pr.nlats)
         root_grp.createDimension('lon', Pr.nlons)
@@ -254,7 +252,7 @@ def class NetCDFIO_Stats:
         root_grp.close()
         return
 
-    def write_spectral_field(self, Parameters Pr, t, nlm, n_layers, var_name, data):
+    def write_spectral_field(self, Pr, t, nlm, n_layers, var_name, data):
         root_grp = nc.Dataset(self.output_folder+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')
         root_grp.createDimension('nlm', nlm)
         root_grp.createDimension('lay', n_layers)
@@ -272,7 +270,7 @@ def class NetCDFIO_Stats:
         root_grp.close()
         return
 
-    def write_2D_variable(self, Parameters Pr, t, var_name, data):
+    def write_2D_variable(self, Pr, t, var_name, data):
         root_grp = nc.Dataset(self.output_folder+var_name+'_'+str(t)+'.nc', 'w', format='NETCDF4')
         root_grp.createDimension('lat', Pr.nlats)
         root_grp.createDimension('lon', Pr.nlons)
