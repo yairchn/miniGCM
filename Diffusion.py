@@ -8,20 +8,20 @@ from Parameters cimport Parameters
 from libc.math cimport exp
 
 # overload exp for complex numbers
-cdef extern from "complex.h" nogil:
+def extern from "complex.h" nogil:
     double complex exp(double complex z)
 
-cdef class Diffusion:
+def class Diffusion:
 
     def __init__(self):
         return
 
-    cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
+    def initialize(self, Parameters Pr, Grid Gr, namelist):
         return
     #@cython.wraparound(False)
     @cython.boundscheck(False)
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, double dt):
-        cdef:
+    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, double dt):
+        def:
             Py_ssize_t i,j,k
             Py_ssize_t nl = Pr.n_layers
             Py_ssize_t nlm = Gr.SphericalGrid.nlm

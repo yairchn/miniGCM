@@ -10,7 +10,7 @@ from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
 
 
-cdef extern from "turbulence_functions.h":
+def extern from "turbulence_functions.h":
     void vertical_turbulent_flux(double g, double Ch, double Cq, double kappa, double p_ref,
                                  double Ppbl, double Pstrato, double* p, double* gz,
                                  double* T, double* qt, double* u, double* v, double* wTh,
@@ -25,41 +25,41 @@ def TurbulenceFactory(namelist):
         print('case not recognized')
     return
 
-cdef class TurbulenceBase:
+def class TurbulenceBase:
     def __init__(self, namelist):
         return
-    cpdef initialize(self, Parameters Pr, namelist):
+    def initialize(self, Parameters Pr, namelist):
         return
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
         return
-    cpdef initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, NetCDFIO_Stats Stats):
         return
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
+    def stats_io(self, NetCDFIO_Stats Stats):
         return
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
 
-cdef class TurbulenceNone(TurbulenceBase):
+def class TurbulenceNone(TurbulenceBase):
     def __init__(self, namelist):
         TurbulenceBase.__init__(self, namelist)
         return
-    cpdef initialize(self, Parameters Pr, namelist):
+    def initialize(self, Parameters Pr, namelist):
         return
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
         return
-    cpdef initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, NetCDFIO_Stats Stats):
         return
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
+    def stats_io(self, NetCDFIO_Stats Stats):
         return
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
 
-cdef class DownGradientTurbulence(TurbulenceBase):
+def class DownGradientTurbulence(TurbulenceBase):
     def __init__(self, namelist):
         TurbulenceBase.__init__(self, namelist)
         return
-    cpdef initialize(self, Parameters Pr, namelist):
-        cdef:
+    def initialize(self, Parameters Pr, namelist):
+        def:
             Py_ssize_t i,j,k
             Py_ssize_t nx = Pr.nlats
             Py_ssize_t ny = Pr.nlons
@@ -74,8 +74,8 @@ cdef class DownGradientTurbulence(TurbulenceBase):
     @cython.wraparound(False)
     @cython.boundscheck(False)
     @cython.cdivision(True)
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
-        cdef:
+    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+        def:
             Py_ssize_t i,j,k
             Py_ssize_t nx = Pr.nlats
             Py_ssize_t ny = Pr.nlons
@@ -90,17 +90,17 @@ cdef class DownGradientTurbulence(TurbulenceBase):
                                nx, ny, nl)
         return
 
-    cpdef initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, NetCDFIO_Stats Stats):
         # Stats.add_zonal_mean('zonal_mean_QT_Turb')
         # Stats.add_zonal_mean('zonal_mean_T_Turb')
         return
 
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
+    def stats_io(self, NetCDFIO_Stats Stats):
         # Stats.write_zonal_mean('zonal_mean_QT_Turb', PV.QT.TurbFlux)
         # Stats.write_zonal_mean('zonal_mean_T_Turb', PV.T.TurbFlux)
         return
 
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         # Stats.write_3D_variable(Pr, TS.t,  'QT_Turb',  PV.QT.TurbFlux)
         # Stats.write_3D_variable(Pr, TS.t,  'T_Turb',PV.T.TurbFlux)
         return

@@ -6,13 +6,13 @@ cimport numpy as np
 from Parameters cimport Parameters
 
 # make sure that total moisture content is non-negative
-cpdef set_min_vapour(qp,qbar):
+def set_min_vapour(qp,qbar):
     qtot = qp + qbar
     qtot[qtot<0] = 0
     return (qtot-qbar)
 
 # Function for plotting KE spectra
-cpdef keSpectra(Grid Gr, u, v):
+def keSpectra(Grid Gr, u, v):
     uk = Gr.grdtospec(u)
     vk = Gr.grdtospec(v)
     Esp = 0.5*(uk*uk.conj()+vk*vk.conj())

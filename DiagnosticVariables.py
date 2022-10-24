@@ -14,13 +14,13 @@ from PrognosticVariables import PrognosticVariables
 from TimeStepping import TimeStepping
 from Parameters cimport Parameters
 
-cdef extern from "diagnostic_variables.h":
+def extern from "diagnostic_variables.h":
     void diagnostic_variables(double Rd, double Rv, double Omega, double a,
            double* lat,  double* p,  double* T,  double* qt, double* ql, double* u,  double* v,
            double* div, double* ke, double* wp, double* gz, double* uv, double* TT, double* vT,
            double* M, Py_ssize_t k, Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
 
-cdef class DiagnosticVariable:
+def class DiagnosticVariable:
     def __init__(self, nx,ny,nl,n_spec, kind, name, units):
         self.kind = kind
         self.name = name
@@ -32,7 +32,7 @@ cdef class DiagnosticVariable:
             self.forcing =  np.zeros((nx,ny,nl),dtype=np.float64, order='c')
         return
 
-cdef class DiagnosticVariables:
+def class DiagnosticVariables:
     def __init__(self, Parameters Pr, Grid Gr):
         self.U  = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'zonal_velocity'     , 'u','m/s' )
         self.V  = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'meridional_velocity', 'v','m/s' )
@@ -46,7 +46,7 @@ cdef class DiagnosticVariables:
         self.M  = DiagnosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,   Gr.SphericalGrid.nlm, 'angular_momentum', 'M','m^2/s' )
         return
 
-    cpdef initialize_io(self, Parameters Pr, NetCDFIO_Stats Stats):
+    def initialize_io(self, Parameters Pr, NetCDFIO_Stats Stats):
         if Pr.moist_index > 0.0:
             Stats.add_global_mean('global_mean_QL')
             Stats.add_zonal_mean('zonal_mean_QL')
@@ -72,7 +72,7 @@ cdef class DiagnosticVariables:
         Stats.add_meridional_mean('meridional_mean_M')
         return
 
-    cpdef stats_io(self, Grid Gr, Parameters Pr, NetCDFIO_Stats Stats):
+    def stats_io(self, Grid Gr, Parameters Pr, NetCDFIO_Stats Stats):
         if Pr.moist_index > 0.0:
             Stats.write_global_mean(Gr, 'global_mean_QL', self.QL.values)
             Stats.write_zonal_mean('zonal_mean_QL',self.QL.values)
@@ -98,7 +98,7 @@ cdef class DiagnosticVariables:
         Stats.write_meridional_mean('meridional_mean_M',self.TT.values)
         return
 
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Geopotential',  self.gZ.values[:,:,0:Pr.n_layers])
         Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'Wp',            self.Wp.values[:,:,1:Pr.n_layers+1])
         Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'QL',            self.QL.values)
@@ -110,8 +110,8 @@ cdef class DiagnosticVariables:
 
     @cython.wraparound(False)
     @cython.boundscheck(False)
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV):
-        cdef:
+    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV):
+        def:
             Py_ssize_t k, k_rev
             Py_ssize_t ii = 1
             Py_ssize_t nx = Pr.nlats

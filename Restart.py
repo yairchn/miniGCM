@@ -13,7 +13,7 @@ from TimeStepping cimport TimeStepping
 import pylab as plt
 from scipy.interpolate import interp2d
 
-cdef class Restart:
+def class Restart:
 
     def __init__(self, Parameters Pr, namelist):
 
@@ -23,9 +23,9 @@ cdef class Restart:
                 sys.exit("Restart folder does not exists")
         return
 
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV,  TimeStepping TS, namelist):
+    def initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV,  TimeStepping TS, namelist):
 
-        cdef:
+        def:
             Py_ssize_t i,j,k
             Py_ssize_t nx = Pr.nlats
             Py_ssize_t ny = Pr.nlons

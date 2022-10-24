@@ -27,42 +27,42 @@ def ConvectionFactory(namelist):
         print('case not recognized')
     return
 
-cdef class ConvectionBase:
+def class ConvectionBase:
     def __init__(self, namelist):
         return
-    cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
+    def initialize(self, Parameters Pr, Grid Gr, namelist):
         return
-    cpdef initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, NetCDFIO_Stats Stats):
         return
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
         return
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
+    def stats_io(self, NetCDFIO_Stats Stats):
         return
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-        return
-
-cdef class ConvectionNone(ConvectionBase):
-    def __init__(self, namelist):
-        ConvectionBase.__init__(self, namelist)
-        return
-    cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
-        return
-    cpdef initialize_io(self, NetCDFIO_Stats Stats):
-        return
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
-        return
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
-        return
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
 
-cdef class ConvectionRandomFlux(ConvectionBase):
+def class ConvectionNone(ConvectionBase):
     def __init__(self, namelist):
         ConvectionBase.__init__(self, namelist)
         return
+    def initialize(self, Parameters Pr, Grid Gr, namelist):
+        return
+    def initialize_io(self, NetCDFIO_Stats Stats):
+        return
+    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+        return
+    def stats_io(self, NetCDFIO_Stats Stats):
+        return
+    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+        return
 
-    cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
-        cdef:
+def class ConvectionRandomFlux(ConvectionBase):
+    def __init__(self, namelist):
+        ConvectionBase.__init__(self, namelist)
+        return
+
+    def initialize(self, Parameters Pr, Grid Gr, namelist):
+        def:
             Py_ssize_t nx = Pr.nlats
             Py_ssize_t ny = Pr.nlons
             Py_ssize_t nl = Pr.n_layers
@@ -89,7 +89,7 @@ cdef class ConvectionRandomFlux(ConvectionBase):
             self.wQT = np.zeros((nlm, nl+1), dtype = np.complex, order ='c')
         return
 
-    cpdef initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, NetCDFIO_Stats Stats):
         Stats.add_global_mean('global_mean_conv_wT')
         Stats.add_global_mean('global_mean_conv_wQT')
         Stats.add_global_mean('global_mean_conv_wVort')
@@ -106,8 +106,8 @@ cdef class ConvectionRandomFlux(ConvectionBase):
 
     @cython.wraparound(False)
     @cython.boundscheck(False)
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
-        cdef:
+    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+        def:
             Py_ssize_t i,k
             Py_ssize_t nx = Pr.nlats
             Py_ssize_t ny = Pr.nlons
@@ -154,7 +154,7 @@ cdef class ConvectionRandomFlux(ConvectionBase):
 
         return
 
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
+    def stats_io(self, NetCDFIO_Stats Stats):
         Stats.write_zonal_mean('zonal_mean_conv_wT',self.wT[:,1:])
         Stats.write_zonal_mean('zonal_mean_conv_wQT',self.wQT[:,1:])
         Stats.write_zonal_mean('zonal_mean_conv_wVort',self.wVort[:,1:])
@@ -169,8 +169,8 @@ cdef class ConvectionRandomFlux(ConvectionBase):
         Stats.write_surface_zonal_mean('zonal_mean_conv_wDiv',self.wDiv[:,1:])
         return
 
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-        cdef:
+    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+        def:
             Py_ssize_t nl = Pr.n_layers
         Stats.write_3D_variable(Pr, int(TS.t),nl, 'conv_wT',self.wT[:,1:])
         Stats.write_3D_variable(Pr, int(TS.t),nl, 'conv_wQT',self.wQT[:,1:])
@@ -179,13 +179,13 @@ cdef class ConvectionRandomFlux(ConvectionBase):
         return
 
 
-cdef class ConvectionRandomTransport(ConvectionBase):
+def class ConvectionRandomTransport(ConvectionBase):
     def __init__(self, namelist):
         ConvectionBase.__init__(self, namelist)
         return
 
-    cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
-        cdef:
+    def initialize(self, Parameters Pr, Grid Gr, namelist):
+        def:
             Py_ssize_t nx = Pr.nlats
             Py_ssize_t ny = Pr.nlons
             Py_ssize_t nl = Pr.n_layers
@@ -213,7 +213,7 @@ cdef class ConvectionRandomTransport(ConvectionBase):
             self.wQT = np.zeros((nlm, nl+1), dtype = np.complex, order ='c')
         return
 
-    cpdef initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, NetCDFIO_Stats Stats):
         Stats.add_global_mean('global_mean_conv_wT')
         Stats.add_global_mean('global_mean_conv_wQT')
         Stats.add_global_mean('global_mean_conv_wVort')
@@ -230,8 +230,8 @@ cdef class ConvectionRandomTransport(ConvectionBase):
 
     @cython.wraparound(False)
     @cython.boundscheck(False)
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
-        cdef:
+    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+        def:
             Py_ssize_t i,k
             Py_ssize_t nx = Pr.nlats
             Py_ssize_t ny = Pr.nlons
@@ -278,7 +278,7 @@ cdef class ConvectionRandomTransport(ConvectionBase):
 
         return
 
-    cpdef stats_io(self, NetCDFIO_Stats Stats):
+    def stats_io(self, NetCDFIO_Stats Stats):
         Stats.write_zonal_mean('zonal_mean_conv_wT',self.wT[:,1:])
         Stats.write_zonal_mean('zonal_mean_conv_wQT',self.wQT[:,1:])
         Stats.write_zonal_mean('zonal_mean_conv_wVort',self.wVort[:,1:])
@@ -293,8 +293,8 @@ cdef class ConvectionRandomTransport(ConvectionBase):
         Stats.write_surface_zonal_mean('zonal_mean_conv_wDiv',self.wDiv[:,1:])
         return
 
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
-        cdef:
+    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+        def:
             Py_ssize_t nl = Pr.n_layers
         Stats.write_3D_variable(Pr, int(TS.t),nl, 'conv_wT',self.wT[:,1:])
         Stats.write_3D_variable(Pr, int(TS.t),nl, 'conv_wQT',self.wQT[:,1:])

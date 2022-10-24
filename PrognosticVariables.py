@@ -17,7 +17,7 @@ cimport numpy as np
 from Parameters cimport Parameters
 from TimeStepping cimport TimeStepping
 
-cdef extern from "tendency_functions.h":
+def extern from "tendency_functions.h":
     void rhs_qt(double* p, double* qt, double* u, double* v, double* wp,
                 double* qt_mp, double* qt_sur, double* turbflux, double* rhs_qt, double* u_qt, double* v_qt,
                 Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax, Py_ssize_t k) nogil
@@ -33,7 +33,7 @@ cdef extern from "tendency_functions.h":
 
 
 
-cdef class PrognosticVariable:
+def class PrognosticVariable:
     def __init__(self, nx, ny, nl, n_spec, kind, name, units):
         self.kind = kind
         self.name = name
@@ -57,7 +57,7 @@ cdef class PrognosticVariable:
             self.TurbFlux    = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
         return
 
-cdef class PrognosticVariables:
+def class PrognosticVariables:
     def __init__(self, Parameters Pr, Grid Gr, namelist):
         self.Vorticity   = PrognosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,  Gr.SphericalGrid.nlm,'Vorticity'         ,'zeta' ,'1/s')
         self.Divergence  = PrognosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers,  Gr.SphericalGrid.nlm,'Divergance'        ,'delta','1/s')
@@ -66,11 +66,11 @@ cdef class PrognosticVariables:
         self.P           = PrognosticVariable(Pr.nlats, Pr.nlons, Pr.n_layers+1,Gr.SphericalGrid.nlm,'Pressure'          ,'p'    ,'pasc')
         return
 
-    cpdef initialize(self, Parameters Pr):
+    def initialize(self, Parameters Pr):
         self.P_init        = np.array([Pr.p1, Pr.p2, Pr.p3, Pr.p_ref])
         return
 
-    cpdef initialize_io(self, Parameters Pr, NetCDFIO_Stats Stats):
+    def initialize_io(self, Parameters Pr, NetCDFIO_Stats Stats):
         Stats.add_global_mean('global_mean_T')
         Stats.add_zonal_mean('zonal_mean_T')
         Stats.add_zonal_mean('zonal_mean_divergence')
@@ -95,8 +95,8 @@ cdef class PrognosticVariables:
     # I needto define this function to ast on a general variable
     @cython.wraparound(False)
     @cython.boundscheck(False)
-    cpdef physical_to_spectral(self, Parameters Pr, Grid Gr):
-        cdef:
+    def physical_to_spectral(self, Parameters Pr, Grid Gr):
+        def:
             Py_ssize_t k
             Py_ssize_t nl = Pr.n_layers
         self.P.spectral.base[:,nl] = Gr.SphericalGrid.grdtospec(self.P.values.base[:,:,nl])
@@ -110,8 +110,8 @@ cdef class PrognosticVariables:
 
     @cython.wraparound(False)
     @cython.boundscheck(False)
-    cpdef spectral_to_physical(self, Parameters Pr, Grid Gr):
-        cdef:
+    def spectral_to_physical(self, Parameters Pr, Grid Gr):
+        def:
             Py_ssize_t k
             Py_ssize_t nl = Pr.n_layers
 
@@ -125,7 +125,7 @@ cdef class PrognosticVariables:
         return
 
     # quick utility to set arrays with values in the "new" arrays
-    cpdef set_old_with_now(self):
+    def set_old_with_now(self):
         self.Vorticity.old  = self.Vorticity.now.copy()
         self.Divergence.old = self.Divergence.now.copy()
         self.T.old          = self.T.now.copy()
@@ -133,7 +133,7 @@ cdef class PrognosticVariables:
         self.P.old          = self.P.now.copy()
         return
 
-    cpdef set_now_with_tendencies(self):
+    def set_now_with_tendencies(self):
         self.Vorticity.now  = self.Vorticity.tendency.copy()
         self.Divergence.now = self.Divergence.tendency.copy()
         self.T.now          = self.T.tendency.copy()
@@ -141,8 +141,8 @@ cdef class PrognosticVariables:
         self.P.now          = self.P.tendency.copy()
         return
 
-    cpdef reset_pressures_and_bcs(self, Parameters Pr, DiagnosticVariables DV):
-        cdef:
+    def reset_pressures_and_bcs(self, Parameters Pr, DiagnosticVariables DV):
+        def:
             Py_ssize_t nl = Pr.n_layers
 
         DV.gZ.values.base[:,:,nl] = np.zeros_like(self.P.values.base[:,:,nl])
@@ -153,8 +153,8 @@ cdef class PrognosticVariables:
         return
     # this should be done in time intervals and save each time new files,not part of stats
 
-    cpdef stats_io(self, Grid Gr, Parameters Pr, NetCDFIO_Stats Stats):
-        cdef:
+    def stats_io(self, Grid Gr, Parameters Pr, NetCDFIO_Stats Stats):
+        def:
             Py_ssize_t nl = Pr.n_layers
 
         Stats.write_global_mean(Gr, 'global_mean_T', self.T.values)
@@ -177,8 +177,8 @@ cdef class PrognosticVariables:
             Stats.write_meridional_mean('meridional_mean_QT',self.QT.values)
         return
 
-    cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
-        cdef:
+    def io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
+        def:
             Py_ssize_t nl = Pr.n_layers
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
 
@@ -197,8 +197,8 @@ cdef class PrognosticVariables:
     @cython.wraparound(False)
     @cython.boundscheck(False)
     @cython.cdivision(True)
-    cpdef compute_tendencies(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
-        cdef:
+    def compute_tendencies(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+        def:
             Py_ssize_t i,j,k
             Py_ssize_t nx = Pr.nlats
             Py_ssize_t ny = Pr.nlons

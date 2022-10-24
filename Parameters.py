@@ -6,7 +6,7 @@ import shtns
 import sphTrans as sph
 import os
 
-cdef class Parameters:
+def class Parameters:
     def __init__(self, namelist):
 
         self.thermodynamics_type = namelist['thermodynamics']['thermodynamics_type']

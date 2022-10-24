@@ -15,14 +15,14 @@ from DiagnosticVariables cimport DiagnosticVariables
 from Diffusion cimport Diffusion
 from Parameters cimport Parameters
 
-cdef class TimeStepping:
+def class TimeStepping:
 	def __init__(self, namelist):
 		self.dt = namelist['timestepping']['dt']
 		self.t_max = namelist['timestepping']['t_max']*24.0*3600.0 # sec/day
 		self.nt = self.t_max/self.dt
 		return
 
-	cpdef initialize(self, Parameters Pr):
+	def initialize(self, Parameters Pr):
 		if not Pr.restart:
 			self.t = 0.0
 		self.ncycle = 0
@@ -32,8 +32,8 @@ cdef class TimeStepping:
 	@cython.boundscheck(False)
 	@cython.cdivision(True)
 	@cython.nonecheck(False)
-	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, Diffusion DF, namelist):
-		cdef:
+	def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, Diffusion DF, namelist):
+		def:
 			Py_ssize_t i, k
 			Py_ssize_t nl = Pr.n_layers
 			Py_ssize_t nlm = Gr.SphericalGrid.nlm
@@ -102,8 +102,8 @@ cdef class TimeStepping:
 	@cython.wraparound(False)
 	@cython.boundscheck(False)
 	@cython.nonecheck(False)
-	cpdef CFL_limiter(self, Parameters Pr, Grid Gr, DiagnosticVariables DV, namelist):
-		cdef:
+	def CFL_limiter(self, Parameters Pr, Grid Gr, DiagnosticVariables DV, namelist):
+		def:
 			Py_ssize_t i, j, k
 			Py_ssize_t nx = Pr.nlats
 			Py_ssize_t ny = Pr.nlons

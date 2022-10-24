@@ -15,7 +15,7 @@ from DiagnosticVariables cimport DiagnosticVariables
 from Grid cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
 
-cdef extern from "microphysics_functions.h":
+def extern from "microphysics_functions.h":
     void microphysics_cutoff(double cp, double dt, double Rv, double Lv, double T_0, double rho_w,
            double g, double max_ss, double pv_star0, double eps_v, double* p, double* T,
            double* qt, double* ql, double* T_mp, double* qt_mp, double* rain_rate, double* qv_star,
@@ -32,45 +32,45 @@ def MicrophysicsFactory(namelist):
         print('case not recognized')
     return
 
-cdef class MicrophysicsBase:
+def class MicrophysicsBase:
     def __init__(self, namelist):
         return
-    cpdef initialize(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
+    def initialize(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
         return
-    cpdef update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
+    def update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         return
-    cpdef initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, NetCDFIO_Stats Stats):
         return
-    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
+    def stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
         return
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
 
-cdef class MicrophysicsNone(MicrophysicsBase):
+def class MicrophysicsNone(MicrophysicsBase):
     def __init__(self, namelist):
         MicrophysicsBase.__init__(self, namelist)
         return
-    cpdef initialize(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
+    def initialize(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
         PV.QT.mp_tendency = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         PV.T.mp_tendency  = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers),  dtype=np.double, order='c')
         self.RainRate = np.zeros((Pr.nlats, Pr.nlons),  dtype=np.double, order='c')
         return
-    cpdef update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
+    def update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         return
-    cpdef initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, NetCDFIO_Stats Stats):
         return
-    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
+    def stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
         return
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
 
-cdef class MicrophysicsCutoff(MicrophysicsBase):
+def class MicrophysicsCutoff(MicrophysicsBase):
     def __init__(self, namelist):
         MicrophysicsBase.__init__(self, namelist)
         return
 
-    cpdef initialize(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
-        cdef:
+    def initialize(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, namelist):
+        def:
             Py_ssize_t k
             Py_ssize_t nl = Pr.n_layers
             double [:,:] P_half
@@ -88,7 +88,7 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
             DV.QL.values.base[:,:,k] = np.clip(PV.QT.values[:,:,k] - qv_star,0.0, None)
         return
 
-    cpdef initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, NetCDFIO_Stats Stats):
         Stats.add_global_mean('global_mean_dQTdt')
         Stats.add_surface_global_mean('global_mean_RainRate')
         Stats.add_zonal_mean('zonal_mean_dQTdt')
@@ -102,8 +102,8 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
     @cython.wraparound(False)
     @cython.boundscheck(False)
     @cython.cdivision(True)
-    cpdef update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
-        cdef:
+    def update(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
+        def:
             Py_ssize_t nx = Pr.nlats
             Py_ssize_t ny = Pr.nlons
             Py_ssize_t nl = Pr.n_layers
@@ -124,7 +124,7 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
 
         return
 
-    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
+    def stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
         Stats.write_global_mean(Gr, 'global_mean_dQTdt', PV.QT.mp_tendency)
         Stats.write_surface_global_mean(Gr, 'global_mean_RainRate', self.RainRate)
         Stats.write_zonal_mean('zonal_mean_dQTdt',PV.QT.mp_tendency)
@@ -135,6 +135,6 @@ cdef class MicrophysicsCutoff(MicrophysicsBase):
         Stats.write_meridional_mean('meridional_mean_qv_star',self.qv_star)
         return
 
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         Stats.write_2D_variable(Pr, int(TS.t) , 'Rain_Rate',self.RainRate)
         return

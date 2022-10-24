@@ -17,7 +17,7 @@ import sphericalForcing as spf
 from libc.math cimport pow, log, sin, cos, fmax
 import sphericalForcing as spf
 
-cdef extern from "forcing_functions.h":
+def extern from "forcing_functions.h":
 	void forcing_hs(double kappa, double p_ref, double sigma_b, double k_a, double k_b,
 			double k_f, double k_s, double Dtheta_z, double T_equator, double DT_y,
 			double* p, double* T, double* T_bar, double* sin_lat, double* cos_lat, double* u,
@@ -47,45 +47,45 @@ def ForcingFactory(namelist):
 		print('case not recognized')
 	return
 
-cdef class ForcingBase:
+def class ForcingBase:
 	def __init__(self, namelist):
 		return
-	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
+	def initialize(self, Parameters Pr, Grid Gr, namelist):
 		self.Tbar = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
 		self.sin_lat = np.zeros((Pr.nlats, Pr.nlons), dtype=np.float64, order='c')
 		self.cos_lat = np.zeros((Pr.nlats, Pr.nlons), dtype=np.float64, order='c')
 		return
-	cpdef initialize_io(self, NetCDFIO_Stats Stats):
+	def initialize_io(self, NetCDFIO_Stats Stats):
 		return
-	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+	def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
 		return
-	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+	def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
 		return
-	cpdef stats_io(self, NetCDFIO_Stats Stats):
+	def stats_io(self, NetCDFIO_Stats Stats):
 		return
 
-cdef class ForcingNone(ForcingBase):
+def class ForcingNone(ForcingBase):
 	def __init__(self, namelist):
 		ForcingBase.__init__(self, namelist)
 		return
-	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
+	def initialize(self, Parameters Pr, Grid Gr, namelist):
 		return
-	cpdef initialize_io(self, NetCDFIO_Stats Stats):
+	def initialize_io(self, NetCDFIO_Stats Stats):
 		return
-	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+	def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
 		return
-	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+	def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
 		return
-	cpdef stats_io(self, NetCDFIO_Stats Stats):
+	def stats_io(self, NetCDFIO_Stats Stats):
 		return
 
-cdef class HelzSuarez(ForcingBase):
+def class HelzSuarez(ForcingBase):
 	def __init__(self, namelist):
 		ForcingBase.__init__(self, namelist)
 		return
 
-	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
-		cdef:
+	def initialize(self, Parameters Pr, Grid Gr, namelist):
+		def:
 			Py_ssize_t i,j
 			Py_ssize_t nx = Pr.nlats
 			Py_ssize_t ny = Pr.nlons
@@ -107,7 +107,7 @@ cdef class HelzSuarez(ForcingBase):
 					self.cos_lat[i,j] = cos(Gr.lat[i,j])
 		return
 
-	cpdef initialize_io(self, NetCDFIO_Stats Stats):
+	def initialize_io(self, NetCDFIO_Stats Stats):
 		Stats.add_zonal_mean('zonal_mean_T_eq')
 		Stats.add_meridional_mean('meridional_mean_T_eq')
 		return
@@ -115,8 +115,8 @@ cdef class HelzSuarez(ForcingBase):
 	@cython.wraparound(False)
 	@cython.boundscheck(False)
 	@cython.cdivision(True)
-	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
-		cdef:
+	def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+		def:
 			Py_ssize_t nx = Pr.nlats
 			Py_ssize_t ny = Pr.nlons
 			Py_ssize_t nl = Pr.n_layers
@@ -145,22 +145,22 @@ cdef class HelzSuarez(ForcingBase):
 
 
 
-	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+	def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
 		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'T_eq', self.Tbar)
 		return
 
-	cpdef stats_io(self, NetCDFIO_Stats Stats):
+	def stats_io(self, NetCDFIO_Stats Stats):
 		Stats.write_zonal_mean('zonal_mean_T_eq', self.Tbar)
 		Stats.write_meridional_mean('meridional_mean_T_eq', self.Tbar)
 		return
 
-# cdef class TropicalPlanet(ForcingBase):
+# def class TropicalPlanet(ForcingBase):
 # 	def __init__(self, namelist):
 # 		ForcingBase.__init__(self, namelist)
 # 		return
 
-# 	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
-# 		cdef:
+# 	def initialize(self, Parameters Pr, Grid Gr, namelist):
+# 		def:
 # 			Py_ssize_t i,j
 # 			Py_ssize_t nx = Pr.nlats
 # 			Py_ssize_t ny = Pr.nlons
@@ -175,7 +175,7 @@ cdef class HelzSuarez(ForcingBase):
 # 		Pr.Fo_noise_lmax  = namelist['forcing']['max_noise_wavenumber']
 # 		return
 
-# 	cpdef initialize_io(self, NetCDFIO_Stats Stats):
+# 	def initialize_io(self, NetCDFIO_Stats Stats):
 # 		Stats.add_zonal_mean('zonal_mean_T_eq')
 # 		Stats.add_meridional_mean('meridional_mean_T_eq')
 # 		return
@@ -183,8 +183,8 @@ cdef class HelzSuarez(ForcingBase):
 # 	@cython.wraparound(False)
 # 	@cython.boundscheck(False)
 # 	@cython.cdivision(True)
-# 	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
-# 		cdef:
+# 	def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+# 		def:
 # 			Py_ssize_t nx = Pr.nlats
 # 			Py_ssize_t ny = Pr.nlons
 # 			Py_ssize_t nl = Pr.n_layers
@@ -213,23 +213,23 @@ cdef class HelzSuarez(ForcingBase):
 
 
 
-# 	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+# 	def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
 # 		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'T_eq', self.Tbar)
 # 		return
 
-# 	cpdef stats_io(self, NetCDFIO_Stats Stats):
+# 	def stats_io(self, NetCDFIO_Stats Stats):
 # 		Stats.write_zonal_mean('zonal_mean_T_eq', self.Tbar)
 # 		Stats.write_meridional_mean('meridional_mean_T_eq', self.Tbar)
 # 		return
 
 
-cdef class StochasticTropicalPlanet(ForcingBase):
+def class StochasticTropicalPlanet(ForcingBase):
 	def __init__(self, namelist):
 		ForcingBase.__init__(self, namelist)
 		return
 
-	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
-		cdef:
+	def initialize(self, Parameters Pr, Grid Gr, namelist):
+		def:
 			Py_ssize_t i,j
 			Py_ssize_t nx = Pr.nlats
 			Py_ssize_t ny = Pr.nlons
@@ -244,7 +244,7 @@ cdef class StochasticTropicalPlanet(ForcingBase):
 		Pr.Fo_noise_lmax  = namelist['forcing']['max_noise_wavenumber']
 		return
 
-	cpdef initialize_io(self, NetCDFIO_Stats Stats):
+	def initialize_io(self, NetCDFIO_Stats Stats):
 		Stats.add_zonal_mean('zonal_mean_T_eq')
 		Stats.add_meridional_mean('meridional_mean_T_eq')
 		return
@@ -252,8 +252,8 @@ cdef class StochasticTropicalPlanet(ForcingBase):
 	@cython.wraparound(False)
 	@cython.boundscheck(False)
 	@cython.cdivision(True)
-	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
-		cdef:
+	def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+		def:
 			Py_ssize_t nx = Pr.nlats
 			Py_ssize_t ny = Pr.nlons
 			Py_ssize_t nl = Pr.n_layers
@@ -282,22 +282,22 @@ cdef class StochasticTropicalPlanet(ForcingBase):
 
 
 
-	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+	def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
 		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'T_eq', self.Tbar)
 		return
 
-	cpdef stats_io(self, NetCDFIO_Stats Stats):
+	def stats_io(self, NetCDFIO_Stats Stats):
 		Stats.write_zonal_mean('zonal_mean_T_eq', self.Tbar)
 		Stats.write_meridional_mean('meridional_mean_T_eq', self.Tbar)
 		return
 
-cdef class StochasticHeldSuarez(ForcingBase):
+def class StochasticHeldSuarez(ForcingBase):
 	def __init__(self, namelist):
 		ForcingBase.__init__(self, namelist)
 		return
 
-	cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
-		cdef:
+	def initialize(self, Parameters Pr, Grid Gr, namelist):
+		def:
 			Py_ssize_t i,j
 			Py_ssize_t nx = Pr.nlats
 			Py_ssize_t ny = Pr.nlons
@@ -319,7 +319,7 @@ cdef class StochasticHeldSuarez(ForcingBase):
 					self.cos_lat[i,j] = cos(Gr.lat[i,j])
 		return
 
-	cpdef initialize_io(self, NetCDFIO_Stats Stats):
+	def initialize_io(self, NetCDFIO_Stats Stats):
 		Stats.add_zonal_mean('zonal_mean_T_eq')
 		Stats.add_meridional_mean('meridional_mean_T_eq')
 		return
@@ -327,8 +327,8 @@ cdef class StochasticHeldSuarez(ForcingBase):
 	@cython.wraparound(False)
 	@cython.boundscheck(False)
 	@cython.cdivision(True)
-	cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
-		cdef:
+	def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+		def:
 			Py_ssize_t nx = Pr.nlats
 			Py_ssize_t ny = Pr.nlons
 			Py_ssize_t nl = Pr.n_layers
@@ -355,11 +355,11 @@ cdef class StochasticHeldSuarez(ForcingBase):
 			PV.Vorticity.sp_forcing[:,Pr.n_layers-1] = sp_noise
 		return
 
-	cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+	def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
 		Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'T_eq', self.Tbar)
 		return
 
-	cpdef stats_io(self, NetCDFIO_Stats Stats):
+	def stats_io(self, NetCDFIO_Stats Stats):
 		Stats.write_zonal_mean('zonal_mean_T_eq', self.Tbar)
 		Stats.write_meridional_mean('meridional_mean_T_eq', self.Tbar)
 		return

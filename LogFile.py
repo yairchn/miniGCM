@@ -5,16 +5,16 @@ from PrognosticVariables cimport PrognosticVariables, PrognosticVariable
 from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
 
-cdef class LogFile:
+def class LogFile:
     def __init__(self, namelist):
         return
 
-    cpdef initialize(self,  Parameters Pr, namelist):
+    def initialize(self,  Parameters Pr, namelist):
         print('logfile ',Pr.logfilename)
         return
 
-    cpdef update(self, Parameters Pr, TimeStepping TS, DiagnosticVariables DV, PrognosticVariables PV, wallclocktime):
-        cdef:
+    def update(self, Parameters Pr, TimeStepping TS, DiagnosticVariables DV, PrognosticVariables PV, wallclocktime):
+        def:
             Py_ssize_t i
             Py_ssize_t nl = Pr.n_layers
 

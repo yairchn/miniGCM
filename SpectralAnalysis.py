@@ -11,7 +11,7 @@ from Grid cimport Grid
 from NetCDFIO cimport NetCDFIO_Stats
 
 
-cdef class SpectralAnalysis:
+def class SpectralAnalysis:
 
     def __init__(self, namelist):
         self.spectral_analysis = namelist['spectral_analysis']['sa_flag']
@@ -20,7 +20,7 @@ cdef class SpectralAnalysis:
         self.spinup_time = namelist['spectral_analysis']['spinup_time']*24.0*3600.0 # to days
         return
 
-    cpdef initialize(self, Parameters Pr, Grid Gr, namelist):
+    def initialize(self, Parameters Pr, Grid Gr, namelist):
         self.KE_spectrum = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')
         self.KE_Rot_spectrum = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')
         self.KE_Div_spectrum = np.zeros((np.amax(Gr.shtns_l)+1,Pr.n_layers), dtype = np.float64, order='c')
@@ -42,8 +42,8 @@ cdef class SpectralAnalysis:
     @cython.wraparound(False)
     @cython.boundscheck(False)
     @cython.cdivision(True)
-    cpdef compute_spectral_flux(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
-        cdef:
+    def compute_spectral_flux(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
+        def:
             Py_ssize_t k, i
             Py_ssize_t nl = Pr.n_layers
             double factor = self.spectral_frequency/(TS.t_max - self.spinup_time) # normalization with number of timesteps
@@ -163,8 +163,8 @@ cdef class SpectralAnalysis:
             #     self.int_KE_spec_flux_div[i,k] = np.sum(self.KE_spec_flux_div[i:,k])
         return
 
-    cpdef compute_turbulence_spectrum(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS):
-        cdef:
+    def compute_turbulence_spectrum(self, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS):
+        def:
             # Py_ssize_t i,j,k
             Py_ssize_t nl = Pr.n_layers
             Py_ssize_t nlm = Gr.SphericalGrid.nlm
@@ -198,7 +198,7 @@ cdef class SpectralAnalysis:
                 self.KE_Div_spectrum[i,k] += np.sum(Div2_spect.base[np.logical_and(wavenumbers>=np.double(i-0.5) , wavenumbers< np.double(i+0.5))], axis = 0)
         return
 
-    cpdef io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Parameters Pr, Grid Gr, TimeStepping TS, NetCDFIO_Stats Stats):
         Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_spectrum', self.KE_spectrum)
         Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_Rot_spectrum', self.KE_Rot_spectrum)
         Stats.write_spectral_analysis(len(Gr.wavenumbers), Pr.n_layers, 'KE_Div_spectrum', self.KE_Div_spectrum)

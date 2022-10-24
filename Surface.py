@@ -9,7 +9,7 @@ from PrognosticVariables cimport PrognosticVariables
 from TimeStepping cimport TimeStepping
 from Parameters cimport Parameters
 
-cdef extern from "surface_functions.h":
+def extern from "surface_functions.h":
     void surface_bulk_formula(double g, double Rv, double Lv, double T_0, double Ch, double Cq,
                               double Cd, double pv_star0, double eps_v, double* p, double* gz, double* T,
                               double* qt, double* T_surf, double* u, double* v, double* u_surf_flux,
@@ -26,40 +26,40 @@ def SurfaceFactory(namelist):
         print('case not recognized')
     return
 
-cdef class SurfaceBase:
+def class SurfaceBase:
     def __init__(self, namelist):
         return
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+    def initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         return
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
         return
-    cpdef initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, NetCDFIO_Stats Stats):
         return
-    cpdef stats_io(self, Grid Gr, NetCDFIO_Stats Stats):
+    def stats_io(self, Grid Gr, NetCDFIO_Stats Stats):
         return
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
 
-cdef class SurfaceNone(SurfaceBase):
+def class SurfaceNone(SurfaceBase):
     def __init__(self, namelist):
         SurfaceBase.__init__(self, namelist)
         return
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+    def initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         return
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
         return
-    cpdef initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, NetCDFIO_Stats Stats):
         return
-    cpdef stats_io(self, Grid Gr, NetCDFIO_Stats Stats):
+    def stats_io(self, Grid Gr, NetCDFIO_Stats Stats):
         return
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
 
-cdef class SurfaceBulkFormula(SurfaceBase):
+def class SurfaceBulkFormula(SurfaceBase):
     def __init__(self, namelist):
         SurfaceBase.__init__(self, namelist)
         return
-    cpdef initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+    def initialize(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         Pr.Cd = namelist['surface']['momentum_transfer_coeff']
         Pr.Ch = namelist['surface']['sensible_heat_transfer_coeff']
         Pr.Cq = namelist['surface']['latent_heat_transfer_coeff']
@@ -75,8 +75,8 @@ cdef class SurfaceBulkFormula(SurfaceBase):
     @cython.wraparound(False)
     @cython.boundscheck(False)
     @cython.cdivision(True)
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
-        cdef:
+    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV):
+        def:
             Py_ssize_t i,j,k
             Py_ssize_t nx = Pr.nlats
             Py_ssize_t ny = Pr.nlons
@@ -95,19 +95,19 @@ cdef class SurfaceBulkFormula(SurfaceBase):
         # print(np.max(PV.QT.SurfaceFlux))
 
         return
-    cpdef initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, NetCDFIO_Stats Stats):
         Stats.add_surface_zonal_mean('zonal_mean_T_surf')
         Stats.add_surface_zonal_mean('zonal_mean_QT_surf')
         return
 
-    cpdef stats_io(self, Grid Gr, NetCDFIO_Stats Stats):
+    def stats_io(self, Grid Gr, NetCDFIO_Stats Stats):
         Stats.write_surface_zonal_mean('zonal_mean_T_surf', self.T_surf)
         Stats.write_surface_zonal_mean('zonal_mean_QT_surf', self.QT_surf)
         Stats.write_surface_global_mean(Gr, 'global_mean_T_surf', self.T_surf)
         Stats.write_surface_global_mean(Gr, 'global_mean_QT_surf', self.QT_surf)
         return
 
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         Stats.write_2D_variable(Pr, TS.t,  'T_surf', self.T_surf)
         Stats.write_2D_variable(Pr, TS.t,  'QT_surf', self.QT_surf)
         return

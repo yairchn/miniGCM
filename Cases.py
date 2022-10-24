@@ -31,41 +31,41 @@ def CasesFactory(namelist):
         print('case not recognized')
     return
 
-cdef class CaseBase:
+def class CaseBase:
     def __init__(self, namelist):
         return
 
-    cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist):
+    def initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist):
         return
 
-    cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+    def initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         return
 
-    cpdef initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+    def initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         return
 
-    cpdef initialize_turbulence(self, Parameters Pr, namelist):
+    def initialize_turbulence(self, Parameters Pr, namelist):
         return
 
-    cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
+    def initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
         return
 
-    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist):
+    def initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist):
         return
 
-    cpdef initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, NetCDFIO_Stats Stats):
         return
 
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         return
 
-    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
+    def stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
         return
 
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
+    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         return
 
-cdef class HeldSuarez(CaseBase):
+def class HeldSuarez(CaseBase):
     def __init__(self, namelist):
         # Pr.casename = namelist['meta']['casename']
         self.Fo  = Forcing.ForcingFactory(namelist)
@@ -75,8 +75,8 @@ cdef class HeldSuarez(CaseBase):
         self.Tr = Turbulence.TurbulenceFactory(namelist)
         return
 
-    cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist):
-        cdef:
+    def initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist):
+        def:
             double [:,:] noise
 
         Pr.sigma_b = namelist['forcing']['sigma_b']
@@ -114,47 +114,47 @@ cdef class HeldSuarez(CaseBase):
         print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
         return
 
-    cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+    def initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Sur.initialize(Pr, Gr, PV, namelist)
         return
 
-    cpdef initialize_turbulence(self, Parameters Pr, namelist):
+    def initialize_turbulence(self, Parameters Pr, namelist):
         self.Tr.initialize(Pr, namelist)
         return
 
-    cpdef initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+    def initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Co.initialize(Pr, Gr, namelist)
         return
 
-    cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
+    def initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
         self.Fo.initialize(Pr, Gr, namelist)
         return
 
-    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist):
+    def initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist):
         self.MP.initialize(Pr, PV, DV, namelist)
         return
 
-    cpdef initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, NetCDFIO_Stats Stats):
         CaseBase.initialize_io(self, Stats)
         self.Fo.initialize_io(Stats)
         self.Sur.initialize_io(Stats)
         return
 
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         CaseBase.io(self, Pr, TS, Stats)
         self.Fo.io(Pr, TS, Stats)
         self.Sur.io(Pr, TS, Stats)
         # self.Co.io(Pr, TS, Stats)
         return
 
-    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
+    def stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
         CaseBase.stats_io(self, Gr, PV, Stats)
         self.Fo.stats_io(Stats)
         self.Sur.stats_io(Gr,Stats)
         # self.Co.stats_io(Stats)
         return
 
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
+    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         self.Sur.update(Pr, Gr, PV, DV)
         self.Fo.update(Pr, Gr, PV, DV)
         self.Co.update(Pr, Gr, PV, DV)
@@ -162,7 +162,7 @@ cdef class HeldSuarez(CaseBase):
         self.Tr.update(Pr, Gr, PV, DV)
         return
 
-cdef class HeldSuarezMoist(CaseBase):
+def class HeldSuarezMoist(CaseBase):
     def __init__(self, namelist):
         # Pr.casename = namelist['meta']['casename']
         self.Fo  = Forcing.ForcingFactory(namelist)
@@ -173,8 +173,8 @@ cdef class HeldSuarezMoist(CaseBase):
         return
 
 
-    cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist):
-        cdef:
+    def initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist):
+        def:
             Py_ssize_t i, j, k
             double Gamma, T_0, B, C, H, Tau1, Tau2, I_T, p, z
             double [:,:] noise
@@ -243,27 +243,27 @@ cdef class HeldSuarezMoist(CaseBase):
         print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
         return
 
-    cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+    def initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Sur.initialize(Pr, Gr, PV, namelist)
         return
 
-    cpdef initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+    def initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Co.initialize(Pr, Gr, namelist)
         return
 
-    cpdef initialize_turbulence(self, Parameters Pr, namelist):
+    def initialize_turbulence(self, Parameters Pr, namelist):
         self.Tr.initialize(Pr, namelist)
         return
 
-    cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
+    def initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
         self.Fo.initialize(Pr, Gr, namelist)
         return
 
-    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist):
+    def initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist):
         self.MP.initialize(Pr, PV, DV, namelist)
         return
 
-    cpdef initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, NetCDFIO_Stats Stats):
         CaseBase.initialize_io(self, Stats)
         self.Fo.initialize_io(Stats)
         self.Sur.initialize_io(Stats)
@@ -271,7 +271,7 @@ cdef class HeldSuarezMoist(CaseBase):
         # self.Co.initialize_io(Stats)
         return
 
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         CaseBase.io(self, Pr, TS, Stats)
         self.Fo.io(Pr, TS, Stats)
         self.Sur.io(Pr, TS, Stats)
@@ -279,7 +279,7 @@ cdef class HeldSuarezMoist(CaseBase):
         # self.Co.io(Pr, TS, Stats)
         return
 
-    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
+    def stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
         CaseBase.stats_io(self, Gr, PV, Stats)
         self.Fo.stats_io(Stats)
         self.Sur.stats_io(Gr,Stats)
@@ -287,7 +287,7 @@ cdef class HeldSuarezMoist(CaseBase):
         # self.Co.stats_io(Stats)
         return
 
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
+    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         self.Sur.update(Pr, Gr, PV, DV)
         self.Fo.update(Pr, Gr, PV, DV)
         self.Tr.update(Pr, Gr, PV, DV)
@@ -295,7 +295,7 @@ cdef class HeldSuarezMoist(CaseBase):
         self.Co.update(Pr, Gr, PV, DV)
         return
 
-cdef class TropicalPlanet(CaseBase):
+def class TropicalPlanet(CaseBase):
     def __init__(self, namelist):
         # Pr.casename = namelist['meta']['casename']
         self.Fo  = Forcing.ForcingFactory(namelist)
@@ -305,8 +305,8 @@ cdef class TropicalPlanet(CaseBase):
         self.Tr = Turbulence.TurbulenceFactory(namelist)
         return
 
-    cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist):
-        cdef:
+    def initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist):
+        def:
             double [:,:] noise
 
         Pr.sigma_b = namelist['forcing']['sigma_b']
@@ -344,47 +344,47 @@ cdef class TropicalPlanet(CaseBase):
         print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
         return
 
-    cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+    def initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Sur.initialize(Pr, Gr, PV, namelist)
         return
 
-    cpdef initialize_turbulence(self, Parameters Pr, namelist):
+    def initialize_turbulence(self, Parameters Pr, namelist):
         self.Tr.initialize(Pr, namelist)
         return
 
-    cpdef initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+    def initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Co.initialize(Pr, Gr, namelist)
         return
 
-    cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
+    def initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
         self.Fo.initialize(Pr, Gr, namelist)
         return
 
-    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist):
+    def initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist):
         self.MP.initialize(Pr, PV, DV, namelist)
         return
 
-    cpdef initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, NetCDFIO_Stats Stats):
         CaseBase.initialize_io(self, Stats)
         self.Fo.initialize_io(Stats)
         self.Sur.initialize_io(Stats)
         return
 
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         CaseBase.io(self, Pr, TS, Stats)
         self.Fo.io(Pr, TS, Stats)
         self.Sur.io(Pr, TS, Stats)
         # self.Co.io(Pr, TS, Stats)
         return
 
-    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
+    def stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
         CaseBase.stats_io(self, Gr, PV, Stats)
         self.Fo.stats_io(Stats)
         self.Sur.stats_io(Gr,Stats)
         # self.Co.stats_io(Gr,Stats)
         return
 
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
+    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         self.Sur.update(Pr, Gr, PV, DV)
         self.Fo.update(Pr, Gr, PV, DV)
         self.Co.update(Pr, Gr, PV, DV)
@@ -392,7 +392,7 @@ cdef class TropicalPlanet(CaseBase):
         self.Tr.update(Pr, Gr, PV, DV)
         return
 
-cdef class TropicalPlanetMoist(CaseBase):
+def class TropicalPlanetMoist(CaseBase):
     def __init__(self, namelist):
         # Pr.casename = namelist['meta']['casename']
         self.Fo  = Forcing.ForcingFactory(namelist)
@@ -403,8 +403,8 @@ cdef class TropicalPlanetMoist(CaseBase):
         return
 
 
-    cpdef initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist):
-        cdef:
+    def initialize(self, Restart RS, Parameters Pr, Grid Gr, PrognosticVariables PV, TimeStepping TS, namelist):
+        def:
             Py_ssize_t i, j, k
             double Gamma, T_0, B, C, H, Tau1, Tau2, I_T, p, z
             double [:,:] noise
@@ -470,47 +470,47 @@ cdef class TropicalPlanetMoist(CaseBase):
         print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
         return
 
-    cpdef initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+    def initialize_surface(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Sur.initialize(Pr, Gr, PV, namelist)
         return
 
-    cpdef initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
+    def initialize_convection(self, Parameters Pr, Grid Gr, PrognosticVariables PV, namelist):
         self.Co.initialize(Pr, Gr, namelist)
 
-    cpdef initialize_turbulence(self, Parameters Pr, namelist):
+    def initialize_turbulence(self, Parameters Pr, namelist):
         self.Tr.initialize(Pr, namelist)
         return
 
-    cpdef initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
+    def initialize_forcing(self, Parameters Pr, Grid Gr, namelist):
         self.Fo.initialize(Pr, Gr, namelist)
         return
 
-    cpdef initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist):
+    def initialize_microphysics(self, Parameters Pr, PrognosticVariables PV, DiagnosticVariables DV,namelist):
         self.MP.initialize(Pr, PV, DV, namelist)
         return
 
-    cpdef initialize_io(self, NetCDFIO_Stats Stats):
+    def initialize_io(self, NetCDFIO_Stats Stats):
         CaseBase.initialize_io(self, Stats)
         self.Fo.initialize_io(Stats)
         self.Sur.initialize_io(Stats)
         self.MP.initialize_io(Stats)
         return
 
-    cpdef io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
+    def io(self, Parameters Pr, TimeStepping TS, NetCDFIO_Stats Stats):
         CaseBase.io(self, Pr, TS, Stats)
         self.Fo.io(Pr, TS, Stats)
         self.Sur.io(Pr, TS, Stats)
         self.MP.io(Pr, TS, Stats)
         return
 
-    cpdef stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
+    def stats_io(self, Grid Gr, PrognosticVariables PV, NetCDFIO_Stats Stats):
         CaseBase.stats_io(self, Gr, PV, Stats)
         self.Fo.stats_io(Stats)
         self.Sur.stats_io(Gr,Stats)
         self.MP.stats_io(Gr,PV, Stats)
         return
 
-    cpdef update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
+    def update(self, Parameters Pr, Grid Gr, PrognosticVariables PV, DiagnosticVariables DV, TimeStepping TS):
         self.Sur.update(Pr, Gr, PV, DV)
         self.Fo.update(Pr, Gr, PV, DV)
         self.Tr.update(Pr, Gr, PV, DV)
