@@ -91,21 +91,21 @@ class HelzSuarez(ForcingBase):
 		sp_noise = np.zeros(nlm    ,dtype=np.complex, order='c')
 
 		for i in range(nx):
-            for j in range(ny):
-            	for k in range(nl):
+			for j in range(ny):
+				for k in range(nl):
 					p_half = (p[i,j,k]+p[i,j,k+1])/2.0
-			        self.Tbar[i,j,k] = fmax(((Pr.T_equator - Pr.DT_y*self.sin_lat[i,j]*self.sin_lat[i,j] -
-			                        Pr.Dtheta_z*log(p_half/Pr.p_ref)*self.cos_lat[i,j]*self.cos_lat[i,j])*
-			                        pow(p_half/Pr.p_ref, Pr.kappa)),200.0)
+					self.Tbar[i,j,k] = fmax(((Pr.T_equator - Pr.DT_y*self.sin_lat[i,j]*self.sin_lat[i,j] -
+						Pr.Dtheta_z*log(p_half/Pr.p_ref)*self.cos_lat[i,j]*self.cos_lat[i,j])*
+						pow(p_half/Pr.p_ref, Pr.kappa)),200.0)
 
 
-			        sigma_ratio = fmax((p_half/p[i,j,nl]-Pr.sigma_b)/(1-Pr.sigma_b),0.0)
-			        k_T = Pr.k_a + (Pr.k_s-Pr.k_a)*sigma_ratio*pow(self.cos_lat[i,j],4.0)
-			        k_v = Pr.k_b +  Pr.k_f*sigma_ratio
+					sigma_ratio = fmax((p_half/p[i,j,nl]-Pr.sigma_b)/(1-Pr.sigma_b),0.0)
+					k_T = Pr.k_a + (Pr.k_s-Pr.k_a)*sigma_ratio*pow(self.cos_lat[i,j],4.0)
+					k_v = Pr.k_b +  Pr.k_f*sigma_ratio
 
-			        DV.U.forcing[i,j,k] = -k_v *  DV.U.forcing[i,j,k]
-			        DV.V.forcing[i,j,k] = -k_v *  DV.V.forcing[i,j,k]
-			        PV.T.forcing[i,j,k] = -k_T * (PV.T.values[i,j,k] - self.Tbar[i,j,k])
+					DV.U.forcing[i,j,k] = -k_v *  DV.U.forcing[i,j,k]
+					DV.V.forcing[i,j,k] = -k_v *  DV.V.forcing[i,j,k]
+					PV.T.forcing[i,j,k] = -k_T * (PV.T.values[i,j,k] - self.Tbar[i,j,k])
 
 		if self.noise:
 			#print('Add stochastic forcing for vorticity equation')

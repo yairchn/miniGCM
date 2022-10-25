@@ -3,7 +3,6 @@ import argparse
 import json
 
 def main():
-    # Parse information from the command line
     parser = argparse.ArgumentParser(prog='TropicLayers')
     parser.add_argument("namelist")
     args = parser.parse_args()

@@ -8,12 +8,6 @@ from DiagnosticVariables import DiagnosticVariables
 from Grid import Grid
 from NetCDFIO import NetCDFIO_Stats
 
-# def extern from "microphysics_functions.h":
-#     void microphysics_cutoff(double cp, double dt, double Rv, double Lv, double T_0, double rho_w,
-#            double g, double max_ss, double pv_star0, double eps_v, double* p, double* T,
-#            double* qt, double* ql, double* T_mp, double* qt_mp, double* rain_rate, double* qv_star,
-#            Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
-
 def MicrophysicsFactory(namelist):
     if namelist['microphysics']['microphysics_model'] == 'None':
         return MicrophysicsNone(namelist)

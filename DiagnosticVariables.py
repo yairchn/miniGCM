@@ -5,12 +5,6 @@ from PrognosticVariables import PrognosticVariables
 from TimeStepping import TimeStepping
 from Parameters import Parameters
 
-# def extern from "diagnostic_variables.h":
-#     void diagnostic_variables(double Rd, double Rv, double Omega, double a,
-#            double* lat,  double* p,  double* T,  double* qt, double* ql, double* u,  double* v,
-#            double* div, double* ke, double* wp, double* gz, double* uv, double* TT, double* vT,
-#            double* M, Py_ssize_t k, Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
-
 class DiagnosticVariable:
     def __init__(self, nx,ny,nl,n_spec, kind, name, units):
         self.kind = kind
@@ -108,8 +102,9 @@ class DiagnosticVariables:
             self.KE.values[:,:,k] = 0.5*np.add(np.power(self.U.values[:,:,k],2.0),np.power(self.V.values[:,:,k],2.0))
             self.Wp.values[:,:,k+1] = self.Wp.values[:,:,k] - np.multiply(PV.P.values[:,:,k+1] - PV.P.values[:,:,k], PV.Divergence.values[:,:,k])
             Rm = Pr.Rd*(1.0-PV.QT.values[:,:,j]) + Pr.Rv*(PV.QT.values[:,:,j] - DV.QL.values[:,:,j])
-            self.gZ.values[:,:,j] = np.multiply(Pr.Rd*PV.T.values[:,:,j],np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))) + self.gZ.values[:,:,j+1]
-            self.vT.values[:,:,k] = np.multiply(DV.V.values[:,:,k],PV.T.values[:,:,k])
-            self.vu.values[:,:,k] = np.multiply(DV.V.values[:,:,k],DV.U.values[:,:,k])
+            self.gZ.values[:,:,j] = np.multiply(Rm*PV.T.values[:,:,j],np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))) + self.gZ.values[:,:,j+1]
+            self.TT.values[:,:,k] = np.multiply(PV.T.values[:,:,k],PV.T.values[:,:,k])
+            self.VT.values[:,:,k] = np.multiply(DV.V.values[:,:,k],PV.T.values[:,:,k])
+            self.UV.values[:,:,k] = np.multiply(DV.V.values[:,:,k],DV.U.values[:,:,k])
             self.M.values[:,:,k] = Pr.rsphere*np.cos(lat[:,:])*(Pr.rsphere*Pr.Omega*cos(lat[:,:]) + DV.U.values[:,:,k])
         return
