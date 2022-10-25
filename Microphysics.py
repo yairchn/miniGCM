@@ -93,13 +93,24 @@ class MicrophysicsCutoff(MicrophysicsBase):
         nx = Pr.nlats
         ny = Pr.nlons
         nl = Pr.n_layers
+        Lv_Rv = Pr.Lv/Pr.Rv
+        Lv_cpRv = np.pow(Pr.Lv,2.0)/Pr.cp/Pr.Rv
+        Lv_cp = Pr.Lv / Pr.cp
+        e0_epsv = Pr.e0 * Pr.eps_v
+        T_0_inv = 1.0/Pr.T_0
 
         if (TS.t%Pr.mp_dt == 0.0):
-            microphysics_cutoff(Pr.cp, Pr.mp_dt, Pr.Rv, Pr.Lv, Pr.T_0, Pr.rho_w,
-                                Pr.g, Pr.max_ss, Pr.pv_star0, Pr.eps_v, &PV.P.values[0,0,0],
-                                &PV.T.values[0,0,0], &PV.QT.values[0,0,0], &DV.QL.values[0,0,0], &PV.T.mp_tendency[0,0,0],
-                                &PV.QT.mp_tendency[0,0,0], &self.RainRate[0,0], &self.qv_star[0,0,0],
-                                nx, ny, nl)
+            for i in range(nx):
+                for j in range(ny):
+                    for k in range(nl):
+                        p_half = 0.5*(PV.P.values[i,j,k] + PV.P.values[i,j,k+1])
+                        qv_star[ijk] = (e0_epsv/p_half)*exp(-Lv_Rv*(1.0/T[ijk]-T_0_inv)) # Eq. (1) Tatcher and Jabolonski 2016
+                        denom = (1.0+Lv_cpRv*self.qv_star[i,j,k]/(PV.T.values[i,j,k] * PV.T.values[i,j,k]))*Pr.mp_dt
+                        DV.QL.values[i,j,k] = PV.QT.values[ijk] - self.qv_star[i,j,k]
+                        PV.T.mp_tendency[ijk]  =  (PV.QT.values[i,j,k] - self.qv_star[i,j,k])/denom # Eq. (2) Tatcher and Jabolonski 2016
+                        PV.QT.mp_tendency[i,j,k] = -(PV.QT.values[i,j,k] - (1.0+Pr.max_ss)*self.qv_star[i,j,k])/denom # Eq. (3) Tatcher and Jabolonski 2016
+                        self.RainRate[i,j] = self.RainRate[i,j] - (PV.QT.mp_tendency[i,j,k]/Pr.rho_w*Pr.g*(PV.P.values[i,j,k] - PV.P.values[0,0,0]))/(nl) # Eq. (5) Tatcher and Jabolonski 2016
+
         else:
             PV.QT.mp_tendency = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
             PV.T.mp_tendency = np.zeros((nx,ny,nl),dtype=np.float64, order='c')

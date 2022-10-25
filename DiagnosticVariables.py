@@ -99,21 +99,17 @@ class DiagnosticVariables:
         Stats.write_3D_variable(Pr, int(TS.t), Pr.n_layers, 'angular_momentum',self.M.values)
         return
 
-    def update(self, Pr, Gr, PV):
-        ii = 1
-        nx = Pr.nlats
-        ny = Pr.nlons
-        nl = Pr.n_layers
-
-        self.Wp.values.base[:,:,0] = np.zeros_like(self.Wp.values[:,:,0])
-        self.gZ.values.base[:,:,nl] = np.zeros_like(self.Wp.values[:,:,0])
-        for k in range(nl):
-            self.U.values.base[:,:,k], self.V.values.base[:,:,k] = Gr.SphericalGrid.getuv(
-                         PV.Vorticity.spectral.base[:,k],PV.Divergence.spectral.base[:,k])
-            diagnostic_variables(Pr.Rd, Pr.Rv, Pr.Omega, Pr.rsphere, &Gr.lat[0,0], &PV.P.values[0,0,0], &PV.T.values[0,0,0],
-                                    &PV.QT.values[0,0,0],   &self.QL.values[0,0,0], &self.U.values[0,0,0],
-                                    &self.V.values[0,0,0],  &PV.Divergence.values[0,0,0],
-                                    &self.KE.values[0,0,0], &self.Wp.values[0,0,0], &self.gZ.values[0,0,0],
-                                    &self.UV.values[0,0,0], &self.TT.values[0,0,0], &self.VT.values[0,0,0],
-                                    &self.M.values[0,0,0], k, nx, ny, nl)
+    def update(self, Gr, PV):
+        self.Wp.values[:,:,0] = np.zeros_like(self.Wp.values[:,:,0])
+        self.gZ.values[:,:,Gr.n_layers] = np.zeros_like(self.Wp.values[:,:,0])
+        for k in range(Gr.n_layers): # Gr.n_layers = 3; k=0,1,2
+            j = Gr.n_layers-k-1 # geopotential is computed bottom -> up
+            self.U.values[:,:,k], self.V.values[:,:,k] = Gr.SphericalGrid.getuv(PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
+            self.KE.values[:,:,k] = 0.5*np.add(np.power(self.U.values[:,:,k],2.0),np.power(self.V.values[:,:,k],2.0))
+            self.Wp.values[:,:,k+1] = self.Wp.values[:,:,k] - np.multiply(PV.P.values[:,:,k+1] - PV.P.values[:,:,k], PV.Divergence.values[:,:,k])
+            Rm = Pr.Rd*(1.0-PV.QT.values[:,:,j]) + Pr.Rv*(PV.QT.values[:,:,j] - DV.QL.values[:,:,j])
+            self.gZ.values[:,:,j] = np.multiply(Pr.Rd*PV.T.values[:,:,j],np.log(np.divide(PV.P.values[:,:,j+1],PV.P.values[:,:,j]))) + self.gZ.values[:,:,j+1]
+            self.vT.values[:,:,k] = np.multiply(DV.V.values[:,:,k],PV.T.values[:,:,k])
+            self.vu.values[:,:,k] = np.multiply(DV.V.values[:,:,k],DV.U.values[:,:,k])
+            self.M.values[:,:,k] = Pr.rsphere*np.cos(lat[:,:])*(Pr.rsphere*Pr.Omega*cos(lat[:,:]) + DV.U.values[:,:,k])
         return

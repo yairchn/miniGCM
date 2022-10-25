@@ -73,16 +73,21 @@ class SurfaceBulkFormula(SurfaceBase):
         nx = Pr.nlats
         ny = Pr.nlons
         nl = Pr.n_layers
+        T_0_inv = 1/Pr.T_0
+        Lv_Rv=Pr.Lv / Pr.Rv
+        pv0epsv=Pr.pv_star0*Pr.eps_v
 
-        surface_bulk_formula(Pr.g, Pr.Rv, Pr.Lv, Pr.T_0, Pr.Ch, Pr.Cq,
-                            Pr.Cd, Pr.pv_star0, Pr.eps_v, &PV.P.values[0,0,0],
-                            &DV.gZ.values[0,0,0], &PV.T.values[0,0,0],
-                            &PV.QT.values[0,0,0], &self.T_surf[0,0],
-                            &DV.U.values[0,0,0], &DV.V.values[0,0,0],
-                            &DV.U.SurfaceFlux[0,0], &DV.V.SurfaceFlux[0,0],
-                            &PV.T.SurfaceFlux[0,0], &PV.QT.SurfaceFlux[0,0],
-                            nx, ny, nl)
-
+        for i in range(nx):
+            for j in range(ny):
+                windspeed = sqrt(DV.U.values[i,j,nl-1]*DV.U.values[i,j,nl-1] +
+                                 DV.V.values[i,j,nl-1]*DV.V.values[i,j,nl-1])
+                qt_surf = (pv0epsv / PV.P.values[i,j,nl]*
+                            exp(-Lv_Rv*(1.0/self.T_surf[i,j] - T_0_inv)))
+                z_a = DV.gZ.values[i,j,nl-1] / Pr.g / 2.0
+                u_surf_flux[ij]  = - Pr.Cd / z_a*windspeed*DV.U.values[i,j,nl-1]
+                v_surf_flux[ij]  = - Pr.Cd / z_a*windspeed*DV.V.values[i,j,nl-1]
+                T_surf_flux[ij]  = - Pr.Ch / z_a*windspeed*(PV.T.values[i,j,nl-1] - self.T_surf[i,j])
+                qt_surf_flux[ij] = - Pr.Cq / z_a*windspeed*(PV.QT.values[i,j,nl-1] - qt_surf)
         return
     def initialize_io(self, Stats):
         Stats.add_surface_zonal_mean('zonal_mean_T_surf')

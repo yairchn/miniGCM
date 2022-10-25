@@ -7,13 +7,6 @@ from PrognosticVariables import PrognosticVariables
 from TimeStepping import TimeStepping
 from Parameters import Parameters
 
-
-# def extern from "turbulence_functions.h":
-#     void vertical_turbulent_flux(double g, double Ch, double Cq, double kappa, double p_ref,
-#                                  double Ppbl, double Pstrato, double* p, double* gz,
-#                                  double* T, double* qt, double* u, double* v, double* wTh,
-#                                  double* wqt, Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
-
 def TurbulenceFactory(namelist):
     if namelist['turbulence']['turbulence_model'] == 'None':
         return TurbulenceNone(namelist)
@@ -71,13 +64,24 @@ class DownGradientTurbulence(TurbulenceBase):
         nx = Pr.nlats
         ny = Pr.nlons
         nl = Pr.n_layers
-
-        # vertical_turbulent_flux(Pr.g, Pr.Dh, Pr.Dq, Pr.kappa, Pr.p_ref, Pr.Ppbl, Pr.Pstrato,
-        #                     &PV.P.values[0,0,0],&DV.gZ.values[0,0,0],
-        #                     &PV.T.values[0,0,0],&PV.QT.values[0,0,0],
-        #                     &DV.U.values[0,0,0],&DV.V.values[0,0,0],
-        #                     &PV.T.TurbFlux[0,0,0],&PV.QT.TurbFlux[0,0,0],
-        #                     nx, ny, nl)
+        for i in range(nx):
+            for j in range(ny):
+                windspeed = sqrt(DV.U.values[i,j,nl-1]*DV.U.values[i,j,nl-1] + DV.V.values[i,j,nl-1]*DV.V.values[i,j,nl-1])
+                za = gz[i,j,nl-1]/Pr.g/2.0
+                for k in range(nl):
+                    if k==0:
+                        PV.T.TurbFlux[i,j,k] =  0.0
+                        PV.QT.TurbFlux[i,j,k] =  0.0
+                    else:
+                        # Ke is on pressure levels
+                        # eq. (17) Tatcher and Jablonowski 2016
+                        Kq = Pr.Dq*windspeed*za*np.exp(-np.power( (np.max(Ppbl - PV.P.values[i,j,k],0.0)/Pr.Pstrato),   2.0))
+                        Kh = Pr.Dh*windspeed*za*np.exp(-np.power( (np.max(Ppbl - PV.P.values[i,j,k],0.0)/Pr.Pstrato),   2.0))
+                        Th_dn = PV.T.values[i,j,k]  *pow((PV.P.values[i,j,k]   + PV.P.values[i,j,k+1])/2.0/Pr.p_ref, Pr.kappa)
+                        Th_up = PV.T.values[i,j,k-1]*pow((PV.P.values[i,j,k-1] + PV.P.values[i,j,k])/2.0/Pr.p_ref, Pr.kappa)
+                        dpi = 2.0/(p[ijkp+1]-p[ijkp-1]); # pressure differnece from mid-layer values for ijk
+                        PV.T.TurbFlux[i,j,k] = -Kh*(Th_dn - Th_up)*dpi
+                        PV.QT.TurbFlux[i,j,k] = -Kq*(PV.QT.values[i,j,k] - PV.QT.values[i,j,k-1])*dpi
         return
 
     def initialize_io(self, Stats):
