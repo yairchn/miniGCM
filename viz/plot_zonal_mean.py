@@ -5,18 +5,18 @@ import argparse
 import os
 
 # command line:
-# python viz/plot_zonal_mean.py zonal_mean_qv_star
+# python viz/plot_zonal_mean.py zonal_mean_U
 def main():
     parser = argparse.ArgumentParser(prog='miniGCM')
     parser.add_argument("varname")
     args = parser.parse_args()
     varname = args.varname
 
-    ncfile = os.getcwd() + '/Output.HeldSuarezMoist.evap-6layers/stats/Stats.HeldSuarezMoist.nc'
+    ncfile = os.getcwd() + '/Output.HeldSuarez.-python_test/stats/Stats.HeldSuarez.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])
-    n = int(np.multiply(data.groups['coordinates'].variables['layers'],1.0))
+    n = int(np.multiply(data.groups['coordinates'].variables['lay'],1.0))
 
     lat_list = np.array(data.groups['coordinates'].variables['latitude_list'])
     var = np.array(data.groups['zonal_mean'].variables[varname])
