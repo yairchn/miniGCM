@@ -1,4 +1,3 @@
-from concurrent.futures import ThreadPoolExecutor
 from Grid import Grid
 import netCDF4 as nc
 import numpy as np
@@ -124,7 +123,7 @@ class NetCDFIO_Stats:
         longitude_list = coordinate_grp.createVariable('longitude_list', 'f8', ('lon'))
         longitude_list[:] = np.array(Gr.longitude_list)
         pressure_levels = coordinate_grp.createVariable('pressure_levels', 'f8',('lay'))
-        pressure_levels[:] = np.array(Pr.pressure_levels.base)
+        pressure_levels[:] = np.array(Pr.pressure_levels)
         del latitude, latitude_list, longitude, longitude_list, pressure_levels
 
         # Set maridional mean

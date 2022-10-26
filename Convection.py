@@ -1,11 +1,11 @@
 import numpy as np
+import sphericalForcing as spf
 from Parameters import Parameters
 from TimeStepping import TimeStepping
 from PrognosticVariables import PrognosticVariables
 from DiagnosticVariables import DiagnosticVariables
 from Grid import Grid
 from NetCDFIO import NetCDFIO_Stats
-import sphericalForcing as spf
 
 def ConvectionFactory(namelist):
     if namelist['convection']['convection_model'] == 'None':
@@ -107,7 +107,7 @@ class ConvectionRandomFlux(ConvectionBase):
             # we compute the flux from below to the layer k skipping k=0
             for k in range(1,nl+1):
                 dpi_grid = np.divide(1.0, np.subtract(PV.P.values[:,:,k],PV.P.values[:,:,k-1]))
-                dpi.base[:,k] = Gr.SphericalGrid.grdtospec(dpi_grid.base)
+                dpi[:,k] = Gr.SphericalGrid.grdtospec(dpi_grid)
                 F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
                 sph_noise = spf.sphForcing(Pr.nlons,Pr.nlats, Pr.truncation_number,Pr.rsphere,
                                         Pr.Co_noise_lmin,Pr.Co_noise_lmax, Pr.Co_noise_magnitude,
@@ -224,7 +224,7 @@ class ConvectionRandomTransport(ConvectionBase):
             # we compute the flux from below to the layer k skipping k=0
             for k in range(1,nl+1):
                 dpi_grid = np.divide(1.0, np.subtract(PV.P.values[:,:,k],PV.P.values[:,:,k-1]))
-                dpi.base[:,k] = Gr.SphericalGrid.grdtospec(dpi_grid.base)
+                dpi[:,k] = Gr.SphericalGrid.grdtospec(dpi_grid)
                 F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
                 sph_noise = spf.sphForcing(Pr.nlons,Pr.nlats, Pr.truncation_number,Pr.rsphere,
                                         Pr.Co_noise_lmin,Pr.Co_noise_lmax, Pr.Co_noise_magnitude,

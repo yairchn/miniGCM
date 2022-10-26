@@ -68,7 +68,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "46e75091-ef59-4e98-b7ba-python1test"
+        "uuid": "46e75091-ef59-4e98-b7ba-pyNEW_test"
     },
     "microphysics": {
         "microphysics_model": "None"

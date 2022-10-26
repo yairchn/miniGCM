@@ -158,7 +158,7 @@ def main():
         n_layers  = np.shape(namelist['grid']['pressure_levels'])[0] - 1
         pressure_levels = np.zeros((n_layers+1),dtype=np.float64, order='c')
         for i in range(n_layers+1):
-            pressure_levels.base[i] = np.float(namelist['grid']['pressure_levels'][i])
+            pressure_levels[i] = np.float(namelist['grid']['pressure_levels'][i])
 
         simulation_length = namelist['timestepping']['t_max']*24.0*3600.0 # sec/day
         output_frequency = namelist['io']['output_frequency']*24.0*3600.0 # sec/day

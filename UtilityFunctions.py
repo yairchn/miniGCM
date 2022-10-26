@@ -1,5 +1,5 @@
-from Grid import Grid
 import numpy as np
+from Grid import Grid
 from Parameters import Parameters
 
 # make sure that total moisture content is non-negative

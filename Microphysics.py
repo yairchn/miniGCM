@@ -1,9 +1,8 @@
 import sys
-from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 from Parameters import Parameters
 from TimeStepping import TimeStepping
-from PrognosticVariables import PrognosticVariables
+# from PrognosticVariables import PrognosticVariables
 from DiagnosticVariables import DiagnosticVariables
 from Grid import Grid
 from NetCDFIO import NetCDFIO_Stats
@@ -69,7 +68,7 @@ class MicrophysicsCutoff(MicrophysicsBase):
             qv_star = np.multiply(np.divide(np.multiply(Pr.pv_star0,Pr.eps_v),P_half),
                 np.exp(-np.multiply(np.divide(Pr.Lv,Pr.Rv),np.subtract(np.divide(1.0,PV.T.values[:,:,k]),np.divide(1.0,Pr.T_0)))))
 
-            DV.QL.values.base[:,:,k] = np.clip(PV.QT.values[:,:,k] - qv_star,0.0, None)
+            DV.QL.values[:,:,k] = np.clip(PV.QT.values[:,:,k] - qv_star,0.0, None)
         return
 
     def initialize_io(self, Stats):

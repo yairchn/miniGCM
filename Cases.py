@@ -1,4 +1,6 @@
 import numpy as np
+import sys
+import time
 from PrognosticVariables import PrognosticVariables
 from DiagnosticVariables import DiagnosticVariables
 from Grid import Grid
@@ -8,10 +10,8 @@ import Surface
 import Microphysics
 import Convection
 import Turbulence
-import sys
 from TimeStepping import TimeStepping
 from Parameters import Parameters
-import time
 import sphericalForcing as spf
 from Restart import Restart
 
@@ -91,7 +91,7 @@ class HeldSuarez(CaseBase):
         PV.physical_to_spectral(Pr, Gr)
         if namelist['initialize']['noise']:
              # calculate noise
-             F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
+             F0 = np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
              fr = spf.sphForcing(Pr.nlons,Pr.nlats,Pr.truncation_number,Pr.rsphere,lmin= 1, lmax= 100, magnitude = 0.05, correlation = 0., noise_type=Pr.noise_type)
              noise = Gr.SphericalGrid.spectogrd(fr.forcingFn(F0))*Pr.noise_amp
              # save noise here
@@ -99,9 +99,9 @@ class HeldSuarez(CaseBase):
              # load noise here
              # noise = np.load('./norm_rand_grid_noise_'+Pr.noise_type+'_.npy')
              # add noise
-             PV.T.spectral.base[:,Pr.n_layers-1] = np.add(PV.T.spectral.base[:,Pr.n_layers-1],
-                                                        Gr.SphericalGrid.grdtospec(noise.base))
-        print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
+             PV.T.spectral[:,Pr.n_layers-1] = np.add(PV.T.spectral[:,Pr.n_layers-1],
+                                                        Gr.SphericalGrid.grdtospec(noise))
+        print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral[:,Pr.n_layers-1]).min())
         return
 
     def initialize_surface(self, Pr, Gr, PV, namelist):
@@ -207,12 +207,12 @@ class HeldSuarezMoist(CaseBase):
                     Tv_ = 1.0/(Tau1 - Tau2 * I_T) # eq. (20) Ullrich et al. (2014)
                     for ii in range(Pr.nlons):
                         # eq. (A1) Tatcher and Jablonowski 2016
-                        PV.QT.values.base[i,ii,k]  = (Pr.QT_0 * np.exp(-(Gr.lat[i,0] / Pr.phi_hw)**4.0)
+                        PV.QT.values[i,ii,k]  = (Pr.QT_0 * np.exp(-(Gr.lat[i,0] / Pr.phi_hw)**4.0)
                                   * np.exp(-((p/Pr.p_ref - 1.0) * Pr.p_ref / Pr.P_hw)**2.0))
-                        PV.T.values.base[i,ii,k]  = Tv_/(1+eps_*PV.QT.values.base[i,ii,k]) # eq. (20) Ullrich et al. (2014)
+                        PV.T.values[i,ii,k]  = Tv_/(1+eps_*PV.QT.values[i,ii,k]) # eq. (20) Ullrich et al. (2014)
 
         PV.physical_to_spectral(Pr, Gr)
-        print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
+        print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral[:,Pr.n_layers-1]).min())
         if namelist['initialize']['noise']:
              # calculate noise
              F0=np.zeros(Gr.SphericalGrid.nlm,dtype = np.complex, order='c')
@@ -223,9 +223,9 @@ class HeldSuarezMoist(CaseBase):
              # load noise here
              # noise = np.load('./norm_rand_grid_noise_'+Pr.noise_type+'_.npy')
              # add noise
-             PV.T.spectral.base[:,Pr.n_layers-1] = np.add(PV.T.spectral.base[:,Pr.n_layers-1],
-                                                        Gr.SphericalGrid.grdtospec(noise.base))
-        print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral.base[:,Pr.n_layers-1]).min())
+             PV.T.spectral[:,Pr.n_layers-1] = np.add(PV.T.spectral[:,Pr.n_layers-1],
+                                                        Gr.SphericalGrid.grdtospec(noise))
+        print('layer 3 Temperature min',Gr.SphericalGrid.spectogrd(PV.T.spectral[:,Pr.n_layers-1]).min())
         return
 
     def initialize_surface(self, Pr, Gr, PV, namelist):

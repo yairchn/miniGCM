@@ -1,8 +1,7 @@
 
 import numpy as np
-from libc.math import fmax, fmin, fabs, floor
 from Grid import Grid
-from PrognosticVariables import PrognosticVariables
+# from PrognosticVariables import PrognosticVariables
 from DiagnosticVariables import DiagnosticVariables
 from Diffusion import Diffusion
 from Parameters import Parameters
@@ -92,6 +91,6 @@ class TimeStepping:
 		for i in range(nx):
 			for j in range(ny):
 				for k in range(nl):
-					dt = fmin(dt,
-					CFL_limit*fmin(Gr.dx[i,j]/(fabs(DV.U.values[i,j,k])+ 0.1) ,Gr.dy[i,j]/(fabs(DV.V.values[i,j,k])+ 0.1)))
+					dt = np.min(dt,
+					CFL_limit*np.min(Gr.dx[i,j]/(np.abs(DV.U.values[i,j,k])+ 0.1) ,Gr.dy[i,j]/(np.abs(DV.V.values[i,j,k])+ 0.1)))
 		return dt

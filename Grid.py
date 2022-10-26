@@ -15,7 +15,7 @@ class Grid:
 		self.dx = np.abs(np.multiply(np.multiply(np.gradient(self.lon,axis=1),Pr.rsphere),np.cos(self.lat)))
 		self.dy = np.abs(np.multiply(np.gradient(self.lat,axis=0),Pr.rsphere))
 		self.laplacian = self.SphericalGrid.lap
-		self.lat_weights = np.cos(2.*pi*np.linspace(-90.,90.,Pr.nlats)/360.)
+		self.lat_weights = np.cos(2.*np.pi*np.linspace(-90.,90.,Pr.nlats)/360.)
 		self.lat_weights /= np.sum(self.lat_weights)
 		self.shtns_l = np.array(self.SphericalGrid._shtns.l, dtype=int)
 		self.wavenumbers = np.arange(np.amax(self.shtns_l)+1)

@@ -1,14 +1,14 @@
-from Grid import Grid
 import numpy as np
-from PrognosticVariables import PrognosticVariables
-from Parameters import Parameters
 import os
 import sys
 import glob
 import netCDF4 as nc
+from scipy.interpolate import interp2d
+from Grid import Grid
+from PrognosticVariables import PrognosticVariables
+from Parameters import Parameters
 import sphericalForcing as spf
 from TimeStepping import TimeStepping
-from scipy.interpolate import interp2d
 
 class Restart:
     def __init__(self, Pr, namelist):
@@ -46,17 +46,17 @@ class Restart:
                 Specific_humidity = np.array(nc.Dataset(filepath + 'Specific_humidity_' + timestring+'.nc', 'r').variables['Specific_humidity'])
 
             f_Pressure = interp2d(old_lon, old_lat, Pressure, kind='linear')
-            PV.P.values.base[:,:,nl]    = f_Pressure(Gr.longitude_list,Gr.latitude_list)
+            PV.P.values[:,:,nl]    = f_Pressure(Gr.longitude_list,Gr.latitude_list)
             for k in range(Pr.n_layers):
                 f_Temperature = interp2d(old_lon, old_lat, Temperature[:,:,k], kind='linear')
                 f_Vorticity   = interp2d(old_lon, old_lat, Vorticity[:,:,k], kind='linear')
                 f_Divergence  = interp2d(old_lon, old_lat, Divergence[:,:,k], kind='linear')
-                PV.T.values.base[:,:,k]          = f_Temperature(Gr.longitude_list,Gr.latitude_list)
-                PV.Vorticity.values.base[:,:,k]  = f_Vorticity(Gr.longitude_list,Gr.latitude_list)
-                PV.Divergence.values.base[:,:,k] = f_Divergence(Gr.longitude_list,Gr.latitude_list)
+                PV.T.values[:,:,k]          = f_Temperature(Gr.longitude_list,Gr.latitude_list)
+                PV.Vorticity.values[:,:,k]  = f_Vorticity(Gr.longitude_list,Gr.latitude_list)
+                PV.Divergence.values[:,:,k] = f_Divergence(Gr.longitude_list,Gr.latitude_list)
                 if Pr.moist_index > 0.0:
                     f_Specific_humidity = interp2d(old_lon, old_lat, Specific_humidity[:,:,k], kind='linear')
-                    PV.QT.values.base[:,:,k] = f_Specific_humidity(Gr.longitude_list,Gr.latitude_list)
+                    PV.QT.values[:,:,k] = f_Specific_humidity(Gr.longitude_list,Gr.latitude_list)
 
         elif Pr.restart_type == 'zonal_mean':
             print(np.max(data.groups['zonal_mean'].variables['t']))

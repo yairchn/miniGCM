@@ -51,10 +51,10 @@ class SpectralAnalysis:
         for k in range(nl):
             dp=np.subtract(PV.P.values[:,:,k+1],PV.P.values[:,:,k])
 
-            u_spec      = Gr.SphericalGrid.grdtospec(DV.U.values.base[:,:,k])
-            v_spec      = Gr.SphericalGrid.grdtospec(DV.V.values.base[:,:,k])
-            dudx, dudy  = Gr.SphericalGrid.getgrad(u_spec.base) # get gradients in grid space
-            dvdx, dvdy  = Gr.SphericalGrid.getgrad(v_spec.base) # get gradients in grid space
+            u_spec      = Gr.SphericalGrid.grdtospec(DV.U.values[:,:,k])
+            v_spec      = Gr.SphericalGrid.grdtospec(DV.V.values[:,:,k])
+            dudx, dudy  = Gr.SphericalGrid.getgrad(u_spec) # get gradients in grid space
+            dvdx, dvdy  = Gr.SphericalGrid.getgrad(v_spec) # get gradients in grid space
 
             # Kinetic Energy flux due to advection (first term in Appendix B1)
             U_adv = np.add(np.multiply(DV.U.values[:,:,k],dudx), np.multiply(DV.V.values[:,:,k],dudy))
@@ -71,7 +71,7 @@ class SpectralAnalysis:
             E_spec_div = -np.add(np.multiply(uak, np.conj(u_spec)), np.multiply(vak, np.conj(v_spec)))
 
             if k==nl-1:
-                dps_dx, dps_dy = Gr.SphericalGrid.getgrad(Gr.SphericalGrid.grdtospec(PV.P.values.base[:,:,k+1])) # get gradients in grid space
+                dps_dx, dps_dy = Gr.SphericalGrid.getgrad(Gr.SphericalGrid.grdtospec(PV.P.values[:,:,k+1])) # get gradients in grid space
                 # Kinetic Energy flux due to mass gradients (third term in Appendix B1)
                 pressure_contribution = 0.5*Gr.SphericalGrid.grdtospec(np.add(np.multiply(DV.U.values[:,:,k],dps_dx),
                                                                               np.multiply(DV.V.values[:,:,k],dps_dy)))
@@ -79,8 +79,8 @@ class SpectralAnalysis:
                             np.add(np.multiply(u_spec, np.conj(u_spec)) ,np.multiply(v_spec, np.conj(v_spec))))
 
                 # Kinetic Energy flux error due to mass flux inbalance in momentum equation (E2, equation 38)
-                momentum_error_x = 0.5*Gr.SphericalGrid.grdtospec(np.multiply(DV.gZ.values.base[:,:,k],dps_dx))
-                momentum_error_y = 0.5*Gr.SphericalGrid.grdtospec(np.multiply(DV.gZ.values.base[:,:,k],dps_dy))
+                momentum_error_x = 0.5*Gr.SphericalGrid.grdtospec(np.multiply(DV.gZ.values[:,:,k],dps_dx))
+                momentum_error_y = 0.5*Gr.SphericalGrid.grdtospec(np.multiply(DV.gZ.values[:,:,k],dps_dy))
                 E_spec_ps_corr = np.add(np.multiply(momentum_error_x,np.conj(u_spec)), np.multiply(momentum_error_y,np.conj(v_spec)))
 
                 # Boundary condition error 
@@ -94,8 +94,8 @@ class SpectralAnalysis:
                 vak = Gr.SphericalGrid.grdtospec(np.multiply(DV.Wp.values[:,:,k], DV.V.values[:,:,k]))
                 uakD = Gr.SphericalGrid.grdtospec(np.multiply(DV.Wp.values[:,:,k], DV.U.values[:,:,k-1]))
                 vakD = Gr.SphericalGrid.grdtospec(np.multiply(DV.Wp.values[:,:,k], DV.V.values[:,:,k-1]))
-                u_specD = Gr.SphericalGrid.grdtospec(DV.U.values.base[:,:,k-1])
-                v_specD = Gr.SphericalGrid.grdtospec(DV.V.values.base[:,:,k-1])
+                u_specD = Gr.SphericalGrid.grdtospec(DV.U.values[:,:,k-1])
+                v_specD = Gr.SphericalGrid.grdtospec(DV.V.values[:,:,k-1])
                 #build discretized ke
                 u2_spec  = 0.5*np.multiply(uak, np.conj(u_spec))
                 v2_spec  = 0.5*np.multiply(vak, np.conj(v_spec))
@@ -108,14 +108,14 @@ class SpectralAnalysis:
             E_spec_div = np.multiply(E_spec_div, factor)
             # Selection of wavenumbers
             for i in range(0,np.amax(Gr.shtns_l)+1):
-                E_spec_adv_k[i] = np.sum(E_spec_adv.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
-                E_spec_div_k[i] = np.sum(E_spec_div.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
+                E_spec_adv_k[i] = np.sum(E_spec_adv[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
+                E_spec_div_k[i] = np.sum(E_spec_div[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
 
             if k>0:
                 E_spec_flux_corr = np.multiply(E_spec_flux_corr, factor)
                 # Selection of wavenumbers
                 for i in range(0,np.amax(Gr.shtns_l)+1):
-                    E_spec_flux_corr_k[i] = np.sum(E_spec_flux_corr.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
+                    E_spec_flux_corr_k[i] = np.sum(E_spec_flux_corr[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
 
             if k==nl-1:
                 E_spec_mass = np.multiply(E_spec_mass, factor) 
@@ -123,9 +123,9 @@ class SpectralAnalysis:
                 E_spec_surf_corr = np.multiply(E_spec_surf_corr, factor) 
                 # Selection of wavenumbers
                 for i in range(0,np.amax(Gr.shtns_l)+1):
-                    E_spec_mass_k[i] = np.sum(E_spec_mass.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
-                    E_spec_ps_corr_k[i] = np.sum(E_spec_ps_corr.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
-                    E_spec_surf_corr_k[i] = np.sum(E_spec_surf_corr.base[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
+                    E_spec_mass_k[i] = np.sum(E_spec_mass[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
+                    E_spec_ps_corr_k[i] = np.sum(E_spec_ps_corr[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
+                    E_spec_surf_corr_k[i] = np.sum(E_spec_surf_corr[np.logical_and(Gr.shtns_l>=np.double(i-0.5), Gr.shtns_l<np.double(i+0.5))])
 
             for i in range(0,np.amax(Gr.shtns_l)+1):
                 # Keep track of temporal running sum (Integral)
@@ -156,8 +156,8 @@ class SpectralAnalysis:
         wavenumbers = np.double(Gr.shtns_l)
 
         for k in range(nl):
-            Vort_spect = PV.Vorticity.spectral.base[:,k]
-            Div_spect = PV.Divergence.spectral.base[:,k]
+            Vort_spect = PV.Vorticity.spectral[:,k]
+            Div_spect = PV.Divergence.spectral[:,k]
             u_vrt, v_vrt = Gr.SphericalGrid.getuv(Vort_spect,np.multiply(Div_spect,0.))
             u_div, v_div = Gr.SphericalGrid.getuv(np.multiply(Vort_spect,0.),Div_spect)
             #take off zonal mean wind, to retrieve primed quantities u', v' for divergent and vortical wind
@@ -173,9 +173,9 @@ class SpectralAnalysis:
             Div2_spect = np.multiply(factor, np.add(np.multiply(u_div_spect, np.conj(u_div_spect)), np.multiply(v_div_spect, np.conj(v_div_spect))))
             Vort2_Div2_spect = np.add(Vort2_spect, Div2_spect)
             for i in range(0,np.amax(Gr.shtns_l)):
-                self.KE_spectrum[i,k] += np.sum(Vort2_Div2_spect.base[np.logical_and(wavenumbers>=np.double(i-0.5) , wavenumbers< np.double(i+0.5))], axis = 0)
-                self.KE_Rot_spectrum[i,k] += np.sum(Vort2_spect.base[np.logical_and(wavenumbers>=np.double(i-0.5) , wavenumbers< np.double(i+0.5))], axis = 0)
-                self.KE_Div_spectrum[i,k] += np.sum(Div2_spect.base[np.logical_and(wavenumbers>=np.double(i-0.5) , wavenumbers< np.double(i+0.5))], axis = 0)
+                self.KE_spectrum[i,k] += np.sum(Vort2_Div2_spect[np.logical_and(wavenumbers>=np.double(i-0.5) , wavenumbers< np.double(i+0.5))], axis = 0)
+                self.KE_Rot_spectrum[i,k] += np.sum(Vort2_spect[np.logical_and(wavenumbers>=np.double(i-0.5) , wavenumbers< np.double(i+0.5))], axis = 0)
+                self.KE_Div_spectrum[i,k] += np.sum(Div2_spect[np.logical_and(wavenumbers>=np.double(i-0.5) , wavenumbers< np.double(i+0.5))], axis = 0)
         return
 
     def io(self, Pr, Gr, TS, Stats):

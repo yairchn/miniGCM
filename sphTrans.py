@@ -38,8 +38,8 @@ class Spharmt(object):
 
     def grdtospec(self,data):
         """compute spectral coefficients from gridded data"""
-        # return self._shtns.analys(data)
-        return self.forward_transform(data)
+        return self._shtns.analys(data)
+        # return self.forward_transform(data)
 
     def spectogrd(self,dataspec):
         """compute gridded data from spectral coefficients"""

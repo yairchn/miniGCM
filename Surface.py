@@ -1,6 +1,6 @@
+import numpy as np
 from Grid import Grid
 from DiagnosticVariables import DiagnosticVariables
-import numpy as np
 from NetCDFIO import NetCDFIO_Stats
 from PrognosticVariables import PrognosticVariables
 from TimeStepping import TimeStepping

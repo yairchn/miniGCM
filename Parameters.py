@@ -2,6 +2,7 @@ import numpy as np
 import shtns
 import sphTrans as sph
 import os
+import LogFile
 
 class Parameters:
     def __init__(self, namelist):
@@ -20,7 +21,7 @@ class Parameters:
         self.n_layers  = np.shape(namelist['grid']['pressure_levels'])[0] - 1
         self.pressure_levels = np.zeros((self.n_layers+1),dtype=np.float64, order='c')
         for i in range(self.n_layers+1):
-            self.pressure_levels.base[i] = np.float(namelist['grid']['pressure_levels'][i])
+            self.pressure_levels[i] = np.float(namelist['grid']['pressure_levels'][i])
         self.p_ref     = self.pressure_levels[-1]
 
         self.T_init    = namelist['initialize']['T_init']

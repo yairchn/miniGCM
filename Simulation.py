@@ -1,5 +1,6 @@
 
 import numpy as np
+import time
 from Cases import CasesFactory
 from Cases import CaseBase
 from DiagnosticVariables import DiagnosticVariables, DiagnosticVariable
@@ -9,7 +10,6 @@ from Restart import Restart
 import Grid
 from NetCDFIO import NetCDFIO_Stats
 from PrognosticVariables import PrognosticVariables, PrognosticVariable
-import time
 from TimeStepping import TimeStepping
 from Microphysics import MicrophysicsBase
 from SpectralAnalysis import SpectralAnalysis
@@ -50,17 +50,11 @@ class Simulation:
         start_time = time.time()
         while self.TS.t <= self.TS.t_max:
             self.PV.reset_pressures_and_bcs(self.Pr, self.DV)
-            print("PV.reset_pressures_and_bcs")
             self.PV.spectral_to_physical(self.Pr, self.Gr)
-            print("PV.spectral_to_physical")
             self.DV.update(self.Pr, self.Gr, self.PV)
-            print("DV.update")
             self.Case.update(self.Pr, self.Gr, self.PV, self.DV, self.TS)
-            print("Case.update")
             self.PV.compute_tendencies(self.Pr, self.Gr, self.PV, self.DV)
-            print("PV.compute_tendencies")
             self.TS.update(self.Pr, self.Gr, self.PV, self.DV, self.DF, namelist)
-            print("TS.update")
 
             if (self.TS.t%self.Stats.stats_frequency < self.TS.dt or self.TS.t == self.TS.t_max):
                 wallclocktime = time.time() - start_time
