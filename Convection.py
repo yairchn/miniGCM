@@ -94,8 +94,6 @@ class ConvectionRandomFlux(ConvectionBase):
         Stats.add_meridional_mean('meridional_mean_conv_wDiv')
         return
 
-    @cython.wraparound(False)
-    @cython.boundscheck(False)
     def update(self, Pr, Gr, PV, DV):
         nx = Pr.nlats
         ny = Pr.nlons

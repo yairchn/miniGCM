@@ -1,20 +1,6 @@
-from __future__ import print_function
-import numpy as np
 import shtns
 import numpy as np
-import sphTrans as sph
-import matplotlib.pyplot as plt
-import time
-# import AdamsBashforth
-import sphericalForcing as spf
-import scipy as sc
-import xarray
-import logData
-import netCDF4
-import numpy as np
-from math import *
-from scipy.signal import savgol_filter
-
+import sht
 
 class Spharmt(object):
     """
@@ -47,9 +33,13 @@ class Spharmt(object):
         self.lap = self.lap/self.rsphere**2
         self.invlap = self.invlap*self.rsphere**2
 
+        self.forward_transform = sht.rshtLayer(nlats, nlons)
+        self.inverse_transform = sht.irshtLayer(nlats, nlons)
+
     def grdtospec(self,data):
         """compute spectral coefficients from gridded data"""
-        return self._shtns.analys(data)
+        # return self._shtns.analys(data)
+        return self.forward_transform(data)
 
     def spectogrd(self,dataspec):
         """compute gridded data from spectral coefficients"""

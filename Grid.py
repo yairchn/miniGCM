@@ -1,11 +1,7 @@
-import cython
-from concurrent.futures import ThreadPoolExecutor
 import numpy as np
-cimport numpy as np
 import shtns
 import sphTrans as sph
-from Parameters cimport Parameters
-from math import *
+from Parameters import Parameters
 
 class Grid:
 	def __init__(self, Pr, namelist):

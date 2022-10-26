@@ -6,14 +6,6 @@ from PrognosticVariables import PrognosticVariables
 from TimeStepping import TimeStepping
 from Parameters import Parameters
 
-# def extern from "surface_functions.h":
-#     void surface_bulk_formula(double g, double Rv, double Lv, double T_0, double Ch, double Cq,
-#                               double Cd, double pv_star0, double eps_v, double* p, double* gz, double* T,
-#                               double* qt, double* T_surf, double* u, double* v, double* u_surf_flux,
-#                               double* v_surf_flux, double* T_surf_flux, double* qt_surf_flux,
-#                               Py_ssize_t imax, Py_ssize_t jmax, Py_ssize_t kmax) nogil
-
-
 def SurfaceFactory(namelist):
     if namelist['surface']['surface_model'] == 'None':
         return SurfaceNone(namelist)

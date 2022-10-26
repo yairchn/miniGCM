@@ -1,11 +1,10 @@
-from Grid cimport Grid
+from Grid import Grid
 import numpy as np
-from NetCDFIO cimport NetCDFIO_Stats
-from TimeStepping cimport TimeStepping
+from NetCDFIO import NetCDFIO_Stats
+from TimeStepping import TimeStepping
 import sys
-from Parameters cimport Parameters
+from Parameters import Parameters
 import sphericalForcing as spf
-from libc.math cimport pow, log, sin, cos, fmax
 import sphericalForcing as spf
 
 
@@ -56,10 +55,8 @@ class HelzSuarez(ForcingBase):
 		return
 
 	def initialize(self, Pr, Gr, namelist):
-		def:
-			Py_ssize_t i,j
-			Py_ssize_t nx = Pr.nlats
-			Py_ssize_t ny = Pr.nlons
+		nx = Pr.nlats
+		ny = Pr.nlons
 
 		self.Tbar = np.zeros((Pr.nlats, Pr.nlons, Pr.n_layers), dtype=np.float64, order='c')
 		self.sin_lat = np.zeros((Pr.nlats, Pr.nlons), dtype=np.float64, order='c')
@@ -73,8 +70,8 @@ class HelzSuarez(ForcingBase):
 		Pr.Fo_noise_lmax  = namelist['forcing']['max_noise_wavenumber']
 		for i in range(nx):
 			for j in range(ny):
-				self.sin_lat[i,j] = sin(Gr.lat[i,j])
-				self.cos_lat[i,j] = cos(Gr.lat[i,j])
+				self.sin_lat[i,j] = np.sin(Gr.lat[i,j])
+				self.cos_lat[i,j] = np.cos(Gr.lat[i,j])
 		return
 
 	def initialize_io(self, Stats):
@@ -94,13 +91,13 @@ class HelzSuarez(ForcingBase):
 			for j in range(ny):
 				for k in range(nl):
 					p_half = (p[i,j,k]+p[i,j,k+1])/2.0
-					self.Tbar[i,j,k] = fmax(((Pr.T_equator - Pr.DT_y*self.sin_lat[i,j]*self.sin_lat[i,j] -
-						Pr.Dtheta_z*log(p_half/Pr.p_ref)*self.cos_lat[i,j]*self.cos_lat[i,j])*
-						pow(p_half/Pr.p_ref, Pr.kappa)),200.0)
+					self.Tbar[i,j,k] = np.max(((Pr.T_equator - Pr.DT_y*self.sin_lat[i,j]*self.sin_lat[i,j] -
+						Pr.Dtheta_z*np.log(p_half/Pr.p_ref)*self.cos_lat[i,j]*self.cos_lat[i,j])*
+						np.power(p_half/Pr.p_ref, Pr.kappa)),200.0)
 
 
-					sigma_ratio = fmax((p_half/p[i,j,nl]-Pr.sigma_b)/(1-Pr.sigma_b),0.0)
-					k_T = Pr.k_a + (Pr.k_s-Pr.k_a)*sigma_ratio*pow(self.cos_lat[i,j],4.0)
+					sigma_ratio = np.max((p_half/p[i,j,nl]-Pr.sigma_b)/(1-Pr.sigma_b),0.0)
+					k_T = Pr.k_a + (Pr.k_s-Pr.k_a)*sigma_ratio*np.power(self.cos_lat[i,j],4.0)
 					k_v = Pr.k_b +  Pr.k_f*sigma_ratio
 
 					DV.U.forcing[i,j,k] = -k_v *  DV.U.forcing[i,j,k]

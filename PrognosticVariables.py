@@ -222,11 +222,11 @@ class PrognosticVariables:
             for i in range(nx):
                 for j in range(ny):
                     dpi = 1.0/(PV.P.values[i,j,k+1] - PV.P.values[i,j,k])
-                    if kmax-1>0:
+                    if nl-1>0:
                         if k==0:
                             wu_dn[i,j] = 0.5*DV.Wp.values[i,j,k+1]*(DV.U.values[i,j,k+1] - DV.U.values[i,j,k])*dpi
                             wv_dn[i,j] = 0.5*DV.Wp.values[i,j,k+1]*(DV.V.values[i,j,k+1] - DV.V.values[i,j,k])*dpi
-                        elif k==kmax-1:
+                        elif k==nl-1:
                             wu_dn[i,j] = 0.5*DV.Wp.values[i,j,k]*(DV.U.values[i,j,k] - DV.U.values[i,j,k-1])*dpi
                             wv_dn[i,j] = 0.5*DV.Wp.values[i,j,k]*(DV.V.values[i,j,k] - DV.V.values[i,j,k-1])*dpi
                         else:
@@ -248,11 +248,11 @@ class PrognosticVariables:
                     T_turbfluxdiv = 0
                     dpi = 1.0/(PV.P.values[i,j,k+1] - PV.P.values[i,j,k])
                     RHS_grid_T[i,j] = 0.0,
-                    if kmax-1>0:
+                    if nl-1>0:
                         if k==0:
                             dwTdp_dn = -0.5*DV.Wp.values[i,j,k+1]*(PV.T.values[i,j,k+1] + PV.T.values[i,j,k])*dpi
                             T_turbfluxdiv = -(PV.T.TurbFlux[i,j,k+1] - PV.T.TurbFlux[i,j,k])*dpi
-                        elseif k==kmax-1:
+                        elif k==nl-1:
                             dwTdp_up =  0.5*DV.Wp.values[i,j,k]  *(PV.T.values[i,j,k] + PV.T.values[i,j,k-1])*dpi
                             dwTdp_dn = -0.5*DV.Wp.values[i,j,k+1]*(PV.T.values[i,j,k] + PV.T.values[i,j,k])*dpi
                             T_turbfluxdiv = -(T_sur_flux[i,j] - PV.T.TurbFlux[i,j,k])*dpi
@@ -272,20 +272,20 @@ class PrognosticVariables:
                 for i in range(nx):
                     for j in range(ny):
                         dpi = 1.0/(PV.P.values[i,j,k+1] - PV.P.values[i,j,k])
-                        if kmax-1>0:
+                        if nl-1>0:
                             if k==0:
                                 dwqtdp_dn = -0.5*DV.Wp.values[i,j,k+1]*(PV.QT.values[i,j,k+1] + PV.QT.values[i,j,k])*dpi
                                 qT_turbfluxdivdiv = -(PV.QT.TurbFlux[i,j,k+1] - PV.QT.TurbFlux[i,j,k])*dpi
-                            elseif k==kmax-1:
+                            elif k==nl-1:
                                 dwqtdp_up =  0.5*DV.Wp.values[i,j,k]  *(PV.QT.values[i,j,k] + PV.QT.values[i,j,k-1])*dpi
                                 dwqtdp_dn = -0.5*DV.Wp.values[i,j,k+1]*(PV.QT.values[i,j,k] + PV.QT.values[i,j,k])*dpi
                                 qT_turbfluxdivdiv = -(QT_sur_flux[i,j] - PV.QT.TurbFlux[i,j,k])*dpi
-                            else # if not @ boundaries you can access k+1 and k-1
+                            else: # if not @ boundaries you can access k+1 and k-1
                                 dwqtdp_up =  0.5*DV.Wp.values[i,j,k]  *(PV.QT.values[i,j,k]   + PV.QT.values[i,j,k-1])*dpi
                                 dwqtdp_dn = -0.5*DV.Wp.values[i,j,k+1]*(PV.QT.values[i,j,k+1] + PV.QT.values[i,j,k])*dpi
                                 qT_turbfluxdivdiv = -(PV.QT.TurbFlux[i,j,k+1] - PV.QT.TurbFlux[i,j,k])*dpi
 
-                        else # in a single layer we have a change in mass (ps)
+                        else: # in a single layer we have a change in mass (ps)
                             dwqtdp_dn = -0.5*DV.Wp.values[i,j,k+1]*(PV.QT.values[i,j,k] + PV.QT.values[i,j,k])*dpi
                             qT_turbfluxdivdiv = -(QT_sur_flux[i,j] - PV.QT.TurbFlux[i,j,k])*dpi
 
