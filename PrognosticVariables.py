@@ -238,9 +238,9 @@ class PrognosticVariables:
                             wu_dn[i,j] = 0.5*DV.Wp.values[i,j,k+1]*(DV.U.values[i,j,k+1] - DV.U.values[i,j,k])*dpi
                             wv_dn[i,j] = 0.5*DV.Wp.values[i,j,k+1]*(DV.V.values[i,j,k+1] - DV.V.values[i,j,k])*dpi
 
-            Dry_Energy[i,j]  = (DV.gZ.values[i,j,k+1]+DV.gZ.values[i,j,k])/2.0 + DV.KE.values[i,j,k]
-            u_vorticity[i,j] = DV.U.values[i,j,k] * (PV.Vorticity.values[i,j,k]+Gr.Coriolis[i,j])
-            v_vorticity[i,j] = DV.V.values[i,j,k] * (PV.Vorticity.values[i,j,k]+Gr.Coriolis[i,j])
+                    Dry_Energy[i,j]  = (DV.gZ.values[i,j,k+1]+DV.gZ.values[i,j,k])/2.0 + DV.KE.values[i,j,k]
+                    u_vorticity[i,j] = DV.U.values[i,j,k] * (PV.Vorticity.values[i,j,k]+Gr.Coriolis[i,j])
+                    v_vorticity[i,j] = DV.V.values[i,j,k] * (PV.Vorticity.values[i,j,k]+Gr.Coriolis[i,j])
 
             for i in range(nx):
                 for j in range(ny):
