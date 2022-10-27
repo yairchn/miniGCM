@@ -233,8 +233,8 @@ class PrognosticVariables:
                             wu_dn[i,j] = 0.0
                             wv_dn[i,j] = 0.0
                         else:
-                            wu_dn[i,j] = 0.5*DV.Wp.values[i,j,k]*(DV.U.values[i,j,k] - DV.U.values[i,j,k-1])*dpi
-                            wv_dn[i,j] = 0.5*DV.Wp.values[i,j,k]*(DV.V.values[i,j,k] - DV.V.values[i,j,k-1])*dpi
+                            wu_up[i,j] = 0.5*DV.Wp.values[i,j,k]*(DV.U.values[i,j,k] - DV.U.values[i,j,k-1])*dpi
+                            wv_up[i,j] = 0.5*DV.Wp.values[i,j,k]*(DV.V.values[i,j,k] - DV.V.values[i,j,k-1])*dpi
                             wu_dn[i,j] = 0.5*DV.Wp.values[i,j,k+1]*(DV.U.values[i,j,k+1] - DV.U.values[i,j,k])*dpi
                             wv_dn[i,j] = 0.5*DV.Wp.values[i,j,k+1]*(DV.V.values[i,j,k+1] - DV.V.values[i,j,k])*dpi
 
