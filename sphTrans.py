@@ -45,11 +45,19 @@ class Spharmt(object):
         """compute gridded data from spectral coefficients"""
         return self._shtns.synth(dataspec)
 
+    # the vector operator below seem to be done in sht_com.c in line 34: 
+    # void SHsphtor_to_spat(shtns_cfg shtns, cplx *Slm, cplx *Tlm, double *Vt, double *Vp) {
+	#     ((pf4l)shtns->ftable[SHT_STD][SHT_TYP_VSY])(shtns, Slm, Tlm, Vt, Vp, shtns->lmax);
+    # }
     def getuv(self,vrtspec,divspec):
         """compute wind vector from spectral coeffs of vorticity and divergence"""
         return self._shtns.synth((self.invlap/self.rsphere)*vrtspec,
                 (self.invlap/self.rsphere)*divspec)
 
+    # the vector operator below seem to be done in sht_com.c in line 38: 
+    # void spat_to_SHsphtor(shtns_cfg shtns, double *Vt, double *Vp, cplx *Slm, cplx *Tlm) {
+	#     ((pf4l)shtns->ftable[SHT_STD][SHT_TYP_VAN])(shtns, Vt, Vp, Slm, Tlm, shtns->lmax);
+    # }
     def getvrtdivspec(self,u,v):
         """compute spectral coeffs of vorticity and divergence from wind vector"""
         vrtspec, divspec = self._shtns.analys(u, v)
