@@ -1,8 +1,6 @@
 import numpy as np
 from Grid import Grid
 from NetCDFIO import NetCDFIO_Stats
-from PrognosticVariables import PrognosticVariables
-from TimeStepping import TimeStepping
 from Parameters import Parameters
 
 class DiagnosticVariable:
@@ -97,23 +95,26 @@ class DiagnosticVariables:
         nx = Pr.nlats
         ny = Pr.nlons
         nl = Pr.n_layers
+        Rm = np.zeros_like(self.QL.values[:,:,0])
 
+        self.TT.values = np.multiply(PV.T.values, PV.T.values)
+        self.VT.values = np.multiply(self.V.values,PV.T.values)
+        self.UV.values = np.multiply(self.V.values,self.U.values)
         self.Wp.values[:,:,0] = np.zeros_like(self.Wp.values[:,:,0])
         self.gZ.values[:,:,nl] = np.zeros_like(self.Wp.values[:,:,0])
         for k in range(nl):
+            self.M.values[:,:,k]  = Pr.rsphere*np.cos(Gr.lat)*(Pr.rsphere*Pr.Omega*np.cos(Gr.lat) + self.U.values[:,:,k])
             self.U.values[:,:,k], self.V.values[:,:,k] = Gr.SphericalGrid.getuv(
                          PV.Vorticity.spectral[:,k],PV.Divergence.spectral[:,k])
-
+            self.KE.values[:,:,k] = 0.5*np.add(np.power(self.U.values[:,:,k],2),np.power(self.V.values[:,:,k],2))
+            self.Wp.values[:,:,k+1]  = np.subtract(self.Wp.values[:,:,k], np.multiply(np.subtract(PV.P.values[:,:,k+1],PV.P.values[:,:,k]),PV.Divergence.values[:,:,k]))
             k_rev = Pr.n_layers-k-1
-            for i in range(nx):
-                for j in range(ny):
-                    self.TT.values[i,j,k] = np.multiply(PV.T.values[i,j,k],PV.T.values[i,j,k])
-                    self.VT.values[i,j,k] = np.multiply(self.V.values[i,j,k],PV.T.values[i,j,k])
-                    self.UV.values[i,j,k] = np.multiply(self.V.values[i,j,k],self.U.values[i,j,k])
-                    self.M.values[i,j,k]  = Pr.rsphere*np.cos(Gr.lat[i,j])*(Pr.rsphere*Pr.Omega*np.cos(Gr.lat[i,j]) + self.U.values[i,j,k])
-                    self.KE.values[i,j,k] = 0.5*(self.U.values[i,j,k]*self.U.values[i,j,k]
-                                                +self.V.values[i,j,k]*self.V.values[i,j,k])
-                    self.Wp.values[i,j,k+1]  = self.Wp.values[i,j,k] - (PV.P.values[i,j,k+1] - PV.P.values[i,j,k])*PV.Divergence.values[i,j,k]
-                    Rm = Pr.Rd*(1.0-PV.QT.values[i,j,k_rev]) + Pr.Rv*(PV.QT.values[i,j,k_rev] - self.QL.values[i,j,k_rev])
-                    self.gZ.values[i,j,k_rev] = Rm*PV.T.values[i,j,k_rev]*np.log(PV.P.values[i,j,k_rev+1]/PV.P.values[i,j,k_rev]) + self.gZ.values[i,j,k_rev+1]
+
+            Rm[:,:] = np.add(np.multiply(Pr.Rd,np.subtract(1.0,PV.QT.values[:,:,k_rev])),
+                        np.multiply(Pr.Rv,np.subtract(PV.QT.values[:,:,k_rev],self.QL.values[:,:,k_rev])))
+            self.gZ.values[:,:,k_rev] = np.add(np.multiply(Rm[:,:],np.multiply(PV.T.values[:,:,k_rev],np.log(PV.P.values[:,:,k_rev+1]/PV.P.values[:,:,k_rev]))), self.gZ.values[:,:,k_rev+1])
+            # for i in range(nx):
+            #     for j in range(ny):
+            #         Rm = Pr.Rd*(1.0-PV.QT.values[i,j,k_rev]) + Pr.Rv*(PV.QT.values[i,j,k_rev] - self.QL.values[i,j,k_rev])
+            #         self.gZ.values[i,j,k_rev] = Rm*PV.T.values[i,j,k_rev]*np.log(PV.P.values[i,j,k_rev+1]/PV.P.values[i,j,k_rev]) + self.gZ.values[i,j,k_rev+1]
         return
