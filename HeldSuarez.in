@@ -68,7 +68,7 @@
     "meta": {
         "casename": "HeldSuarez",
         "simname": "HeldSuarez",
-        "uuid": "46e75091-ef59-4e98-b7ba-steps_test"
+        "uuid": "46e75091-ef59-4e98-b7ba-pyt_unroll"
     },
     "microphysics": {
         "microphysics_model": "None"
@@ -83,7 +83,7 @@
     },
     "spectral_analysis": {
         "flux_frequency": 100.0,
-        "sa_flag": true,
+        "sa_flag": false,
         "spectral_frequency": 100.0,
         "spinup_time": 200.0
     },
@@ -102,7 +102,7 @@
     "timestepping": {
         "CFL_limit": 0.8,
         "dt": 100.0,
-        "t_max": 100.0
+        "t_max": 1000.0
     },
     "turbulence": {
         "turbulence_model": "None"

@@ -69,17 +69,15 @@ class SurfaceBulkFormula(SurfaceBase):
         Lv_Rv=Pr.Lv / Pr.Rv
         pv0epsv=Pr.pv_star0*Pr.eps_v
 
-        for i in range(nx):
-            for j in range(ny):
-                windspeed = sqrt(DV.U.values[i,j,nl-1]*DV.U.values[i,j,nl-1] +
-                                 DV.V.values[i,j,nl-1]*DV.V.values[i,j,nl-1])
-                qt_surf = (pv0epsv / PV.P.values[i,j,nl]*
-                            exp(-Lv_Rv*(1.0/self.T_surf[i,j] - T_0_inv)))
-                z_a = DV.gZ.values[i,j,nl-1] / Pr.g / 2.0
-                u_surf_flux[ij]  = - Pr.Cd / z_a*windspeed*DV.U.values[i,j,nl-1]
-                v_surf_flux[ij]  = - Pr.Cd / z_a*windspeed*DV.V.values[i,j,nl-1]
-                T_surf_flux[ij]  = - Pr.Ch / z_a*windspeed*(PV.T.values[i,j,nl-1] - self.T_surf[i,j])
-                qt_surf_flux[ij] = - Pr.Cq / z_a*windspeed*(PV.QT.values[i,j,nl-1] - qt_surf)
+        windspeed = np.sqrt(DV.U.values[:,:,nl-1]*DV.U.values[:,:,nl-1] +
+                         DV.V.values[:,:,nl-1]*DV.V.values[:,:,nl-1])
+        qt_surf = np.multiply(np.divide(pv0epsv, PV.P.values[:,:,nl]),
+                    np.exp(-np.multiply(Lv_Rv,(np.subtract(np.divide(1.0,self.T_surf), T_0_inv)))))
+        z_a = np.divide(DV.gZ.values[:,:,nl-1], Pr.g * 2.0)
+        u_surf_flux  = np.multiply(np.multiply(np.divide(-Pr.Cd / z_a),windspeed),DV.U.values[:,:,nl-1])
+        v_surf_flux  = np.multiply(np.multiply(np.divide(-Pr.Cd / z_a),windspeed),DV.V.values[:,:,nl-1])
+        T_surf_flux  = np.multiply(np.multiply(np.divide(-Pr.Ch / z_a),windspeed),np.subtract(PV.T.values[:,:,nl-1], self.T_surf))
+        qt_surf_flux = np.multiply(np.multiply(np.divide(-Pr.Cq / z_a),windspeed),np.subtract(PV.QT.values[:,:,nl-1], qt_surf))
         return
     def initialize_io(self, Stats):
         Stats.add_surface_zonal_mean('zonal_mean_T_surf')

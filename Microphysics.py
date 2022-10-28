@@ -93,17 +93,17 @@ class MicrophysicsCutoff(MicrophysicsBase):
         T_0_inv = 1.0/Pr.T_0
 
         if (TS.t%Pr.mp_dt == 0.0):
-            for i in range(nx):
-                for j in range(ny):
-                    for k in range(nl):
-                        p_half = 0.5*(PV.P.values[i,j,k] + PV.P.values[i,j,k+1])
-                        qv_star[ijk] = (e0_epsv/p_half)*exp(-Lv_Rv*(1.0/T[ijk]-T_0_inv)) # Eq. (1) Tatcher and Jabolonski 2016
-                        denom = (1.0+Lv_cpRv*self.qv_star[i,j,k]/(PV.T.values[i,j,k] * PV.T.values[i,j,k]))*Pr.mp_dt
-                        DV.QL.values[i,j,k] = PV.QT.values[ijk] - self.qv_star[i,j,k]
-                        PV.T.mp_tendency[ijk]  =  (PV.QT.values[i,j,k] - self.qv_star[i,j,k])/denom # Eq. (2) Tatcher and Jabolonski 2016
-                        PV.QT.mp_tendency[i,j,k] = -(PV.QT.values[i,j,k] - (1.0+Pr.max_ss)*self.qv_star[i,j,k])/denom # Eq. (3) Tatcher and Jabolonski 2016
-                        self.RainRate[i,j] = self.RainRate[i,j] - (PV.QT.mp_tendency[i,j,k]/Pr.rho_w*Pr.g*(PV.P.values[i,j,k] - PV.P.values[0,0,0]))/(nl) # Eq. (5) Tatcher and Jabolonski 2016
-
+            p_half = np.multiply(0.5,np.add(PV.P.values, PV.P.values))
+            # Eq. (1) Tatcher and Jabolonski 2016
+            qv_star = np.multiply(np.divide(e0_epsv,p_half),np.exp(-np.multiply(Lv_Rv,np.subtract(np.divide(1.0,T),T_0_inv))))
+            denom = np.add(1.0,np.multiply((Lv_cpRv*Pr.mp_dt),np.divide(self.qv_star[i,j,k],np.multiply(PV.T.values[i,j,k], PV.T.values[i,j,k]))))
+            DV.QL.values[:,:,k] = np.subtract(PV.QT.values[:,:,k], self.qv_star[:,:,k])
+            # Eq. (2) Tatcher and Jabolonski 2016
+            PV.T.mp_tendency[:,:,k]  =  np.divide(np.subtract(PV.QT.values[:,:,k], self.qv_star[:,:,k])/denom)
+            # Eq. (3) Tatcher and Jabolonski 2016
+            PV.QT.mp_tendency[:,:,k] = np.divide(np.subtract(np.multiply((1.0+Pr.max_ss),self.qv_star[:,:,k]), PV.QT.values[:,:,k]),denom)
+            # Eq. (5) Tatcher and Jabolonski 2016
+            self.RainRate = np.subtract(self.RainRate, np.multiply(PV.QT.mp_tendency[:,:,k],np.multiply(Pr.g/Pr.rho_w/nl,np.subtract(PV.P.values[:,:,k], PV.P.values[:,:,0]))) )
         else:
             PV.QT.mp_tendency = np.zeros((nx,ny,nl),dtype=np.float64, order='c')
             PV.T.mp_tendency = np.zeros((nx,ny,nl),dtype=np.float64, order='c')

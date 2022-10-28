@@ -12,7 +12,7 @@ def main():
     args = parser.parse_args()
     varname = args.varname
 
-    ncfile = os.getcwd() + '/Output.HeldSuarez.a-steps_test/stats/Stats.HeldSuarez.Rerun_8.nc'
+    ncfile = os.getcwd() + '/Output.HeldSuarez.a-pyt_unroll/stats/Stats.HeldSuarez.nc'
     data = nc.Dataset(ncfile, 'r')
 
     lat = np.array(data.groups['coordinates'].variables['latitude'])

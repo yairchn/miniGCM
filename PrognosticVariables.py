@@ -214,8 +214,7 @@ class PrognosticVariables:
 
         Wp3_spectral = Gr.SphericalGrid.grdtospec(DV.Wp.values[:,:,nl-1])
         dpsdx, dpsdy = Gr.SphericalGrid.getgrad(PV.P.spectral[:,nl])
-        for i in range(nlm):
-            PV.P.tendency[i,nl] = Divergent_P_flux[i] + Wp3_spectral[i]
+        PV.P.tendency[:,nl] = np.add(Divergent_P_flux, Wp3_spectral)
 
         for k in range(nl):
             if k==nl-1:
@@ -261,7 +260,7 @@ class PrognosticVariables:
             else:
                 dwTdp_dn = -0.5*wp[:,:,k+1]*(PV.T.values[:,:,k] + PV.T.values[:,:,k])*dpi
                 T_turbfluxdiv = -(T_sur_flux - PV.T.TurbFlux[:,:,k])*dpi
-            RHS_grid_T = np.add(np.add(np.add(np.add(T_turbfluxdiv, dwTdp_dn), dwTdp_up),PV.T.mp_tendency),PV.T.forcing)
+            RHS_grid_T = np.add(np.add(np.add(np.add(T_turbfluxdiv, dwTdp_dn), dwTdp_up),PV.T.mp_tendency[:,:,k]),PV.T.forcing[:,:,k])
             RHS_grid_T = np.subtract(RHS_grid_T ,np.multiply(np.multiply(0.5/Pr.cp,np.multiply(np.add(DV.Wp.values[:,:,k+1],DV.Wp.values[:,:,k]),np.subtract(DV.gZ.values[:,:,k+1],DV.gZ.values[:,:,k]))),dpi))
 
             if Pr.moist_index > 0.0:
@@ -282,7 +281,7 @@ class PrognosticVariables:
                 else:
                     dwQTdp_dn = -0.5*wp[:,:,k+1]*(PV.QT.values[:,:,k] + PV.QT.values[:,:,k])*dpi
                     QT_turbfluxdiv = -(QT_sur_flux - PV.QT.TurbFlux[:,:,k])*dpi
-                RHS_grid_QT = np.add(np.add(np.add(np.add(QT_turbfluxdiv, dwQTdp_dn), dwQTdp_up),PV.QT.mp_tendency),PV.QT.forcing)
+                RHS_grid_QT = np.add(np.add(np.add(np.add(QT_turbfluxdiv, dwQTdp_dn), dwQTdp_up),PV.QT.mp_tendency[:,:,k]),PV.QT.forcing[:,:,k])
 
             Dry_Energy_laplacian = Gr.laplacian*Gr.SphericalGrid.grdtospec(Dry_Energy)
             Vortical_momentum_flux, Divergent_momentum_flux = Gr.SphericalGrid.getvrtdivspec(u_vorticity, v_vorticity)
@@ -296,14 +295,11 @@ class PrognosticVariables:
                 Vortical_QT_flux, Divergent_QT_flux = Gr.SphericalGrid.getvrtdivspec(uQT, vQT) # Vortical_T_flux is not used
                 RHS_QT = Gr.SphericalGrid.grdtospec(RHS_grid_QT)
 
-            for i in range(nlm):
-                PV.Vorticity.tendency[i,k]  = (Vort_forc[i] - Divergent_momentum_flux[i]- w_vort_up[i] - w_vort_dn[i]
-                                                    + Vort_sur_flux[i] + PV.Vorticity.ConvectiveFlux[i,k] + PV.Vorticity.sp_forcing[i,k])
-                PV.Divergence.tendency[i,k] = (Vortical_momentum_flux[i] - Dry_Energy_laplacian[i]- w_div_up[i] - w_div_dn[i]
-                                                + Div_forc[i] + Div_sur_flux[i] + PV.Divergence.ConvectiveFlux[i,k])
-
-                PV.T.tendency[i,k]  = RHS_T[i]  - Divergent_T_flux[i] + PV.T.ConvectiveFlux[i,k]
-
-                if Pr.moist_index > 0.0:
-                    PV.QT.tendency[i,k] = RHS_QT[i] - Divergent_QT_flux[i] + PV.QT.ConvectiveFlux[i,k]
+            PV.Vorticity.tendency[:,k]  = np.add(np.subtract(Vort_forc, np.add(np.add(Divergent_momentum_flux, w_vort_up), w_vort_dn)),
+                                                 np.add(np.add(Vort_sur_flux, PV.Vorticity.ConvectiveFlux[:,k]), PV.Vorticity.sp_forcing[:,k]))
+            PV.Divergence.tendency[:,k] = np.add(np.subtract(Vortical_momentum_flux, np.add(np.add(Dry_Energy_laplacian, w_div_up), w_div_dn)),
+                                                np.add(np.add(Div_forc, Div_sur_flux), PV.Divergence.ConvectiveFlux[:,k]))
+            PV.T.tendency[:,k] = np.add(np.subtract(RHS_T, Divergent_T_flux), PV.T.ConvectiveFlux[:,k])
+            if Pr.moist_index > 0.0:
+                PV.QT.tendency[:,k] = np.add(np.subtract(RHS_QT, Divergent_QT_flux), PV.QT.ConvectiveFlux[:,k])
         return
