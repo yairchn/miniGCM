@@ -192,6 +192,10 @@ class PrognosticVariables:
         wv_dn = np.zeros((nx, ny),dtype=np.float64, order ='c')
         wu_up = np.zeros((nx, ny),dtype=np.float64, order ='c')
         wv_up = np.zeros((nx, ny),dtype=np.float64, order ='c')
+        dwTdp_up = np.zeros((nx, ny),dtype=np.float64, order ='c')
+        dwTdp_dn = np.zeros((nx, ny),dtype=np.float64, order ='c')
+        T_turbfluxdiv = np.zeros((nx, ny),dtype=np.float64, order ='c')
+        QT_turbfluxdiv = np.zeros((nx, ny),dtype=np.float64, order ='c')
         Dry_Energy = np.zeros((nx, ny),dtype=np.float64, order ='c')
         u_vorticity = np.zeros((nx, ny),dtype=np.float64, order ='c')
         v_vorticity = np.zeros((nx, ny),dtype=np.float64, order ='c')
@@ -201,6 +205,7 @@ class PrognosticVariables:
         QT_sur_flux = np.zeros((nx, ny),dtype=np.float64, order ='c')
         u_vertical_flux = np.zeros((nx, ny),dtype=np.float64, order ='c')
         v_vertical_flux = np.zeros((nx, ny),dtype=np.float64, order ='c')
+        dpi = np.zeros_like(PV.P.values[:,:,0])
 
 
         Vortical_P_flux, Divergent_P_flux = Gr.SphericalGrid.getvrtdivspec(
@@ -218,86 +223,66 @@ class PrognosticVariables:
                 T_turb_flux  = PV.T.SurfaceFlux
                 QT_turb_flux = PV.QT.SurfaceFlux
 
-            for i in range(nx):
-                for j in range(ny):
-                    dpi = 1.0/(PV.P.values[i,j,k+1] - PV.P.values[i,j,k])
-                    if nl-1>0:
-                        if k==0:
-                            wu_dn[i,j] = 0.5*DV.Wp.values[i,j,k+1]*(DV.U.values[i,j,k+1] - DV.U.values[i,j,k])*dpi
-                            wv_dn[i,j] = 0.5*DV.Wp.values[i,j,k+1]*(DV.V.values[i,j,k+1] - DV.V.values[i,j,k])*dpi
-                            wu_up[i,j] = 0.0
-                            wv_up[i,j] = 0.0
-                        elif k==nl-1:
-                            wu_up[i,j] = 0.5*DV.Wp.values[i,j,k]*(DV.U.values[i,j,k] - DV.U.values[i,j,k-1])*dpi
-                            wv_up[i,j] = 0.5*DV.Wp.values[i,j,k]*(DV.V.values[i,j,k] - DV.V.values[i,j,k-1])*dpi
-                            wu_dn[i,j] = 0.0
-                            wv_dn[i,j] = 0.0
-                        else:
-                            wu_up[i,j] = 0.5*DV.Wp.values[i,j,k]*(DV.U.values[i,j,k] - DV.U.values[i,j,k-1])*dpi
-                            wv_up[i,j] = 0.5*DV.Wp.values[i,j,k]*(DV.V.values[i,j,k] - DV.V.values[i,j,k-1])*dpi
-                            wu_dn[i,j] = 0.5*DV.Wp.values[i,j,k+1]*(DV.U.values[i,j,k+1] - DV.U.values[i,j,k])*dpi
-                            wv_dn[i,j] = 0.5*DV.Wp.values[i,j,k+1]*(DV.V.values[i,j,k+1] - DV.V.values[i,j,k])*dpi
+            dpi = np.divide(1.0,(PV.P.values[:,:,k+1] - PV.P.values[:,:,k]))
+            Dry_Energy = np.add(np.divide(np.add(DV.gZ.values[:,:,k+1],DV.gZ.values[:,:,k]),2.0), DV.KE.values[:,:,k])
+            u_vorticity = np.multiply(DV.U.values[:,:,k], np.add(PV.Vorticity.values[:,:,k],Gr.Coriolis[:,:]))
+            v_vorticity = np.multiply(DV.V.values[:,:,k], np.add(PV.Vorticity.values[:,:,k],Gr.Coriolis[:,:]))
+            if nl-1>0:
+                if k==0:
+                    wu_dn = np.multiply(0.5,np.multiply(np.multiply(DV.Wp.values[:,:,k+1],np.subtract(DV.U.values[:,:,k+1], DV.U.values[:,:,k])),dpi))
+                    wv_dn = np.multiply(0.5,np.multiply(np.multiply(DV.Wp.values[:,:,k+1],np.subtract(DV.V.values[:,:,k+1], DV.V.values[:,:,k])),dpi))
+                    wu_up = np.zeros_like(wu_up)
+                    wv_up = np.zeros_like(wv_up)
+                elif k==nl-1:
+                    wu_up = np.multiply(0.5,np.multiply(np.multiply(DV.Wp.values[:,:,k],np.subtract(DV.U.values[:,:,k], DV.U.values[:,:,k-1])),dpi))
+                    wv_up = np.multiply(0.5,np.multiply(np.multiply(DV.Wp.values[:,:,k],np.subtract(DV.V.values[:,:,k], DV.V.values[:,:,k-1])),dpi))
+                    wu_dn = np.zeros_like(wu_dn)
+                    wv_dn = np.zeros_like(wv_dn)
+                else:
+                    wu_up = np.multiply(0.5,np.multiply(np.multiply(DV.Wp.values[:,:,k],np.subtract(DV.U.values[:,:,k], DV.U.values[:,:,k-1])),dpi))
+                    wv_up = np.multiply(0.5,np.multiply(np.multiply(DV.Wp.values[:,:,k],np.subtract(DV.V.values[:,:,k], DV.V.values[:,:,k-1])),dpi))
+                    wu_dn = np.multiply(0.5,np.multiply(np.multiply(DV.Wp.values[:,:,k+1],np.subtract(DV.U.values[:,:,k+1], DV.U.values[:,:,k])),dpi))
+                    wv_dn = np.multiply(0.5,np.multiply(np.multiply(DV.Wp.values[:,:,k+1],np.subtract(DV.V.values[:,:,k+1], DV.V.values[:,:,k])),dpi))
 
-                    Dry_Energy[i,j]  = (DV.gZ.values[i,j,k+1]+DV.gZ.values[i,j,k])/2.0 + DV.KE.values[i,j,k]
-                    u_vorticity[i,j] = DV.U.values[i,j,k] * (PV.Vorticity.values[i,j,k]+Gr.Coriolis[i,j])
-                    v_vorticity[i,j] = DV.V.values[i,j,k] * (PV.Vorticity.values[i,j,k]+Gr.Coriolis[i,j])
-
-            for i in range(nx):
-                for j in range(ny):
-                    uT[i,j] = DV.U.values[i,j,k] * PV.T.values[i,j,k]
-                    vT[i,j] = DV.V.values[i,j,k] * PV.T.values[i,j,k]
-                    dwTdp_up = 0
-                    dwTdp_dn = 0
-                    T_turbfluxdiv = 0
-                    dpi = 1.0/(PV.P.values[i,j,k+1] - PV.P.values[i,j,k])
-                    RHS_grid_T[i,j] = 0.0
-                    if nl-1>0:
-                        if k==0:
-                            dwTdp_dn = -0.5*DV.Wp.values[i,j,k+1]*(PV.T.values[i,j,k+1] + PV.T.values[i,j,k])*dpi
-                            T_turbfluxdiv = -(PV.T.TurbFlux[i,j,k+1] - PV.T.TurbFlux[i,j,k])*dpi
-                        elif k==nl-1:
-                            dwTdp_up =  0.5*DV.Wp.values[i,j,k]  *(PV.T.values[i,j,k] + PV.T.values[i,j,k-1])*dpi
-                            dwTdp_dn = -0.5*DV.Wp.values[i,j,k+1]*(PV.T.values[i,j,k] + PV.T.values[i,j,k])*dpi
-                            T_turbfluxdiv = -(T_sur_flux[i,j] - PV.T.TurbFlux[i,j,k])*dpi
-                        else:
-                            dwTdp_up =  0.5*DV.Wp.values[i,j,k]  *(PV.T.values[i,j,k]   + PV.T.values[i,j,k-1])*dpi
-                            dwTdp_dn = -0.5*DV.Wp.values[i,j,k+1]*(PV.T.values[i,j,k+1] + PV.T.values[i,j,k])*dpi
-                            T_turbfluxdiv = -(PV.T.TurbFlux[i,j,k+1] - PV.T.TurbFlux[i,j,k])*dpi
-                    else:
-                        dwTdp_dn = -0.5*wp[i,j,k+1]*(PV.T.values[i,j,k] + PV.T.values[i,j,k])*dpi
-                        T_turbfluxdiv = -(T_sur_flux[i,j] - PV.T.TurbFlux[i,j,k])*dpi
-                    RHS_grid_T[i,j] = T_turbfluxdiv + dwTdp_dn + dwTdp_up
-                    RHS_grid_T[i,j] -= 0.5*(DV.Wp.values[i,j,k+1]+DV.Wp.values[i,j,k])*(DV.gZ.values[i,j,k+1]-DV.gZ.values[i,j,k])*dpi/Pr.cp
-                    RHS_grid_T[i,j] += PV.T.mp_tendency[i,j,k]
-                    RHS_grid_T[i,j] += PV.T.forcing[i,j,k]
+            uT = np.multiply(DV.U.values[:,:,k], PV.T.values[:,:,k])
+            vT = np.multiply(DV.V.values[:,:,k], PV.T.values[:,:,k])
+            if nl-1>0:
+                if k==0:
+                    dwTdp_dn = -0.5*DV.Wp.values[:,:,k+1]*(PV.T.values[:,:,k+1] + PV.T.values[:,:,k])*dpi
+                    T_turbfluxdiv = -(PV.T.TurbFlux[:,:,k+1] - PV.T.TurbFlux[:,:,k])*dpi
+                elif k==nl-1:
+                    dwTdp_up =  0.5*DV.Wp.values[:,:,k]  *(PV.T.values[:,:,k] + PV.T.values[:,:,k-1])*dpi
+                    dwTdp_dn = -0.5*DV.Wp.values[:,:,k+1]*(PV.T.values[:,:,k] + PV.T.values[:,:,k])*dpi
+                    T_turbfluxdiv = -(T_sur_flux - PV.T.TurbFlux[:,:,k])*dpi
+                else:
+                    dwTdp_up =  0.5*DV.Wp.values[:,:,k]  *(PV.T.values[:,:,k]   + PV.T.values[:,:,k-1])*dpi
+                    dwTdp_dn = -0.5*DV.Wp.values[:,:,k+1]*(PV.T.values[:,:,k+1] + PV.T.values[:,:,k])*dpi
+                    T_turbfluxdiv = -(PV.T.TurbFlux[:,:,k+1] - PV.T.TurbFlux[:,:,k])*dpi
+            else:
+                dwTdp_dn = -0.5*wp[:,:,k+1]*(PV.T.values[:,:,k] + PV.T.values[:,:,k])*dpi
+                T_turbfluxdiv = -(T_sur_flux - PV.T.TurbFlux[:,:,k])*dpi
+            RHS_grid_T = np.add(np.add(np.add(np.add(T_turbfluxdiv, dwTdp_dn), dwTdp_up),PV.T.mp_tendency),PV.T.forcing)
+            RHS_grid_T = np.subtract(RHS_grid_T ,np.multiply(np.multiply(0.5/Pr.cp,np.multiply(np.add(DV.Wp.values[:,:,k+1],DV.Wp.values[:,:,k]),np.subtract(DV.gZ.values[:,:,k+1],DV.gZ.values[:,:,k]))),dpi))
 
             if Pr.moist_index > 0.0:
-                for i in range(nx):
-                    for j in range(ny):
-                        dpi = 1.0/(PV.P.values[i,j,k+1] - PV.P.values[i,j,k])
-                        dwqtdp_up = 0.0
-                        dwqtdp_dn = 0.0
-                        qT_turbfluxdivdiv = 0.0
-                        if nl-1>0:
-                            if k==0:
-                                dwqtdp_dn = -0.5*DV.Wp.values[i,j,k+1]*(PV.QT.values[i,j,k+1] + PV.QT.values[i,j,k])*dpi
-                                qT_turbfluxdivdiv = -(PV.QT.TurbFlux[i,j,k+1] - PV.QT.TurbFlux[i,j,k])*dpi
-                            elif k==nl-1:
-                                dwqtdp_up =  0.5*DV.Wp.values[i,j,k]  *(PV.QT.values[i,j,k] + PV.QT.values[i,j,k-1])*dpi
-                                dwqtdp_dn = -0.5*DV.Wp.values[i,j,k+1]*(PV.QT.values[i,j,k] + PV.QT.values[i,j,k])*dpi
-                                qT_turbfluxdivdiv = -(QT_sur_flux[i,j] - PV.QT.TurbFlux[i,j,k])*dpi
-                            else: # if not @ boundaries you can access k+1 and k-1
-                                dwqtdp_up =  0.5*DV.Wp.values[i,j,k]  *(PV.QT.values[i,j,k]   + PV.QT.values[i,j,k-1])*dpi
-                                dwqtdp_dn = -0.5*DV.Wp.values[i,j,k+1]*(PV.QT.values[i,j,k+1] + PV.QT.values[i,j,k])*dpi
-                                qT_turbfluxdivdiv = -(PV.QT.TurbFlux[i,j,k+1] - PV.QT.TurbFlux[i,j,k])*dpi
-
-                        else: # in a single layer we have a change in mass (ps)
-                            dwqtdp_dn = -0.5*DV.Wp.values[i,j,k+1]*(PV.QT.values[i,j,k] + PV.QT.values[i,j,k])*dpi
-                            qT_turbfluxdivdiv = -(QT_sur_flux[i,j] - PV.QT.TurbFlux[i,j,k])*dpi
-
-                        RHS_grid_QT[i,j] = qT_turbfluxdivdiv + dwqtdp_dn + dwqtdp_up + PV.QT.mp_tendency[ijk];
-                        uQT[i,j] = DV.U.values[i,j,k] * PV.QT.values[i,j,k]
-                        vQT[i,j] = DV.V.values[i,j,k] * PV.QT.values[i,j,k]
+                uQT = np.multiply(DV.U.values[:,:,k], PV.QT.values[:,:,k])
+                vQT = np.multiply(DV.V.values[:,:,k], PV.QT.values[:,:,k])
+                if nl-1>0:
+                    if k==0:
+                        dwQTdp_dn = -0.5*DV.Wp.values[:,:,k+1]*(PV.QT.values[:,:,k+1] + PV.QT.values[:,:,k])*dpi
+                        QT_turbfluxdiv = -(PV.QT.TurbFlux[:,:,k+1] - PV.QT.TurbFlux[:,:,k])*dpi
+                    elif k==nl-1:
+                        dwQTdp_up =  0.5*DV.Wp.values[:,:,k]  *(PV.QT.values[:,:,k] + PV.QT.values[:,:,k-1])*dpi
+                        dwQTdp_dn = -0.5*DV.Wp.values[:,:,k+1]*(PV.QT.values[:,:,k] + PV.QT.values[:,:,k])*dpi
+                        QT_turbfluxdiv = -(QT_sur_flux - PV.QT.TurbFlux[:,:,k])*dpi
+                    else:
+                        dwQTdp_up =  0.5*DV.Wp.values[:,:,k]  *(PV.QT.values[:,:,k]   + PV.QT.values[:,:,k-1])*dpi
+                        dwQTdp_dn = -0.5*DV.Wp.values[:,:,k+1]*(PV.QT.values[:,:,k+1] + PV.QT.values[:,:,k])*dpi
+                        QT_turbfluxdiv = -(PV.QT.TurbFlux[:,:,k+1] - PV.QT.TurbFlux[:,:,k])*dpi
+                else:
+                    dwQTdp_dn = -0.5*wp[:,:,k+1]*(PV.QT.values[:,:,k] + PV.QT.values[:,:,k])*dpi
+                    QT_turbfluxdiv = -(QT_sur_flux - PV.QT.TurbFlux[:,:,k])*dpi
+                RHS_grid_QT = np.add(np.add(np.add(np.add(QT_turbfluxdiv, dwQTdp_dn), dwQTdp_up),PV.QT.mp_tendency),PV.QT.forcing)
 
             Dry_Energy_laplacian = Gr.laplacian*Gr.SphericalGrid.grdtospec(Dry_Energy)
             Vortical_momentum_flux, Divergent_momentum_flux = Gr.SphericalGrid.getvrtdivspec(u_vorticity, v_vorticity)
